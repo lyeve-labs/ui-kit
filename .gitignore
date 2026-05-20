@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# build output
+.svelte-kit/
+build/
+dist/
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# environment
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# test
+coverage/
+
+# package manager
+.pnpm-store/
