@@ -1,0 +1,83 @@
+{
+  "name": "@lyeve-labs/ui-kit",
+  "version": "0.8.3",
+  "description": "A clean, accessible, palette-aware Svelte 5 component library. The design system behind LyEve.",
+  "license": "MIT",
+  "author": "LyEve Labs <hello@lyeve.com>",
+  "homepage": "https://ui.lyeve.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyeve-labs/ui-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lyeve-labs/ui-kit/issues"
+  },
+  "keywords": [
+    "svelte",
+    "svelte5",
+    "components",
+    "ui-kit",
+    "tailwindcss",
+    "design-system",
+    "lyeve"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "svelte-package && publint",
+    "package": "svelte-package && publint",
+    "prepublishOnly": "pnpm package",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "files": [
+    "dist",
+    "src/lib/styles",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./src/lib/styles/theme.css",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": false
+  },
+  "dependencies": {
+    "@lucide/svelte": "^0.511.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.5.7",
+    "@sveltejs/vite-plugin-svelte": "^4.0.4",
+    "@testing-library/svelte": "^5.3.1",
+    "@vitest/coverage-v8": "^2.1.9",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-svelte": "^4.0.1",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "publint": "^0.2.12",
+    "svelte": "^5.55.9",
+    "svelte-check": "^4.4.8",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}
