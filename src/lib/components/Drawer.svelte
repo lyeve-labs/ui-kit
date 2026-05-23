@@ -71,8 +71,8 @@
             type="button"
             onclick={close}
             class="-mt-0.5 text-xl leading-none text-faint transition-colors hover:text-fg"
-            aria-label="Close"
-          >×</button>
+            aria-label="Close">×</button
+          >
         </div>
       {/if}
 

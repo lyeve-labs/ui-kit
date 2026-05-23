@@ -27,7 +27,11 @@
   }
 </script>
 
-<label class="flex items-start gap-2.5 cursor-pointer select-none {disabled ? 'opacity-50 cursor-not-allowed' : ''}">
+<label
+  class="flex items-start gap-2.5 cursor-pointer select-none {disabled
+    ? 'opacity-50 cursor-not-allowed'
+    : ''}"
+>
   <span class="relative flex items-center justify-center mt-0.5 shrink-0">
     <input
       type="checkbox"
@@ -36,20 +40,26 @@
       {value}
       {required}
       {disabled}
-      checked={checked}
+      {checked}
       onchange={handleChange}
       class="peer sr-only"
     />
     <span
       class="w-4 h-4 rounded border transition-colors flex items-center justify-center
         {checked
-          ? 'bg-brand border-brand'
-          : 'bg-surface-2 border-line peer-focus-visible:border-brand'}"
+        ? 'bg-brand border-brand'
+        : 'bg-surface-2 border-line peer-focus-visible:border-brand'}"
     >
       {#if checked}
         <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-          <path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round" class="text-ink"/>
+          <path
+            d="M1 4l3 3 5-6"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-ink"
+          />
         </svg>
       {/if}
     </span>

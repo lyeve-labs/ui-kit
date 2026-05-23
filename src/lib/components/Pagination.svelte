@@ -50,9 +50,18 @@
         class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
           disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M15 18l-6-6 6-6"/>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
 
@@ -65,9 +74,7 @@
             onclick={() => onchange(n as number)}
             aria-current={page === n ? 'page' : undefined}
             class="{btnBase}
-              {page === n
-                ? 'bg-brand text-ink'
-                : 'text-muted hover:text-fg hover:bg-surface-2'}"
+              {page === n ? 'bg-brand text-ink' : 'text-muted hover:text-fg hover:bg-surface-2'}"
           >
             {n}
           </button>
@@ -82,9 +89,18 @@
         class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
           disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M9 18l6-6-6-6"/>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M9 18l6-6-6-6" />
         </svg>
       </button>
     </div>

@@ -21,7 +21,7 @@ const config = {
     }),
 
     alias: {
-      '$ui': 'src/lib',
+      $ui: 'src/lib',
     },
   },
 

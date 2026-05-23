@@ -48,8 +48,8 @@
     <span
       class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors
         {group === value
-          ? 'border-brand bg-surface-2'
-          : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
+        ? 'border-brand bg-surface-2'
+        : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
     >
       {#if group === value}
         <span class="h-2 w-2 rounded-full bg-brand"></span>

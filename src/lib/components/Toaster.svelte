@@ -9,7 +9,9 @@
   };
 </script>
 
-<div class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2">
+<div
+  class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
+>
   {#each toast.items as t (t.id)}
     <div
       class="pointer-events-auto flex items-start gap-3 overflow-hidden rounded-lg border border-line
@@ -18,7 +20,9 @@
     >
       <span class="w-1 self-stretch shrink-0 {styles[t.tone].bar}"></span>
       <span
-        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-xs font-bold {styles[t.tone].icon}"
+        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-xs font-bold {styles[
+          t.tone
+        ].icon}"
         aria-hidden="true"
       >
         {styles[t.tone].mark}

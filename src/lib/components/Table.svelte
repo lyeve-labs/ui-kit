@@ -9,8 +9,13 @@
     children: Snippet;
   }
 
-  let { striped = false, hoverable = true, fixed = false, class: cls = '', children }: Props =
-    $props();
+  let {
+    striped = false,
+    hoverable = true,
+    fixed = false,
+    class: cls = '',
+    children,
+  }: Props = $props();
 </script>
 
 <div class="w-full overflow-x-auto rounded-xl border border-line {cls}">

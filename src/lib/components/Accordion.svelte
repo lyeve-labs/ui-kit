@@ -29,7 +29,13 @@
 
   setContext<{ isOpen: (id: string) => boolean; toggle: (id: string) => void; flush: boolean }>(
     'accordion',
-    { isOpen, toggle, get flush() { return flush; } },
+    {
+      isOpen,
+      toggle,
+      get flush() {
+        return flush;
+      },
+    },
   );
 </script>
 

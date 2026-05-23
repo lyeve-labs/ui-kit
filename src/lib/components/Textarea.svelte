@@ -51,14 +51,16 @@
     {rows}
     {required}
     {disabled}
-    readonly={readonly}
+    {readonly}
     {placeholder}
     class="{base}
-      {error ? 'border border-danger focus:border-danger/70' : 'border border-line focus:border-brand/50'}
+      {error
+      ? 'border border-danger focus:border-danger/70'
+      : 'border border-line focus:border-brand/50'}
       {resize ? 'resize-y' : 'resize-none'}"
     oninput={handleInput}
-    {onblur}
-  >{value}</textarea>
+    {onblur}>{value}</textarea
+  >
   {#if error}
     <p class="text-xs text-danger">{error}</p>
   {/if}

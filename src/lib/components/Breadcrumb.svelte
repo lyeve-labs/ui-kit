@@ -11,10 +11,19 @@
 <nav aria-label="Breadcrumb" class="flex items-center gap-1 text-xs {cls}">
   {#each items as item, i}
     {#if i > 0}
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-           class="text-faint shrink-0" aria-hidden="true">
-        <path d="M9 18l6-6-6-6"/>
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-faint shrink-0"
+        aria-hidden="true"
+      >
+        <path d="M9 18l6-6-6-6" />
       </svg>
     {/if}
 

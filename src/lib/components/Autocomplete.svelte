@@ -145,7 +145,8 @@
         aria-label="Clear"
         onclick={clear}
         class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint hover:text-fg leading-none"
-      >×</button>
+        >×</button
+      >
     {/if}
 
     {#if open}
@@ -171,8 +172,13 @@
             <span>{opt.label}</span>
             {#if opt.value === value}
               <svg width="12" height="10" viewBox="0 0 12 10" fill="none" aria-hidden="true">
-                <path d="M1 5l3.5 3.5L11 1.5" stroke="currentColor" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                  d="M1 5l3.5 3.5L11 1.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             {/if}
           </button>

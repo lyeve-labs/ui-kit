@@ -33,7 +33,8 @@
 
   const variants: Record<Variant, string> = {
     primary: 'bg-brand text-ink hover:bg-brand-light active:bg-brand shadow-sm shadow-brand/20',
-    violet: 'bg-violet text-ink hover:brightness-110 active:brightness-100 shadow-sm shadow-violet/20',
+    violet:
+      'bg-violet text-ink hover:brightness-110 active:brightness-100 shadow-sm shadow-violet/20',
     secondary: 'bg-surface-2 text-fg border border-line hover:bg-line',
     danger: 'bg-danger text-ink hover:brightness-110 active:brightness-100',
     ghost: 'text-muted hover:bg-surface-2 hover:text-fg',

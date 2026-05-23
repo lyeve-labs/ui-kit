@@ -21,8 +21,8 @@
       onclick={() => onchange(tab.id)}
       class="relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap
         {active === tab.id
-          ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:rounded-t'
-          : 'text-faint hover:text-fg'}"
+        ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:rounded-t'
+        : 'text-faint hover:text-fg'}"
     >
       {tab.label}
       {#if tab.count !== undefined}

@@ -29,16 +29,23 @@
   };
 </script>
 
-<div class="flex items-start gap-3 rounded-lg border px-4 py-3 {tones[tone].wrap} {klass}" role="alert">
+<div
+  class="flex items-start gap-3 rounded-lg border px-4 py-3 {tones[tone].wrap} {klass}"
+  role="alert"
+>
   <span
-    class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-xs font-bold {tones[tone].icon}"
+    class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-xs font-bold {tones[
+      tone
+    ].icon}"
     aria-hidden="true"
   >
     {tones[tone].mark}
   </span>
   <div class="flex-1 min-w-0">
     {#if title}<p class="text-sm font-semibold text-fg">{title}</p>{/if}
-    {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">{@render children()}</div>{/if}
+    {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">
+        {@render children()}
+      </div>{/if}
   </div>
   {#if dismissible}
     <button

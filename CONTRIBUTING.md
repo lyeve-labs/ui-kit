@@ -83,7 +83,7 @@ the docs site) never reaches consumers.
 4. Add the page to `src/routes/_docs/nav.ts`.
 5. Update [`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]`.
 6. If the change affects the design language, add an entry to
-   [`NOTES.md`](NOTES.md) explaining *why*.
+   [`NOTES.md`](NOTES.md) explaining _why_.
 
 ## Verifying changes
 

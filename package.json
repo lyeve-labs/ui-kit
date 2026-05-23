@@ -7,7 +7,7 @@
   "homepage": "https://ui.lyeve.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LyEve-Labs/ui-kit.git"
+    "url": "git+https://github.com/LyEve-Labs/ui-kit.git"
   },
   "bugs": {
     "url": "https://github.com/LyEve-Labs/ui-kit/issues"
@@ -72,8 +72,8 @@
     "@types/node": "^22.0.0",
     "jsdom": "^25.0.0",
     "prettier": "^3.3.0",
-    "prettier-plugin-svelte": "^3.2.6",
-    "prettier-plugin-tailwindcss": "^0.6.0",
+    "prettier-plugin-svelte": "^4.0.1",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "publint": "^0.2.10",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",

@@ -51,7 +51,9 @@
     </legend>
   {/if}
 
-  <div class="flex gap-x-5 gap-y-2 {orientation === 'horizontal' ? 'flex-row flex-wrap' : 'flex-col'}">
+  <div
+    class="flex gap-x-5 gap-y-2 {orientation === 'horizontal' ? 'flex-row flex-wrap' : 'flex-col'}"
+  >
     {#each options as opt (opt.value)}
       <label
         class="inline-flex cursor-pointer select-none items-start gap-2.5
@@ -70,8 +72,8 @@
           <span
             class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors
               {value === opt.value
-                ? 'border-brand bg-surface-2'
-                : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
+              ? 'border-brand bg-surface-2'
+              : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
           >
             {#if value === opt.value}
               <span class="h-2 w-2 rounded-full bg-brand"></span>

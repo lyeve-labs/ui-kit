@@ -30,7 +30,20 @@
   } = $props();
 
   const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MONTHS = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   let open = $state(false);
   let containerEl: HTMLDivElement | undefined = $state();
@@ -49,7 +62,11 @@
   }
 
   const today = new Date();
-  const initial = parseISO(value) ?? { y: today.getFullYear(), m: today.getMonth() + 1, d: today.getDate() };
+  const initial = parseISO(value) ?? {
+    y: today.getFullYear(),
+    m: today.getMonth() + 1,
+    d: today.getDate(),
+  };
   let viewYear = $state(initial.y);
   let viewMonth = $state(initial.m); // 1-12
 
@@ -90,16 +107,29 @@
   }
 
   function prevMonth() {
-    if (viewMonth === 1) { viewMonth = 12; viewYear -= 1; } else { viewMonth -= 1; }
+    if (viewMonth === 1) {
+      viewMonth = 12;
+      viewYear -= 1;
+    } else {
+      viewMonth -= 1;
+    }
   }
   function nextMonth() {
-    if (viewMonth === 12) { viewMonth = 1; viewYear += 1; } else { viewMonth += 1; }
+    if (viewMonth === 12) {
+      viewMonth = 1;
+      viewYear += 1;
+    } else {
+      viewMonth += 1;
+    }
   }
 
   function openCal() {
     if (disabled) return;
     const p = parseISO(value);
-    if (p) { viewYear = p.y; viewMonth = p.m; }
+    if (p) {
+      viewYear = p.y;
+      viewMonth = p.m;
+    }
     open = true;
   }
 
@@ -141,24 +171,63 @@
       <span class={display ? 'text-fg' : 'text-faint'}>{display || placeholder}</span>
       <span class="text-faint shrink-0" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <rect x="2.5" y="3.5" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M2.5 6.5h11M5.5 2v3M10.5 2v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <rect
+            x="2.5"
+            y="3.5"
+            width="11"
+            height="10"
+            rx="1.5"
+            stroke="currentColor"
+            stroke-width="1.3"
+          />
+          <path
+            d="M2.5 6.5h11M5.5 2v3M10.5 2v3"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+          />
         </svg>
       </span>
     </button>
 
     {#if open}
-      <div class="absolute z-50 mt-1 w-[17rem] rounded-xl border border-line bg-surface shadow-2xl p-3">
+      <div
+        class="absolute z-50 mt-1 w-[17rem] rounded-xl border border-line bg-surface shadow-2xl p-3"
+      >
         <!-- Header -->
         <div class="flex items-center justify-between mb-2">
-          <button type="button" aria-label="Previous month" onclick={prevMonth}
-            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors">
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L4 6l3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <button
+            type="button"
+            aria-label="Previous month"
+            onclick={prevMonth}
+            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
+              ><path
+                d="M7.5 2L4 6l3.5 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              /></svg
+            >
           </button>
           <span class="text-sm font-medium text-fg">{MONTHS[viewMonth - 1]} {viewYear}</span>
-          <button type="button" aria-label="Next month" onclick={nextMonth}
-            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors">
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M4.5 2L8 6l-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <button
+            type="button"
+            aria-label="Next month"
+            onclick={nextMonth}
+            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
+              ><path
+                d="M4.5 2L8 6l-3.5 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              /></svg
+            >
           </button>
         </div>
 
@@ -185,11 +254,11 @@
                 class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors
                   disabled:opacity-30 disabled:cursor-not-allowed
                   {iso === value
-                    ? 'bg-brand text-ink font-medium'
-                    : iso === todayISO
-                      ? 'text-brand font-medium hover:bg-surface-2'
-                      : 'text-fg hover:bg-surface-2'}"
-              >{d}</button>
+                  ? 'bg-brand text-ink font-medium'
+                  : iso === todayISO
+                    ? 'text-brand font-medium hover:bg-surface-2'
+                    : 'text-fg hover:bg-surface-2'}">{d}</button
+              >
             {/if}
           {/each}
         </div>

@@ -78,7 +78,9 @@
       </div>
 
       {#if footer}
-        <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-line bg-surface-2/40">
+        <div
+          class="flex items-center justify-end gap-2 px-5 py-3 border-t border-line bg-surface-2/40"
+        >
           {@render footer()}
         </div>
       {/if}

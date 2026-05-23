@@ -39,7 +39,9 @@
 </script>
 
 <span
-  class="inline-flex items-center font-medium rounded-full border {tones[tone]} {sizes[size]} {klass}"
+  class="inline-flex items-center font-medium rounded-full border {tones[tone]} {sizes[
+    size
+  ]} {klass}"
 >
   {#if dot}<span class="w-1.5 h-1.5 rounded-full {dotColor[tone]}"></span>{/if}
   {@render children()}

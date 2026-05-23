@@ -61,8 +61,8 @@
       class="flex w-9 shrink-0 items-center justify-center rounded-l-lg border border-r-0 border-line
         bg-surface-2 text-lg leading-none text-muted transition-colors
         hover:bg-line hover:text-fg
-        disabled:cursor-not-allowed disabled:opacity-40"
-    >−</button>
+        disabled:cursor-not-allowed disabled:opacity-40">−</button
+    >
 
     <input
       type="number"
@@ -72,7 +72,7 @@
       {max}
       {step}
       {disabled}
-      value={value}
+      {value}
       oninput={handleInput}
       class="min-w-0 flex-1 border-y bg-surface-2 text-center text-sm text-fg
         focus:outline-none focus:border-brand transition-colors
@@ -91,8 +91,8 @@
       class="flex w-9 shrink-0 items-center justify-center rounded-r-lg border border-l-0 border-line
         bg-surface-2 text-lg leading-none text-muted transition-colors
         hover:bg-line hover:text-fg
-        disabled:cursor-not-allowed disabled:opacity-40"
-    >+</button>
+        disabled:cursor-not-allowed disabled:opacity-40">+</button
+    >
   </div>
   {#if error}<p class="text-xs text-danger">{error}</p>{/if}
 </div>

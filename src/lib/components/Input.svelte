@@ -48,9 +48,7 @@
     aria-invalid={error ? 'true' : undefined}
     class="w-full rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg placeholder:text-faint
            transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed
-           {error
-      ? 'border-danger focus:border-danger'
-      : 'border-line focus:border-brand'}"
+           {error ? 'border-danger focus:border-danger' : 'border-line focus:border-brand'}"
     {...rest}
   />
 

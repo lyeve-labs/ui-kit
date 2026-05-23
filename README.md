@@ -123,8 +123,12 @@ For mounting toasts, the [Toast docs](https://ui.lyeve.com/docs/components/toast
 Two themes ship out of the box. Switch with one attribute:
 
 ```html
-<html data-theme="light">  <!-- light mode -->
-<html>                      <!-- dark mode (default) -->
+<html data-theme="light">
+  <!-- light mode -->
+  <html>
+    <!-- dark mode (default) -->
+  </html>
+</html>
 ```
 
 Or use the helpers:
@@ -133,8 +137,8 @@ Or use the helpers:
 import { setTheme, toggleTheme, getTheme } from '@lyeve/ui-kit';
 
 setTheme('light');
-toggleTheme();    // returns the new theme
-getTheme();       // 'dark' | 'light'
+toggleTheme(); // returns the new theme
+getTheme(); // 'dark' | 'light'
 ```
 
 Avoid the flash-of-wrong-theme by adding the boot script to your `app.html` —
@@ -147,7 +151,7 @@ the import:
 @import '@lyeve/ui-kit/styles.css';
 
 @theme {
-  --color-brand:       #ff5e9c;
+  --color-brand: #ff5e9c;
   --color-brand-light: #ff85b3;
 }
 ```

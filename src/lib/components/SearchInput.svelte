@@ -46,7 +46,7 @@
     type="search"
     {placeholder}
     {disabled}
-    value={value}
+    {value}
     oninput={handleInput}
     class="w-full rounded-lg border border-line bg-surface-2
       py-2 pl-9 text-sm text-fg placeholder:text-faint

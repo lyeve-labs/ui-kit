@@ -50,9 +50,7 @@
 
   function toggle(opt: Option) {
     if (opt.disabled) return;
-    value = isSelected(opt.value)
-      ? value.filter((v) => v !== opt.value)
-      : [...value, opt.value];
+    value = isSelected(opt.value) ? value.filter((v) => v !== opt.value) : [...value, opt.value];
     onchange?.(value);
   }
 
@@ -105,7 +103,10 @@
       aria-disabled={disabled}
       onclick={() => (open ? (open = false) : open_())}
       onkeydown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open ? (open = false) : open_(); }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open ? (open = false) : open_();
+        }
       }}
       class="w-full min-h-[2.375rem] flex flex-wrap items-center gap-1.5 rounded-lg border bg-surface-2
         px-2.5 py-1.5 text-left text-sm transition-colors outline-none cursor-pointer
@@ -117,20 +118,31 @@
         <span class="text-faint px-0.5">{placeholder}</span>
       {:else}
         {#each selected as opt (opt.value)}
-          <span class="inline-flex items-center gap-1 rounded-md bg-brand/10 text-brand px-2 py-0.5 text-xs">
+          <span
+            class="inline-flex items-center gap-1 rounded-md bg-brand/10 text-brand px-2 py-0.5 text-xs"
+          >
             {opt.label}
             <button
               type="button"
               aria-label="Remove {opt.label}"
-              onclick={(e) => { e.stopPropagation(); remove(opt.value); }}
-              class="hover:text-brand-light leading-none"
-            >×</button>
+              onclick={(e) => {
+                e.stopPropagation();
+                remove(opt.value);
+              }}
+              class="hover:text-brand-light leading-none">×</button
+            >
           </span>
         {/each}
       {/if}
       <span class="ml-auto shrink-0 text-faint" aria-hidden="true">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M2 4l4 4 4-4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </span>
     </div>
@@ -171,8 +183,14 @@
               >
                 {#if isSelected(opt.value)}
                   <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-                    <path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.5"
-                      stroke-linecap="round" stroke-linejoin="round" class="text-ink"/>
+                    <path
+                      d="M1 4l3 3 5-6"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-ink"
+                    />
                   </svg>
                 {/if}
               </span>

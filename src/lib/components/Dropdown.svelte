@@ -24,7 +24,9 @@
   let open = $state(false);
   let containerEl: HTMLDivElement | undefined = $state();
 
-  function toggle() { open = !open; }
+  function toggle() {
+    open = !open;
+  }
 
   function handleItemClick(item: DropdownItem) {
     if (item.disabled) return;
@@ -74,8 +76,8 @@
           class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors
             disabled:opacity-40 disabled:cursor-not-allowed
             {item.variant === 'danger'
-              ? 'text-danger hover:bg-danger/10'
-              : 'text-fg hover:bg-surface-2'}"
+            ? 'text-danger hover:bg-danger/10'
+            : 'text-fg hover:bg-surface-2'}"
         >
           {#if item.icon}
             {@const Icon = item.icon}

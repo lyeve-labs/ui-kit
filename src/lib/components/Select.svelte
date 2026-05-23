@@ -41,7 +41,9 @@
       value={value ?? ''}
       {onchange}
       class="{base}
-        {error ? 'border border-danger focus:border-danger/70' : 'border border-line focus:border-brand/50'}
+        {error
+        ? 'border border-danger focus:border-danger/70'
+        : 'border border-line focus:border-brand/50'}
         pr-8"
     >
       {@render children?.()}
@@ -51,7 +53,13 @@
       aria-hidden="true"
     >
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path
+          d="M2 4l4 4 4-4"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
       </svg>
     </span>
   </div>

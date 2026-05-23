@@ -37,7 +37,11 @@
   }
 </script>
 
-<label class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled ? 'opacity-50 cursor-not-allowed' : ''}">
+<label
+  class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled
+    ? 'opacity-50 cursor-not-allowed'
+    : ''}"
+>
   <button
     type="button"
     role="switch"

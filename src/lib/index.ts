@@ -72,13 +72,7 @@ export type { Toast, ToastTone } from './stores/toast.svelte.js';
 
 // ── Utilities ──────────────────────────────────────────────────────────────
 export { cn, type ClassValue } from './utils/cn.js';
-export {
-  getTheme,
-  setTheme,
-  toggleTheme,
-  themeBootScript,
-  type Theme,
-} from './utils/theme.js';
+export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './utils/theme.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
 export const VERSION = '0.1.0';

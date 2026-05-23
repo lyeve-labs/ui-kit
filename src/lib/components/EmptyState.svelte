@@ -10,8 +10,14 @@
     children?: Snippet;
   }
 
-  let { icon = undefined, title, description = undefined, class: klass = '', action, children }: Props =
-    $props();
+  let {
+    icon = undefined,
+    title,
+    description = undefined,
+    class: klass = '',
+    action,
+    children,
+  }: Props = $props();
 </script>
 
 <div

@@ -49,10 +49,10 @@
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
       border-2 border-dashed px-4 py-8 text-center transition-colors
       {error
-        ? 'border-danger bg-danger/5 hover:bg-danger/8'
-        : dragOver
-          ? 'border-brand bg-brand/8'
-          : 'border-line bg-surface-2/40 hover:border-brand/50 hover:bg-brand/5'}
+      ? 'border-danger bg-danger/5 hover:bg-danger/8'
+      : dragOver
+        ? 'border-brand bg-brand/8'
+        : 'border-line bg-surface-2/40 hover:border-brand/50 hover:bg-brand/5'}
       {disabled ? 'cursor-not-allowed opacity-50' : ''}"
     ondragover={(e) => {
       e.preventDefault();
@@ -70,7 +70,7 @@
       stroke-width="1.5"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="{error ? 'text-danger' : 'text-faint'}"
+      class={error ? 'text-danger' : 'text-faint'}
       aria-hidden="true"
     >
       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
