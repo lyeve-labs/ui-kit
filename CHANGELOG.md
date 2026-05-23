@@ -149,6 +149,21 @@ _No runtime changes to shipped components._
 - Pin Node 20 via mise to fix crypto.getRandomValues on build.
 - Ignore PUBLISHING.md and NOTES.md from git tracking.
 
+## [0.4.0] - 2026-05-23
+### Added
+- add interactive playground page
+
+### Changed
+- README, CHANGELOG, CONTRIBUTING, MEMORY
+- add GitHub Actions workflow + PR template
+- green the install + check + test + package + docs-build pipeline
+- finish reference pages for the remaining 30 components
+- pre-publish polish
+- resolve styles.css to source for file: dev workflows
+- PUBLISHING.md + publishConfig for the public npm push
+- pin Node 20 via mise to fix crypto.getRandomValues on build
+- ignore PUBLISHING.md and NOTES.md from git tracking
+
 ## [0.3.0] - 2026-05-22
 
 ### Added
