@@ -31,3 +31,7 @@ coverage/
 
 # package manager
 .pnpm-store/
+
+# local-only docs (not for public repo)
+PUBLISHING.md
+NOTES.md
