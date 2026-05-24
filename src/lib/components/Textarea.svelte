@@ -8,11 +8,13 @@
     name,
     placeholder,
     rows = 4,
+    maxlength,
     required = false,
     disabled = false,
     readonly = false,
     resize = true,
     error,
+    hint,
     class: cls = '',
     oninput,
     onblur,
@@ -22,11 +24,13 @@
     name?: string;
     placeholder?: string;
     rows?: number;
+    maxlength?: number;
     required?: boolean;
     disabled?: boolean;
     readonly?: boolean;
     resize?: boolean;
     error?: string;
+    hint?: string;
     class?: string;
     oninput?: (e: TAE) => void;
     onblur?: (e: FocusEvent & { currentTarget: TA }) => void;
@@ -49,6 +53,7 @@
     {id}
     {name}
     {rows}
+    {maxlength}
     {required}
     {disabled}
     {readonly}
@@ -63,5 +68,8 @@
   >
   {#if error}
     <p class="text-xs text-danger">{error}</p>
+  {/if}
+  {#if hint}
+    <p class="text-xs text-faint">{hint}</p>
   {/if}
 </div>

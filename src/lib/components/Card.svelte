@@ -11,6 +11,8 @@
     class?: string;
     header?: Snippet;
     footer?: Snippet;
+    onclick?: (e: MouseEvent) => void;
+    onkeydown?: (e: KeyboardEvent) => void;
     children: Snippet;
   }
 
@@ -22,6 +24,8 @@
     class: klass = '',
     header,
     footer,
+    onclick,
+    onkeydown,
     children,
   }: Props = $props();
 
@@ -36,7 +40,11 @@
 <div
   class="bg-surface border border-line rounded-xl overflow-hidden transition-colors {hover
     ? 'hover:border-line/0 hover:ring-1 hover:ring-brand/30'
-    : ''} {klass}"
+    : ''} {onclick ? 'cursor-pointer' : ''} {klass}"
+  role={onclick ? 'button' : undefined}
+  tabindex={onclick ? 0 : undefined}
+  {onclick}
+  {onkeydown}
 >
   {#if header || title}
     <div class="px-5 py-4 border-b border-line">
