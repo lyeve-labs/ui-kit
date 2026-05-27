@@ -1,41 +1,38 @@
 /*
  * @lyeve/ui-kit — theme tokens
  *
- * A single CSS file that you import once at the top of your app's root
- * stylesheet. It declares two palettes — Soft Dark (default) and Soft Light —
- * and exposes them as Tailwind v4 `@theme` tokens so every component in this
- * library reads its colours from one place.
+ * A single CSS file imported once at the top of your app's root stylesheet.
+ * Declares two palettes — Soft Dark (default) and Soft Light — built from
+ * the LyEve brand guideline (Ink #0B1422 + Cyan #00D4FF) and exposes them
+ * as Tailwind v4 `@theme` tokens.
  *
  *     import '@lyeve/ui-kit/styles.css';
  *
  * Switching themes is a single attribute on `<html>`:
  *     <html data-theme="light">  // light mode
  *     <html>                      // dark mode (default)
- *
- * Use the `<ThemeToggle />` component, or set the attribute yourself
- * before paint to avoid the flash-of-wrong-theme. See the docs site for
- * the recommended inline-script snippet.
  */
 
 @import 'tailwindcss';
 
 /* ── Soft Dark · default palette ─────────────────────────────────────────── */
 @theme {
-  --color-ink: #0e1424;
-  --color-surface: #151d30;
-  --color-surface-2: #1b2438;
-  --color-line: #232e45;
-  --color-fg: #dce3f0;
-  --color-muted: #94a0b8;
-  --color-faint: #5e6982;
+  --color-ink: #0b1422;
+  --color-surface: #101a2b;
+  --color-surface-2: #162233;
+  --color-line: #1e2d40;
+  --color-fg: #e6e8ee;
+  --color-muted: #9aa1ad;
+  --color-faint: #525866;
 
-  --color-brand: #32c8ff;
-  --color-brand-light: #7de3ff;
-  --color-violet: #8b7cff;
+  --color-brand: #00d4ff;
+  --color-brand-light: #5fd9f4;
+  --color-brand-deep: #0099c4;
+  --color-violet: #7c6aef;
 
-  --color-success: #34d399;
-  --color-warn: #fbbf24;
-  --color-danger: #f87171;
+  --color-success: #15803d;
+  --color-warn: #b45309;
+  --color-danger: #b91c1c;
 
   --radius-xs: 4px;
   --radius-sm: 6px;
@@ -51,21 +48,22 @@
 
 /* ── Soft Light · activated by html[data-theme="light"] ──────────────────── */
 html[data-theme='light'] {
-  --color-ink: #f4f7fc;
+  --color-ink: #f6f7f9;
   --color-surface: #ffffff;
-  --color-surface-2: #ebf0f9;
-  --color-line: #d0d9e8;
+  --color-surface-2: #e6e8ee;
+  --color-line: #d6d9e0;
   --color-fg: #111827;
-  --color-muted: #4b5972;
-  --color-faint: #8090a8;
+  --color-muted: #525866;
+  --color-faint: #9aa1ad;
 
-  --color-brand: #0280a8;
-  --color-brand-light: #039fc7;
+  --color-brand: #007ea6;
+  --color-brand-light: #00b4dd;
+  --color-brand-deep: #006a8a;
   --color-violet: #6b5cdf;
 
-  --color-success: #047857;
+  --color-success: #15803d;
   --color-warn: #b45309;
-  --color-danger: #dc2626;
+  --color-danger: #b91c1c;
 }
 
 @layer base {
@@ -95,7 +93,6 @@ html[data-theme='light'] {
     outline-offset: 2px;
   }
 
-  /* Hide native focus rings on mouse interaction; keep them for keyboards. */
   :focus:not(:focus-visible) {
     outline: none;
   }
