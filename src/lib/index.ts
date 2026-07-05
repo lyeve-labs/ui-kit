@@ -70,9 +70,24 @@ export { default as Toaster } from './components/Toaster.svelte';
 export { toast } from './stores/toast.svelte.js';
 export type { Toast, ToastTone } from './stores/toast.svelte.js';
 
+// ── Dialogs (imperative stack: openDialog / confirm) ────────────────────────
+export { default as DialogContainer } from './components/dialog/DialogContainer.svelte';
+export { default as Dialog } from './components/dialog/Dialog.svelte';
+export { default as ConfirmDialog } from './components/dialog/ConfirmDialog.svelte';
+export {
+  openDialog,
+  closeDialog,
+  dismissDialog,
+  dismissAllDialogs,
+  confirm,
+  setDialogMeta,
+  getDialogStack,
+} from './components/dialog/dialog-manager.svelte.js';
+export type { DialogOptions, DialogEntry, DialogSize } from './components/dialog/types.js';
+
 // ── Utilities ──────────────────────────────────────────────────────────────
 export { cn, type ClassValue } from './utils/cn.js';
 export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './utils/theme.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
-export const VERSION = '0.2.0';
+export const VERSION = '0.3.0';
