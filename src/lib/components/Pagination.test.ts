@@ -64,4 +64,13 @@ describe('Pagination', () => {
     });
     expect(getAllByText('…').length).toBe(1);
   });
+
+  it('renders both leading and trailing ellipsis without duplicate-key crash', () => {
+    // page=5 of 10 triggers both leading and trailing ellipsis.
+    // Before the fix, this threw each_key_duplicate in Svelte.
+    const { getAllByText } = render(Pagination, {
+      props: { page: 5, total: 200, perPage: 20, onchange: vi.fn() },
+    });
+    expect(getAllByText('…').length).toBe(2);
+  });
 });
