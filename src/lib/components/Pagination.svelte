@@ -65,7 +65,7 @@
         </svg>
       </button>
 
-      {#each nums as n (String(n) + '-' + nums.indexOf(n))}
+      {#each nums as n, i (i)}
         {#if n === '…'}
           <span class="w-7 text-center text-xs text-faint">…</span>
         {:else}
