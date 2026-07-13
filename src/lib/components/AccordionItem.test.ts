@@ -3,8 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import AccordionItem from './AccordionItem.svelte';
 
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 // AccordionItem reads its open/toggle behaviour from the "accordion" context that
 // its parent <Accordion> provides. We stub that context to test it in isolation.

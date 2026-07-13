@@ -4,8 +4,7 @@ import { describe, expect, it } from 'vitest';
 import Badge from './Badge.svelte';
 
 // Svelte 5 snippet helper: wrap plain text as a `children` snippet.
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe('Badge', () => {
   it('renders its children', () => {
