@@ -10,3 +10,6 @@ package
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# generated release notes
+CHANGELOG.md
