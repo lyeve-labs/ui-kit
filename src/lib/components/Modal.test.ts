@@ -3,8 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Modal from './Modal.svelte';
 
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe('Modal', () => {
   it('renders nothing when closed', () => {

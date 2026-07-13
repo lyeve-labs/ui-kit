@@ -3,8 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import Tooltip from './Tooltip.svelte';
 
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe('Tooltip', () => {
   it('renders the trigger children', () => {

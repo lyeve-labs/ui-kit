@@ -3,8 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import Accordion from './Accordion.svelte';
 
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe('Accordion', () => {
   it('renders its children', () => {

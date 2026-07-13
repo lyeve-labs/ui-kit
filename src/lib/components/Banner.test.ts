@@ -3,8 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Banner from './Banner.svelte';
 
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe('Banner', () => {
   it('renders children with role="status"', () => {
