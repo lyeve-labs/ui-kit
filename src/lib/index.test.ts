@@ -98,7 +98,7 @@ describe('public API surface (@lyeve/ui-kit)', () => {
   });
 
   it('exports the current VERSION string', () => {
-    expect(kit.VERSION).toBe('0.3.0');
+    expect(kit.VERSION).toBe('0.7.0');
   });
 
   it('exposes no fewer than the documented component count', () => {

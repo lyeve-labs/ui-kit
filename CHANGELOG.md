@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-07-16
+### Added
+- `EmptyState` now accepts an `iconSnippet` prop, so consumers can render a custom icon component (e.g. a Lucide icon) in the icon chip instead of only a text/emoji `icon` string. `iconSnippet` takes precedence over `icon` when both are supplied.
+
 ## [0.6.2] - 2026-07-13
 ### Changed
 - Apply prettier formatting to component test files

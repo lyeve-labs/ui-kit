@@ -90,4 +90,4 @@ export { cn, type ClassValue } from './utils/cn.js';
 export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './utils/theme.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
-export const VERSION = '0.3.0';
+export const VERSION = '0.7.0';
