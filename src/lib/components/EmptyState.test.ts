@@ -25,4 +25,13 @@ describe('EmptyState', () => {
     });
     expect(getByText('New item')).toBeTruthy();
   });
+
+  it('renders a custom iconSnippet in place of the string icon', () => {
+    const { getByText, queryByText } = render(EmptyState, {
+      props: { title: 'Empty', icon: '📭', iconSnippet: text('custom-icon') },
+    });
+    expect(getByText('custom-icon')).toBeTruthy();
+    // iconSnippet takes precedence over the string icon
+    expect(queryByText('📭')).toBeNull();
+  });
 });
