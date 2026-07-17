@@ -38,4 +38,53 @@ describe('Progress', () => {
     const { getByText } = render(Progress, { props: { value: 33, max: 100, showValue: true } });
     expect(getByText('33%')).toBeTruthy();
   });
+
+  it('renders a label above the bar', () => {
+    const { getByText } = render(Progress, { props: { value: 50, label: 'Uploading' } });
+    expect(getByText('Uploading')).toBeTruthy();
+  });
+
+  it('applies the violet tone class', () => {
+    const { container } = render(Progress, { props: { value: 10, tone: 'violet' } });
+    const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+    expect(bar.className).toContain('bg-violet');
+  });
+
+  it('applies the success tone class', () => {
+    const { container } = render(Progress, { props: { value: 10, tone: 'success' } });
+    const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+    expect(bar.className).toContain('bg-success');
+  });
+
+  it('applies the warn tone class', () => {
+    const { container } = render(Progress, { props: { value: 10, tone: 'warn' } });
+    const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+    expect(bar.className).toContain('bg-warn');
+  });
+
+  it('applies xs size class', () => {
+    const { container } = render(Progress, { props: { value: 10, size: 'xs' } });
+    const track = container.querySelector('[role="progressbar"]') as HTMLElement;
+    expect(track.className).toContain('h-1');
+    expect(track.className).not.toContain('h-1.5');
+    expect(track.className).not.toContain('h-2.5');
+  });
+
+  it('applies md size class', () => {
+    const { container } = render(Progress, { props: { value: 10, size: 'md' } });
+    const track = container.querySelector('[role="progressbar"]') as HTMLElement;
+    expect(track.className).toContain('h-2.5');
+  });
+
+  it('adds animate-pulse when animated=true', () => {
+    const { container } = render(Progress, { props: { value: 50, animated: true } });
+    const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+    expect(bar.className).toContain('animate-pulse');
+  });
+
+  it('does not add animate-pulse by default', () => {
+    const { container } = render(Progress, { props: { value: 50 } });
+    const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+    expect(bar.className).not.toContain('animate-pulse');
+  });
 });
