@@ -8,9 +8,34 @@ describe('Tag', () => {
     expect(getByText('draft')).toBeTruthy();
   });
 
-  it('applies the tone class', () => {
+  it('applies neutral tone by default', () => {
+    const { container } = render(Tag, { props: { label: 'x' } });
+    expect((container.firstElementChild as HTMLElement).className).toContain('bg-surface-2');
+  });
+
+  it('applies the brand tone class', () => {
     const { container } = render(Tag, { props: { label: 'x', tone: 'brand' } });
     expect((container.firstElementChild as HTMLElement).className).toContain('text-brand');
+  });
+
+  it('applies the violet tone', () => {
+    const { container } = render(Tag, { props: { label: 'x', tone: 'violet' } });
+    expect((container.firstElementChild as HTMLElement).className).toContain('text-violet');
+  });
+
+  it('applies the success tone', () => {
+    const { container } = render(Tag, { props: { label: 'x', tone: 'success' } });
+    expect((container.firstElementChild as HTMLElement).className).toContain('text-success');
+  });
+
+  it('applies the warn tone', () => {
+    const { container } = render(Tag, { props: { label: 'x', tone: 'warn' } });
+    expect((container.firstElementChild as HTMLElement).className).toContain('text-warn');
+  });
+
+  it('applies the danger tone', () => {
+    const { container } = render(Tag, { props: { label: 'x', tone: 'danger' } });
+    expect((container.firstElementChild as HTMLElement).className).toContain('text-danger');
   });
 
   it('has no remove button unless removable', () => {

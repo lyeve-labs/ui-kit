@@ -36,4 +36,11 @@ describe('Toaster', () => {
     const { getAllByRole } = render(Toaster);
     expect(getAllByRole('status')).toHaveLength(2);
   });
+
+  it('applies the danger tone styles', () => {
+    toast.push('danger', 'Error occurred', 0);
+    const { container } = render(Toaster);
+    expect(container.querySelector('.bg-danger')).toBeTruthy();
+    expect(container.querySelector('.text-danger')).toBeTruthy();
+  });
 });
