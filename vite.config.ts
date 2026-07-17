@@ -19,5 +19,15 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,ts}'],
     environment: 'jsdom',
     globals: true,
+    coverage: {
+      exclude: [
+        'src/routes/**',
+        '.svelte-kit/**',
+        'src/**/*.test.ts',
+        'src/**/*.spec.ts',
+        'svelte.config.js',
+        '*.config.*',
+      ],
+    },
   },
 });
