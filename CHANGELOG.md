@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2026-07-21
+### Fixed
+- `Dropdown` menu-item `icon` is a Svelte component prop; the icon test now passes a real Lucide component instead of a snippet, matching the documented type.
+- Suppressed a false-positive `a11y_no_noninteractive_tabindex` warning on the clickable `Card` — the element receives `role="button"` and a focusable `tabindex` together whenever `onclick` is set.
+- Dialog tests now consume the rejection from `openDialog` when a dialog is dismissed, eliminating unhandled promise rejections during the test run.
+
+_No runtime changes to shipped components._
+
 ## [0.7.1] - 2026-07-20
 ### Added
 - Additional component unit-test coverage (raised to 80%+).
