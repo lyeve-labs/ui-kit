@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
+import { Settings } from '@lucide/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Dropdown from './Dropdown.svelte';
 
@@ -43,7 +44,7 @@ describe('Dropdown', () => {
     const iconItems = [
       {
         label: 'Settings',
-        icon: createRawSnippet(() => ({ render: () => '<svg class="icon-svg"></svg>' })),
+        icon: Settings,
         onclick: vi.fn(),
       },
     ];
