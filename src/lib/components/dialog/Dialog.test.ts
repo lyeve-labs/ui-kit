@@ -94,9 +94,7 @@ describe('Dialog', () => {
   it('uses the string title as aria-label', () => {
     const entry = makeEntry({ options: { id: 'a', title: 'Settings' } });
     const { container } = render(Dialog, { props: { entry } });
-    expect(container.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
-      'Settings',
-    );
+    expect(container.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe('Settings');
   });
 
   it('falls back to "Dialog" aria-label when title is missing', () => {
