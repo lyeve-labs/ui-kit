@@ -37,6 +37,9 @@
   };
 </script>
 
+<!-- tabindex is only set alongside role="button" (when onclick is provided),
+     so the element is interactive; the compiler can't narrow the dynamic role. -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class="bg-surface border border-line rounded-xl overflow-hidden transition-colors {hover
     ? 'hover:border-line/0 hover:ring-1 hover:ring-brand/30'
