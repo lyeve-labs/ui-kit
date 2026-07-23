@@ -1,6 +1,6 @@
 {
   "name": "@lyeve/ui-kit",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "A clean, accessible, palette-aware Svelte 5 component library — the design system behind LyEve.",
   "license": "MIT",
   "author": "LyEve Labs <hello@lyeve.com>",
@@ -32,14 +32,11 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build && pnpm package",
-    "build:docs": "vite build",
-    "preview": "vite preview",
-    "package": "svelte-kit sync && svelte-package && publint",
+    "build": "svelte-package && publint",
+    "package": "svelte-package && publint",
     "prepublishOnly": "pnpm package",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
@@ -73,11 +70,8 @@
     "@lucide/svelte": "^0.511.0"
   },
   "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.61.0",
     "@sveltejs/package": "^2.5.7",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
-    "@tailwindcss/vite": "^4.3.0",
     "@testing-library/svelte": "^5.3.1",
     "@types/node": "^22.19.19",
     "@vitest/coverage-v8": "2.1.9",
@@ -88,9 +82,7 @@
     "publint": "^0.2.12",
     "svelte": "^5.55.9",
     "svelte-check": "^4.4.8",
-    "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3",
-    "vite": "^5.4.21",
     "vitest": "^2.1.9"
   }
 }

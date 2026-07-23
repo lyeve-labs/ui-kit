@@ -1,29 +1,12 @@
-// SvelteKit configuration.
-//
-// The project doubles as a *library* (everything under `src/lib`) and a
-// *documentation site* (everything under `src/routes`). `svelte-package`
-// only emits files inside `src/lib`, so the docs site stays out of the
-// published bundle.
+// Minimal svelte-package config. The library needs only preprocessing
+// (TypeScript + Svelte) and the a11y gate — no SvelteKit layer.
+// svelte-package v2 reads this file but works fine with an empty config.
 
-import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
-
-  kit: {
-    // Static adapter — the docs site is a plain SPA fallback so it can be
-    // hosted anywhere (Cloudflare Pages, Netlify, GitHub Pages, S3+CDN…).
-    adapter: adapter({
-      fallback: 'index.html',
-      precompress: false,
-    }),
-
-    alias: {
-      $ui: 'src/lib',
-    },
-  },
 
   // Throw on a11y warnings so library output stays clean.
   onwarn: (warning, handler) => {

@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-07-23
+### Changed
+- Stripped SvelteKit app layer — ui-kit is now a pure component library.
+  Removed `src/routes/` (docs site), `@sveltejs/kit`, `@sveltejs/adapter-static`,
+  `tailwindcss`, `@tailwindcss/vite`, and `vite`. The npm package API is unchanged;
+  consumers see the same `dist/` output as before.
+
 ## [0.7.2] - 2026-07-21
 ### Fixed
 - `Dropdown` menu-item `icon` is a Svelte component prop; the icon test now passes a real Lucide component instead of a snippet, matching the documented type.
