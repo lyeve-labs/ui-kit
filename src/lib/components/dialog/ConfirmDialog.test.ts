@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { DialogEntry } from './types';
+import type { DialogEntry } from './types.js';
 import ConfirmDialog from './ConfirmDialog.svelte';
 
 const mockCloseDialog = vi.fn();
@@ -44,7 +44,7 @@ describe('ConfirmDialog', () => {
     const entry = makeEntry();
     const { container } = render(ConfirmDialog, { props: { entry } });
     // The title <p> uses a specific class; check it directly
-    const titleEl = container.querySelector('p.text-sm.text-zinc-200');
+    const titleEl = container.querySelector('p.text-sm.text-fg');
     expect(titleEl).toBeTruthy();
     expect(titleEl?.textContent).toBe('Confirm');
   });

@@ -18,7 +18,7 @@
   import { TriangleAlert } from '@lucide/svelte';
   import { closeDialog, dismissDialog } from './dialog-manager.svelte';
   import Button from '../Button.svelte';
-  import type { DialogEntry } from './types';
+  import type { DialogEntry } from './types.js';
 
   let {
     entry,
@@ -30,8 +30,18 @@
   } = $props();
 
   let loading = $state(false);
-  let title = $derived((entry.meta?.confirmTitle as string) ?? 'Confirm');
-  let message = $derived((entry.meta?.confirmMessage as string) ?? '');
+  let title = $derived(
+    typeof entry.meta?.confirmTitle === 'string' ? entry.meta.confirmTitle : 'Confirm',
+  );
+  let message = $derived(
+    typeof entry.meta?.confirmMessage === 'string' ? entry.meta.confirmMessage : '',
+  );
+  let cancelLabel = $derived(
+    typeof entry.meta?.cancelLabel === 'string' ? entry.meta.cancelLabel : 'Cancel',
+  );
+  let confirmLabel = $derived(
+    typeof entry.meta?.confirmLabel === 'string' ? entry.meta.confirmLabel : 'Confirm',
+  );
 
   async function handleConfirm() {
     if (loading) return;
@@ -45,10 +55,9 @@
           return;
         }
       }
+      loading = false;
       closeDialog(true, entry.id);
     } catch {
-      // Stay open on error — caller shows toast
-    } finally {
       loading = false;
     }
   }
@@ -62,14 +71,14 @@
   <!-- Warning icon + message -->
   <div class="flex items-start gap-3">
     <div
-      class="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 text-amber-400 shrink-0"
+      class="flex items-center justify-center w-10 h-10 rounded-full bg-warn/10 text-warn shrink-0"
     >
       <TriangleAlert class="w-5 h-5" />
     </div>
     <div class="flex-1 min-w-0">
-      <p class="text-sm text-zinc-200 font-medium">{title}</p>
+      <p class="text-sm text-fg font-medium">{title}</p>
       {#if message}
-        <p class="text-sm text-zinc-400 mt-1">{message}</p>
+        <p class="text-sm text-muted mt-1">{message}</p>
       {/if}
     </div>
   </div>
@@ -77,10 +86,10 @@
   <!-- Actions -->
   <div class="flex items-center justify-end gap-3 pt-2">
     <Button variant="secondary" size="sm" onclick={handleCancel}>
-      {(entry.meta?.cancelLabel as string) ?? 'Cancel'}
+      {cancelLabel}
     </Button>
     <Button variant="danger" size="sm" onclick={handleConfirm} {loading}>
-      {(entry.meta?.confirmLabel as string) ?? 'Confirm'}
+      {confirmLabel}
     </Button>
   </div>
 </div>

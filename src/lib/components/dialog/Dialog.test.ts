@@ -1,7 +1,7 @@
 import { render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import type { DialogEntry } from './types';
+import type { DialogEntry } from './types.js';
 import Dialog from './Dialog.svelte';
 
 // Mock dialog-manager for lifecycle assertions
