@@ -76,7 +76,9 @@
             onclick={() => onchange(n as number)}
             aria-current={safePage === n ? 'page' : undefined}
             class="{btnBase}
-              {safePage === n ? 'bg-brand text-ink' : 'text-muted hover:text-fg hover:bg-surface-2'}"
+              {safePage === n
+              ? 'bg-brand text-ink'
+              : 'text-muted hover:text-fg hover:bg-surface-2'}"
           >
             {n}
           </button>
