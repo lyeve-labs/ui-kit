@@ -1,6 +1,6 @@
 # @lyeve/ui-kit
 
-A clean, accessible Svelte 5 component library — the design system behind [LyEve](https://lyeve.com).
+A clean, accessible Svelte 5 component library. The design system behind [LyEve](https://lyeve.com).
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Svelte 5](https://img.shields.io/badge/svelte-5-ff3e00.svg)](https://svelte.dev)
@@ -22,22 +22,22 @@ pnpm add @lyeve/ui-kit
 </Card>
 ```
 
-That's it. No config file, no theme provider, no `<script setup>` ceremony.
+No config file, no theme provider, no setup ceremony.
 
 ---
 
 ## What's in the box
 
-- **45 components** — buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
-- **Two themes** — Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
-- **One CSS file** — `@lyeve/ui-kit/styles.css` declares every token; the rest is just Tailwind.
-- **Svelte 5 native** — built on runes and snippets, fully typed end-to-end.
-- **No surprises** — a `<Button />` is a `<button>`, an `<Input />` is an `<input>`. Markup matches the preview.
+- **48 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
+- **Two themes:** Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
+- **One CSS file:** `@lyeve/ui-kit/styles.css` declares every token; the rest is just Tailwind.
+- **Svelte 5 native:** built on runes and snippets, fully typed end-to-end.
+- **No surprises:** a `<Button />` is a `<button>`, an `<Input />` is an `<input>`. Markup matches the preview.
 
 ## Component list
 
 <details>
-<summary>45 components, organized by purpose</summary>
+<summary>48 components, organized by purpose</summary>
 
 **Layout & display**
 Card · PageHeader · Divider · Accordion · AccordionItem · Table
@@ -49,7 +49,7 @@ Button · ButtonGroup · Input · Textarea · NumberInput · SearchInput · File
 Breadcrumb · Tabs · Pagination · StepIndicator · Dropdown
 
 **Overlays**
-Modal · Drawer · Tooltip
+Modal · Drawer · Tooltip · Dialog · DialogContainer · ConfirmDialog
 
 **Feedback**
 Alert · Banner · Badge · Tag · Indicator · Progress · Spinner · Skeleton · EmptyState · Stat · Kbd
@@ -141,8 +141,8 @@ toggleTheme(); // returns the new theme
 getTheme(); // 'dark' | 'light'
 ```
 
-Avoid the flash-of-wrong-theme by adding the boot script to your `app.html` —
-see [docs/theming](https://ui.lyeve.com/docs/theming).
+Avoid the flash-of-wrong-theme by adding the boot script to your `app.html`.
+See [docs/theming](https://ui.lyeve.com/docs/theming).
 
 Want to bend the palette to your own brand? Override individual tokens after
 the import:
@@ -160,37 +160,29 @@ the import:
 
 ```bash
 pnpm install            # install dependencies
-pnpm dev                # docs site at http://localhost:5173
 pnpm test               # run unit tests
 pnpm check              # type-check + svelte-check
-pnpm build              # produces dist/ (library) + build/ (docs site)
-pnpm package            # build only the library bundle
+pnpm build              # svelte-package + publint → dist/
 ```
 
-The repository doubles as a SvelteKit library project (everything under `src/lib`)
-and its documentation site (everything under `src/routes`). `svelte-package`
-emits only the `src/lib` tree, so the docs site stays out of the published bundle.
+The documentation site lives in its own repo at **[LyEve-Labs/ui-kit-docs](https://github.com/LyEve-Labs/ui-kit-docs)**.
+This repo is a single-purpose component library — nothing but `src/lib/`.
 
 ## Project layout
 
 ```
 src/
-├── lib/                 # → published as @lyeve/ui-kit
-│   ├── components/      # 45 .svelte files
-│   ├── stores/          # toast.svelte.ts
-│   ├── styles/          # theme.css (the one stylesheet)
-│   ├── utils/           # cn.ts, theme.ts
-│   └── index.ts         # public API
-└── routes/              # the docs site (not published)
-    ├── _docs/           # docs-site shared components (Sidebar, Preview, …)
-    ├── docs/            # /docs/* pages
-    ├── playground/      # /playground
-    └── +page.svelte     # landing page
+└── lib/                 # → published as @lyeve/ui-kit
+    ├── components/      # 48 .svelte files
+    ├── stores/          # toast.svelte.ts
+    ├── styles/          # theme.css (the one stylesheet)
+    ├── utils/           # cn.ts, theme.ts
+    └── index.ts         # public API
 ```
 
 ## Versioning
 
-`@lyeve/ui-kit` follows [SemVer](https://semver.org). While we're under `1.0`,
+`@lyeve/ui-kit` follows [SemVer](https://semver.org). While under `1.0`,
 breaking changes bump the **minor** version; additive changes bump the **patch**.
 Every release is logged in [`CHANGELOG.md`](CHANGELOG.md) and on the docs site.
 
@@ -199,8 +191,8 @@ Maintainers: see [`PUBLISHING.md`](PUBLISHING.md) for the release workflow.
 ## Contributing
 
 Bug reports, prop suggestions, and component proposals are welcome. See
-[`CONTRIBUTING.md`](CONTRIBUTING.md) for the development setup, our coding
-conventions, and how we keep the kit feeling cohesive.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for the development setup, coding
+conventions, and how the kit stays cohesive.
 
 ## License
 

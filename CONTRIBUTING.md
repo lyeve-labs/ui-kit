@@ -1,9 +1,8 @@
 # Contributing to `@lyeve/ui-kit`
 
-Thanks for considering a contribution. The kit is small on purpose — every
-addition has to earn its place across the three apps that consume it
-(`core-admin`, the customer portal, and the marketing site). This document is
-the friction we use to keep that bar high.
+The kit is small on purpose. Every addition has to earn its place across
+the three apps that consume it (`core-admin`, the customer portal, and the
+marketing site). This document lays out the bar.
 
 ## Quick start
 
@@ -11,7 +10,7 @@ the friction we use to keep that bar high.
 git clone git@github.com:LyEve-Labs/ui-kit.git
 cd ui-kit
 pnpm install
-pnpm dev          # docs site at http://localhost:5173
+pnpm test         # verify everything works
 ```
 
 You'll need:
@@ -23,17 +22,16 @@ You'll need:
 
 ```
 src/
-├── lib/             # the published package
-│   ├── components/  # 45 .svelte files — one component per file
-│   ├── stores/      # runed stores (toast.svelte.ts)
-│   ├── styles/      # theme.css
-│   ├── utils/       # cn.ts, theme.ts
-│   └── index.ts     # the *only* public API
-└── routes/          # the docs site (not published)
+└── lib/             # the published package
+    ├── components/  # 48 .svelte files — one component per file
+    ├── stores/      # runed stores (toast.svelte.ts)
+    ├── styles/      # theme.css
+    ├── utils/       # cn.ts, theme.ts
+    └── index.ts     # the *only* public API
 ```
 
-`svelte-package` ships only `src/lib`. Anything outside that tree (including
-the docs site) never reaches consumers.
+This is a single-purpose component library. The docs site lives in
+[LyEve-Labs/ui-kit-docs](https://github.com/LyEve-Labs/ui-kit-docs).
 
 ## Coding conventions
 
@@ -77,13 +75,12 @@ the docs site) never reaches consumers.
 
 1. Create `src/lib/components/<Name>.svelte`.
 2. Add an export to `src/lib/index.ts`, in the right section.
-3. Add a documentation page at `src/routes/docs/components/<name>/+page.svelte`
-   with **at least** a short description, two preview examples, and a complete
-   `<PropTable />`.
-4. Add the page to `src/routes/_docs/nav.ts`.
+3. Add a documentation page in the
+   [ui-kit-docs](https://github.com/LyEve-Labs/ui-kit-docs) repo under
+   `src/routes/docs/components/<name>/+page.svelte` with at least a short
+   description, two preview examples, and a complete `<PropTable />`.
+4. Add the page to `src/routes/_docs/nav.ts` in the docs repo.
 5. Update [`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]`.
-6. If the change affects the design language, add an entry to
-   [`NOTES.md`](NOTES.md) explaining _why_.
 
 ## Verifying changes
 
@@ -93,7 +90,7 @@ Before pushing:
 pnpm check          # tsc + svelte-check
 pnpm test           # vitest
 pnpm format:check   # prettier
-pnpm package        # ensure svelte-package + publint pass
+pnpm build          # ensure svelte-package + publint pass
 ```
 
 CI runs the same set on every PR.
@@ -118,4 +115,4 @@ commit `v<version>` and push — CI handles the npm publish.
 
 ## Questions
 
-Open an issue with the `question` label, or DM us in the LyEve Discord.
+Open an issue with the `question` label, or reach out in the LyEve Discord.
