@@ -15,7 +15,7 @@
  *   if (ok) { /* ... *\/ }
  */
 
-import type { DialogOptions, DialogEntry } from './types';
+import type { DialogOptions, DialogEntry } from './types.js';
 
 // ──────────────────────────────────────────────────────────
 // Module-level reactive state
@@ -34,14 +34,18 @@ let bodyLockCount = 0;
 
 export function _lockBodyScroll(): void {
   bodyLockCount++;
-  document.body.style.overflow = 'hidden';
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 export function _unlockBodyScroll(): void {
   bodyLockCount--;
   if (bodyLockCount <= 0) {
     bodyLockCount = 0;
-    document.body.style.overflow = '';
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
   }
 }
 
@@ -153,7 +157,9 @@ export function dismissAllDialogs(): void {
   const copy = [...stack];
   stack = [];
   bodyLockCount = 0;
-  document.body.style.overflow = '';
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = '';
+  }
   for (const entry of copy) {
     entry.reject(new DOMException('All dialogs dismissed', 'AbortError'));
   }

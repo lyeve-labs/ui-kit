@@ -11,8 +11,8 @@
   import { X } from '@lucide/svelte';
   import { onMount, tick } from 'svelte';
   import type { Snippet } from 'svelte';
-  import type { DialogEntry } from './types';
-  import { sizeClass } from './types';
+  import type { DialogEntry } from './types.js';
+  import { sizeClass } from './types.js';
   import {
     closeDialog,
     dismissDialog,
@@ -54,8 +54,9 @@
   // ──────────────────────────────────────────────────────
 
   onMount(() => {
-    // Save previously focused element
-    previousFocus = document.activeElement as HTMLElement;
+    // Save previously focused element for restore on unmount
+    const el = document.activeElement;
+    previousFocus = el instanceof HTMLElement ? el : null;
 
     // Trigger enter animation on next frame
     requestAnimationFrame(() => {
@@ -129,14 +130,14 @@
     }
   }
 
-  async function handleDismiss() {
+  async function handleDismiss(): Promise<void> {
     exiting = true;
     // Wait for exit animation
     await new Promise((r) => setTimeout(r, 200));
     dismissDialog(entry.id);
   }
 
-  async function handleClose(value?: unknown) {
+  async function handleClose(value?: unknown): Promise<void> {
     exiting = true;
     await new Promise((r) => setTimeout(r, 200));
     closeDialog(value, entry.id);
@@ -163,9 +164,9 @@
   <div
     bind:this={dialogEl}
     class="relative w-full {sizeClass(entry.options.size ?? 'md')} mx-4
-			bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl
+			bg-surface border border-line rounded-xl shadow-2xl
 			transition-all duration-200 ease-out
-			focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+			focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
     class:opacity-0={!visible || exiting}
     class:opacity-100={visible && !exiting}
     style="transform: scale({visible && !exiting ? 1 - offset * 0.03 : 0.95}) translateY({offset *
@@ -182,7 +183,7 @@
       <div class="flex-1 min-w-0">
         {#if entry.options.title && entry.meta?.confirmTitle === undefined}
           {#if typeof entry.options.title === 'string'}
-            <h2 class="text-lg font-semibold text-zinc-100 truncate">
+            <h2 class="text-lg font-semibold text-fg truncate">
               {entry.options.title}
             </h2>
           {:else}
@@ -194,7 +195,7 @@
       {#if !entry.options.persistent}
         <button
           class="inline-flex items-center justify-center w-8 h-8 -mr-2 rounded-lg
-						text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors shrink-0"
+						text-muted hover:text-fg hover:bg-surface-2 transition-colors shrink-0"
           onclick={() => handleClose()}
           aria-label="Close"
         >
