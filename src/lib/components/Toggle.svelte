@@ -15,17 +15,17 @@
     onchange?: (checked: boolean) => void;
   } = $props();
 
-  const track: Record<string, string> = {
+  const track: Record<'sm' | 'md', string> = {
     sm: 'w-8 h-4',
     md: 'w-10 h-5',
   };
 
-  const thumb: Record<string, string> = {
+  const thumb: Record<'sm' | 'md', string> = {
     sm: 'w-3 h-3 top-0.5 left-0.5',
     md: 'w-4 h-4 top-0.5 left-0.5',
   };
 
-  const thumbOn: Record<string, string> = {
+  const thumbOn: Record<'sm' | 'md', string> = {
     sm: 'translate-x-4',
     md: 'translate-x-5',
   };
@@ -56,7 +56,7 @@
       {checked ? 'bg-brand' : 'bg-surface-2'}"
   >
     <span
-      class="absolute rounded-full bg-white shadow transition-transform
+      class="absolute rounded-full bg-fg shadow transition-transform
         {thumb[size]}
         {checked ? thumbOn[size] : 'translate-x-0'}"
     ></span>

@@ -38,7 +38,4 @@ jobs:
         run: pnpm test
 
       - name: Build library
-        run: pnpm package
-
-      - name: Build docs site
-        run: pnpm build:docs
+        run: pnpm build

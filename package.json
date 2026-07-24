@@ -1,6 +1,6 @@
 {
   "name": "@lyeve/ui-kit",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A clean, accessible, palette-aware Svelte 5 component library — the design system behind LyEve.",
   "license": "MIT",
   "author": "LyEve Labs <hello@lyeve.com>",
@@ -22,12 +22,8 @@
     "lyeve"
   ],
   "type": "module",
+  "sideEffects": false,
   "packageManager": "pnpm@9.15.0",
-  "pnpm": {
-    "overrides": {
-      "cookie": ">=0.7.0"
-    }
-  },
   "engines": {
     "node": ">=20"
   },
@@ -73,8 +69,7 @@
     "@sveltejs/package": "^2.5.7",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@testing-library/svelte": "^5.3.1",
-    "@types/node": "^22.19.19",
-    "@vitest/coverage-v8": "2.1.9",
+    "@vitest/coverage-v8": "^2.1.9",
     "jsdom": "^25.0.1",
     "prettier": "^3.8.3",
     "prettier-plugin-svelte": "^4.0.1",
