@@ -6,6 +6,10 @@
     items: { label: string; href?: string }[];
     class?: string;
   } = $props();
+
+  function safeUrl(url: string | undefined): string | undefined {
+    return url && !/^(javascript|data):/i.test(url) ? url : undefined;
+  }
 </script>
 
 <nav aria-label="Breadcrumb" class="flex items-center gap-1 text-xs {cls}">
@@ -28,7 +32,7 @@
     {/if}
 
     {#if item.href && i < items.length - 1}
-      <a href={item.href} class="text-muted hover:text-fg transition-colors truncate">
+      <a href={safeUrl(item.href)} class="text-muted hover:text-fg transition-colors truncate">
         {item.label}
       </a>
     {:else}

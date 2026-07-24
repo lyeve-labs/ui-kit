@@ -53,10 +53,13 @@
       `disabled:opacity-50 disabled:cursor-not-allowed select-none ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]}`,
   );
+
+  // Reject javascript: and data: URIs — only allow standard schemes and relative URLs.
+  let safeHref = $derived(href && !/^(javascript|data):/i.test(href) ? href : undefined);
 </script>
 
 {#if href}
-  <a {href} class={cls} {...rest}>
+  <a href={safeHref} class={cls} {...rest}>
     {#if loading}<Spinner size={spinnerSize} />{/if}
     {@render children()}
   </a>
