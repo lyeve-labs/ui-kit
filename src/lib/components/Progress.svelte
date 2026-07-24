@@ -24,7 +24,11 @@
     class: cls = '',
   }: Props = $props();
 
-  let pct = $derived(Math.min(100, Math.max(0, (value / max) * 100)));
+  let pct = $derived(
+    isFinite(value) && isFinite(max) && max > 0
+      ? Math.min(100, Math.max(0, (value / max) * 100))
+      : 0,
+  );
 
   const tones: Record<Tone, string> = {
     brand: 'bg-brand',

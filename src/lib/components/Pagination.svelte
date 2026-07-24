@@ -13,9 +13,11 @@
     onchange: (page: number) => void;
   } = $props();
 
-  let totalPages = $derived(Math.max(1, Math.ceil(total / perPage)));
-  let from = $derived(Math.min((page - 1) * perPage + 1, total));
-  let to = $derived(Math.min(page * perPage, total));
+  let safeTotal = $derived(isFinite(total) && total >= 0 ? total : 0);
+  let safePage = $derived(isFinite(page) && page >= 1 ? page : 1);
+  let totalPages = $derived(Math.max(1, Math.ceil(safeTotal / perPage)));
+  let from = $derived(Math.min((safePage - 1) * perPage + 1, safeTotal));
+  let to = $derived(Math.min(safePage * perPage, safeTotal));
 
   function pageNumbers(current: number, last: number): (number | '…')[] {
     if (last <= 7) return Array.from({ length: last }, (_, i) => i + 1);
@@ -29,7 +31,7 @@
     return pages;
   }
 
-  let nums = $derived(pageNumbers(page, totalPages));
+  let nums = $derived(pageNumbers(safePage, totalPages));
 
   const btnBase =
     'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors';
@@ -44,8 +46,8 @@
     <div class="flex items-center gap-0.5 ml-auto">
       <button
         type="button"
-        disabled={page <= 1}
-        onclick={() => onchange(page - 1)}
+        disabled={safePage <= 1}
+        onclick={() => onchange(safePage - 1)}
         aria-label="Previous page"
         class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
           disabled:opacity-30 disabled:cursor-not-allowed"
@@ -72,9 +74,9 @@
           <button
             type="button"
             onclick={() => onchange(n as number)}
-            aria-current={page === n ? 'page' : undefined}
+            aria-current={safePage === n ? 'page' : undefined}
             class="{btnBase}
-              {page === n ? 'bg-brand text-ink' : 'text-muted hover:text-fg hover:bg-surface-2'}"
+              {safePage === n ? 'bg-brand text-ink' : 'text-muted hover:text-fg hover:bg-surface-2'}"
           >
             {n}
           </button>
@@ -83,8 +85,8 @@
 
       <button
         type="button"
-        disabled={page >= totalPages}
-        onclick={() => onchange(page + 1)}
+        disabled={safePage >= totalPages}
+        onclick={() => onchange(safePage + 1)}
         aria-label="Next page"
         class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
           disabled:opacity-30 disabled:cursor-not-allowed"

@@ -11,7 +11,7 @@
     class?: string;
   } = $props();
 
-  const sizes: Record<string, { wrap: string; text: string }> = {
+  const sizes: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', { wrap: string; text: string }> = {
     xs: { wrap: 'w-6 h-6', text: 'text-[9px]' },
     sm: { wrap: 'w-7 h-7', text: 'text-[10px]' },
     md: { wrap: 'w-8 h-8', text: 'text-xs' },
@@ -33,7 +33,7 @@
   let imgError = $state(false);
 
   let initials = $derived(
-    name
+    (name ?? '')
       .trim()
       .split(/\s+/)
       .slice(0, 2)
@@ -41,7 +41,7 @@
       .join(''),
   );
 
-  let hue = $derived(hues[name.charCodeAt(0) % hues.length]);
+  let hue = $derived(hues[(name.charCodeAt(0) || 0) % hues.length]);
   let s = $derived(sizes[size]);
 </script>
 
