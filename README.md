@@ -116,7 +116,8 @@ Then drop components into your routes:
 <Toaster />
 ```
 
-For mounting toasts, the [Toast docs](https://ui.lyeve.com/docs/components/toast) cover the full setup.
+Mount the `<Toaster />` component in your root layout to surface toast notifications.
+See `src/lib/components/Toaster.svelte` for the full prop list.
 
 ## Theming
 
@@ -125,9 +126,9 @@ Two themes ship out of the box. Switch with one attribute:
 ```html
 <html data-theme="light">
   <!-- light mode -->
-  <html>
-    <!-- dark mode (default) -->
-  </html>
+</html>
+<html>
+  <!-- dark mode (default) -->
 </html>
 ```
 
@@ -142,7 +143,8 @@ getTheme(); // 'dark' | 'light'
 ```
 
 Avoid the flash-of-wrong-theme by adding the boot script to your `app.html`.
-See [docs/theming](https://ui.lyeve.com/docs/theming).
+Import `themeBootScript` from `@lyeve/ui-kit` and inline it in `<head>` before any
+stylesheets.
 
 Want to bend the palette to your own brand? Override individual tokens after
 the import:
@@ -165,8 +167,8 @@ pnpm check              # type-check + svelte-check
 pnpm build              # svelte-package + publint → dist/
 ```
 
-The documentation site lives in its own repo at **[LyEve-Labs/ui-kit-docs](https://github.com/LyEve-Labs/ui-kit-docs)**.
-This repo is a single-purpose component library — nothing but `src/lib/`.
+The documentation site lives in its own repo (`LyEve-Labs/ui-kit-docs`).
+This repo is a single-purpose component library. Nothing but `src/lib/`.
 
 ## Project layout
 
