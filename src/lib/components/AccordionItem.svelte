@@ -11,19 +11,22 @@
 
   let { id, title, class: cls = '', children }: Props = $props();
 
-  const ctx = getContext<{
-    isOpen: (id: string) => boolean;
-    toggle: (id: string) => void;
-    flush: boolean;
-  }>('accordion');
+  const ctx = getContext<
+    | {
+        isOpen: (id: string) => boolean;
+        toggle: (id: string) => void;
+        flush: boolean;
+      }
+    | undefined
+  >('accordion');
 
-  let open = $derived(ctx.isOpen(id));
+  let open = $derived(ctx?.isOpen(id) ?? false);
 </script>
 
 <div class="bg-surface {cls}">
   <button
     type="button"
-    onclick={() => ctx.toggle(id)}
+    onclick={() => ctx?.toggle(id)}
     aria-expanded={open}
     class="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium
       text-fg transition-colors hover:bg-surface-2/50"
