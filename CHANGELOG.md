@@ -61,7 +61,7 @@ _Nothing yet._
 - `Dropdown` menu-item `icon` is a Svelte component prop; the icon test now
   passes a real Lucide component instead of a snippet, matching the documented type.
 - Suppressed a false-positive `a11y_no_noninteractive_tabindex` warning on the
-  clickable `Card` — the element receives `role="button"` and a focusable
+  clickable `Card`. The element receives `role="button"` and a focusable
   `tabindex` together whenever `onclick` is set.
 - Dialog tests now consume the rejection from `openDialog` when a dialog is
   dismissed, eliminating unhandled promise rejections during the test run.

@@ -23,7 +23,7 @@ You'll need:
 ```
 src/
 └── lib/             # the published package
-    ├── components/  # 48 .svelte files — one component per file
+    ├── components/  # 48 .svelte files, one component per file
     ├── stores/      # runed stores (toast.svelte.ts)
     ├── styles/      # theme.css
     ├── utils/       # cn.ts, theme.ts
@@ -31,7 +31,7 @@ src/
 ```
 
 This is a single-purpose component library. The docs site lives in
-[LyEve-Labs/ui-kit-docs](https://github.com/LyEve-Labs/ui-kit-docs).
+`LyEve-Labs/ui-kit-docs`.
 
 ## Coding conventions
 
@@ -46,7 +46,7 @@ This is a single-purpose component library. The docs site lives in
 - **Forward rest props with `[key: string]: unknown`** when the component is a
   thin wrapper around a native element (Input, Textarea, Select). Consumers
   expect `autocomplete`, `min`, `data-*`, and friends to just work.
-- **Read tokens, not hex.** Use `bg-surface`, `text-fg`, `border-line` —
+- **Read tokens, not hex.** Use `bg-surface`, `text-fg`, `border-line`.
   never `#151D30` or `gray-700`. The whole point of the library is one source
   of palette truth.
 - **`class` prop wins.** Always allow consumers to append classes via
@@ -55,7 +55,7 @@ This is a single-purpose component library. The docs site lives in
 ### Accessibility
 
 - The Svelte compiler is configured to **throw on any a11y warning** (see
-  `svelte.config.js`). Don't disable the check — fix the markup.
+  `svelte.config.js`). Don't disable the check. Fix the markup.
 - Every interactive element must be keyboard-reachable and have a visible
   focus style. Reuse the global `:focus-visible` token from `theme.css`.
 - Form inputs always have an associated label, either via the `label` prop or
@@ -75,8 +75,7 @@ This is a single-purpose component library. The docs site lives in
 
 1. Create `src/lib/components/<Name>.svelte`.
 2. Add an export to `src/lib/index.ts`, in the right section.
-3. Add a documentation page in the
-   [ui-kit-docs](https://github.com/LyEve-Labs/ui-kit-docs) repo under
+3. Add a documentation page in the `ui-kit-docs` repo under
    `src/routes/docs/components/<name>/+page.svelte` with at least a short
    description, two preview examples, and a complete `<PropTable />`.
 4. Add the page to `src/routes/_docs/nav.ts` in the docs repo.
@@ -111,7 +110,7 @@ One logical change per commit. Squash before merging if a PR has noise.
 
 Releases are cut from `main` after the relevant changelog section is moved
 out of `[Unreleased]` and the version is bumped in `package.json`. Tag the
-commit `v<version>` and push — CI handles the npm publish.
+commit `v<version>` and push. CI handles the npm publish.
 
 ## Questions
 
