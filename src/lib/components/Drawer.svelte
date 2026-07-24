@@ -39,7 +39,10 @@
   }
 
   function onkeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') close();
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      close();
+    }
   }
 </script>
 
@@ -57,7 +60,9 @@
     <div
       class="relative flex h-full flex-col {widths[size]} bg-surface shadow-2xl
         {side === 'right' ? 'border-l' : 'border-r'} border-line
-        animate-[drawer-in_150ms_ease-out]"
+        {side === 'right'
+        ? 'animate-[drawer-in-right_150ms_ease-out]'
+        : 'animate-[drawer-in-left_150ms_ease-out]'}"
       role="dialog"
       aria-modal="true"
     >
@@ -92,10 +97,20 @@
 {/if}
 
 <style>
-  @keyframes drawer-in {
+  @keyframes drawer-in-right {
     from {
       opacity: 0;
       transform: translateX(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes drawer-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
     }
     to {
       opacity: 1;

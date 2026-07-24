@@ -35,7 +35,10 @@
   }
 
   function onkeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') close();
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      close();
+    }
   }
 </script>
 

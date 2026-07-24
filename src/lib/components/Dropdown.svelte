@@ -46,9 +46,6 @@
     if (open) {
       document.addEventListener('click', handleOutsideClick, { capture: true });
       document.addEventListener('keydown', handleKeydown);
-    } else {
-      document.removeEventListener('click', handleOutsideClick, { capture: true });
-      document.removeEventListener('keydown', handleKeydown);
     }
     return () => {
       document.removeEventListener('click', handleOutsideClick, { capture: true });

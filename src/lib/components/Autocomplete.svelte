@@ -134,6 +134,7 @@
       oninput={onInput}
       onkeydown={onKeydown}
       onfocus={() => (open = true)}
+      onblur={() => setTimeout(() => (open = false), 150)}
       class="w-full rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg placeholder:text-faint
         transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed
         {allowClear && value ? 'pr-8' : 'pr-3'}
