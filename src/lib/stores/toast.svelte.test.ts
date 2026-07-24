@@ -4,7 +4,7 @@ import { toast } from './toast.svelte.js';
 describe('toast store', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    // Singleton store shared across the module — reset before every test.
+    // Singleton store shared across the module - reset before every test.
     toast.items = [];
   });
 

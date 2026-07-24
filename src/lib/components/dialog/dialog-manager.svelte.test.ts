@@ -109,7 +109,7 @@ describe('dialog-manager', () => {
 
     it('does not dismiss a persistent dialog via backdrop (no id)', () => {
       const p = openDialog({ id: 'persist', persistent: true });
-      p.catch(() => {}); // handled — we reject it explicitly during cleanup
+      p.catch(() => {}); // handled - we reject it explicitly during cleanup
       dismissDialog();
       expect(getDialogStack()).toHaveLength(1);
       // An explicit id bypasses the persistent guard.

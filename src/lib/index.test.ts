@@ -79,7 +79,7 @@ const FUNCTIONS = [
 
 type KitKey = keyof typeof kit;
 
-describe('public API surface (@lyeve/ui-kit)', () => {
+describe('public API surface (@lyeve-labs/ui-kit)', () => {
   it.each(COMPONENTS)('exports the %s component as a Svelte component', (name) => {
     expect(kit).toHaveProperty(name);
     // Svelte 5 components compile to functions.
@@ -98,7 +98,7 @@ describe('public API surface (@lyeve/ui-kit)', () => {
   });
 
   it('exports the current VERSION string', () => {
-    expect(kit.VERSION).toBe('0.3.0');
+    expect(kit.VERSION).toBe('0.8.2');
   });
 
   it('exposes no fewer than the documented component count', () => {
