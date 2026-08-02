@@ -28,7 +28,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "svelte-package && publint",
+    "build": "svelte-package && publint && node scripts/check-dist.mjs",
     "package": "svelte-package && publint",
     "prepublishOnly": "pnpm package",
     "check": "svelte-check --tsconfig ./tsconfig.json",
