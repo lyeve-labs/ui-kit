@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Dropdown from './Dropdown.svelte';
+import Dropdown from '../../src/lib/components/Dropdown.svelte';
 
 test.describe('Dropdown', () => {
   test('renders with trigger', async ({ mount }) => {

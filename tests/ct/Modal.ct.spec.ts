@@ -7,7 +7,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Modal from './Modal.svelte';
+import Modal from '../../src/lib/components/Modal.svelte';
 
 test.describe('Modal', () => {
   test('renders when open', async ({ mount }) => {

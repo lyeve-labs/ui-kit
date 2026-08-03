@@ -1,3 +1,4 @@
+import { Settings } from '@lucide/svelte';
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
@@ -40,10 +41,11 @@ describe('Dropdown', () => {
   });
 
   it('renders items with icons when provided', () => {
+    // icon takes a Component, not a Snippet: Dropdown renders it as <Icon />.
     const iconItems = [
       {
         label: 'Settings',
-        icon: createRawSnippet(() => ({ render: () => '<svg class="icon-svg"></svg>' })),
+        icon: Settings,
         onclick: vi.fn(),
       },
     ];

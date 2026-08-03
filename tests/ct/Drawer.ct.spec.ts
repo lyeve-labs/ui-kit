@@ -7,7 +7,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Drawer from './Drawer.svelte';
+import Drawer from '../../src/lib/components/Drawer.svelte';
 
 test.describe('Drawer', () => {
   test('renders when open', async ({ mount }) => {

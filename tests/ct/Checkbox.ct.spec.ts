@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Checkbox from './Checkbox.svelte';
+import Checkbox from '../../src/lib/components/Checkbox.svelte';
 
 test.describe('Checkbox', () => {
   test('renders with label', async ({ mount }) => {

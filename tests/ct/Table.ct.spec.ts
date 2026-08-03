@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Table from './Table.svelte';
+import Table from '../../src/lib/components/Table.svelte';
 
 test.describe('Table', () => {
   test('renders rows and columns', async ({ mount }) => {

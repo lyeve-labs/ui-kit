@@ -7,8 +7,8 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Dialog from './dialog/Dialog.svelte';
-import type { DialogEntry } from './dialog/types';
+import Dialog from '../../src/lib/components/dialog/Dialog.svelte';
+import type { DialogEntry } from '../../src/lib/components/dialog/types';
 
 function makeEntry(overrides: Partial<DialogEntry> = {}): DialogEntry {
   return {

@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Select from './Select.svelte';
+import Select from '../../src/lib/components/Select.svelte';
 
 test.describe('Select', () => {
   test('renders with options', async ({ mount }) => {

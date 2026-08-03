@@ -7,7 +7,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Toaster from './Toaster.svelte';
+import Toaster from '../../src/lib/components/Toaster.svelte';
 import { toast } from '../stores/toast.svelte';
 
 test.describe('Toaster', () => {

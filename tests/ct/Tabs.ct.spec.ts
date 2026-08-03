@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Tabs from './Tabs.svelte';
+import Tabs from '../../src/lib/components/Tabs.svelte';
 
 test.describe('Tabs', () => {
   const items = [

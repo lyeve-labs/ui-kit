@@ -2,7 +2,7 @@
  * DatePicker component test — browser-rendered interaction + popover behavior.
  */
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import DatePicker from './DatePicker.svelte';
+import DatePicker from '../../src/lib/components/DatePicker.svelte';
 test.describe('DatePicker', () => {
   test('renders with value', async ({ mount }) => {
     const component = await mount(DatePicker, {

@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Input from './Input.svelte';
+import Input from '../../src/lib/components/Input.svelte';
 
 test.describe('Input', () => {
   test('renders with placeholder', async ({ mount }) => {

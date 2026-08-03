@@ -3,7 +3,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Button from './Button.svelte';
+import Button from '../../src/lib/components/Button.svelte';
 
 test.describe('Button', () => {
   test('renders with label', async ({ mount }) => {

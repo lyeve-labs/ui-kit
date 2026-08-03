@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Pagination from './Pagination.svelte';
+import Pagination from '../../src/lib/components/Pagination.svelte';
 
 test.describe('Pagination', () => {
   test('renders page numbers', async ({ mount }) => {

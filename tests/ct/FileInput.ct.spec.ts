@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import FileInput from './FileInput.svelte';
+import FileInput from '../../src/lib/components/FileInput.svelte';
 
 test.describe('FileInput', () => {
   test('renders file input element', async ({ mount }) => {

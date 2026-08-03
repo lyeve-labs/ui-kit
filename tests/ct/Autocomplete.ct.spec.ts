@@ -7,7 +7,7 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Autocomplete from './Autocomplete.svelte';
+import Autocomplete from '../../src/lib/components/Autocomplete.svelte';
 
 test.describe('Autocomplete', () => {
   test('renders with options and empty value', async ({ mount }) => {
