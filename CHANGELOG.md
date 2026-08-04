@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Nothing yet._
 
+## [0.8.4] - 2026-08-04
+
+### Fixed
+
+- Drop the unused Vite config that made `svelte-package` fail.
+- Stop shipping the Playwright component test suites in the published package.
+
+## [0.8.3] - 2026-07-28
+
+Published with no user-facing changes; repository tooling only.
+
 ## [0.8.2] - 2026-07-24
 
 ### Fixed
