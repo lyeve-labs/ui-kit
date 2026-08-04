@@ -5,8 +5,14 @@ test.describe('Table', () => {
   test('renders rows and columns', async ({ mount }) => {
     const c = await mount(Table, {
       props: {
-        columns: [{ key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }],
-        rows: [{ name: 'Alice', role: 'Admin' }, { name: 'Bob', role: 'User' }],
+        columns: [
+          { key: 'name', label: 'Name' },
+          { key: 'role', label: 'Role' },
+        ],
+        rows: [
+          { name: 'Alice', role: 'Admin' },
+          { name: 'Bob', role: 'User' },
+        ],
       },
     });
     await expect(c).toBeVisible();

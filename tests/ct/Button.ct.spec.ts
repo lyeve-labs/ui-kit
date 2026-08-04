@@ -17,7 +17,11 @@ test.describe('Button', () => {
   test('click fires onclick', async ({ mount }) => {
     let clicked = false;
     const component = await mount(Button, {
-      props: { onclick: () => { clicked = true; } },
+      props: {
+        onclick: () => {
+          clicked = true;
+        },
+      },
       slots: { default: 'Click me' },
     });
     await component.click();
@@ -27,7 +31,12 @@ test.describe('Button', () => {
   test('disabled state prevents click', async ({ mount }) => {
     let clicked = false;
     const component = await mount(Button, {
-      props: { disabled: true, onclick: () => { clicked = true; } },
+      props: {
+        disabled: true,
+        onclick: () => {
+          clicked = true;
+        },
+      },
       slots: { default: 'Disabled' },
     });
     await expect(component).toBeDisabled();

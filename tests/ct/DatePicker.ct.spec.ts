@@ -25,7 +25,9 @@ test.describe('DatePicker', () => {
     const component = await mount(DatePicker, {
       props: {
         value: '2026-01-01',
-        onchange: (v: string) => { changed = v; },
+        onchange: (v: string) => {
+          changed = v;
+        },
       },
     });
     await component.locator('button').first().click();

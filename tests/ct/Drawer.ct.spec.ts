@@ -33,7 +33,9 @@ test.describe('Drawer', () => {
       props: {
         open: true,
         title: 'Closable Drawer',
-        onclose: () => { closed = true; },
+        onclose: () => {
+          closed = true;
+        },
       },
       slots: { default: 'Click overlay to close' },
     });
@@ -48,7 +50,9 @@ test.describe('Drawer', () => {
       props: {
         open: true,
         title: 'Esc Drawer',
-        onclose: () => { closed = true; },
+        onclose: () => {
+          closed = true;
+        },
       },
       slots: { default: 'Press Escape' },
     });

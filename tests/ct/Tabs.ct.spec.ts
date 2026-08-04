@@ -25,7 +25,10 @@ test.describe('Tabs', () => {
     await expect(component).toBeVisible();
     await expect(component).toContainText('Tab 1');
     await expect(component.locator('[role="tab"]')).toHaveCount(2);
-    await expect(component.locator('[role="tab"]').first()).toHaveAttribute('aria-selected', 'true');
+    await expect(component.locator('[role="tab"]').first()).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
   });
 
   test('clicking a tab fires onchange with its id', async ({ mount }) => {
@@ -34,7 +37,9 @@ test.describe('Tabs', () => {
       props: {
         items,
         active: '1',
-        onchange: (id: string) => { selected = id; },
+        onchange: (id: string) => {
+          selected = id;
+        },
       },
     });
     await component.locator('text=Tab 2').click();
@@ -47,7 +52,9 @@ test.describe('Tabs', () => {
       props: {
         items,
         active: '1',
-        onchange: (id: string) => { selected = id; },
+        onchange: (id: string) => {
+          selected = id;
+        },
       },
     });
     await component.locator('[role="tab"]').nth(1).focus();

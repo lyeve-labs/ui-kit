@@ -3,8 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Button from './Button.svelte';
 
-const text = (s: string) =>
-  createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe('Button', () => {
   it('renders its children', () => {

@@ -27,7 +27,11 @@ test.describe('Select', () => {
   test('selectOption fires onchange', async ({ mount }) => {
     let selected = '';
     const component = await mount(Select, {
-      props: { onchange: (e: Event & { currentTarget: HTMLSelectElement }) => { selected = e.currentTarget.value; } },
+      props: {
+        onchange: (e: Event & { currentTarget: HTMLSelectElement }) => {
+          selected = e.currentTarget.value;
+        },
+      },
       slots: {
         default: `
           <option value="">Choose</option>
@@ -43,7 +47,11 @@ test.describe('Select', () => {
   test('keyboard arrow and enter selects value', async ({ mount, page }) => {
     let selected = '';
     const component = await mount(Select, {
-      props: { onchange: (e: Event & { currentTarget: HTMLSelectElement }) => { selected = e.currentTarget.value; } },
+      props: {
+        onchange: (e: Event & { currentTarget: HTMLSelectElement }) => {
+          selected = e.currentTarget.value;
+        },
+      },
       slots: {
         default: `
           <option value="">Choose</option>

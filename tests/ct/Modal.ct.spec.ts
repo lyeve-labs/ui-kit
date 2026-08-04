@@ -33,7 +33,9 @@ test.describe('Modal', () => {
       props: {
         open: true,
         title: 'Closable Modal',
-        onclose: () => { closed = true; },
+        onclose: () => {
+          closed = true;
+        },
       },
       slots: { default: 'Click close' },
     });
@@ -50,7 +52,9 @@ test.describe('Modal', () => {
       props: {
         open: true,
         title: 'Esc Modal',
-        onclose: () => { closed = true; },
+        onclose: () => {
+          closed = true;
+        },
       },
       slots: { default: 'Press Escape' },
     });

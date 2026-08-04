@@ -11,7 +11,5 @@ export default defineConfig({
     trace: 'retain-on-failure',
     ctPort: 3100,
   },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  ],
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });

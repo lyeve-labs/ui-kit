@@ -22,9 +22,14 @@ test.describe('Autocomplete', () => {
     let selected = '';
     const component = await mount(Autocomplete, {
       props: {
-        options: [{ label: 'Alpha', value: 'a' }, { label: 'Beta', value: 'b' }],
+        options: [
+          { label: 'Alpha', value: 'a' },
+          { label: 'Beta', value: 'b' },
+        ],
         value: '',
-        onchange: (v: string) => { selected = v; },
+        onchange: (v: string) => {
+          selected = v;
+        },
       },
     });
     await component.locator('input[role="combobox"]').click();
@@ -38,9 +43,14 @@ test.describe('Autocomplete', () => {
     let selected = '';
     await mount(Autocomplete, {
       props: {
-        options: [{ label: 'Alpha', value: 'a' }, { label: 'Beta', value: 'b' }],
+        options: [
+          { label: 'Alpha', value: 'a' },
+          { label: 'Beta', value: 'b' },
+        ],
         value: '',
-        onchange: (v: string) => { selected = v; },
+        onchange: (v: string) => {
+          selected = v;
+        },
       },
     });
     await page.keyboard.press('Tab');

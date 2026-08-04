@@ -23,7 +23,9 @@ test.describe('Checkbox', () => {
       props: {
         label: 'Toggle me',
         checked: false,
-        onchange: () => { toggled = true; },
+        onchange: () => {
+          toggled = true;
+        },
       },
     });
     await component.locator('label').click();
@@ -37,7 +39,9 @@ test.describe('Checkbox', () => {
         label: 'Disabled option',
         checked: false,
         disabled: true,
-        onchange: () => { toggled = true; },
+        onchange: () => {
+          toggled = true;
+        },
       },
     });
     await component.locator('label').click();

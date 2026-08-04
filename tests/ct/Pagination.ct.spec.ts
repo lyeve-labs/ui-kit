@@ -17,7 +17,9 @@ test.describe('Pagination', () => {
         current: page,
         total: 50,
         pageSize: 10,
-        onchange: (p: number) => { page = p; },
+        onchange: (p: number) => {
+          page = p;
+        },
       },
     });
     const nextBtn = c.locator('button[aria-label="Next"], button:has-text("Next")');

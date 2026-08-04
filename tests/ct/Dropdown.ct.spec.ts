@@ -22,7 +22,14 @@ test.describe('Dropdown', () => {
     let clicked = false;
     const component = await mount(Dropdown, {
       props: {
-        items: [{ label: 'Option 1', onclick: () => { clicked = true; } }],
+        items: [
+          {
+            label: 'Option 1',
+            onclick: () => {
+              clicked = true;
+            },
+          },
+        ],
       },
       slots: { trigger: '<button>Select</button>' },
     });
