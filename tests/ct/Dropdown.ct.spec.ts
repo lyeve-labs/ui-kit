@@ -1,5 +1,5 @@
 /**
- * Dropdown component test — browser-rendered interaction.
+ * Dropdown component test - browser-rendered interaction.
  *
  * Playwright Component Testing exercises real browser behavior that
  * jsdom cannot: menu toggle, focus management, keyboard navigation.

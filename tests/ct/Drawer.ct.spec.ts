@@ -1,5 +1,5 @@
 /**
- * Drawer component test — browser-rendered interaction + accessibility.
+ * Drawer component test - browser-rendered interaction + accessibility.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom cannot:
  * focus management, keyboard navigation, ARIA attribute correctness, and

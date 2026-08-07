@@ -1,5 +1,5 @@
 /**
- * Button component test — browser-rendered interaction + state.
+ * Button component test - browser-rendered interaction + state.
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';

@@ -1,5 +1,5 @@
 /**
- * Input component test — browser-rendered interaction + accessibility.
+ * Input component test - browser-rendered interaction + accessibility.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom cannot:
  * typing, disabled state, and error display.

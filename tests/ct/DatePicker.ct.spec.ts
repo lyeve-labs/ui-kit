@@ -1,5 +1,5 @@
 /**
- * DatePicker component test — browser-rendered interaction + popover behavior.
+ * DatePicker component test - browser-rendered interaction + popover behavior.
  */
 import { test, expect } from '@playwright/experimental-ct-svelte';
 import DatePicker from '../../src/lib/components/DatePicker.svelte';

@@ -1,5 +1,5 @@
 /**
- * Checkbox component test — browser-rendered interaction + accessibility.
+ * Checkbox component test - browser-rendered interaction + accessibility.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom cannot:
  * click toggling, disabled-state enforcement, and label rendering.

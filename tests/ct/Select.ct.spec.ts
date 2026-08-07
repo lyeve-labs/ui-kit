@@ -1,5 +1,5 @@
 /**
- * Select component test — browser-rendered interaction.
+ * Select component test - browser-rendered interaction.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom
  * cannot: native select open, option selection, and keyboard navigation.

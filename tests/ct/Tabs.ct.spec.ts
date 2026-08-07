@@ -1,5 +1,5 @@
 /**
- * Tabs component test — browser-rendered interaction + accessibility.
+ * Tabs component test - browser-rendered interaction + accessibility.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom cannot:
  * ARIA role correctness, keyboard navigation, and click handling.

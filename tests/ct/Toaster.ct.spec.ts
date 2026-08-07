@@ -1,5 +1,5 @@
 /**
- * Toaster component test — browser-rendered interaction + auto-dismiss.
+ * Toaster component test - browser-rendered interaction + auto-dismiss.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom
  * cannot: mount rendering, auto-dismiss timer accuracy, and close-button

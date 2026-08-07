@@ -1,5 +1,5 @@
 // Minimal svelte-package config. The library needs only preprocessing
-// (TypeScript + Svelte) and the a11y gate — no SvelteKit layer.
+// (TypeScript + Svelte) and the a11y gate - no SvelteKit layer.
 // svelte-package v2 reads this file for preprocess + onwarn settings.
 
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
