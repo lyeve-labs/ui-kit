@@ -1,6 +1,6 @@
 {
   "name": "@lyeve-labs/ui-kit",
-  "version": "0.8.4",
+  "version": "0.9.1",
   "description": "A clean, accessible, palette-aware Svelte 5 component library. The design system behind LyEve.",
   "license": "MIT",
   "author": "LyEve Labs <hello@lyeve.com>",

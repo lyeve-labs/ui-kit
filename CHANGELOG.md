@@ -5,6 +5,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-08-11
+
+### Changed
+
+- Move to node 24 and pnpm 10.33.4.
+- Replace em-dashes in comments.
+
+Carries the 0.9.0 changes as well. 0.9.0 was tagged but never published, so this
+is the first release to reach the registry since 0.8.4.
+
 ## [0.9.0] - 2026-08-06
 
 ### Added
