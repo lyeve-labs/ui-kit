@@ -33,8 +33,10 @@
   --color-brand-deep: #0099c4;
   --color-violet: #7c6aef;
 
-  --color-success: #15803d;
-  --color-warn: #b45309;
+  /* #15803d and #b45309 sit at ~3.7:1 on ink, below the 4.5:1 AA floor
+   * for the text-size status labels that use them. */
+  --color-success: #22c55e;
+  --color-warn: #f59e0b;
   --color-danger: #b91c1c;
 
   /* ── Radius ─────────────────────────────────────────────────── */
