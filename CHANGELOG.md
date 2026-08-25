@@ -5,6 +5,23 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2026-08-25
+
+### Fixed
+
+- avatar falls back to initials for a broken image under a script-src policy
+  with no unsafe-inline, where the inline handler the server renderer emitted
+  was blocked
+
+### Changed
+
+- derive the exported `VERSION` constant from package.json; the build and the
+  test suite fail when package.json, `VERSION` and this file disagree
+
+0.9.2 and 0.9.3 were tagged but never reached the registry, so this release
+carries their changes as well. 0.9.1 is the last version consumers can install.
+
+
 ## [0.9.3] - 2026-08-23
 
 ### Fixed

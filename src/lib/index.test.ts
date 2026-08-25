@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as kit from './index.js';
 
@@ -97,8 +99,11 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     }
   });
 
-  it('exports the current VERSION string', () => {
-    expect(kit.VERSION).toBe('0.8.2');
+  it('exports the VERSION that package.json declares', () => {
+    // Resolved from the runner's cwd, the package root, because the jsdom
+    // environment hands modules an http import.meta.url that readFileSync rejects.
+    const pkg = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'));
+    expect(kit.VERSION).toBe(pkg.version);
   });
 
   it('exposes no fewer than the documented component count', () => {
