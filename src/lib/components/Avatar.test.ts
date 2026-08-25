@@ -1,4 +1,5 @@
 import { render } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import Avatar from './Avatar.svelte';
 
@@ -32,5 +33,31 @@ describe('Avatar', () => {
     const img = container.querySelector('img') as HTMLImageElement;
     expect(img).toBeTruthy();
     expect(img.getAttribute('alt')).toBe('Sam');
+  });
+
+  // The handler sits on the wrapper rather than the image, because Svelte's
+  // server renderer turns an onerror on an <img> into an inline attribute that
+  // a script-src policy with a nonce refuses to run.
+  it('leaves the image markup free of an inline handler', () => {
+    const { container } = render(Avatar, {
+      props: { name: 'Sam', src: 'https://example.com/a.png' },
+    });
+    const img = container.querySelector('img') as HTMLImageElement;
+    expect(img.getAttribute('onerror')).toBeNull();
+    expect(img.getAttribute('onload')).toBeNull();
+  });
+
+  it('falls back to initials when the image fails to load', async () => {
+    const { container } = render(Avatar, {
+      props: { name: 'Jane Doe', src: 'https://example.com/missing.png' },
+    });
+    const img = container.querySelector('img') as HTMLImageElement;
+
+    // error does not bubble, so the wrapper only sees it in the capture phase.
+    img.dispatchEvent(new Event('error'));
+    await tick();
+
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.textContent).toContain('JD');
   });
 });
