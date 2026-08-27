@@ -90,4 +90,6 @@ export { cn, type ClassValue } from './utils/cn.js';
 export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './utils/theme.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
-export const VERSION = '0.8.2';
+// Generated from package.json by `pnpm version:sync`. Bump package.json, never
+// this line; the build and the test suite fail when the two disagree.
+export const VERSION = '0.9.4';
