@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { brokenImage } from '../utils/broken-image.js';
+
   let {
     name,
     src,
@@ -49,16 +51,10 @@
   class="inline-flex items-center justify-center rounded-full font-semibold shrink-0
     {s.wrap} {hue} text-ink {cls}"
   title={name}
+  use:brokenImage={() => (imgError = true)}
 >
   {#if src && !imgError}
-    <img
-      {src}
-      alt={name}
-      class="w-full h-full rounded-full object-cover"
-      onerror={() => {
-        imgError = true;
-      }}
-    />
+    <img {src} alt={name} class="w-full h-full rounded-full object-cover" />
   {:else}
     <span class={s.text}>{initials}</span>
   {/if}
