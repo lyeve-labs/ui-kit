@@ -1,8 +1,8 @@
 # Contributing to `@lyeve-labs/ui-kit`
 
 The kit is small on purpose. Every addition has to earn its place across
-the three apps that consume it (`core-admin`, the customer portal, and the
-marketing site). This document lays out the bar.
+the apps that consume it: `lyeve-admin`, the ops console, the customer portal,
+and the marketing site. This document lays out the bar.
 
 ## Quick start
 
