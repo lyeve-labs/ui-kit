@@ -191,3 +191,17 @@ describe('tone vocabulary', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe('the kit carries its own styles', () => {
+  const theme = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
+
+  it('tells Tailwind to scan the built components', () => {
+    // Without this the kit publishes tokens and no utility classes, and each
+    // component renders only the parts its host app happens to use elsewhere.
+    expect(theme).toMatch(/@source\s+['"]\.\.\/\.\.\/\.\.\/dist['"]/);
+  });
+
+  it('states the control height as a token', () => {
+    expect(theme).toContain('--spacing-control:');
+  });
+});
