@@ -5,6 +5,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-08-30
+
+### Fixed
+
+- `homepage` pointed at `ui.lyeve.com`, which has no DNS record and has never
+  resolved. The docs site is served from `ui-kit.lyeve.com`. An estate audit
+  noted the mismatch in July; the link has been dead on the npm package page
+  since 0.7.0.
+
+
 ## [0.10.0] - 2026-08-30
 
 One sweep, so that no component looks like it came from a different library
