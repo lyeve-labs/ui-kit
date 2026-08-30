@@ -158,11 +158,37 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it("does not let a container clip its own buttons' focus ring", () => {
+    // The global :focus-visible outline sits 2px OUTSIDE the element, so a
+    // container with overflow-hidden crops it. On the accordion that showed as
+    // a stray coloured line under the open header - three edges clipped, one
+    // left. A component that clips must draw its focus ring inset instead.
+    const offenders = files
+      .filter((f) => f.src.includes('overflow-hidden') && f.src.includes('<button'))
+      .filter((f) => !f.src.includes('focus-visible:ring-inset'))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('scopes a duration to the same elements as the transition it belongs to', () => {
+    // `[&_tbody_tr]:transition-colors duration-150` reads as one thought and is
+    // not: the bare duration lands on the element carrying the class, so the
+    // rows transition with no duration and the table gets a pointless one.
+    const offenders = files
+      .filter((f) => /\[&[^\]]*\]:transition-[a-z]+ duration-/.test(f.src.replace(/\s+/g, ' ')))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
   it('names one duration for every colour transition', () => {
     // A bare `transition-colors` inherits Tailwind's default and reads the same,
     // but it means the value is not stated anywhere a designer can change it.
     const offenders = files
-      .filter((f) => /transition-colors(?!\s+duration-)/.test(f.src.replace(/\s+/g, ' ')))
+      .filter((f) =>
+        /transition-colors(?!\s+(?:duration-|\[&[^\]]*\]:duration-))/.test(
+          f.src.replace(/\s+/g, ' '),
+        ),
+      )
       .map((f) => f.name);
     expect(offenders).toEqual([]);
   });
@@ -199,6 +225,13 @@ describe('the kit carries its own styles', () => {
     // Without this the kit publishes tokens and no utility classes, and each
     // component renders only the parts its host app happens to use elsewhere.
     expect(theme).toMatch(/@source\s+['"]\.\.\/\.\.\/\.\.\/dist['"]/);
+  });
+
+  it('honours a reader who asked for less motion', () => {
+    // Every animation in the kit ran regardless: the drawer slid, the toast flew
+    // in, the ping looped forever. Handled once here so it covers components
+    // added later too.
+    expect(theme).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
   });
 
   it('states the control height as a token', () => {
