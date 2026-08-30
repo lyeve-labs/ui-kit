@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { toast, type ToastTone } from '../stores/toast.svelte';
+  import { toast } from '../stores/toast.svelte';
+  import { TONE_GLYPH, statusTone, type StatusTone } from '../internal/tone.js';
 
-  const styles: Record<ToastTone, { bar: string; icon: string; mark: string }> = {
-    info: { bar: 'bg-brand', icon: 'text-brand', mark: 'ℹ' },
-    success: { bar: 'bg-success', icon: 'text-success', mark: '✓' },
-    warn: { bar: 'bg-warn', icon: 'text-warn', mark: '!' },
-    danger: { bar: 'bg-danger', icon: 'text-danger', mark: '×' },
+  const styles: Record<StatusTone, { bar: string; icon: string }> = {
+    neutral: { bar: 'bg-muted', icon: 'text-muted' },
+    brand: { bar: 'bg-brand', icon: 'text-brand' },
+    success: { bar: 'bg-success', icon: 'text-success' },
+    warn: { bar: 'bg-warn', icon: 'text-warn' },
+    danger: { bar: 'bg-danger', icon: 'text-danger' },
   };
 </script>
 
@@ -18,23 +20,43 @@
              bg-surface pl-0 pr-3 py-3 shadow-xl animate-[toast-in_140ms_ease-out]"
       role="status"
     >
-      <span class="w-1 self-stretch shrink-0 {styles[t.tone].bar}"></span>
+      <span class="w-1 self-stretch shrink-0 {styles[statusTone(t.tone)].bar}"></span>
       <span
-        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-xs font-bold {styles[
-          t.tone
+        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current {styles[
+          statusTone(t.tone)
         ].icon}"
         aria-hidden="true"
       >
-        {styles[t.tone].mark}
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d={TONE_GLYPH[statusTone(t.tone)]} />
+        </svg>
       </span>
       <p class="flex-1 text-sm text-fg leading-snug">{t.message}</p>
       <button
         type="button"
-        class="text-faint hover:text-fg transition-colors text-lg leading-none -mt-0.5"
+        class="shrink-0 text-faint transition-colors duration-150 hover:text-fg"
         aria-label="Dismiss"
         onclick={() => toast.dismiss(t.id)}
       >
-        ×
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg
+        >
       </button>
     </div>
   {/each}

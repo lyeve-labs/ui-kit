@@ -80,8 +80,13 @@ describe('toast store', () => {
   });
 
   describe('tone helpers', () => {
-    it('info() uses tone "info"', () => {
+    it('info() pushes the canonical brand tone', () => {
       toast.info('x');
+      expect(toast.items[0].tone).toBe('brand');
+    });
+
+    it('still accepts an explicit "info" push', () => {
+      toast.push('info', 'x');
       expect(toast.items[0].tone).toBe('info');
     });
 

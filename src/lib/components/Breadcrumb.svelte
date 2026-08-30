@@ -32,7 +32,10 @@
     {/if}
 
     {#if item.href && i < items.length - 1}
-      <a href={safeUrl(item.href)} class="text-muted hover:text-fg transition-colors truncate">
+      <a
+        href={safeUrl(item.href)}
+        class="text-muted hover:text-fg transition-colors duration-150 truncate"
+      >
         {item.label}
       </a>
     {:else}

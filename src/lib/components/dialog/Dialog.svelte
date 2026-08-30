@@ -195,7 +195,7 @@
       {#if !entry.options.persistent}
         <button
           class="inline-flex items-center justify-center w-8 h-8 -mr-2 rounded-lg
-						text-muted hover:text-fg hover:bg-surface-2 transition-colors shrink-0"
+						text-muted hover:text-fg hover:bg-surface-2 transition-colors duration-150 shrink-0"
           onclick={() => handleClose()}
           aria-label="Close"
         >

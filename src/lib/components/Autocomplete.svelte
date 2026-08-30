@@ -1,4 +1,13 @@
 <script lang="ts">
+  import {
+    CONTROL_BASE,
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
   // Autocomplete (combobox): type to filter a list, navigate with ↑/↓, select with
   // Enter. Binds `value` to the chosen option's value; shows its label in the input.
   interface Option {
@@ -111,10 +120,10 @@
   });
 </script>
 
-<div class="flex flex-col gap-1.5 {cls}" bind:this={containerEl}>
+<div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
-    <label for={id} class="text-sm font-medium text-fg">
-      {label}{#if required}<span class="text-danger ml-0.5">*</span>{/if}
+    <label for={id} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
     </label>
   {/if}
 
@@ -135,19 +144,30 @@
       onkeydown={onKeydown}
       onfocus={() => (open = true)}
       onblur={() => setTimeout(() => (open = false), 150)}
-      class="w-full rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg placeholder:text-faint
-        transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed
-        {allowClear && value ? 'pr-8' : 'pr-3'}
-        {error ? 'border-danger focus:border-danger' : 'border-line focus:border-brand'}"
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={describedBy(id, error, hint)}
+      class="{CONTROL_BASE} {controlBorder(!!error)} {allowClear && value ? 'pr-8' : 'pr-3'}"
     />
     {#if allowClear && value && !disabled}
       <button
         type="button"
         aria-label="Clear"
         onclick={clear}
-        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint hover:text-fg leading-none"
-        >×</button
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint transition-colors duration-150 hover:text-fg"
       >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
     {/if}
 
     {#if open}
@@ -165,7 +185,7 @@
             disabled={opt.disabled}
             onmouseenter={() => (active = i)}
             onclick={() => choose(opt)}
-            class="w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors
+            class="w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors duration-150
               disabled:opacity-40 disabled:cursor-not-allowed
               {i === active ? 'bg-surface-2' : ''}
               {opt.value === value ? 'text-brand' : 'text-fg'}"
@@ -191,8 +211,8 @@
   </div>
 
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

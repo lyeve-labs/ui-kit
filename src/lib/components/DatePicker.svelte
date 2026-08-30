@@ -1,4 +1,13 @@
 <script lang="ts">
+  import {
+    CONTROL_BASE,
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
   // DatePicker: a text trigger + calendar popover. Binds `value` to an ISO date
   // string ("YYYY-MM-DD"). Pure local-date math (no timezone surprises).
   let {
@@ -151,10 +160,10 @@
   });
 </script>
 
-<div class="flex flex-col gap-1.5 {cls}" bind:this={containerEl}>
+<div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
-    <label for={id} class="text-sm font-medium text-fg">
-      {label}{#if required}<span class="text-danger ml-0.5">*</span>{/if}
+    <label for={id} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
     </label>
   {/if}
 
@@ -164,9 +173,8 @@
       {id}
       {disabled}
       onclick={() => (open ? (open = false) : openCal())}
-      class="w-full flex items-center justify-between rounded-lg border bg-surface-2 px-3 py-2 text-sm
-        transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed
-        {error ? 'border-danger focus:border-danger' : 'border-line focus:border-brand'}"
+      aria-describedby={describedBy(id, error, hint)}
+      class="{CONTROL_BASE} {controlBorder(!!error)} flex items-center justify-between text-left"
     >
       <span class={display ? 'text-fg' : 'text-faint'}>{display || placeholder}</span>
       <span class="text-faint shrink-0" aria-hidden="true">
@@ -200,7 +208,7 @@
             type="button"
             aria-label="Previous month"
             onclick={prevMonth}
-            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
+            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
           >
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
               ><path
@@ -217,7 +225,7 @@
             type="button"
             aria-label="Next month"
             onclick={nextMonth}
-            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
+            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
           >
             <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
               ><path
@@ -251,7 +259,7 @@
                 onclick={() => pick(d)}
                 aria-current={iso === todayISO ? 'date' : undefined}
                 aria-label={iso}
-                class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors
+                class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors duration-150
                   disabled:opacity-30 disabled:cursor-not-allowed
                   {iso === value
                   ? 'bg-brand text-ink font-medium'
@@ -267,8 +275,8 @@
   </div>
 
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

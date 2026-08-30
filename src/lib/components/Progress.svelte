@@ -1,11 +1,11 @@
 <script lang="ts">
-  type Tone = 'brand' | 'violet' | 'success' | 'warn' | 'danger';
+  import type { AccentTone } from '../internal/tone.js';
   type Size = 'xs' | 'sm' | 'md';
 
   interface Props {
     value: number;
     max?: number;
-    tone?: Tone;
+    tone?: AccentTone;
     size?: Size;
     label?: string;
     showValue?: boolean;
@@ -30,7 +30,8 @@
       : 0,
   );
 
-  const tones: Record<Tone, string> = {
+  const tones: Record<AccentTone, string> = {
+    neutral: 'bg-muted',
     brand: 'bg-brand',
     violet: 'bg-violet',
     success: 'bg-success',

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FIELD_HINT } from '../internal/field.js';
   let {
     checked = $bindable(false),
     label,
@@ -8,6 +9,7 @@
     id,
     name,
     value,
+    class: cls = '',
     onchange,
   }: {
     checked?: boolean;
@@ -18,6 +20,7 @@
     id?: string;
     name?: string;
     value?: string;
+    class?: string;
     onchange?: (checked: boolean) => void;
   } = $props();
 
@@ -28,9 +31,9 @@
 </script>
 
 <label
-  class="flex items-start gap-2.5 cursor-pointer select-none {disabled
+  class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled
     ? 'opacity-50 cursor-not-allowed'
-    : ''}"
+    : ''} {cls}"
 >
   <span class="relative flex items-center justify-center mt-0.5 shrink-0">
     <input
@@ -45,7 +48,7 @@
       class="peer sr-only"
     />
     <span
-      class="w-4 h-4 rounded border transition-colors flex items-center justify-center
+      class="w-4 h-4 rounded border transition-colors duration-150 flex items-center justify-center
         {checked
         ? 'bg-brand border-brand'
         : 'bg-surface-2 border-line peer-focus-visible:border-brand'}"
@@ -73,7 +76,7 @@
         </span>
       {/if}
       {#if hint}
-        <span class="text-xs text-faint">{hint}</span>
+        <span class={FIELD_HINT}>{hint}</span>
       {/if}
     </span>
   {/if}

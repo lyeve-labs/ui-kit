@@ -1,5 +1,14 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import {
+    CONTROL_BASE,
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
 
   type SE = Event & { currentTarget: HTMLSelectElement };
 
@@ -7,6 +16,8 @@
     value,
     id,
     name,
+    label,
+    hint,
     required = false,
     disabled = false,
     error,
@@ -17,6 +28,8 @@
     value?: string | null;
     id?: string;
     name?: string;
+    label?: string;
+    hint?: string;
     required?: boolean;
     disabled?: boolean;
     error?: string;
@@ -25,26 +38,27 @@
     children?: Snippet;
   } = $props();
 
-  const base =
-    'w-full bg-surface-2 rounded-lg px-3 py-2 text-sm text-fg ' +
-    'focus:outline-none transition-colors appearance-none cursor-pointer ' +
-    'disabled:opacity-50 disabled:cursor-not-allowed';
+  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 </script>
 
-<div class="flex flex-col gap-1 {cls}">
+<div class="{FIELD_WRAP} {cls}">
+  {#if label}
+    <label for={fieldId} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+    </label>
+  {/if}
+
   <div class="relative">
     <select
-      {id}
+      id={fieldId}
       {name}
       {required}
       {disabled}
       value={value ?? ''}
       {onchange}
-      class="{base}
-        {error
-        ? 'border border-danger focus:border-danger/70'
-        : 'border border-line focus:border-brand/50'}
-        pr-8"
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={describedBy(fieldId, error, hint)}
+      class="{CONTROL_BASE} {controlBorder(!!error)} appearance-none cursor-pointer pr-8"
     >
       {@render children?.()}
     </select>
@@ -63,7 +77,10 @@
       </svg>
     </span>
   </div>
+
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
+  {:else if hint}
+    <p id={fieldId ? `${fieldId}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

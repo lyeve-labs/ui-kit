@@ -29,7 +29,7 @@
                 ? ''
                 : done || active
                   ? 'bg-brand'
-                  : 'bg-line'} h-px transition-colors"
+                  : 'bg-line'} h-px transition-colors duration-150"
             ></div>
 
             <!-- Step circle -->
@@ -62,7 +62,7 @@
                 ? ''
                 : done
                   ? 'bg-brand'
-                  : 'bg-line'} h-px transition-colors"
+                  : 'bg-line'} h-px transition-colors duration-150"
             ></div>
           </div>
 
@@ -72,7 +72,7 @@
                 ? 'text-fg'
                 : done
                   ? 'text-muted'
-                  : 'text-faint'} transition-colors"
+                  : 'text-faint'} transition-colors duration-150"
             >
               {step.label}
             </p>
@@ -117,7 +117,9 @@
             </div>
             {#if i < steps.length - 1}
               <div
-                class="my-1 w-px flex-1 {done ? 'bg-brand/40' : 'bg-line'} transition-colors"
+                class="my-1 w-px flex-1 {done
+                  ? 'bg-brand/40'
+                  : 'bg-line'} transition-colors duration-150"
               ></div>
             {/if}
           </div>
@@ -127,7 +129,7 @@
                 ? 'text-fg'
                 : done
                   ? 'text-muted'
-                  : 'text-faint'} transition-colors"
+                  : 'text-faint'} transition-colors duration-150"
             >
               {step.label}
             </p>

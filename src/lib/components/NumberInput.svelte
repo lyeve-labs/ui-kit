@@ -1,12 +1,23 @@
 <script lang="ts">
+  import {
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    describedBy,
+  } from '../internal/field.js';
+
   interface Props {
     value?: number;
     min?: number;
     max?: number;
     step?: number;
     disabled?: boolean;
+    required?: boolean;
     id?: string;
     name?: string;
+    label?: string;
+    hint?: string;
     error?: string;
     class?: string;
     onchange?: (v: number) => void;
@@ -18,12 +29,17 @@
     max = undefined,
     step = 1,
     disabled = false,
+    required = false,
     id = undefined,
     name = undefined,
+    label = undefined,
+    hint = undefined,
     error = undefined,
     class: cls = '',
     onchange = undefined,
   }: Props = $props();
+
+  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 
   function dec() {
     const next = value - step;
@@ -49,33 +65,57 @@
 
   let canDec = $derived(!(disabled || (min !== undefined && value <= min)));
   let canInc = $derived(!(disabled || (max !== undefined && value >= max)));
+
+  const step_ =
+    'flex w-control shrink-0 items-center justify-center border-line bg-surface-2 text-muted ' +
+    'transition-colors duration-150 hover:bg-line hover:text-fg ' +
+    'disabled:opacity-50 disabled:cursor-not-allowed';
 </script>
 
-<div class="flex flex-col gap-1 {cls}">
-  <div class="flex h-9">
+<div class="{FIELD_WRAP} {cls}">
+  {#if label}
+    <label for={fieldId} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+    </label>
+  {/if}
+
+  <div class="flex h-control">
     <button
       type="button"
       onclick={dec}
       disabled={!canDec}
       aria-label="Decrease"
-      class="flex w-9 shrink-0 items-center justify-center rounded-l-lg border border-r-0 border-line
-        bg-surface-2 text-lg leading-none text-muted transition-colors
-        hover:bg-line hover:text-fg
-        disabled:cursor-not-allowed disabled:opacity-40">−</button
+      class="{step_} rounded-l-lg border border-r-0"
     >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M5 12h14" />
+      </svg>
+    </button>
 
     <input
       type="number"
-      {id}
+      id={fieldId}
       {name}
       {min}
       {max}
       {step}
       {disabled}
+      {required}
       {value}
       oninput={handleInput}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={describedBy(fieldId, error, hint)}
       class="min-w-0 flex-1 border-y bg-surface-2 text-center text-sm text-fg
-        focus:outline-none focus:border-brand transition-colors
+        outline-none transition-colors duration-150 focus:border-brand
         disabled:cursor-not-allowed disabled:opacity-50
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none
@@ -88,11 +128,26 @@
       onclick={inc}
       disabled={!canInc}
       aria-label="Increase"
-      class="flex w-9 shrink-0 items-center justify-center rounded-r-lg border border-l-0 border-line
-        bg-surface-2 text-lg leading-none text-muted transition-colors
-        hover:bg-line hover:text-fg
-        disabled:cursor-not-allowed disabled:opacity-40">+</button
+      class="{step_} rounded-r-lg border border-l-0"
     >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    </button>
   </div>
-  {#if error}<p class="text-xs text-danger">{error}</p>{/if}
+
+  {#if error}
+    <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
+  {:else if hint}
+    <p id={fieldId ? `${fieldId}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
+  {/if}
 </div>

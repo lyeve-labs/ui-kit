@@ -1,4 +1,14 @@
 <script lang="ts">
+  import {
+    CONTROL_MULTILINE,
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
+
   type TA = HTMLTextAreaElement;
   type TAE = Event & { currentTarget: TA };
 
@@ -6,6 +16,7 @@
     value = $bindable(''),
     id,
     name,
+    label,
     placeholder,
     rows = 4,
     maxlength,
@@ -22,6 +33,7 @@
     value?: string;
     id?: string;
     name?: string;
+    label?: string;
     placeholder?: string;
     rows?: number;
     maxlength?: number;
@@ -36,11 +48,7 @@
     onblur?: (e: FocusEvent & { currentTarget: TA }) => void;
   } = $props();
 
-  const base =
-    'w-full bg-surface-2 rounded-lg px-3 py-2 text-sm text-fg ' +
-    'focus:outline-none transition-colors ' +
-    'placeholder:text-faint ' +
-    'disabled:opacity-50 disabled:cursor-not-allowed';
+  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 
   function handleInput(e: TAE) {
     value = e.currentTarget.value;
@@ -48,9 +56,15 @@
   }
 </script>
 
-<div class="flex flex-col gap-1 {cls}">
+<div class="{FIELD_WRAP} {cls}">
+  {#if label}
+    <label for={fieldId} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+    </label>
+  {/if}
+
   <textarea
-    {id}
+    id={fieldId}
     {name}
     {rows}
     {maxlength}
@@ -58,18 +72,16 @@
     {disabled}
     {readonly}
     {placeholder}
-    class="{base}
-      {error
-      ? 'border border-danger focus:border-danger/70'
-      : 'border border-line focus:border-brand/50'}
-      {resize ? 'resize-y' : 'resize-none'}"
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={describedBy(fieldId, error, hint)}
+    class="{CONTROL_MULTILINE} {controlBorder(!!error)} {resize ? 'resize-y' : 'resize-none'}"
     oninput={handleInput}
     {onblur}>{value}</textarea
   >
+
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
-  {/if}
-  {#if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
+  {:else if hint}
+    <p id={fieldId ? `${fieldId}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

@@ -1,4 +1,10 @@
-export type ToastTone = 'info' | 'success' | 'warn' | 'danger';
+import type { StatusToneInput } from '../internal/tone.js';
+
+/**
+ * A toast carries the same tone vocabulary as Alert and Banner. `brand` is the
+ * canonical name; `info` is kept because `toast.info(...)` already ships.
+ */
+export type ToastTone = StatusToneInput;
 
 export interface Toast {
   id: number;
@@ -26,7 +32,7 @@ class ToastStore {
   }
 
   info(message: string, timeout?: number): number {
-    return this.push('info', message, timeout);
+    return this.push('brand', message, timeout);
   }
   success(message: string, timeout?: number): number {
     return this.push('success', message, timeout);

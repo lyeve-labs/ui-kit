@@ -70,7 +70,7 @@
           role="menuitem"
           disabled={item.disabled}
           onclick={() => handleItemClick(item)}
-          class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors
+          class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors duration-150
             disabled:opacity-40 disabled:cursor-not-allowed
             {item.variant === 'danger'
             ? 'text-danger hover:bg-danger/10'
