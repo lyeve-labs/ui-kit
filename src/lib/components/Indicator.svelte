@@ -1,9 +1,9 @@
 <script lang="ts">
-  type Tone = 'brand' | 'success' | 'warn' | 'danger' | 'neutral' | 'violet';
+  import type { AccentTone } from '../internal/tone.js';
   type Size = 'xs' | 'sm' | 'md' | 'lg';
 
   interface Props {
-    tone?: Tone;
+    tone?: AccentTone;
     pulse?: boolean;
     size?: Size;
     class?: string;
@@ -11,7 +11,7 @@
 
   let { tone = 'success', pulse = false, size = 'sm', class: cls = '' }: Props = $props();
 
-  const tones: Record<Tone, string> = {
+  const tones: Record<AccentTone, string> = {
     brand: 'bg-brand',
     success: 'bg-success',
     warn: 'bg-warn',

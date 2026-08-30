@@ -34,7 +34,7 @@
   let nums = $derived(pageNumbers(safePage, totalPages));
 
   const btnBase =
-    'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors';
+    'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors duration-150';
 </script>
 
 {#if totalPages > 1}

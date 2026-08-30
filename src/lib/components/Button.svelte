@@ -13,6 +13,7 @@
     type?: 'button' | 'submit' | 'reset';
     href?: string;
     full?: boolean;
+    class?: string;
     onclick?: (e: MouseEvent) => void;
     children: Snippet;
     [key: string]: unknown;
@@ -26,6 +27,7 @@
     type = 'button',
     href = undefined,
     full = false,
+    class: klass = '',
     onclick,
     children,
     ...rest
@@ -49,9 +51,9 @@
 
   const spinnerSize = $derived(size === 'lg' ? 18 : 15);
   const cls = $derived(
-    `inline-flex items-center justify-center font-medium transition-all duration-150 ` +
+    `inline-flex items-center justify-center font-medium transition-colors duration-150 ` +
       `disabled:opacity-50 disabled:cursor-not-allowed select-none ` +
-      `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]}`,
+      `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );
 
   // Reject javascript: and data: URIs - only allow standard schemes and relative URLs.

@@ -96,6 +96,10 @@
   --spacing-section: 3rem; /* 48px - section gap                */
   --spacing-input-x: 0.75rem; /* 12px - input horizontal padding   */
   --spacing-input-y: 0.5rem; /* 8px  - input vertical padding     */
+  /* 38px - the height of every single-line control. Stated once so an Input,
+   * a Select and a NumberInput sitting in the same row line up. Derived from
+   * the 13px/1.25 control text plus input-y padding and a 1px border. */
+  --spacing-control: 2.375rem;
   --spacing-stack: 1rem; /* 16px - default vertical stack gap */
   --spacing-inline: 0.5rem; /* 8px  - default inline gap         */
 }

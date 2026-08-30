@@ -1,11 +1,11 @@
 <script lang="ts">
+  import type { AccentTone } from '../internal/tone.js';
   import type { Snippet } from 'svelte';
 
-  type Tone = 'neutral' | 'brand' | 'violet' | 'success' | 'warn' | 'danger';
   type Size = 'sm' | 'md';
 
   interface Props {
-    tone?: Tone;
+    tone?: AccentTone;
     size?: Size;
     dot?: boolean;
     class?: string;
@@ -14,7 +14,7 @@
 
   let { tone = 'neutral', size = 'sm', dot = false, class: klass = '', children }: Props = $props();
 
-  const tones: Record<Tone, string> = {
+  const tones: Record<AccentTone, string> = {
     neutral: 'bg-surface-2 text-muted border-line',
     brand: 'bg-brand/10 text-brand border-brand/20',
     violet: 'bg-violet/10 text-violet border-violet/20',
@@ -23,7 +23,7 @@
     danger: 'bg-danger/10 text-danger border-danger/20',
   };
 
-  const dotColor: Record<Tone, string> = {
+  const dotColor: Record<AccentTone, string> = {
     neutral: 'bg-muted',
     brand: 'bg-brand',
     violet: 'bg-violet',

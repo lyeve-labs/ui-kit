@@ -1,4 +1,11 @@
 <script lang="ts">
+  import {
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    describedBy,
+  } from '../internal/field.js';
   interface Props {
     id?: string;
     name?: string;
@@ -39,15 +46,15 @@
   }
 </script>
 
-<div class="flex flex-col gap-1.5 {cls}">
+<div class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={id} class="text-sm font-medium text-fg">{label}</label>
+    <label for={id} class={FIELD_LABEL}>{label}</label>
   {/if}
 
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
-      border-2 border-dashed px-4 py-8 text-center transition-colors
+      border-2 border-dashed px-4 py-8 text-center transition-colors duration-150
       {error
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver
@@ -90,13 +97,15 @@
       {multiple}
       {disabled}
       onchange={handleChange}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={describedBy(id, error, hint)}
       class="sr-only"
     />
   </label>
 
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

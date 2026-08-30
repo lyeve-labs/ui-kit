@@ -29,7 +29,7 @@
     onclick={() => ctx?.toggle(id)}
     aria-expanded={open}
     class="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium
-      text-fg transition-colors hover:bg-surface-2/50"
+      text-fg transition-colors duration-150 hover:bg-surface-2/50"
   >
     <span>{title}</span>
     <svg

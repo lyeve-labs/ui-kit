@@ -1,4 +1,12 @@
 <script lang="ts">
+  import {
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
   // MultiSelect: pick several options, shown as removable chips, with an optional
   // search box. Binds to a string[] of selected values.
   interface Option {
@@ -85,10 +93,10 @@
   });
 </script>
 
-<div class="flex flex-col gap-1.5 {cls}" bind:this={containerEl}>
+<div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
-    <label for={id} class="text-sm font-medium text-fg">
-      {label}{#if required}<span class="text-danger ml-0.5">*</span>{/if}
+    <label for={id} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
     </label>
   {/if}
 
@@ -108,11 +116,11 @@
           open ? (open = false) : open_();
         }
       }}
-      class="w-full min-h-[2.375rem] flex flex-wrap items-center gap-1.5 rounded-lg border bg-surface-2
-        px-2.5 py-1.5 text-left text-sm transition-colors outline-none cursor-pointer
-        focus-visible:border-brand
+      aria-describedby={describedBy(id, error, hint)}
+      class="w-full min-h-control flex flex-wrap items-center gap-1.5 rounded-lg border bg-surface-2
+        px-2.5 py-1.5 text-left text-sm transition-colors duration-150 outline-none cursor-pointer
         {disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        {error ? 'border-danger focus:border-danger' : 'border-line focus:border-brand'}"
+        {controlBorder(!!error)}"
     >
       {#if selected.length === 0}
         <span class="text-faint px-0.5">{placeholder}</span>
@@ -129,8 +137,21 @@
                 e.stopPropagation();
                 remove(opt.value);
               }}
-              class="hover:text-brand-light leading-none">×</button
+              class="transition-colors duration-150 hover:text-brand-light"
             >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
           </span>
         {/each}
       {/if}
@@ -174,11 +195,11 @@
               aria-selected={isSelected(opt.value)}
               disabled={opt.disabled}
               onclick={() => toggle(opt)}
-              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-fg transition-colors
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-fg transition-colors duration-150
                 hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span
-                class="flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors
+                class="flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors duration-150
                   {isSelected(opt.value) ? 'bg-brand border-brand' : 'bg-surface-2 border-line'}"
               >
                 {#if isSelected(opt.value)}
@@ -205,8 +226,8 @@
   </div>
 
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>
