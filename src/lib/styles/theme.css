@@ -15,6 +15,21 @@
 
 @import 'tailwindcss';
 
+/*
+ * Tailwind scans the importing app's own source and, by default, skips
+ * node_modules. Without this line it never reads the kit's components, so it
+ * emits the tokens above and not one of the utility classes those components
+ * are built from. The kit appeared to work only because a host app happened to
+ * use the same class names in its own pages: whatever the app never wrote for
+ * itself was missing from the kit's components too, and two apps with different
+ * pages lost different parts of the same component. Every class the kit needs
+ * now comes from the kit.
+ *
+ * The path is relative to this file and resolves to the package's dist/, which
+ * is present in every published tarball.
+ */
+@source '../../../dist';
+
 /* ── Soft Dark · default palette ─────────────────────────────────────────── */
 @theme {
   --color-ink: #0b1422;

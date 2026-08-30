@@ -28,6 +28,14 @@ fails when they drift apart again.
 
 ### Fixed
 
+- the kit shipped its palette tokens and none of the utility classes its own
+  components are built from. Tailwind skips node_modules unless told otherwise,
+  so it never read them. A component rendered only the classes its host app
+  happened to use elsewhere in its own pages, which is why the same component
+  looked different in two apps and why some of it looked unfinished in both.
+  `theme.css` now declares `@source`, and every class a component needs comes
+  from the kit. Expect the first build after upgrading to add a few kilobytes
+  of CSS that should have been there all along.
 - a NumberInput sat two pixels short of the Input beside it: it was the one
   control whose height was a literal rather than derived from the same padding
   as the rest.
