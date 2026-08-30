@@ -37,4 +37,17 @@ describe('Checkbox', () => {
       true,
     );
   });
+
+  it('the input covers the painted box, so a click aimed at it lands on it', () => {
+    const { container } = render(Checkbox, { props: { label: 'admin' } });
+    const input = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    // sr-only leaves the input 1x1 and buried under the box that replaces it,
+    // so nothing can click it. It has to cover what the user actually sees.
+    expect(input.className).not.toContain('sr-only');
+    expect(input.className).toContain('absolute');
+    expect(input.className).toContain('inset-0');
+    expect(input.className).toContain('h-full');
+    expect(input.className).toContain('w-full');
+    expect((input.nextElementSibling as HTMLElement).className).toContain('pointer-events-none');
+  });
 });

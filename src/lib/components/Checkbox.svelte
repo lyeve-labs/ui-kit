@@ -45,10 +45,10 @@
       {disabled}
       {checked}
       onchange={handleChange}
-      class="peer sr-only"
+      class="peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
     />
     <span
-      class="w-4 h-4 rounded border transition-colors duration-150 flex items-center justify-center
+      class="pointer-events-none w-4 h-4 rounded border transition-colors duration-150 flex items-center justify-center
         {checked
         ? 'bg-brand border-brand'
         : 'bg-surface-2 border-line peer-focus-visible:border-brand'}"
