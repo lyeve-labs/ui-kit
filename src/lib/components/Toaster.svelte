@@ -43,7 +43,7 @@
       <p class="flex-1 text-sm text-fg leading-snug">{t.message}</p>
       <button
         type="button"
-        class="shrink-0 text-faint transition-colors duration-150 hover:text-fg"
+        class="shrink-0 rounded text-faint transition-colors duration-150 hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50"
         aria-label="Dismiss"
         onclick={() => toast.dismiss(t.id)}
       >
