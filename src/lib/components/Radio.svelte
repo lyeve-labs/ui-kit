@@ -46,10 +46,10 @@
       {disabled}
       checked={group === value}
       onchange={handleChange}
-      class="peer sr-only"
+      class="peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
     />
     <span
-      class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors duration-150
+      class="pointer-events-none flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors duration-150
         {group === value
         ? 'border-brand bg-surface-2'
         : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
