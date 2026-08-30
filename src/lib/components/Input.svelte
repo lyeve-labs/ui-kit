@@ -1,4 +1,14 @@
 <script lang="ts">
+  import {
+    CONTROL_BASE,
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
+
   interface Props {
     value?: string;
     label?: string;
@@ -31,10 +41,10 @@
   const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 </script>
 
-<div class="flex flex-col gap-1.5 {klass}">
+<div class="{FIELD_WRAP} {klass}">
   {#if label}
-    <label for={fieldId} class="text-sm font-medium text-fg">
-      {label}{#if required}<span class="text-danger ml-0.5">*</span>{/if}
+    <label for={fieldId} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
     </label>
   {/if}
 
@@ -46,15 +56,14 @@
     {required}
     bind:value
     aria-invalid={error ? 'true' : undefined}
-    class="w-full rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg placeholder:text-faint
-           transition-colors outline-none disabled:opacity-50 disabled:cursor-not-allowed
-           {error ? 'border-danger focus:border-danger' : 'border-line focus:border-brand'}"
+    aria-describedby={describedBy(fieldId, error, hint)}
+    class="{CONTROL_BASE} {controlBorder(!!error)}"
     {...rest}
   />
 
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p id={fieldId ? `${fieldId}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

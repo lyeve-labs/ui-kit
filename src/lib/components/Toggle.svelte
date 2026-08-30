@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { FIELD_HINT } from '../internal/field.js';
   let {
     checked = $bindable(false),
     label,
     hint,
     disabled = false,
     size = 'md',
+    class: cls = '',
     onchange,
   }: {
     checked?: boolean;
@@ -12,6 +14,7 @@
     hint?: string;
     disabled?: boolean;
     size?: 'sm' | 'md';
+    class?: string;
     onchange?: (checked: boolean) => void;
   } = $props();
 
@@ -40,7 +43,7 @@
 <label
   class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled
     ? 'opacity-50 cursor-not-allowed'
-    : ''}"
+    : ''} {cls}"
 >
   <button
     type="button"
@@ -49,7 +52,7 @@
     aria-label={label ?? 'Toggle'}
     {disabled}
     onclick={handleClick}
-    class="relative shrink-0 rounded-full transition-colors focus:outline-none
+    class="relative shrink-0 rounded-full transition-colors duration-150 outline-none
       focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-1
       focus-visible:ring-offset-ink mt-0.5
       {track[size]}
@@ -67,7 +70,7 @@
         <span class="text-sm text-fg">{label}</span>
       {/if}
       {#if hint}
-        <span class="text-xs text-faint">{hint}</span>
+        <span class={FIELD_HINT}>{hint}</span>
       {/if}
     </span>
   {/if}

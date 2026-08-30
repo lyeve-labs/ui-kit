@@ -29,7 +29,9 @@
       [&_tbody_td]:px-4 [&_tbody_td]:py-3 [&_tbody_td]:text-fg [&_tbody_td]:align-middle
       [&_tbody_tr]:border-b [&_tbody_tr]:border-line [&_tbody_tr:last-child]:border-0
       {striped ? '[&_tbody_tr:nth-child(even)]:bg-surface-2/40' : ''}
-      {hoverable ? '[&_tbody_tr:hover]:bg-surface-2/60 [&_tbody_tr]:transition-colors' : ''}"
+      {hoverable
+      ? '[&_tbody_tr:hover]:bg-surface-2/60 [&_tbody_tr]:transition-colors duration-150'
+      : ''}"
   >
     {@render children()}
   </table>

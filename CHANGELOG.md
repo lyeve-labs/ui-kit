@@ -5,6 +5,57 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-08-30
+
+One sweep, so that no component looks like it came from a different library
+than the one beside it. Two internal modules now hold what forty-eight
+components each spelled out for themselves, and a source-reading test suite
+fails when they drift apart again.
+
+### Added
+
+- `label` on Select, Textarea, NumberInput and SearchInput; `hint` on Select
+  and NumberInput. Every field now offers the same set.
+- `class` on Button, Checkbox, Radio and Toggle. Button had accepted one only
+  through its rest spread, where it replaced the computed class string instead
+  of adding to it, so `class="w-40"` silently dropped every variant and size.
+- `aria-invalid` and `aria-describedby` on every field. Only Input carried
+  either, so a screen reader announced the control and never the reason it was
+  rejected.
+- `neutral` on Alert, matching Banner, and on Progress, matching the other
+  accent components.
+- `--spacing-control`, the height of a single-line control, stated once.
+
+### Fixed
+
+- a NumberInput sat two pixels short of the Input beside it: it was the one
+  control whose height was a literal rather than derived from the same padding
+  as the rest.
+- Select and Textarea moved their border to `border-brand/50` on focus while
+  the other seven fields moved to full strength, and showed `border-danger/70`
+  where the rest showed `border-danger`.
+- Select, Textarea and NumberInput spaced their label, control and message row
+  a quarter-step tighter than the six fields around them.
+- Textarea rendered its hint underneath its error. Every field now replaces
+  the hint with the error.
+- Checkbox was laid out `flex` where Radio and Toggle were `inline-flex`, so it
+  stretched to fill its row while they did not.
+- Alert, Toaster, Modal, Drawer, Autocomplete, MultiSelect and NumberInput drew
+  their close, check, warning and step icons as the literal characters
+  `x`, `v`, `!` and `-`, which take whatever weight the reader's font gives
+  them. All icons are stroked SVG on one grid.
+- every colour transition names its duration rather than inheriting one.
+
+### Changed
+
+- `brand` is the canonical name for the cyan tone. Alert, Banner and the toast
+  store called it `info`; Badge, Tag, Indicator and Progress called the same
+  colour `brand`. `info` still resolves to `brand`, so `toast.info(...)` and
+  `tone="info"` keep working - but `toast.info` now records the tone as
+  `brand`, which is visible to anything reading `toast.items[].tone`.
+- Button transitions its colours rather than every animatable property.
+
+
 ## [0.9.4] - 2026-08-25
 
 ### Fixed

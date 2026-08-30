@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FIELD_ERROR, FIELD_HINT, FIELD_LABEL } from '../internal/field.js';
   // RadioGroup renders a managed set of radio options bound to a single value.
   // Matches the visual of Radio.svelte; use this when you have a fixed option list.
   interface Option {
@@ -46,7 +47,7 @@
 
 <fieldset class="flex flex-col gap-2 {cls}" {disabled}>
   {#if label}
-    <legend class="text-sm font-medium text-fg mb-0.5">
+    <legend class="{FIELD_LABEL} mb-0.5">
       {label}{#if required}<span class="text-danger ml-0.5">*</span>{/if}
     </legend>
   {/if}
@@ -70,7 +71,7 @@
             class="peer sr-only"
           />
           <span
-            class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors
+            class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors duration-150
               {value === opt.value
               ? 'border-brand bg-surface-2'
               : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
@@ -82,15 +83,15 @@
         </span>
         <span class="flex flex-col gap-0.5">
           <span class="text-sm text-fg">{opt.label}</span>
-          {#if opt.hint}<span class="text-xs text-faint">{opt.hint}</span>{/if}
+          {#if opt.hint}<span class={FIELD_HINT}>{opt.hint}</span>{/if}
         </span>
       </label>
     {/each}
   </div>
 
   {#if error}
-    <p class="text-xs text-danger">{error}</p>
+    <p class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p class="text-xs text-faint">{hint}</p>
+    <p class={FIELD_HINT}>{hint}</p>
   {/if}
 </fieldset>

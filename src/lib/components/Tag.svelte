@@ -1,9 +1,9 @@
 <script lang="ts">
-  type Tone = 'neutral' | 'brand' | 'violet' | 'success' | 'warn' | 'danger';
+  import type { AccentTone } from '../internal/tone.js';
 
   interface Props {
     label: string;
-    tone?: Tone;
+    tone?: AccentTone;
     removable?: boolean;
     onremove?: () => void;
     class?: string;
@@ -17,7 +17,7 @@
     class: cls = '',
   }: Props = $props();
 
-  const tones: Record<Tone, string> = {
+  const tones: Record<AccentTone, string> = {
     neutral: 'bg-surface-2 text-muted border-line',
     brand: 'bg-brand/10 text-brand border-brand/20',
     violet: 'bg-violet/10 text-violet border-violet/20',

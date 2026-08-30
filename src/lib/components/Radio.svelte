@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FIELD_HINT } from '../internal/field.js';
   interface Props {
     value: string;
     group?: string;
@@ -8,6 +9,7 @@
     disabled?: boolean;
     id?: string;
     name?: string;
+    class?: string;
     onchange?: (value: string) => void;
   }
 
@@ -20,6 +22,7 @@
     disabled = false,
     id = undefined,
     name = undefined,
+    class: cls = '',
     onchange = undefined,
   }: Props = $props();
 
@@ -31,7 +34,7 @@
 
 <label
   class="inline-flex cursor-pointer select-none items-start gap-2.5
-    {disabled ? 'cursor-not-allowed opacity-50' : ''}"
+    {disabled ? 'cursor-not-allowed opacity-50' : ''} {cls}"
 >
   <span class="relative mt-0.5 flex shrink-0 items-center justify-center">
     <input
@@ -46,7 +49,7 @@
       class="peer sr-only"
     />
     <span
-      class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors
+      class="flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors duration-150
         {group === value
         ? 'border-brand bg-surface-2'
         : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
@@ -59,7 +62,7 @@
   {#if label || hint}
     <span class="flex flex-col gap-0.5">
       {#if label}<span class="text-sm text-fg">{label}</span>{/if}
-      {#if hint}<span class="text-xs text-faint">{hint}</span>{/if}
+      {#if hint}<span class={FIELD_HINT}>{hint}</span>{/if}
     </span>
   {/if}
 </label>

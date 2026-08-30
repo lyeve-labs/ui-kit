@@ -1,10 +1,9 @@
 <script lang="ts">
+  import { statusTone, type StatusTone, type StatusToneInput } from '../internal/tone.js';
   import type { Snippet } from 'svelte';
 
-  type Tone = 'info' | 'success' | 'warn' | 'danger' | 'neutral';
-
   interface Props {
-    tone?: Tone;
+    tone?: StatusToneInput;
     dismissible?: boolean;
     ondismiss?: () => void;
     class?: string;
@@ -13,7 +12,7 @@
   }
 
   let {
-    tone = 'info',
+    tone = 'brand',
     dismissible = false,
     ondismiss = undefined,
     class: cls = '',
@@ -28,19 +27,21 @@
     ondismiss?.();
   }
 
-  const tones: Record<Tone, string> = {
-    info: 'bg-brand/10 border-brand/20',
+  const tones: Record<StatusTone, string> = {
+    neutral: 'bg-surface-2 border-line',
+    brand: 'bg-brand/10 border-brand/20',
     success: 'bg-success/10 border-success/20',
     warn: 'bg-warn/10 border-warn/20',
     danger: 'bg-danger/10 border-danger/20',
-    neutral: 'bg-surface-2 border-line',
   };
+
+  const t = $derived(statusTone(tone));
 </script>
 
 {#if visible}
   <div
     role="status"
-    class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[tone]} {cls}"
+    class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[t]} {cls}"
   >
     <div class="flex flex-1 items-center justify-center gap-3 text-fg">
       {@render children()}
@@ -55,7 +56,7 @@
         type="button"
         onclick={dismiss}
         aria-label="Dismiss"
-        class="shrink-0 text-faint transition-colors hover:text-fg"
+        class="shrink-0 text-faint transition-colors duration-150 hover:text-fg"
       >
         <svg
           width="16"
