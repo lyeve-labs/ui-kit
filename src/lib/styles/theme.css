@@ -171,4 +171,24 @@ html[data-theme='light'] {
   :focus:not(:focus-visible) {
     outline: none;
   }
+
+  /*
+   * Every animation in the kit ran regardless of what the reader asked for:
+   * the drawer slid, the toast flew in, the pulse and ping looped forever.
+   * Honouring the preference once here covers every component, including any
+   * added later, which is the only way it stays honoured.
+   *
+   * Durations are not zeroed. An animation that finishes in 1ms still fires its
+   * animationend, so components that wait on one keep working.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
