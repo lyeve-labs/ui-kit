@@ -1,11 +1,22 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import Spinner from './Spinner.svelte';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
   type Size = 'sm' | 'md' | 'lg';
 
-  interface Props {
+  /**
+   * Attributes forwarded to whichever element renders. Naming them, rather than
+   * accepting an open index signature, means a prop the component does not
+   * define fails the build instead of reaching the DOM as a stray attribute.
+   */
+  type Forwarded = Omit<
+    HTMLButtonAttributes & HTMLAnchorAttributes,
+    'type' | 'href' | 'disabled' | 'class' | 'onclick' | 'children'
+  >;
+
+  interface Props extends Forwarded {
     variant?: Variant;
     size?: Size;
     disabled?: boolean;
@@ -16,7 +27,6 @@
     class?: string;
     onclick?: (e: MouseEvent) => void;
     children: Snippet;
-    [key: string]: unknown;
   }
 
   let {
