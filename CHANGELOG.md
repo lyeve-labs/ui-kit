@@ -5,6 +5,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2026-08-31
+
+### Fixed
+
+- A click on a checkbox or radio landed on nothing. The visible box is a
+  decorative element drawn over the real input, and it sat above it in the
+  stacking order without forwarding the event, so the only reliable way to
+  toggle one was the keyboard or a click that happened to land on the label.
+
 ## [0.11.0] - 2026-08-30
 
 ### Fixed
