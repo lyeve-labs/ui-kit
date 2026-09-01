@@ -5,6 +5,18 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A textarea threw away whatever was typed into it before the page finished
+  hydrating. It rendered its value as element content, which compiles to a
+  plain write of the server's value on the first client pass, so a reply typed
+  during the wait was replaced by the empty string the server had sent. The
+  field then failed its own `required` check and the submit did nothing. It
+  binds the value now, which checks the element before writing and keeps what
+  it finds. A rule test holds every textarea in the kit to that.
+
 ## [0.11.1] - 2026-08-31
 
 ### Fixed
