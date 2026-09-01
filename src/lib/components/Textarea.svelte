@@ -49,11 +49,6 @@
   } = $props();
 
   const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
-
-  function handleInput(e: TAE) {
-    value = e.currentTarget.value;
-    oninput?.(e);
-  }
 </script>
 
 <div class="{FIELD_WRAP} {cls}">
@@ -75,9 +70,10 @@
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={describedBy(fieldId, error, hint)}
     class="{CONTROL_MULTILINE} {controlBorder(!!error)} {resize ? 'resize-y' : 'resize-none'}"
-    oninput={handleInput}
-    {onblur}>{value}</textarea
-  >
+    bind:value
+    {oninput}
+    {onblur}
+  ></textarea>
 
   {#if error}
     <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
