@@ -5,9 +5,18 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.11.2] - 2026-09-01
+
+This release also carries the checkbox fix listed under 0.11.1. That version was
+written up and committed but never tagged or published, so the registry went
+from 0.11.0 to here and no consumer ever received it.
 
 ### Fixed
+
+- The exported `VERSION` still read 0.11.0 while the package called itself
+  0.11.1. `build` runs `version:check` first, so the package could not be built
+  or republished at all, and anything reading `VERSION` got the release before
+  the one it was running.
 
 - A textarea threw away whatever was typed into it before the page finished
   hydrating. It rendered its value as element content, which compiles to a

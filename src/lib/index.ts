@@ -92,4 +92,4 @@ export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line; the build and the test suite fail when the two disagree.
-export const VERSION = '0.11.1';
+export const VERSION = '0.11.2';
