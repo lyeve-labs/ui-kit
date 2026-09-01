@@ -36,4 +36,15 @@ describe('Radio', () => {
       true,
     );
   });
+
+  it('the input covers the painted dot, so a click aimed at it lands on it', () => {
+    const { container } = render(Radio, { props: { value: 'a' } });
+    const input = container.querySelector('input[type="radio"]') as HTMLInputElement;
+    expect(input.className).not.toContain('sr-only');
+    expect(input.className).toContain('absolute');
+    expect(input.className).toContain('inset-0');
+    expect(input.className).toContain('h-full');
+    expect(input.className).toContain('w-full');
+    expect((input.nextElementSibling as HTMLElement).className).toContain('pointer-events-none');
+  });
 });

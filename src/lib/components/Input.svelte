@@ -8,8 +8,19 @@
     controlBorder,
     describedBy,
   } from '../internal/field.js';
+  import type { HTMLInputAttributes } from 'svelte/elements';
 
-  interface Props {
+  /**
+   * Attributes forwarded to the input. Naming them, rather than accepting an
+   * open index signature, means a prop the component does not define fails the
+   * build instead of reaching the DOM as a stray attribute.
+   */
+  type Forwarded = Omit<
+    HTMLInputAttributes,
+    'value' | 'type' | 'placeholder' | 'disabled' | 'required' | 'id' | 'name' | 'class'
+  >;
+
+  interface Props extends Forwarded {
     value?: string;
     label?: string;
     type?: string;
@@ -21,7 +32,6 @@
     id?: string;
     name?: string;
     class?: string;
-    [key: string]: unknown;
   }
 
   let {

@@ -47,4 +47,18 @@ describe('RadioGroup', () => {
     const { getByText } = render(RadioGroup, { props: { options, error: 'Choose one' } });
     expect(getByText('Choose one').className).toContain('text-danger');
   });
+
+  it('every input covers its painted dot, so a click aimed at it lands on it', () => {
+    const { container } = render(RadioGroup, { props: { options } });
+    const inputs = Array.from(container.querySelectorAll('input[type="radio"]'));
+    expect(inputs.length).toBeGreaterThan(0);
+    for (const input of inputs) {
+      expect(input.className).not.toContain('sr-only');
+      expect(input.className).toContain('absolute');
+      expect(input.className).toContain('inset-0');
+      expect(input.className).toContain('h-full');
+      expect(input.className).toContain('w-full');
+      expect((input.nextElementSibling as HTMLElement).className).toContain('pointer-events-none');
+    }
+  });
 });

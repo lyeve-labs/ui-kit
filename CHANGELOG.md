@@ -5,6 +5,36 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.2] - 2026-09-01
+
+This release also carries the checkbox fix listed under 0.11.1. That version was
+written up and committed but never tagged or published, so the registry went
+from 0.11.0 to here and no consumer ever received it.
+
+### Fixed
+
+- The exported `VERSION` still read 0.11.0 while the package called itself
+  0.11.1. `build` runs `version:check` first, so the package could not be built
+  or republished at all, and anything reading `VERSION` got the release before
+  the one it was running.
+
+- A textarea threw away whatever was typed into it before the page finished
+  hydrating. It rendered its value as element content, which compiles to a
+  plain write of the server's value on the first client pass, so a reply typed
+  during the wait was replaced by the empty string the server had sent. The
+  field then failed its own `required` check and the submit did nothing. It
+  binds the value now, which checks the element before writing and keeps what
+  it finds. A rule test holds every textarea in the kit to that.
+
+## [0.11.1] - 2026-08-31
+
+### Fixed
+
+- A click on a checkbox or radio landed on nothing. The visible box is a
+  decorative element drawn over the real input, and it sat above it in the
+  stacking order without forwarding the event, so the only reliable way to
+  toggle one was the keyboard or a click that happened to land on the label.
+
 ## [0.11.0] - 2026-08-30
 
 ### Fixed
