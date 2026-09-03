@@ -5,6 +5,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2026-09-03
+
+### Fixed
+
+- The published tarball carried a test file. `files` ships `src/lib/styles`
+  wholesale, because the `styles.css` export points into it, and its test
+  exclusions only cover `dist`. The contrast suite now sits beside the other
+  library-wide suites in `src/lib`, which is not a published path.
+
 ## [0.12.0] - 2026-09-03
 
 Accessibility pass across the library. The palette and the overlay components
