@@ -188,7 +188,7 @@ src/
 breaking changes bump the **minor** version; additive changes bump the **patch**.
 Every release is logged in [`CHANGELOG.md`](CHANGELOG.md) and on the docs site.
 
-Maintainers: see [`PUBLISHING.md`](PUBLISHING.md) for the release workflow.
+Maintainers: the release workflow is [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Contributing
 
