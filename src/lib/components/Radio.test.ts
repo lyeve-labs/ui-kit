@@ -47,4 +47,14 @@ describe('Radio', () => {
     expect(input.className).toContain('w-full');
     expect((input.nextElementSibling as HTMLElement).className).toContain('pointer-events-none');
   });
+
+  it('keeps a focus indicator after it is selected', () => {
+    // Same defect as Checkbox: the ring sat only on the unselected classes.
+    for (const group of ['', 'a']) {
+      const { container, unmount } = render(Radio, { props: { group, value: 'a', label: 'x' } });
+      const dot = container.querySelector('input + span') as HTMLElement;
+      expect(dot.className, `group=${group}`).toContain('peer-focus-visible:outline');
+      unmount();
+    }
+  });
 });

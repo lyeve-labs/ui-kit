@@ -36,6 +36,12 @@
   --color-surface: #101a2b;
   --color-surface-2: #162233;
   --color-line: #1e2d40;
+  /* line reads 1.25:1 against surface. That is fine for a divider, which
+   * carries no information, and fails SC 1.4.11 for anything whose boundary
+   * is the only thing identifying it as a control. Inputs, selects,
+   * checkboxes, radios and toggles use line-strong, which clears 3:1 on
+   * every surface in the palette. */
+  --color-line-strong: #616d80;
   --color-fg: #e6e8ee;
   --color-muted: #9aa1ad;
   /* #525866 failed WCAG AA against surface/ink (~2.5:1); every caption and
@@ -46,13 +52,24 @@
   --color-brand: #00d4ff;
   --color-brand-light: #5fd9f4;
   --color-brand-deep: #0099c4;
-  --color-violet: #7c6aef;
+  /* #7c6aef reads 4.29:1 on surface and 3.83:1 inside its own bg-violet/10
+   * badge, both under the 4.5:1 floor. #9587f2 clears every surface the kit
+   * paints it on and the badge as well. */
+  --color-violet: #9587f2;
 
   /* #15803d and #b45309 sit at ~3.7:1 on ink, below the 4.5:1 AA floor
    * for the text-size status labels that use them. */
   --color-success: #22c55e;
   --color-warn: #f59e0b;
-  --color-danger: #b91c1c;
+  /* #b91c1c reads 2.85:1 on ink and 2.61:1 inside bg-danger/10, so every
+   * form error message and every validation hint failed AA. A dark red
+   * cannot work as a foreground on a dark surface.
+   *
+   * One token serves both roles because it inverts with `ink`. As text on a
+   * dark surface #f87171 reads 6.30:1; as the fill behind a `text-ink` label
+   * on a filled destructive button it reads 6.67:1. The light palette does
+   * the same in reverse with a dark red and a near-white ink. */
+  --color-danger: #f87171;
 
   /* ── Radius ─────────────────────────────────────────────────── */
   --radius-xs: 4px;
@@ -125,20 +142,30 @@ html[data-theme='light'] {
   --color-surface: #ffffff;
   --color-surface-2: #e6e8ee;
   --color-line: #d6d9e0;
+  --color-line-strong: #767d8e;
   --color-fg: #111827;
   --color-muted: #525866;
-  /* #9aa1ad on white is ~3.1:1, below the 4.5:1 AA floor; #6b7280 sits
-   * at ~4.8:1 while staying visually tertiary. */
-  --color-faint: #6b7280;
+  /* Every value below is the lightest colour on its own hue that clears
+   * 4.5:1 against the worst background the kit actually paints it on. That
+   * worst case is rarely the bare canvas: status text and brand chips sit
+   * inside a tint of their own token (bg-warn/10 text-warn), and the tint
+   * drags the background toward the text. Values chosen against white alone
+   * fail inside the tint and on surface-2. */
+  --color-faint: #616774;
 
-  --color-brand: #007ea6;
-  --color-brand-light: #00b4dd;
-  --color-brand-deep: #006a8a;
-  --color-violet: #6b5cdf;
+  --color-brand: #005a77;
+  /* brand-light is the hover step for brand links and for the filled brand
+   * button. In a light theme emphasis reads as deeper, not lighter, so it
+   * sits below brand here and brand-deep below that. The names describe
+   * their place in the default dark ramp. #00b4dd put near-white text at
+   * 2.45:1 on the primary button's hover state. */
+  --color-brand-light: #004f69;
+  --color-brand-deep: #00455c;
+  --color-violet: #5544da;
 
-  --color-success: #15803d;
-  --color-warn: #b45309;
-  --color-danger: #b91c1c;
+  --color-success: #126c34;
+  --color-warn: #904207;
+  --color-danger: #ab1a1a;
 }
 
 @layer base {
@@ -163,8 +190,14 @@ html[data-theme='light'] {
     background-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
   }
 
+  /*
+   * SC 1.4.11 puts a 3:1 floor on the focus indicator. Mixing brand down to
+   * 60% alpha left it at 2.39:1 on the light palette, so the one affordance a
+   * keyboard user has for locating themselves was the element that failed.
+   * Solid brand reads 9.85:1 on dark and 7.70:1 on light.
+   */
   :focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--color-brand) 60%, transparent);
+    outline: 2px solid var(--color-brand);
     outline-offset: 2px;
   }
 
