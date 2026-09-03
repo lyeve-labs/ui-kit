@@ -106,11 +106,30 @@ describe('Dialog', () => {
   // ── Lifecycle (onMount) ────────────────────────────────
 
   it('locks body scroll on mount and unlocks on destroy', () => {
+    // Asserted through the page rather than through a spy on the lock helper:
+    // focus, the Tab trap and the scroll lock now come from the shared overlay
+    // action, and a spy on one particular helper would pass just as happily if
+    // a future refactor moved the behaviour somewhere that did nothing.
     const entry = makeEntry();
     const { unmount } = render(Dialog, { props: { entry } });
-    expect(mockLockBodyScroll).toHaveBeenCalled();
+    expect(document.body.style.overflow).toBe('hidden');
     unmount();
-    expect(mockUnlockBodyScroll).toHaveBeenCalled();
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('moves focus into the panel and keeps Tab inside it', async () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+
+    const entry = makeEntry();
+    const { container, unmount } = render(Dialog, { props: { entry } });
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    expect(panel.contains(document.activeElement)).toBe(true);
+
+    unmount();
+    expect(document.activeElement).toBe(opener);
+    opener.remove();
   });
 
   // ── Stacking (depth) ───────────────────────────────────
@@ -119,14 +138,17 @@ describe('Dialog', () => {
     const entry = makeEntry({ depth: 3 });
     const { container } = render(Dialog, { props: { entry } });
     const outerDiv = container.firstElementChild as HTMLElement;
-    expect(outerDiv.className).toContain('z-[53]');
+    // An inline style, not a `z-[...]` class: Tailwind matches complete class
+    // names in source text, so a class built from a runtime value generated no
+    // rule and every stacked dialog rendered at `z-index: auto`.
+    expect(outerDiv.style.zIndex).toBe('53');
   });
 
   it('applies default z-index at depth 0', () => {
     const entry = makeEntry({ depth: 0 });
     const { container } = render(Dialog, { props: { entry } });
     const outerDiv = container.firstElementChild as HTMLElement;
-    expect(outerDiv.className).toContain('z-[50]');
+    expect(outerDiv.style.zIndex).toBe('50');
   });
 
   // ── Title Snippet ──────────────────────────────────────

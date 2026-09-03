@@ -43,4 +43,32 @@ describe('Card', () => {
     await fireEvent.click(clickable);
     expect(onclick).toHaveBeenCalledOnce();
   });
+
+  it('activates on Enter and Space when it is clickable', async () => {
+    // The card takes role="button" and tabindex from onclick alone, so it
+    // entered the tab order and then ignored the two keys a button answers to.
+    const onclick = vi.fn();
+    const { container } = render(Card, { props: { onclick, children: text('body') } });
+    const card = container.querySelector('[role="button"]') as HTMLElement;
+
+    await fireEvent.keyDown(card, { key: 'Enter' });
+    expect(onclick).toHaveBeenCalledTimes(1);
+
+    await fireEvent.keyDown(card, { key: ' ' });
+    expect(onclick).toHaveBeenCalledTimes(2);
+
+    await fireEvent.keyDown(card, { key: 'a' });
+    expect(onclick).toHaveBeenCalledTimes(2);
+  });
+
+  it('still forwards a keydown the page supplied', async () => {
+    const onclick = vi.fn();
+    const onkeydown = vi.fn();
+    const { container } = render(Card, {
+      props: { onclick, onkeydown, children: text('body') },
+    });
+    const card = container.querySelector('[role="button"]') as HTMLElement;
+    await fireEvent.keyDown(card, { key: 'Escape' });
+    expect(onkeydown).toHaveBeenCalledTimes(1);
+  });
 });

@@ -29,6 +29,23 @@
     children,
   }: Props = $props();
 
+  /**
+   * A clickable Card advertises itself as a button and used to do nothing when
+   * you pressed one. It took `role="button"` and `tabindex="0"` from `onclick`
+   * alone, so it entered the tab order and then ignored Enter and Space unless
+   * the page happened to pass its own `onkeydown`. Native button semantics are
+   * the contract here, so the component honours them itself and still forwards
+   * whatever the consumer supplied.
+   */
+  function activate(e: KeyboardEvent) {
+    onkeydown?.(e);
+    if (!onclick || e.defaultPrevented) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    // Space scrolls the page on a non-button element.
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).click();
+  }
+
   const pads: Record<Pad, string> = {
     none: '',
     sm: 'p-4',
@@ -47,7 +64,7 @@
   role={onclick ? 'button' : undefined}
   tabindex={onclick ? 0 : undefined}
   {onclick}
-  {onkeydown}
+  onkeydown={onclick ? activate : onkeydown}
 >
   {#if header || title}
     <div class="px-5 py-4 border-b border-line">

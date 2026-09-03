@@ -47,10 +47,10 @@
     primary: 'bg-brand text-ink hover:bg-brand-light active:bg-brand shadow-sm shadow-brand/20',
     violet:
       'bg-violet text-ink hover:brightness-110 active:brightness-100 shadow-sm shadow-violet/20',
-    secondary: 'bg-surface-2 text-fg border border-line hover:bg-line',
+    secondary: 'bg-surface-2 text-fg border border-line-strong hover:bg-line',
     danger: 'bg-danger text-ink hover:brightness-110 active:brightness-100',
     ghost: 'text-muted hover:bg-surface-2 hover:text-fg',
-    outline: 'border border-line text-fg hover:border-brand hover:text-brand',
+    outline: 'border border-line-strong text-fg hover:border-brand hover:text-brand',
   };
 
   const sizes: Record<Size, string> = {
@@ -68,15 +68,37 @@
 
   // Reject javascript: and data: URIs - only allow standard schemes and relative URLs.
   let safeHref = $derived(href && !/^(javascript|data):/i.test(href) ? href : undefined);
+
+  /**
+   * An anchor has no `disabled`. The prop was accepted and then dropped on this
+   * branch, so `<Button href="..." disabled>` rendered a link that looked
+   * ordinary and navigated on click, and `disabled:opacity-50` never matched
+   * because that pseudo-class does not apply to `a`. Dropping the href is what
+   * actually takes it out of the tab order and stops activation.
+   */
+  const inert = $derived(disabled || loading);
 </script>
 
 {#if href}
-  <a href={safeHref} class={cls} {...rest}>
+  <a
+    href={inert ? undefined : safeHref}
+    class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
+    aria-disabled={inert ? 'true' : undefined}
+    tabindex={inert ? -1 : undefined}
+    {...rest}
+  >
     {#if loading}<Spinner size={spinnerSize} />{/if}
     {@render children()}
   </a>
 {:else}
-  <button {type} disabled={disabled || loading} {onclick} class={cls} {...rest}>
+  <button
+    {type}
+    disabled={disabled || loading}
+    aria-busy={loading ? 'true' : undefined}
+    {onclick}
+    class={cls}
+    {...rest}
+  >
     {#if loading}<Spinner size={spinnerSize} />{/if}
     {@render children()}
   </button>

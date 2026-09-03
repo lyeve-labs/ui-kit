@@ -11,14 +11,21 @@
   };
 </script>
 
+<!-- The live region is this container, which is mounted for the life of the
+     app and empty most of the time. Marking each toast `role="status"` instead
+     announced nothing: assistive technology watches an existing region for
+     changes, and a region that arrives already holding its text is not a
+     change. -->
 <div
   class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
+  role="status"
+  aria-live="polite"
+  aria-atomic="false"
 >
   {#each toast.items as t (t.id)}
     <div
       class="pointer-events-auto flex items-start gap-3 overflow-hidden rounded-lg border border-line
              bg-surface pl-0 pr-3 py-3 shadow-xl animate-[toast-in_140ms_ease-out]"
-      role="status"
     >
       <span class="w-1 self-stretch shrink-0 {styles[statusTone(t.tone)].bar}"></span>
       <span
@@ -43,7 +50,7 @@
       <p class="flex-1 text-sm text-fg leading-snug">{t.message}</p>
       <button
         type="button"
-        class="shrink-0 rounded text-faint transition-colors duration-150 hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50"
+        class="shrink-0 rounded text-faint transition-colors duration-150 hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
         aria-label="Dismiss"
         onclick={() => toast.dismiss(t.id)}
       >

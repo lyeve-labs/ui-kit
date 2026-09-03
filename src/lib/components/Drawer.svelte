@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { overlay } from '../internal/overlay.js';
 
   type Side = 'left' | 'right';
   type Size = 'sm' | 'md' | 'lg' | 'xl';
@@ -33,6 +34,9 @@
     xl: 'w-[480px]',
   };
 
+  const headingId = $props.id();
+  const descriptionId = `${headingId}-description`;
+
   function close() {
     open = false;
     onclose?.();
@@ -52,25 +56,32 @@
   <div class="fixed inset-0 z-50 flex {side === 'right' ? 'justify-end' : 'justify-start'}">
     <button
       type="button"
+      tabindex="-1"
+      aria-hidden="true"
       class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
-      aria-label="Close"
       onclick={close}
     ></button>
 
     <div
-      class="relative flex h-full flex-col {widths[size]} bg-surface shadow-2xl
+      use:overlay
+      class="relative flex h-full max-w-full flex-col {widths[size]} bg-surface shadow-2xl
         {side === 'right' ? 'border-l' : 'border-r'} border-line
         {side === 'right'
         ? 'animate-[drawer-in-right_150ms_ease-out]'
         : 'animate-[drawer-in-left_150ms_ease-out]'}"
       role="dialog"
       aria-modal="true"
+      aria-labelledby={title ? headingId : undefined}
+      aria-describedby={description ? descriptionId : undefined}
+      aria-label={title ? undefined : 'Panel'}
     >
       {#if title}
         <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-5 py-4">
           <div>
-            <h2 class="font-semibold text-fg">{title}</h2>
-            {#if description}<p class="mt-0.5 text-sm text-muted">{description}</p>{/if}
+            <h2 id={headingId} class="font-semibold text-fg">{title}</h2>
+            {#if description}
+              <p id={descriptionId} class="mt-0.5 text-sm text-muted">{description}</p>
+            {/if}
           </div>
           <button
             type="button"

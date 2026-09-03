@@ -37,20 +37,25 @@
     'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors duration-150';
 </script>
 
-{#if totalPages > 1}
-  <div class="flex items-center gap-3 {cls}">
-    <span class="text-xs text-faint shrink-0">
-      {total === 0 ? 'No results' : `${from}–${to} of ${total}`}
-    </span>
+<!-- The summary renders whenever there is a count to state, and the page
+     buttons only when there is more than one page. The whole component used to
+     be behind `totalPages > 1`, and an empty list has one page, so the 'No
+     results' line below could never appear and a single page of results showed
+     no count at all. -->
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2 {cls}">
+  <span class="text-xs text-faint shrink-0">
+    {safeTotal === 0 ? 'No results' : `${from} to ${to} of ${safeTotal}`}
+  </span>
 
-    <div class="flex items-center gap-0.5 ml-auto">
+  {#if totalPages > 1}
+    <div class="flex flex-wrap items-center gap-0.5 ml-auto">
       <button
         type="button"
         disabled={safePage <= 1}
         onclick={() => onchange(safePage - 1)}
         aria-label="Previous page"
         class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
-          disabled:opacity-30 disabled:cursor-not-allowed"
+            disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <svg
           width="14"
@@ -76,7 +81,7 @@
             onclick={() => onchange(n as number)}
             aria-current={safePage === n ? 'page' : undefined}
             class="{btnBase}
-              {safePage === n
+                {safePage === n
               ? 'bg-brand text-ink'
               : 'text-muted hover:text-fg hover:bg-surface-2'}"
           >
@@ -108,5 +113,5 @@
         </svg>
       </button>
     </div>
-  </div>
-{/if}
+  {/if}
+</div>
