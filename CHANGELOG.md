@@ -5,6 +5,62 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-09-03
+
+Accessibility pass across the library. The palette and the overlay components
+both carried defects that every consuming app inherited, and nothing measured
+either, so the same component was accessible in one app and not in another.
+
+### Added
+
+- `--color-line-strong`, for the boundary of a control rather than a divider.
+  `--color-line` reads 1.25:1 against the surface, which is fine for a rule that
+  carries no information and fails SC 1.4.11 for anything whose border is the
+  only thing identifying it as a control. Inputs, selects, checkboxes, radios,
+  toggles and bordered buttons use the new token; dividers keep `--color-line`.
+- `Toggle` accepts an `id`, so a `<Label for>` outside the component can name it.
+- A contrast suite that parses `theme.css` and measures every token against the
+  grounds it is painted on, including inside a tint of itself, in both palettes.
+- Consistency guards for two mistakes that had already shipped: a utility class
+  built from a runtime value, and an `aria-modal` surface with no focus handling
+  and no accessible name.
+
+### Fixed
+
+- `Modal` and `Drawer` declared `aria-modal="true"` while leaving focus in the
+  page behind them, with no focus trap, no initial focus, no focus restore and
+  no scroll lock. A screen reader user was told a dialog had opened and then
+  carried on reading the document underneath it. The behaviour `Dialog` already
+  had is now one shared action that all three use.
+- `Modal` had no accessible name and no height bound, so a dialog was announced
+  as just "dialog" and content taller than the viewport could not be reached.
+- Dialog stacking generated no CSS. The z-index was written as `z-[{zIndex}]`,
+  and Tailwind matches complete class names in source text, so no rule was ever
+  emitted and every stacked dialog rendered at `z-index: auto`.
+- `confirm()` rejected when the user cancelled while documenting that it
+  resolves `false`, so `if (await confirm(...))` threw on the ordinary path.
+- A clickable `Card` took `role="button"` and `tabindex` from its `onclick` and
+  then ignored Enter and Space.
+- `Checkbox` and `Radio` carried their focus ring only on the unchecked branch,
+  so ticking a box removed the only indicator a keyboard user had.
+- Toasts were never announced. Each toast carried `role="status"` and arrived
+  with its text already in it, which is not a change to a live region.
+- `<Button href disabled>` rendered a working link. `disabled` is not an anchor
+  attribute and `disabled:opacity-50` never matches an `<a>`.
+- `Tooltip` was unreachable by keyboard, because `focus` and `blur` do not
+  bubble to the wrapper they were bound to; unreachable by screen reader,
+  because nothing pointed at it; and could not be dismissed, which SC 1.4.13
+  requires.
+- `Pagination` rendered nothing at all for an empty list, so the "No results"
+  string it carried was unreachable, and it wrote its range with an en dash.
+- Palette values below the AA floor. On the default dark palette `danger` read
+  2.85:1, so every form error in the library was unreadable, and `violet` 3.83:1
+  inside its own badge. On the light palette the focus ring read 2.39:1, and
+  `brand-light` put near-white text at 2.45:1 on the primary button's hover
+  state. `faint`, `success` and `warn` failed on `surface-2`.
+- The exported `VERSION` had drifted two releases behind `package.json`, so
+  `pnpm build` failed its own version gate and the package could not be built.
+
 ## [0.11.4] - 2026-09-02
 
 ### Fixed

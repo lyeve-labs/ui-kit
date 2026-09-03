@@ -35,7 +35,7 @@
       aria-controls={panelId}
       class="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium
         text-fg transition-colors duration-150 hover:bg-surface-2/50
-        outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50
+        outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand
         {open ? 'bg-surface-2/40' : ''}"
     >
       <span>{title}</span>

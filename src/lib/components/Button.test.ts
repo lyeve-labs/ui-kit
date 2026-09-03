@@ -81,4 +81,32 @@ describe('Button', () => {
     const a = container.querySelector('a');
     expect(a?.getAttribute('href')).toBe('/go');
   });
+
+  it('does not navigate when a link button is disabled', () => {
+    // `disabled` is not an anchor attribute and `disabled:opacity-50` never
+    // matches an <a>, so the prop was accepted and dropped: the link rendered
+    // ordinary and followed on click. Removing href is what actually stops it.
+    const { container } = render(Button, {
+      props: { href: '/somewhere', disabled: true, children: text('Go') },
+    });
+    const a = container.querySelector('a') as HTMLAnchorElement;
+    expect(a.hasAttribute('href')).toBe(false);
+    expect(a.getAttribute('aria-disabled')).toBe('true');
+    expect(a.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('does not navigate while a link button is loading', () => {
+    const { container } = render(Button, {
+      props: { href: '/somewhere', loading: true, children: text('Go') },
+    });
+    const a = container.querySelector('a') as HTMLAnchorElement;
+    expect(a.hasAttribute('href')).toBe(false);
+  });
+
+  it('reports a submit in flight to assistive technology', () => {
+    const { container } = render(Button, { props: { loading: true, children: text('Save') } });
+    const button = container.querySelector('button') as HTMLButtonElement;
+    expect(button.getAttribute('aria-busy')).toBe('true');
+    expect(button.disabled).toBe(true);
+  });
 });

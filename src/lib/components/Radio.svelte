@@ -48,11 +48,14 @@
       onchange={handleChange}
       class="peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
     />
+    <!-- The focus ring is stated once, outside the selected branch. It used to
+         sit only on the unselected classes, so choosing an option removed the
+         only indicator a keyboard user had. A ring rather than a border colour,
+         because when selected the border is already brand. -->
     <span
       class="pointer-events-none flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors duration-150
-        {group === value
-        ? 'border-brand bg-surface-2'
-        : 'border-line bg-surface-2 peer-focus-visible:border-brand'}"
+        peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand peer-focus-visible:outline-offset-2
+        {group === value ? 'border-brand bg-surface-2' : 'border-line-strong bg-surface-2'}"
     >
       {#if group === value}
         <span class="h-2 w-2 rounded-full bg-brand"></span>
