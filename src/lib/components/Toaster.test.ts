@@ -33,8 +33,13 @@ describe('Toaster', () => {
   it('renders one entry per active toast', () => {
     toast.push('info', 'First', 0);
     toast.push('warn', 'Second', 0);
-    const { getAllByRole } = render(Toaster);
-    expect(getAllByRole('status')).toHaveLength(2);
+    // One live region for the app, not one per toast. A region that arrives
+    // already holding its text is not a change, so assistive technology never
+    // announced it; the container is mounted up front and the toasts land in it.
+    const { getByRole } = render(Toaster);
+    const live = getByRole('status');
+    expect(live.getAttribute('aria-live')).toBe('polite');
+    expect(live.querySelectorAll('p')).toHaveLength(2);
   });
 
   it('applies the danger tone styles', () => {
