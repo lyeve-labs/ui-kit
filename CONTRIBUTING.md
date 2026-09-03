@@ -1,8 +1,8 @@
 # Contributing to `@lyeve-labs/ui-kit`
 
 The kit is small on purpose. Every addition has to earn its place across
-the apps that consume it: `lyeve-admin`, the ops console, the customer portal,
-and the marketing site. This document lays out the bar.
+every application that consumes it, which is more than one and not all of them
+public. This document lays out the bar.
 
 ## Quick start
 
@@ -105,6 +105,21 @@ We use Conventional Commits:
 - `refactor(toast): collapse store into a single class`
 
 One logical change per commit. Squash before merging if a PR has noise.
+
+## Branches
+
+Two permanent branches, both merge-only:
+
+- **`dev`** is integration and always deployable to staging. Every change starts
+  here: branch off `dev`, open a PR back into `dev`.
+- **`main`** is production and carries the release tags.
+
+Branch names are `<type>/<slug>`, where type is one of `feat` `fix` `hotfix`
+`chore` `docs` `refactor` `perf` `test` `ci`. Rebase onto `dev` rather than
+merging `dev` into your branch. Only a hotfix branches off `main`, and it must
+be merged back into `dev` afterwards.
+
+One logical change per branch.
 
 ## Releases
 

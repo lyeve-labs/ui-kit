@@ -50,7 +50,10 @@ export const CONTROL_MULTILINE =
  * `border-danger/70`.
  */
 export function controlBorder(error: boolean): string {
-  return error ? 'border-danger focus:border-danger' : 'border-line focus:border-brand';
+  // line-strong, not line: at 1.25:1 against the page the resting border was
+  // the only thing marking the control and it failed SC 1.4.11. line stays the
+  // divider colour, where there is no control to identify.
+  return error ? 'border-danger focus:border-danger' : 'border-line-strong focus:border-brand';
 }
 
 /**

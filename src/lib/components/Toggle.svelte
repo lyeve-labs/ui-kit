@@ -6,6 +6,7 @@
     hint,
     disabled = false,
     size = 'md',
+    id,
     class: cls = '',
     onchange,
   }: {
@@ -14,6 +15,8 @@
     hint?: string;
     disabled?: boolean;
     size?: 'sm' | 'md';
+    /** Lets a `<Label for=...>` outside the component target the switch. */
+    id?: string;
     class?: string;
     onchange?: (checked: boolean) => void;
   } = $props();
@@ -47,13 +50,14 @@
 >
   <button
     type="button"
+    {id}
     role="switch"
     aria-checked={checked}
     aria-label={label ?? 'Toggle'}
     {disabled}
     onclick={handleClick}
     class="relative shrink-0 rounded-full transition-colors duration-150 outline-none
-      focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-1
+      focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1
       focus-visible:ring-offset-ink mt-0.5
       {track[size]}
       {checked ? 'bg-brand' : 'bg-surface-2'}"

@@ -197,7 +197,7 @@
               onclick={() => toggle(opt)}
               class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-fg transition-colors duration-150
                 hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed
-                outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50"
+                outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             >
               <span
                 class="flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors duration-150

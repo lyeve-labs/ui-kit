@@ -64,4 +64,32 @@ describe('Pagination', () => {
     });
     expect(getAllByText('…').length).toBe(1);
   });
+
+  it('states that there are no results instead of rendering nothing', () => {
+    // An empty list has one page, and the whole component sat behind
+    // `totalPages > 1`, so the 'No results' branch it carried could never run.
+    const { getByText } = render(Pagination, {
+      props: { page: 1, total: 0, onchange: () => {} },
+    });
+    expect(getByText('No results')).toBeTruthy();
+  });
+
+  it('still states the count when everything fits on one page', () => {
+    const { getByText, queryByLabelText } = render(Pagination, {
+      props: { page: 1, total: 5, perPage: 20, onchange: () => {} },
+    });
+    expect(getByText('1 to 5 of 5')).toBeTruthy();
+    // One page needs no controls, only the count.
+    expect(queryByLabelText('Next page')).toBeNull();
+  });
+
+  it('writes its range without an en dash', () => {
+    // The estate bans en and em dashes in copy, and this one rendered into the
+    // DOM of every paginated list rather than sitting in a comment.
+    const { container } = render(Pagination, {
+      props: { page: 2, total: 100, perPage: 20, onchange: () => {} },
+    });
+    expect(container.textContent).toContain('21 to 40 of 100');
+    expect(container.textContent).not.toMatch(/[\u2013\u2014]/);
+  });
 });

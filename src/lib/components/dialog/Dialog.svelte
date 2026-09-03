@@ -9,15 +9,14 @@
    * Not meant to be used directly - use openDialog() from dialog-manager.
    */
   import { X } from '@lucide/svelte';
-  import { onMount, tick } from 'svelte';
+  import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
   import type { DialogEntry } from './types.js';
   import { sizeClass } from './types.js';
+  import { overlay } from '../../internal/overlay.js';
   import {
     closeDialog,
     dismissDialog,
-    _lockBodyScroll,
-    _unlockBodyScroll,
   } from './dialog-manager.svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
 
@@ -45,45 +44,18 @@
   // ──────────────────────────────────────────────────────
 
   let dialogEl = $state<HTMLDivElement>();
-  let previousFocus = $state<HTMLElement | null>(null);
-  let focusableSelector =
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
   // ──────────────────────────────────────────────────────
   // Lifecycle
   // ──────────────────────────────────────────────────────
 
+  // Focus entry, the Tab trap, the body scroll lock and focus restore all come
+  // from `use:overlay` on the panel below, which is the same implementation
+  // Modal and Drawer use. This is only the enter animation.
   onMount(() => {
-    // Save previously focused element for restore on unmount
-    const el = document.activeElement;
-    previousFocus = el instanceof HTMLElement ? el : null;
-
-    // Trigger enter animation on next frame
     requestAnimationFrame(() => {
       visible = true;
     });
-
-    // Focus trap: focus first focusable element, or the dialog itself
-    tick().then(() => {
-      if (dialogEl) {
-        const focusable = dialogEl.querySelectorAll(focusableSelector);
-        if (focusable.length > 0) {
-          (focusable[0] as HTMLElement).focus();
-        } else {
-          dialogEl.focus();
-        }
-      }
-    });
-
-    // Lock body scroll (counter-based: only unlock when no dialogs remain)
-    _lockBodyScroll();
-    const unlock = () => _unlockBodyScroll();
-
-    return () => {
-      unlock();
-      // Restore focus
-      previousFocus?.focus?.();
-    };
   });
 
   // ──────────────────────────────────────────────────────
@@ -104,30 +76,6 @@
         handleDismiss();
       }
     }
-
-    // Focus trap
-    if (e.key === 'Tab' && dialogEl) {
-      const focusable = dialogEl.querySelectorAll(focusableSelector);
-      if (focusable.length === 0) {
-        e.preventDefault();
-        return;
-      }
-
-      const first = focusable[0] as HTMLElement;
-      const last = focusable[focusable.length - 1] as HTMLElement;
-
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    }
   }
 
   async function handleDismiss(): Promise<void> {
@@ -145,7 +93,15 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="fixed inset-0 z-[{zIndex}] flex items-center justify-center" role="presentation">
+<!-- z-index is an inline style, not a `z-[...]` class. Tailwind scans source text
+     for complete class names, so a class built from a runtime value matches no
+     candidate and no rule is ever generated: every stacked dialog rendered at
+     `z-index: auto` and the stacking order came down to DOM order. -->
+<div
+  class="fixed inset-0 flex items-center justify-center"
+  style="z-index: {zIndex}"
+  role="presentation"
+>
   <!-- Backdrop -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
@@ -163,6 +119,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
     bind:this={dialogEl}
+    use:overlay
     class="relative w-full {sizeClass(entry.options.size ?? 'md')} mx-4
 			bg-surface border border-line rounded-xl shadow-2xl
 			transition-all duration-200 ease-out
