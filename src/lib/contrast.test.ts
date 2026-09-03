@@ -14,9 +14,13 @@ import { join } from 'node:path';
  *
  * These are arithmetic, not opinion. The file is parsed rather than duplicated
  * so a token can never pass here and ship a different value.
+ *
+ * Lives beside the other library-wide suites rather than inside styles/, which
+ * is a published directory: `files` ships src/lib/styles wholesale for the
+ * styles.css export, and its test exclusions only cover dist.
  */
 
-const css = readFileSync(join(__dirname, 'theme.css'), 'utf8');
+const css = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
 
 /** WCAG 2.2 relative luminance. */
 function luminance(hex: string): number {
