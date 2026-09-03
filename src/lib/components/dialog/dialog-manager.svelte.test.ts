@@ -150,10 +150,16 @@ describe('dialog-manager', () => {
       expect(getDialogStack()).toHaveLength(0);
     });
 
-    it('resets the body scroll lock', () => {
+    it('leaves the scroll lock to whatever took it', () => {
+      // The manager never locks. Each overlay takes one lock when it mounts and
+      // releases it when it unmounts, so clearing the dialog stack must not
+      // release a lock a Modal or Drawer behind it still holds. Zeroing the
+      // count here let the page scroll underneath an overlay that was still up.
       _lockBodyScroll();
       expect(document.body.style.overflow).toBe('hidden');
       dismissAllDialogs();
+      expect(document.body.style.overflow).toBe('hidden');
+      _unlockBodyScroll();
       expect(document.body.style.overflow).toBe('');
     });
   });
@@ -170,6 +176,28 @@ describe('dialog-manager', () => {
       });
       closeDialog(true, entry.id);
       await expect(p).resolves.toBe(true);
+    });
+
+    it('resolves false when the user cancels', async () => {
+      // Cancelling dismisses, and dismissal rejects. Callers write
+      // `if (await confirm(...))`, so rejecting on Cancel threw on the ordinary
+      // path and every call site needed a try/catch to answer "no". Cancel is an
+      // answer, not a failure.
+      const p = confirm('Delete item?');
+      const entry = getDialogStack()[getDialogStack().length - 1];
+      dismissDialog(entry.id);
+      await expect(p).resolves.toBe(false);
+    });
+
+    it('still rejects for a failure that is not a dismissal', async () => {
+      const p = confirm('Delete item?');
+      const entry = getDialogStack()[getDialogStack().length - 1];
+      // Rejecting the entry directly bypasses the manager, so the stack still
+      // holds it; close it too or the next test inherits a stray dialog.
+      entry.reject(new Error('boom'));
+      await expect(p).rejects.toThrow('boom');
+      closeDialog(false, entry.id);
+      expect(getDialogStack()).toHaveLength(0);
     });
 
     it('defaults the message to an empty string', async () => {

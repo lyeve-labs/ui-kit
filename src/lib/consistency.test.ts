@@ -237,4 +237,40 @@ describe('the kit carries its own styles', () => {
   it('states the control height as a token', () => {
     expect(theme).toContain('--spacing-control:');
   });
+
+  it('never builds a utility class out of a runtime value', () => {
+    // Tailwind matches complete class names in source text. A class assembled
+    // from a variable matches no candidate, so no rule is generated and the
+    // class silently does nothing. Dialog shipped `z-[{zIndex}]` and every
+    // stacked dialog rendered at `z-index: auto`; its own test asserted the
+    // class string was present, which it was, and passed the whole time.
+    // Runtime values belong in a `style` attribute.
+    const dynamic = /\b(?:z|w|h|min-w|min-h|max-w|max-h|top|left|right|bottom|gap|p|m|px|py|mx|my|text|bg|border|rounded|opacity|translate-x|translate-y|grid-cols)-\[[^\]]*\{/;
+    const offenders = files
+      .filter((f) => dynamic.test(f.src))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('gives every aria-modal surface the focus behaviour it advertises', () => {
+    // `aria-modal="true"` tells a screen reader the rest of the page is gone.
+    // Modal and Drawer both said it while leaving focus in the document behind
+    // them, so the user was told a dialog had opened and then carried on
+    // reading the page underneath. The behaviour lives in internal/overlay.ts;
+    // a component that claims the role has to use it.
+    const offenders = files
+      .filter((f) => f.src.includes('aria-modal'))
+      .filter((f) => !f.src.includes('use:overlay') && !f.src.includes('overlay.js'))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('names every aria-modal surface', () => {
+    // A dialog with no accessible name is announced as just "dialog".
+    const offenders = files
+      .filter((f) => f.src.includes('aria-modal'))
+      .filter((f) => !f.src.includes('aria-labelledby') && !f.src.includes('aria-label'))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
 });

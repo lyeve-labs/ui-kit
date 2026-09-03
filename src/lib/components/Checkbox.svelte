@@ -47,11 +47,15 @@
       onchange={handleChange}
       class="peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
     />
+    <!-- The focus ring is stated once, outside the checked branch. It used to
+         live only on the unchecked classes, so ticking a box removed the only
+         indicator a keyboard user had; in a permissions matrix of a hundred
+         boxes that loses your place entirely. A ring rather than a border
+         colour, because when checked the border is already brand. -->
     <span
       class="pointer-events-none w-4 h-4 rounded border transition-colors duration-150 flex items-center justify-center
-        {checked
-        ? 'bg-brand border-brand'
-        : 'bg-surface-2 border-line peer-focus-visible:border-brand'}"
+        peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand peer-focus-visible:outline-offset-2
+        {checked ? 'bg-brand border-brand' : 'bg-surface-2 border-line-strong'}"
     >
       {#if checked}
         <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
