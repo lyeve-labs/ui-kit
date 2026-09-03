@@ -43,4 +43,65 @@ describe('Modal', () => {
     await fireEvent.click(closeBtn);
     expect(onclose).toHaveBeenCalledOnce();
   });
+
+  it('moves focus into the panel and restores it to the opener on close', async () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    expect(document.activeElement).toBe(opener);
+
+    const { container, unmount } = render(Modal, {
+      props: { open: true, title: 'Confirm', children: text('body') },
+    });
+
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    expect(panel.contains(document.activeElement)).toBe(true);
+
+    unmount();
+    expect(document.activeElement).toBe(opener);
+    opener.remove();
+  });
+
+  it('keeps Tab inside the panel', async () => {
+    const { container } = render(Modal, {
+      props: { open: true, title: 'Confirm', children: text('body') },
+    });
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    const stops = [...panel.querySelectorAll('button')];
+    expect(stops.length).toBeGreaterThan(0);
+
+    stops[stops.length - 1].focus();
+    await fireEvent.keyDown(panel, { key: 'Tab' });
+    expect(document.activeElement).toBe(stops[0]);
+
+    await fireEvent.keyDown(panel, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(stops[stops.length - 1]);
+  });
+
+  it('names itself by its own heading', () => {
+    const { container } = render(Modal, {
+      props: { open: true, title: 'Delete tenant', children: text('body') },
+    });
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    const id = panel.getAttribute('aria-labelledby');
+    expect(id).toBeTruthy();
+    expect(container.querySelector(`#${id}`)?.textContent).toBe('Delete tenant');
+  });
+
+  it('leaves the backdrop out of the tab order', () => {
+    const { container } = render(Modal, {
+      props: { open: true, title: 'Confirm', children: text('body') },
+    });
+    const backdrop = container.querySelector('button[aria-hidden="true"]') as HTMLElement;
+    expect(backdrop.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('gives the body its own scroll rather than overflowing the viewport', () => {
+    const { container } = render(Modal, {
+      props: { open: true, title: 'Confirm', children: text('body') },
+    });
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    expect(panel.className).toContain('max-h-');
+    expect(panel.querySelector('.overflow-y-auto')).toBeTruthy();
+  });
 });

@@ -16,6 +16,8 @@
  */
 
 import type { DialogOptions, DialogEntry } from './types.js';
+import { lockBodyScroll, unlockBodyScroll } from '../../internal/overlay.js';
+
 
 // ──────────────────────────────────────────────────────────
 // Module-level reactive state
@@ -30,24 +32,13 @@ let stack = $state<DialogEntry<any>[]>([]);
 // Body scroll lock (counter-based - handles stacked dialogs)
 // ──────────────────────────────────────────────────────────
 
-let bodyLockCount = 0;
-
-export function _lockBodyScroll(): void {
-  bodyLockCount++;
-  if (typeof document !== 'undefined') {
-    document.body.style.overflow = 'hidden';
-  }
-}
-
-export function _unlockBodyScroll(): void {
-  bodyLockCount--;
-  if (bodyLockCount <= 0) {
-    bodyLockCount = 0;
-    if (typeof document !== 'undefined') {
-      document.body.style.overflow = '';
-    }
-  }
-}
+/*
+ * The count lives in internal/overlay.ts, which is also what Modal and Drawer
+ * lock through. Two counters meant a Dialog opened over a Drawer restored
+ * scrolling to the page as soon as either one closed, because each believed it
+ * held the only lock.
+ */
+export { lockBodyScroll as _lockBodyScroll, unlockBodyScroll as _unlockBodyScroll };
 
 /** Readonly snapshot for components */
 export function getDialogStack(): readonly DialogEntry<any>[] {
@@ -156,10 +147,9 @@ export function dismissDialog(id?: string): void {
 export function dismissAllDialogs(): void {
   const copy = [...stack];
   stack = [];
-  bodyLockCount = 0;
-  if (typeof document !== 'undefined') {
-    document.body.style.overflow = '';
-  }
+  // The manager never locks. Each overlay takes one lock on mount and releases
+  // it on unmount, so clearing the stack unmounts the dialogs and the count
+  // unwinds itself. Zeroing it here released locks a Modal or Drawer still held.
   for (const entry of copy) {
     entry.reject(new DOMException('All dialogs dismissed', 'AbortError'));
   }
@@ -175,7 +165,15 @@ export function confirm(title: string, message?: string): Promise<boolean> {
   const id = `confirm-${++idCounter}`;
   const promise = openDialog<boolean>({ id, size: 'sm', title });
   setDialogMeta(id, { confirmTitle: title, confirmMessage: message ?? '' });
-  return promise;
+  // Cancelling a dialog dismisses it, and dismissal rejects. Callers write
+  // `if (await confirm(...))`, so a rejection on Cancel is an unhandled
+  // rejection on the ordinary path rather than an error anyone meant to
+  // handle. Cancel is an answer, not a failure: it resolves false, which is
+  // what this function has always documented.
+  return promise.catch((err: unknown) => {
+    if (err instanceof DOMException && err.name === 'AbortError') return false;
+    throw err;
+  });
 }
 
 /**
