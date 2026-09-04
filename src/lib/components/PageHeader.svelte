@@ -10,6 +10,15 @@
      * pane or a canvas, spends every pixel it does not give away.
      */
     compact?: boolean;
+    /**
+     * Drop the bottom margin, for a caller that owns the rhythm itself.
+     *
+     * The margin is opt-out rather than removed. Forty-three pages across the
+     * estate render this component directly and take their heading gap from
+     * it, so deleting it outright would have moved every one of them by 32px
+     * with nothing in their own source to explain why.
+     */
+    flush?: boolean;
     class?: string;
     actions?: Snippet;
   }
@@ -18,16 +27,19 @@
     title,
     description = undefined,
     compact = false,
+    flush = false,
     class: klass = '',
     actions,
   }: Props = $props();
 </script>
 
-<!-- No margin of its own. The header carried mb-8 ahead of the consumer's
-     class, so a page that wanted a different gap shipped two margin utilities
-     in one attribute and Tailwind's emitted order picked the winner, not the
-     page. PageShell's section stack supplies the gap now. -->
-<header class="flex flex-wrap items-start justify-between gap-4 {klass}">
+<!-- The margin is stated before the consumer's class so a page can still
+     override it, which is the whole reason it is a separate token rather than
+     part of the layout: it used to be appended ahead of `klass` unconditionally,
+     and a page asking for a different gap shipped two competing margin
+     utilities in one attribute with Tailwind's emitted order picking the winner
+     rather than the page. -->
+<header class="flex flex-wrap items-start justify-between gap-4 {flush ? '' : 'mb-8'} {klass}">
   <div class="min-w-0">
     <!-- The app shells render their own h1 for the current route, so a heading
          lookup by name matches two elements. This names the page's own title. -->
