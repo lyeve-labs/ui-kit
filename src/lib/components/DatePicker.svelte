@@ -54,6 +54,19 @@
     'December',
   ];
 
+  /*
+   * $props.id() and not a random string: a random id differs between the server
+   * and the client, so every id derived from it changes under the first paint.
+   *
+   * The fallback is the fix for a standalone <DatePicker label="Starts" />,
+   * which rendered a <label> with no `for` at all: the trigger was named by its
+   * placeholder, so the field announced as "Select a date" and the visible
+   * label pointed at nothing.
+   */
+  const uid = $props.id();
+  const fieldId = $derived(id ?? uid);
+  const calendarId = $derived(`${fieldId}-calendar`);
+
   let open = $state(false);
   let containerEl: HTMLDivElement | undefined = $state();
 
@@ -162,18 +175,37 @@
 
 <div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
-    <label for={id} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+    <label for={fieldId} class={FIELD_LABEL}>
+      {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
   <div class="relative">
+    <!--
+      role="combobox" over the button's own role, and aria-haspopup="dialog"
+      beside it. ARIA 1.2 does not list aria-required for button, so the
+      attribute was stripped from the accessibility tree and the requirement
+      reached a reader nowhere: the asterisk in the label is decorative and this
+      picker posts no native input that could take `required`. A combobox is an
+      input whose popup helps set its value, which is what the trigger and the
+      calendar below are, and it supports aria-required and aria-invalid.
+
+      aria-controls is set only while the calendar is on screen. The popup is
+      rendered on open, so naming it while it is closed points a reader at an
+      element that does not exist.
+    -->
     <button
       type="button"
-      {id}
+      id={fieldId}
+      role="combobox"
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      aria-controls={open ? calendarId : undefined}
       {disabled}
       onclick={() => (open ? (open = false) : openCal())}
-      aria-describedby={describedBy(id, error, hint)}
+      aria-invalid={error ? 'true' : undefined}
+      aria-required={required ? 'true' : undefined}
+      aria-describedby={describedBy(fieldId, error, hint)}
       class="{CONTROL_BASE} {controlBorder(!!error)} flex items-center justify-between text-left"
     >
       <span class={display ? 'text-fg' : 'text-faint'}>{display || placeholder}</span>
@@ -199,7 +231,17 @@
     </button>
 
     {#if open}
+      <!--
+        role="dialog" with a name of its own, because the trigger advertises
+        aria-haspopup="dialog". A bare div leaves that claim unbacked, and a
+        dialog with no name is announced as "dialog" and nothing else. The name
+        is fixed rather than built from the field label, so a reader hears what
+        the popup does instead of the label they just heard.
+      -->
       <div
+        id={calendarId}
+        role="dialog"
+        aria-label="Choose date"
         class="absolute z-50 mt-1 w-[17rem] rounded-xl border border-line bg-surface shadow-2xl p-3"
       >
         <!-- Header -->
@@ -275,8 +317,8 @@
   </div>
 
   {#if error}
-    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
+    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
+    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

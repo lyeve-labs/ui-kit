@@ -8,25 +8,39 @@ import * as kit from './index.js';
 const COMPONENTS = [
   // Layout & structure
   'Card',
+  'Panel',
+  'PageShell',
   'PageHeader',
+  'SectionHeading',
   'Divider',
   'Accordion',
   'AccordionItem',
+  'Collapsible',
   'Table',
+  'DescriptionList',
+  'Toolbar',
+  'TreeView',
   // Forms & inputs
   'Button',
   'ButtonGroup',
   'Input',
+  'PasswordInput',
   'Textarea',
   'NumberInput',
   'SearchInput',
   'FileInput',
   'Label',
+  'Field',
+  'FormMessage',
+  'SegmentedControl',
   'Select',
   'MultiSelect',
   'Autocomplete',
   'DatePicker',
+  'TimePicker',
+  'DateTimePicker',
   'Checkbox',
+  'CheckboxGroup',
   'Radio',
   'RadioGroup',
   'Toggle',
@@ -36,6 +50,7 @@ const COMPONENTS = [
   'Pagination',
   'StepIndicator',
   'Dropdown',
+  'SidebarNav',
   // Overlays
   'Modal',
   'Drawer',
@@ -52,6 +67,7 @@ const COMPONENTS = [
   'EmptyState',
   'Stat',
   'Kbd',
+  'CopyButton',
   // Media
   'Avatar',
   'AvatarGroup',
@@ -106,11 +122,22 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     expect(kit.VERSION).toBe(pkg.version);
   });
 
-  it('exposes no fewer than the documented component count', () => {
-    // 48 primitives + dialog components at time of writing.
-    expect(COMPONENTS.length).toBe(48);
+  it('exports every component the list names', () => {
     for (const name of COMPONENTS) {
       expect(kit, `missing export: ${name}`).toHaveProperty(name);
     }
+  });
+
+  it('names every component it exports', () => {
+    // The list used to be checked in one direction only, against a hardcoded
+    // count. A component added to index.ts and not to the list was exported,
+    // untested and invisible, and the count had to be hand-edited on every
+    // change, which is a step that gets skipped. Comparing the two sets makes
+    // the list complete by construction and retires the magic number.
+    const exported = Object.keys(kit)
+      .filter((name) => !FUNCTIONS.includes(name as (typeof FUNCTIONS)[number]))
+      .filter((name) => name !== 'VERSION' && name !== 'toast')
+      .sort();
+    expect(exported).toEqual([...COMPONENTS].sort());
   });
 });

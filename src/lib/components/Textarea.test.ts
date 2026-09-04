@@ -44,3 +44,19 @@ describe('Textarea', () => {
     expect((container.querySelector('textarea') as HTMLTextAreaElement).disabled).toBe(true);
   });
 });
+
+describe('Textarea required marker', () => {
+  it('states the requirement on the textarea, not in its accessible name', () => {
+    // The marker carried aria-label="required" inside the label, which fed the
+    // control's name, so the field announced as "Bio required".
+    const { container, getByRole } = render(Textarea, {
+      props: { label: 'Bio', required: true },
+    });
+    expect(getByRole('textbox', { name: 'Bio' })).toBeTruthy();
+    expect((container.querySelector('textarea') as HTMLTextAreaElement).required).toBe(true);
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

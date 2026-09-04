@@ -1,3 +1,4 @@
+import { Settings } from '@lucide/svelte';
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
@@ -70,5 +71,73 @@ describe('Card', () => {
     const card = container.querySelector('[role="button"]') as HTMLElement;
     await fireEvent.keyDown(card, { key: 'Escape' });
     expect(onkeydown).toHaveBeenCalledTimes(1);
+  });
+
+  describe('heading', () => {
+    it('renders a real heading element at level 3 by default', () => {
+      // The seven hand-rolled section shells this replaces spelled the heading
+      // as a styled div, which no heading query and no screen reader outline
+      // can find.
+      const { container } = render(Card, {
+        props: { children: text('x'), heading: 'Danger zone' },
+      });
+      expect(container.querySelector('h3')?.textContent).toBe('Danger zone');
+      expect(container.querySelector('h2')).toBeNull();
+    });
+
+    it('renders level 2 when the caller asks for it', () => {
+      const { container } = render(Card, {
+        props: { children: text('x'), heading: 'Danger zone', headingLevel: 2 },
+      });
+      expect(container.querySelector('h2')?.textContent).toBe('Danger zone');
+      expect(container.querySelector('h3')).toBeNull();
+    });
+
+    it('takes its type treatment from the layout contract, not from a local string', () => {
+      const three = render(Card, { props: { children: text('x'), heading: 'A' } });
+      expect(three.container.querySelector('h3')?.className).toBe('text-sm font-semibold text-fg');
+      const two = render(Card, {
+        props: { children: text('x'), heading: 'A', headingLevel: 2 },
+      });
+      expect(two.container.querySelector('h2')?.className).toBe('text-lg font-semibold text-fg');
+    });
+
+    it('draws the icon and the meta row beside the heading', () => {
+      const { container, getByText } = render(Card, {
+        props: { children: text('x'), heading: 'Members', icon: Settings, meta: '12 seats' },
+      });
+      const band = container.querySelector('h3')?.parentElement as HTMLElement;
+      expect(band.querySelector('svg')).toBeTruthy();
+      expect(getByText('12 seats')).toBeTruthy();
+      expect(band.contains(getByText('12 seats'))).toBe(true);
+    });
+
+    it('renders the description under the heading', () => {
+      const { getByText } = render(Card, {
+        props: { children: text('x'), heading: 'Members', description: 'Who can sign in' },
+      });
+      expect(getByText('Who can sign in')).toBeTruthy();
+    });
+
+    it('lets a header snippet win over a heading, and a heading over a title', () => {
+      // Three ways into one band. The precedence is stated on the prop, and a
+      // card that sets two of them has to resolve the same way every time.
+      const both = render(Card, {
+        props: { children: text('x'), header: text('SNIPPET'), heading: 'Heading' },
+      });
+      expect(both.getByText('SNIPPET')).toBeTruthy();
+      expect(both.container.querySelector('h3')).toBeNull();
+
+      const over = render(Card, {
+        props: { children: text('x'), heading: 'Heading', title: 'Title' },
+      });
+      expect(over.container.querySelector('h3')?.textContent).toBe('Heading');
+      expect(over.container.textContent).not.toContain('Title');
+    });
+
+    it('draws no header band at all when none of the three is set', () => {
+      const { container } = render(Card, { props: { children: text('x') } });
+      expect(container.querySelector('.border-b')).toBeNull();
+    });
   });
 });
