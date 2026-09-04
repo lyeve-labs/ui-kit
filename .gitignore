@@ -35,3 +35,6 @@ coverage/
 # local-only docs (not for public repo)
 PUBLISHING.md
 NOTES.md
+
+# agent scratch
+.scratch/

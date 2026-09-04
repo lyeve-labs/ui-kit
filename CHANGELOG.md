@@ -5,6 +5,98 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-09-04
+
+The kit did not cover the controls the product needed, so every consuming page
+filled the gap with a raw HTML control. A native select opened in operating
+system chrome in the middle of a dark theme, a native date input opened the
+browser's own calendar, and twelve secret fields took an API key with no way to
+check what was pasted. This release adds the missing controls and, more
+importantly, the shared contracts that stop the ones already here from drifting
+apart again.
+
+### Added
+
+- `PasswordInput`, a text control with a reveal toggle. The button is a real
+  `type="button"`, so it cannot submit the form it sits in, and its accessible
+  name states the action rather than the state.
+- `TimePicker`, with hour, minute and optional second segments in 12- or
+  24-hour display over a fixed 24-hour wire format. The segments are separate
+  inputs rather than one masked field, because a masked input has a single
+  accessible value and re-announces the whole string on every keystroke.
+- `CheckboxGroup`, the counterpart `RadioGroup` never had, and both now render
+  a real fieldset and legend so the set is announced as a group.
+- `SidebarNav`, for navigation nested to any depth, with persisted expansion,
+  a collapsed icon rail, `aria-current` on the active leaf and its ancestors,
+  and an active rule under which a parent no longer claims its children.
+- `TreeView`, for nested data, implementing the WAI-ARIA tree pattern with
+  roving tabindex and tri-state checkboxes whose branch state is always
+  derived and never stored.
+- `PageShell` and `SectionHeading`. Nothing owned the page gutter, so pages
+  re-declared it in four spellings, five content widths were in play with no
+  rule behind the choice, and fourteen class strings served as a section
+  heading. The gutter, the content cap, the centring and the section rhythm
+  are now properties of the shell.
+- `Checkbox` and `Radio` take an icon, a size, a description, a card variant
+  and a screen-reader-only label, spelled identically on both. `Checkbox` also
+  takes `indeterminate`, which is bindable because the browser clears the DOM
+  property on click and a one-way prop would silently desynchronise.
+- Seven internal contracts the components compose from, in the shape of the
+  existing field contract: the option filter, the floating panel, the choice
+  surface, the page layout, calendar and clock arithmetic, and the tri-state
+  roll-up. `FilterFn` is public, so a caller can replace the matcher with its
+  own without reaching into a private path.
+- `--spacing-panel-max`, `--spacing-nav-indent`, `--spacing-nav-rail` and
+  `--spacing-sidebar`.
+
+### Fixed
+
+- The build's accessibility gate had never rejected anything. It tested
+  `startsWith('a11y-')` and Svelte 5 renamed every warning code to snake_case,
+  so no violation had matched for the whole life of the Svelte 5 port.
+- `RadioGroup` kept its focus ring inside the selected branch, so choosing an
+  option removed the only indicator a keyboard user had. That is the defect
+  `Checkbox` and `Radio` were fixed for one release earlier, still live one
+  file away because nothing tested it. It also drew its resting border with
+  `line`, which reads 1.25:1, and built its `name` from `Math.random()`.
+- `Autocomplete` and `RadioGroup` generated instance ids from `Math.random()`,
+  which differs between the server render and hydration, so every
+  `aria-controls` and `aria-describedby` built from one pointed at an element
+  that did not exist on the client.
+- The Playwright component suite had never run a single assertion. Its
+  `testDir` pointed at a directory holding none of the sixteen specs, so every
+  run collected zero tests and exited green.
+- `check-dist` could only ever reject a specifier beginning with `@lyeve`, so
+  a component importing a relative path that the published tarball does not
+  contain passed the check. It now resolves every relative specifier in `dist`
+  against the file that declares it.
+- Coverage measured the wrong tree. A user-supplied `exclude` replaces the
+  default list rather than extending it, so `node_modules` and `dist` were
+  being measured.
+- `NumberInput` satisfied the field-contract guard while composing none of it,
+  hand-spelling the border it was supposed to take from `controlBorder`.
+- `FileInput` drew its dropzone boundary with `line` at 1.25:1 and its hover
+  with a fractional brand border, on the one element identifying it as a
+  control.
+- `Pagination` rendered its elision marker as a literal ellipsis character
+  with no `aria-hidden`, so a screen reader read "horizontal ellipsis" between
+  page buttons.
+- `PageHeader` hardcoded its bottom margin and appended the consumer's class
+  after it, so a page asking for a different gap shipped two competing margin
+  utilities in one attribute.
+
+### Changed
+
+- `--spacing-card`, `--spacing-section` and `--spacing-page-y` now carry their
+  measured values. The three described a product that did not exist: card at
+  24px matched none of the card surfaces in use, section at 48px matched
+  nothing anywhere, and no page rendered an asymmetric gutter. Composing from
+  them is now a cleanup rather than a regression.
+- The public API guard compares the exported set against the documented list
+  in both directions. It previously checked one direction against a hardcoded
+  count, so a component added to the entry point and not to the list was
+  exported, untested and invisible.
+
 ## [0.12.1] - 2026-09-03
 
 ### Fixed

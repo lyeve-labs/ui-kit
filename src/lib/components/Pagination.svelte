@@ -19,16 +19,36 @@
   let from = $derived(Math.min((safePage - 1) * perPage + 1, safeTotal));
   let to = $derived(Math.min(safePage * perPage, safeTotal));
 
-  function pageNumbers(current: number, last: number): (number | '…')[] {
+  /**
+   * The elided run is the sentinel string 'gap', never the horizontal-ellipsis
+   * character.
+   *
+   * The glyph used to be both the value here and the text of the span that
+   * rendered it, and that span carried no aria-hidden, so a screen reader read
+   * "horizontal ellipsis" aloud between two page numbers. The gap is decoration:
+   * it says nothing the page numbers either side do not already say.
+   */
+  type PageSlot = number | 'gap';
+
+  function pageNumbers(current: number, last: number): PageSlot[] {
     if (last <= 7) return Array.from({ length: last }, (_, i) => i + 1);
-    const pages: (number | '…')[] = [1];
-    if (current > 3) pages.push('…');
+    const pages: PageSlot[] = [1];
+    if (current > 3) pages.push('gap');
     for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
       pages.push(i);
     }
-    if (current < last - 2) pages.push('…');
+    if (current < last - 2) pages.push('gap');
     pages.push(last);
     return pages;
+  }
+
+  /**
+   * A page number is unique in the list, so it is its own key. Both gaps are
+   * spelled 'gap', so they take their position as well. Keying on the index
+   * alone made every slot change identity when a page was inserted ahead of it.
+   */
+  function slotKey(slot: PageSlot, index: number): string {
+    return slot === 'gap' ? `gap-${index}` : `page-${slot}`;
   }
 
   let nums = $derived(pageNumbers(safePage, totalPages));
@@ -72,9 +92,25 @@
         </svg>
       </button>
 
-      {#each nums as n, i (i)}
-        {#if n === '…'}
-          <span class="w-7 text-center text-xs text-faint">…</span>
+      {#each nums as n, i (slotKey(n, i))}
+        {#if n === 'gap'}
+          <!-- Three drawn dots, not the ellipsis character: a font glyph lands
+               at a different optical weight from every other icon here, and the
+               character is what the screen reader was speaking. -->
+          <span class="inline-flex w-7 items-center justify-center text-faint" aria-hidden="true">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h.01M12 12h.01M19 12h.01" />
+            </svg>
+          </span>
         {:else}
           <button
             type="button"

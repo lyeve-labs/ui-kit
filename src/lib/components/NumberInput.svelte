@@ -4,6 +4,7 @@
     FIELD_HINT,
     FIELD_LABEL,
     FIELD_WRAP,
+    controlBorder,
     describedBy,
   } from '../internal/field.js';
 
@@ -66,8 +67,11 @@
   let canDec = $derived(!(disabled || (min !== undefined && value <= min)));
   let canInc = $derived(!(disabled || (max !== undefined && value >= max)));
 
+  // line-strong, not line: the stepper buttons and the number between them read
+  // as one control, and line sits at 1.25:1, so the caps of that control were
+  // the part a low-vision user could not find.
   const step_ =
-    'flex w-control shrink-0 items-center justify-center border-line bg-surface-2 text-muted ' +
+    'flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted ' +
     'transition-colors duration-150 hover:bg-line hover:text-fg ' +
     'disabled:opacity-50 disabled:cursor-not-allowed';
 </script>
@@ -115,12 +119,12 @@
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
       class="min-w-0 flex-1 border-y bg-surface-2 text-center text-sm text-fg
-        outline-none transition-colors duration-150 focus:border-brand
+        outline-none transition-colors duration-150
         disabled:cursor-not-allowed disabled:opacity-50
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none
         [&::-webkit-outer-spin-button]:appearance-none
-        {error ? 'border-danger' : 'border-line'}"
+        {controlBorder(!!error)}"
     />
 
     <button

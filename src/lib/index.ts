@@ -9,16 +9,22 @@
 
 // ── Layout & structure ─────────────────────────────────────────────────────
 export { default as Card } from './components/Card.svelte';
+export { default as PageShell } from './components/PageShell.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
+export { default as SectionHeading } from './components/SectionHeading.svelte';
 export { default as Divider } from './components/Divider.svelte';
 export { default as Accordion } from './components/Accordion.svelte';
 export { default as AccordionItem } from './components/AccordionItem.svelte';
 export { default as Table } from './components/Table.svelte';
+export { default as TreeView } from './components/TreeView.svelte';
+export type { PageWidth } from './internal/layout.js';
+export type { TreeNode, TriState } from './internal/tree.js';
 
 // ── Forms & inputs ─────────────────────────────────────────────────────────
 export { default as Button } from './components/Button.svelte';
 export { default as ButtonGroup } from './components/ButtonGroup.svelte';
 export { default as Input } from './components/Input.svelte';
+export { default as PasswordInput } from './components/PasswordInput.svelte';
 export { default as Textarea } from './components/Textarea.svelte';
 export { default as NumberInput } from './components/NumberInput.svelte';
 export { default as SearchInput } from './components/SearchInput.svelte';
@@ -28,10 +34,17 @@ export { default as Select } from './components/Select.svelte';
 export { default as MultiSelect } from './components/MultiSelect.svelte';
 export { default as Autocomplete } from './components/Autocomplete.svelte';
 export { default as DatePicker } from './components/DatePicker.svelte';
+export { default as TimePicker } from './components/TimePicker.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
+export { default as CheckboxGroup } from './components/CheckboxGroup.svelte';
 export { default as Radio } from './components/Radio.svelte';
 export { default as RadioGroup } from './components/RadioGroup.svelte';
 export { default as Toggle } from './components/Toggle.svelte';
+export type { ChoiceSize, ChoiceVariant, ChoiceOrientation } from './internal/choice.js';
+export type { ChoiceOption } from './components/CheckboxGroup.svelte';
+// A caller supplying its own matcher needs the shape the kit hands it. The
+// module stays internal; only the types a consumer must spell are public.
+export type { FilterFn, FilterInput, FilterContext } from './internal/filter.js';
 
 // ── Navigation ─────────────────────────────────────────────────────────────
 export { default as Breadcrumb } from './components/Breadcrumb.svelte';
@@ -39,6 +52,8 @@ export { default as Tabs } from './components/Tabs.svelte';
 export { default as Pagination } from './components/Pagination.svelte';
 export { default as StepIndicator } from './components/StepIndicator.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
+export { default as SidebarNav } from './components/SidebarNav.svelte';
+export type { NavNode, NavTree } from './internal/nav-tree.js';
 
 // ── Overlays ───────────────────────────────────────────────────────────────
 export { default as Modal } from './components/Modal.svelte';
@@ -92,4 +107,4 @@ export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line; the build and the test suite fail when the two disagree.
-export const VERSION = '0.12.1';
+export const VERSION = '0.13.0';

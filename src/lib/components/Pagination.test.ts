@@ -2,6 +2,11 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Pagination from './Pagination.svelte';
 
+/** The drawn gap markers, which are the only aria-hidden spans the list holds. */
+function gaps(container: HTMLElement): HTMLElement[] {
+  return [...container.querySelectorAll<HTMLElement>('span[aria-hidden="true"]')];
+}
+
 describe('Pagination', () => {
   it('renders nothing when there is only one page', () => {
     const { container } = render(Pagination, {
@@ -57,12 +62,66 @@ describe('Pagination', () => {
     expect(getByText('3').getAttribute('aria-current')).toBe('page');
   });
 
-  it('renders an ellipsis when there are many pages', () => {
-    // page=2 of 10 collapses the tail into a single leading-truncation ellipsis.
-    const { getAllByText } = render(Pagination, {
+  it('elides a long run of pages with one gap marker', () => {
+    // page=2 of 10 collapses the tail into a single leading-truncation gap.
+    const { container } = render(Pagination, {
       props: { page: 2, total: 200, perPage: 20, onchange: vi.fn() },
     });
-    expect(getAllByText('…').length).toBe(1);
+    expect(gaps(container).length).toBe(1);
+  });
+
+  it('elides both ends when the current page sits in the middle', () => {
+    // Two gaps in one list is what made a positional key ambiguous.
+    const { container } = render(Pagination, {
+      props: { page: 10, total: 400, perPage: 20, onchange: vi.fn() },
+    });
+    expect(gaps(container).length).toBe(2);
+    expect(container.textContent).toContain('9');
+    expect(container.textContent).toContain('11');
+  });
+
+  it('never renders the horizontal-ellipsis character', () => {
+    // The gap used to be the literal character, both as the sentinel value and
+    // as the text of the span. The consistency suite rejects it outright.
+    const { container } = render(Pagination, {
+      props: { page: 10, total: 400, perPage: 20, onchange: vi.fn() },
+    });
+    // Written as an escape: the character is banned in this repo's source, and
+    // the point of the assertion is that it reaches no reader either.
+    expect(container.textContent).not.toMatch(/\u2026/);
+    expect(container.textContent).not.toContain('gap');
+  });
+
+  it('hides the gap marker from a screen reader', () => {
+    // Without aria-hidden the marker was spoken as "horizontal ellipsis"
+    // between two page numbers, which says nothing the numbers do not.
+    const { container } = render(Pagination, {
+      props: { page: 10, total: 400, perPage: 20, onchange: vi.fn() },
+    });
+    for (const gap of gaps(container)) {
+      expect(gap.getAttribute('aria-hidden')).toBe('true');
+      expect(gap.textContent?.trim()).toBe('');
+    }
+  });
+
+  it('draws the gap as three dots rather than typing them', () => {
+    const { container } = render(Pagination, {
+      props: { page: 10, total: 400, perPage: 20, onchange: vi.fn() },
+    });
+    const svg = gaps(container)[0].querySelector('svg');
+    expect(svg).toBeTruthy();
+    expect(svg!.querySelector('path')?.getAttribute('d')).toBe('M5 12h.01M12 12h.01M19 12h.01');
+  });
+
+  it('offers no gap marker as a click target', () => {
+    // A span, not a button: the gap stands for pages the user cannot reach in
+    // one step, so there is nothing for a click to do.
+    const { container } = render(Pagination, {
+      props: { page: 10, total: 400, perPage: 20, onchange: vi.fn() },
+    });
+    for (const gap of gaps(container)) {
+      expect(gap.tagName).toBe('SPAN');
+    }
   });
 
   it('states that there are no results instead of rendering nothing', () => {
