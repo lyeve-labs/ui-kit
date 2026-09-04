@@ -4,11 +4,10 @@
   /**
    * One option in a choice group.
    *
-   * CheckboxGroup declares this interface in the same words, so a consumer who
-   * has written one option list can write the other without rereading the
-   * types. A colocated test compares the two declarations character for
-   * character, because the group and the single control had already drifted
-   * apart once.
+   * RadioGroup declares this interface in the same words, so a consumer who has
+   * written one option list can write the other without rereading the types. A
+   * colocated test compares the two declarations character for character,
+   * because the group and the single control had already drifted apart once.
    */
   export interface ChoiceOption {
     /** The submitted value, and the key the option is rendered under. */
@@ -33,11 +32,11 @@
     type ChoiceVariant,
   } from '../internal/choice.js';
   import { FIELD_ERROR, FIELD_HINT, FIELD_LABEL, describedBy } from '../internal/field.js';
-  import Radio from './Radio.svelte';
+  import Checkbox from './Checkbox.svelte';
 
   interface Props {
-    /** The selected value. One of the option values, or empty for none. */
-    value?: string;
+    /** The chosen values, ordered by `options` rather than by click order. */
+    value?: string[];
     options: ChoiceOption[];
     /**
      * The group's accessible name, rendered as a legend. Required because an
@@ -56,11 +55,11 @@
     required?: boolean;
     disabled?: boolean;
     class?: string;
-    onchange?: (value: string) => void;
+    onchange?: (value: string[]) => void;
   }
 
   let {
-    value = $bindable(''),
+    value = $bindable([]),
     options,
     label,
     labelHidden = false,
@@ -78,30 +77,37 @@
 
   /*
    * The instance id, and through it the shared name, comes from $props.id().
-   * This group built its name from `rg-${Math.random()}`, which produces one
-   * value on the server and a different one on hydration, so every id and every
-   * name derived from it changed under the client on first paint. Two radios
-   * that disagree about their name are two groups, and selecting one no longer
-   * clears the other.
+   * RadioGroup built its name from Math.random(), which produces one value on
+   * the server and a different one on hydration, so every id and every name
+   * derived from it changed under the client on first paint.
    */
   const uid = $props.id();
   const groupName = $derived(name ?? uid);
+
+  const chosen = $derived(new Set(value));
+
+  function toggle(option: string, on: boolean) {
+    const next = new Set(value);
+    if (on) {
+      next.add(option);
+    } else {
+      next.delete(option);
+    }
+    // Filtered out of `options` rather than appended on click, so ticking C
+    // and then A submits the same value as ticking A and then C.
+    value = options.filter((o) => next.has(o.value)).map((o) => o.value);
+    onchange?.(value);
+  }
 </script>
 
 <!--
-  role="radiogroup" over the fieldset's implicit "group". A set of radios is a
-  radiogroup, and that is the role ARIA lets carry aria-invalid and
-  aria-required, so the group can report its own validity rather than leaving a
-  reader to find the message paragraph on their own.
+  No aria-invalid here, where RadioGroup carries one. ARIA supports the
+  attribute on radiogroup and not on group, which is the role a fieldset of
+  checkboxes has and the only role that fits it, so the kit's a11y gate rejects
+  it outright. The error still reaches a reader through aria-describedby, which
+  is global and points at the message paragraph below.
 -->
-<fieldset
-  class="{CHOICE_GROUP} {cls}"
-  role="radiogroup"
-  {disabled}
-  aria-invalid={error ? 'true' : undefined}
-  aria-required={required ? 'true' : undefined}
-  aria-describedby={describedBy(uid, error, hint)}
->
+<fieldset class="{CHOICE_GROUP} {cls}" {disabled} aria-describedby={describedBy(uid, error, hint)}>
   <!--
     The legend stays a legend when it is hidden. Swapping it for an aria-label
     on the fieldset would name the group and drop it out of the reading order,
@@ -115,14 +121,13 @@
   <div class={choiceGroupList(orientation)}>
     {#each options as option (option.value)}
       <!--
-        The option renders through Radio rather than through a copy of it. The
-        copy is what let this group rest its circle on border-line, at 1.25:1,
-        and keep its focus ring inside the selected branch, so choosing an
-        option deleted the only indicator a keyboard user had. Radio had been
-        fixed for both defects while the group still carried them.
+        The option renders through Checkbox rather than through a copy of it.
+        A group that paints its own box is how RadioGroup came to rest on
+        border-line and to keep its focus ring inside the selected branch while
+        the single control had been fixed for both.
       -->
-      <Radio
-        bind:group={value}
+      <Checkbox
+        checked={chosen.has(option.value)}
         value={option.value}
         label={option.label}
         description={option.description}
@@ -131,7 +136,7 @@
         {size}
         {variant}
         disabled={disabled || option.disabled === true}
-        {onchange}
+        onchange={(on) => toggle(option.value, on)}
       />
     {/each}
   </div>
