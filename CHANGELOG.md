@@ -41,6 +41,30 @@ apart again.
   and a screen-reader-only label, spelled identically on both. `Checkbox` also
   takes `indeterminate`, which is bindable because the browser clears the DOM
   property on click and a one-way prop would silently desynchronise.
+- A richer `Select`. `mode="listbox"` opts into a custom panel with a search
+  field, per-option icons and a custom trigger; `mode="native"` stays the
+  default and is never inferred from passing `options`, because 28 of the 34
+  call sites sit inside a form and rely on the browser serializing a real
+  form-associated element. The `onchange` event signature is frozen for the
+  same reason: many call sites pass an unannotated arrow contextually typed
+  from it, and one reads `e.currentTarget.form.requestSubmit()`.
+- `DateTimePicker`, composing `DatePicker` and `TimePicker` under one label,
+  one hint and one error, because they are one field.
+- `Field`, the field furniture as a component. `internal/field.ts` is private,
+  so a consumer composing a control the kit does not ship had no legal way to
+  match it and hand-copied the class strings instead.
+- `FormMessage`, for the outcome of a submit. A danger message interrupts with
+  `role="alert"`; a confirmation does not.
+- `CopyButton`, `SegmentedControl`, `Panel`, `DescriptionList`, `Toolbar` and
+  `Collapsible`, each replacing something the estate had hand-rolled: a copy
+  affordance with its own timing per page, a radio group drawn as buttons with
+  the selection carried by colour alone and no aria state, a lighter grouping
+  that did not want to be a `Card`, key and value pairs laid out as div grids
+  that convey no relationship, a filter row whose controls sat visibly
+  misaligned, and a disclosure that owns only itself.
+- `Card` takes `heading`, `headingLevel`, `icon` and `meta`; `Stat` takes
+  `size`, `tone` and `mono`. Two apps had each declared their own local `Stat`
+  and the two were visually unrelated for the same job.
 - Seven internal contracts the components compose from, in the shape of the
   existing field contract: the option filter, the floating panel, the choice
   surface, the page layout, calendar and clock arithmetic, and the tri-state
@@ -50,6 +74,20 @@ apart again.
   `--spacing-sidebar`.
 
 ### Fixed
+
+- `MultiSelect` and `Autocomplete` hand-rolled the popover, the keyboard model,
+  the filter and the dismissal that the shared modules now own, and each copy
+  carried the same defects. `Autocomplete` closed its panel on a 150ms blur
+  timer, so selecting an option worked only because mousedown to click beat the
+  timer. Neither set `aria-activedescendant`, so a screen reader was never told
+  which row was active. Their option rows were in the tab sequence, so Tab
+  walked into the list instead of leaving the field. Escape did not stop
+  propagating, so one opened inside a modal closed both. `MultiSelect`'s trigger
+  and panel were unlinked in the accessibility tree.
+- A spread of ARIA attributes hides the role from the compiler, so it could not
+  check `aria-selected` and `aria-required` against it. Three components stated
+  the role only through a spread and the armed accessibility gate rejected them
+  once it could finally see them.
 
 - The build's accessibility gate had never rejected anything. It tested
   `startsWith('a11y-')` and Svelte 5 renamed every warning code to snake_case,
