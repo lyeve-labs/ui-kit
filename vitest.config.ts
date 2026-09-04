@@ -11,6 +11,7 @@ export default defineConfig({
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
     environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
     globals: true,
     coverage: {
       // Named rather than left to the default, so the config states which
