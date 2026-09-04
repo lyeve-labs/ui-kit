@@ -317,3 +317,21 @@ describe('the parts it no longer owns', () => {
     expect(source).not.toMatch(/max-h-60|shadow-2xl/);
   });
 });
+
+describe('MultiSelect required marker', () => {
+  it('states the requirement on the trigger, not in its accessible name', () => {
+    // The marker carried aria-label="required" inside the label the trigger
+    // names itself from, so the field announced as "Tags required". The trigger
+    // is a div, not a form control, so aria-required is what it can carry.
+    const { container, getByRole } = render(MultiSelect, {
+      props: { label: 'Tags', options, required: true },
+    });
+    expect(getByRole('combobox', { name: 'Tags' })).toBeTruthy();
+    const trigger = container.querySelector('[role="combobox"]') as HTMLElement;
+    expect(trigger.getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

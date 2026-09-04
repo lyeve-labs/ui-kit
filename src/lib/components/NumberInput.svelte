@@ -79,7 +79,7 @@
 <div class="{FIELD_WRAP} {cls}">
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+      {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 

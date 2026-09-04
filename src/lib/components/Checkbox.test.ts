@@ -26,9 +26,22 @@ describe('Checkbox', () => {
     expect(container.querySelector('svg')).toBeTruthy();
   });
 
-  it('shows a required marker', () => {
-    const { container } = render(Checkbox, { props: { label: 'Agree', required: true } });
-    expect(container.querySelector('span[aria-label="required"]')?.textContent).toBe('*');
+  it('shows a required marker and keeps it out of the accessible name', () => {
+    // The marker carried aria-label="required". The label span is what
+    // aria-labelledby points at, so name computation walked into it and the
+    // control announced as "Agree required". The asterisk is paint; the input's
+    // own required attribute is what reports the state.
+    const { container, getByRole } = render(Checkbox, {
+      props: { label: 'Agree', required: true },
+    });
+    expect(getByRole('checkbox', { name: 'Agree' })).toBeTruthy();
+    expect((container.querySelector('input[type="checkbox"]') as HTMLInputElement).required).toBe(
+      true,
+    );
+    const marker = container.querySelector('span[id$="-label"] span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 
   it('fires onchange with the new boolean when toggled', async () => {

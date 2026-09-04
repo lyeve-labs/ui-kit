@@ -401,7 +401,7 @@
          takes its name from this same element. The hour keeps its own aria-label,
          which is what a screen reader reads for it. -->
     <label id="{fieldId}-label" for="{fieldId}-hour" class={FIELD_LABEL}>
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-label="required">*</span>{/if}
+      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 

@@ -371,3 +371,23 @@ describe('DateTimePicker field furniture', () => {
     expect(r.container.querySelectorAll('label')).toHaveLength(0);
   });
 });
+
+describe('DateTimePicker required marker', () => {
+  it('states the requirement on both halves, not in the group name', () => {
+    // The marker carried aria-label="required" inside the label, which names
+    // both the group and the date trigger, so the field announced as "When
+    // required". The component owns no control of its own: it forwards
+    // `required` to the two halves, and each states it where it can.
+    const { container, getByRole, getByLabelText } = render(DateTimePicker, {
+      props: { label: 'When', required: true },
+    });
+    expect(getByRole('group', { name: 'When' })).toBeTruthy();
+    const trigger = getByRole('button', { name: 'When' }) as HTMLButtonElement;
+    expect(trigger.getAttribute('aria-required')).toBe('true');
+    expect((getByLabelText('Hour') as HTMLElement).getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

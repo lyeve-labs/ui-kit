@@ -46,6 +46,27 @@ const FIELDS = [
 ];
 
 /**
+ * Source with every comment taken out. A guard that reads the raw file counts
+ * the prose explaining a decision as the decision: the first draft of the
+ * required-marker guard passed on a component whose attribute had been deleted,
+ * because the comment above it still spelled the attribute's name.
+ */
+function code(src: string): string {
+  return src.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+}
+
+/** The asterisk a component draws beside a label when the field is required. */
+const REQUIRED_MARKER = /\{#if required\}\s*<span/;
+
+/**
+ * The two components that draw the marker for a control they do not own. Field
+ * hands its wiring to a snippet the caller fills; Label sits beside whatever the
+ * caller wrote. Neither can set the attribute, so both say so in the prop doc
+ * and the caller sets it.
+ */
+const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label'];
+
+/**
  * Portalled overlays own the whole viewport, so `class` has no unambiguous
  * target on them. Everything else is placed by the consumer and must accept one.
  */
@@ -180,6 +201,94 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('hides the required marker rather than naming it', () => {
+    // Fifteen components spelled the marker `aria-label="required"`. Accessible
+    // name computation walks into the label and concatenates what it finds, and
+    // an aria-label on a descendant replaces that descendant's text rather than
+    // being skipped, so a field labelled Email announced as "Email required".
+    // A name is what a voice-control user speaks at the control, and nobody
+    // says "Email required". The marker is paint; the state belongs on the
+    // control.
+    const offenders = files
+      .filter((f) => f.src.includes('aria-label="required"'))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('marks every required asterisk aria-hidden', () => {
+    // The other half of the same rule. Dropping the aria-label alone leaves the
+    // bare "*" in the name, so a field announces as "Email star".
+    const offenders = files
+      .filter((f) => REQUIRED_MARKER.test(f.src))
+      .filter((f) => !/\{#if required\}\s*<span[^>]*aria-hidden="true"/.test(f.src))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('puts no aria-label on decoration inside a label or a legend', () => {
+    // The rule the marker broke, stated over the whole subtree rather than over
+    // the one attribute value it arrived under. A label and a legend are read
+    // in full to name what they point at, so an aria-label on a plain element
+    // under one rewrites that element's share of the name and lands in the
+    // control's. On a labelable element it is not a fragment, it is that
+    // control's whole name, which is how Toggle names its switch from inside
+    // the label that wraps it.
+    const LABELABLE = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
+    const block = /<(label|legend)\b[^>]*>([\s\S]*?)<\/\1>/g;
+    const offenders = files
+      .filter((f) => {
+        block.lastIndex = 0;
+        let m: RegExpExecArray | null;
+        while ((m = block.exec(f.src)) !== null) {
+          const inner = m[2];
+          for (
+            let i = inner.indexOf('aria-label');
+            i !== -1;
+            i = inner.indexOf('aria-label', i + 1)
+          ) {
+            const open = inner.lastIndexOf('<', i);
+            const tag = /^<([a-zA-Z][\w-]*)/.exec(inner.slice(open))?.[1] ?? '';
+            if (!LABELABLE.includes(tag)) return true;
+          }
+        }
+        return false;
+      })
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('states the requirement on the control of every component that draws a marker', () => {
+    // The marker is decorative, so a component that draws one and stops has
+    // told a screen reader nothing at all. A native input, select or textarea
+    // takes `required`; a trigger, a fieldset or a segmented group takes
+    // aria-required. DateTimePicker owns neither and forwards `required` to the
+    // two halves, which is the same attribute reaching the same place.
+    const native = /^\s*\{required\}\s*$/m;
+    const offenders = files
+      .filter((f) => REQUIRED_MARKER.test(f.src))
+      .filter((f) => !NO_CONTROL_OF_THEIR_OWN.includes(f.name))
+      .filter((f) => {
+        const c = code(f.src);
+        return !native.test(c) && !c.includes('aria-required=');
+      })
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it.each(NO_CONTROL_OF_THEIR_OWN)(
+    '%s tells the caller the marker is decorative and the attribute is theirs to set',
+    (name) => {
+      const src = files.find((f) => f.name === name)!.src;
+      expect(src, `${name} draws a marker and explains nothing`).toContain('decorative');
+    },
+  );
+
+  it('still finds every component that draws a marker', () => {
+    // The three guards above are filters. A marker rewritten into a shape the
+    // pattern misses would empty every one of them and they would all pass.
+    expect(files.filter((f) => REQUIRED_MARKER.test(f.src)).length).toBeGreaterThanOrEqual(16);
+  });
+
   it('names one duration for every colour transition', () => {
     // A bare `transition-colors` inherits Tailwind's default and reads the same,
     // but it means the value is not stated anywhere a designer can change it.
@@ -245,10 +354,9 @@ describe('the kit carries its own styles', () => {
     // stacked dialog rendered at `z-index: auto`; its own test asserted the
     // class string was present, which it was, and passed the whole time.
     // Runtime values belong in a `style` attribute.
-    const dynamic = /\b(?:z|w|h|min-w|min-h|max-w|max-h|top|left|right|bottom|gap|p|m|px|py|mx|my|text|bg|border|rounded|opacity|translate-x|translate-y|grid-cols)-\[[^\]]*\{/;
-    const offenders = files
-      .filter((f) => dynamic.test(f.src))
-      .map((f) => f.name);
+    const dynamic =
+      /\b(?:z|w|h|min-w|min-h|max-w|max-h|top|left|right|bottom|gap|p|m|px|py|mx|my|text|bg|border|rounded|opacity|translate-x|translate-y|grid-cols)-\[[^\]]*\{/;
+    const offenders = files.filter((f) => dynamic.test(f.src)).map((f) => f.name);
     expect(offenders).toEqual([]);
   });
 

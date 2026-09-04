@@ -281,7 +281,7 @@
          names it and clicking that label opens the calendar. The group below
          takes its name from this same element. -->
     <label id="{fieldId}-label" for="{fieldId}-date" class={FIELD_LABEL}>
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-label="required">*</span>{/if}
+      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 

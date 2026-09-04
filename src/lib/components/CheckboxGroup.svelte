@@ -106,8 +106,21 @@
   checkboxes has and the only role that fits it, so the kit's a11y gate rejects
   it outright. The error still reaches a reader through aria-describedby, which
   is global and points at the message paragraph below.
+
+  aria-required is refused by the same rule and is kept anyway, because the
+  requirement has no other element to live on. The asterisk in the legend is
+  decorative, the group posts no control of its own, and `required` on each
+  checkbox would say every box must be checked, which is the opposite of what a
+  required group asks for. Browsers expose the property here; the alternative
+  is announcing the requirement nowhere.
 -->
-<fieldset class="{CHOICE_GROUP} {cls}" {disabled} aria-describedby={describedBy(uid, error, hint)}>
+<!-- svelte-ignore a11y_role_supports_aria_props_implicit -->
+<fieldset
+  class="{CHOICE_GROUP} {cls}"
+  {disabled}
+  aria-required={required ? 'true' : undefined}
+  aria-describedby={describedBy(uid, error, hint)}
+>
   <!--
     The legend stays a legend when it is hidden. Swapping it for an aria-label
     on the fieldset would name the group and drop it out of the reading order,
@@ -115,7 +128,7 @@
     ahead of them saying what the set is for.
   -->
   <legend class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-    {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+    {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
   </legend>
 
   <div class={choiceGroupList(orientation)}>

@@ -186,8 +186,20 @@ describe('Radio', () => {
     // The two controls disagreed here: a required checkbox showed a marker and
     // a required radio showed nothing, so one form asked for the same thing in
     // two ways.
-    const { container } = render(Radio, { props: { value: 'a', label: 'Agree', required: true } });
-    expect(container.querySelector('span[aria-label="required"]')?.textContent).toBe('*');
+    const { container, getByRole } = render(Radio, {
+      props: { value: 'a', label: 'Agree', required: true },
+    });
+    // The marker is decorative. It sat in the span aria-labelledby points at
+    // carrying aria-label="required", which name computation folded into the
+    // name, so the option announced as "Agree required".
+    expect(getByRole('radio', { name: 'Agree' })).toBeTruthy();
+    expect((container.querySelector('input[type="radio"]') as HTMLInputElement).required).toBe(
+      true,
+    );
+    const marker = container.querySelector('span[id$="-label"] span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 
   it('blocks the change handler while disabled', async () => {

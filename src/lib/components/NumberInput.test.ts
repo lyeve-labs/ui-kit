@@ -125,3 +125,21 @@ describe('NumberInput', () => {
     }
   });
 });
+
+describe('NumberInput required marker', () => {
+  it('states the requirement on the input, not in its accessible name', () => {
+    // The marker carried aria-label="required" inside the label, which fed the
+    // control's name, so the field announced as "Qty required".
+    const { container, getByRole } = render(NumberInput, {
+      props: { label: 'Qty', required: true },
+    });
+    expect(getByRole('spinbutton', { name: 'Qty' })).toBeTruthy();
+    expect((container.querySelector('input[type="number"]') as HTMLInputElement).required).toBe(
+      true,
+    );
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});
