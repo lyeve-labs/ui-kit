@@ -9,13 +9,17 @@
 
 // ── Layout & structure ─────────────────────────────────────────────────────
 export { default as Card } from './components/Card.svelte';
+export { default as Panel } from './components/Panel.svelte';
 export { default as PageShell } from './components/PageShell.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as SectionHeading } from './components/SectionHeading.svelte';
 export { default as Divider } from './components/Divider.svelte';
 export { default as Accordion } from './components/Accordion.svelte';
 export { default as AccordionItem } from './components/AccordionItem.svelte';
+export { default as Collapsible } from './components/Collapsible.svelte';
 export { default as Table } from './components/Table.svelte';
+export { default as DescriptionList } from './components/DescriptionList.svelte';
+export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
 export type { PageWidth } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
@@ -30,11 +34,18 @@ export { default as NumberInput } from './components/NumberInput.svelte';
 export { default as SearchInput } from './components/SearchInput.svelte';
 export { default as FileInput } from './components/FileInput.svelte';
 export { default as Label } from './components/Label.svelte';
+// The field furniture as a component, for a consumer composing a control the
+// kit does not ship. internal/field.ts stays private, and a page that could
+// not reach it hand-copied the class strings instead.
+export { default as Field } from './components/Field.svelte';
+export { default as FormMessage } from './components/FormMessage.svelte';
+export { default as SegmentedControl } from './components/SegmentedControl.svelte';
 export { default as Select } from './components/Select.svelte';
 export { default as MultiSelect } from './components/MultiSelect.svelte';
 export { default as Autocomplete } from './components/Autocomplete.svelte';
 export { default as DatePicker } from './components/DatePicker.svelte';
 export { default as TimePicker } from './components/TimePicker.svelte';
+export { default as DateTimePicker } from './components/DateTimePicker.svelte';
 export { default as Checkbox } from './components/Checkbox.svelte';
 export { default as CheckboxGroup } from './components/CheckboxGroup.svelte';
 export { default as Radio } from './components/Radio.svelte';
@@ -42,6 +53,10 @@ export { default as RadioGroup } from './components/RadioGroup.svelte';
 export { default as Toggle } from './components/Toggle.svelte';
 export type { ChoiceSize, ChoiceVariant, ChoiceOrientation } from './internal/choice.js';
 export type { ChoiceOption } from './components/CheckboxGroup.svelte';
+export type { SelectOption, SelectChangeEvent } from './components/Select.svelte';
+// One shape for both filtered lists: MultiSelect takes the same option array
+// Autocomplete does, so a consumer types it once.
+export type { ListOption } from './components/Autocomplete.svelte';
 // A caller supplying its own matcher needs the shape the kit hands it. The
 // module stays internal; only the types a consumer must spell are public.
 export type { FilterFn, FilterInput, FilterContext } from './internal/filter.js';
@@ -72,6 +87,7 @@ export { default as Skeleton } from './components/Skeleton.svelte';
 export { default as EmptyState } from './components/EmptyState.svelte';
 export { default as Stat } from './components/Stat.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
+export { default as CopyButton } from './components/CopyButton.svelte';
 
 // ── Media ──────────────────────────────────────────────────────────────────
 export { default as Avatar } from './components/Avatar.svelte';
