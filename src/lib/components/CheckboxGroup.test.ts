@@ -274,20 +274,54 @@ describe('CheckboxGroup', () => {
     expect(getByText('View records only')).toBeTruthy();
   });
 
-  it('marks a required group in its legend and states it on the fieldset', () => {
-    // The marker carried aria-label="required" inside the legend, and a legend
-    // is where the group's name comes from, so the set announced as
-    // "Permissions required". The fieldset carries aria-required instead.
+  it('names the required group as required', () => {
+    // The fieldset carried aria-required, which ARIA 1.2 does not support on
+    // group, and `required` on each box would demand every option be ticked.
+    // The name is where the requirement fits: a group's name comes from its
+    // legend, and "Permissions (required)" describes the set accurately.
     const { container, getByRole } = render(CheckboxGroup, {
       props: { label: 'Permissions', options, required: true },
     });
-    expect(getByRole('group', { name: 'Permissions' })).toBeTruthy();
+    expect(getByRole('group', { name: 'Permissions (required)' })).toBeTruthy();
     const fieldset = container.querySelector('fieldset') as HTMLFieldSetElement;
-    expect(fieldset.getAttribute('aria-required')).toBe('true');
+    expect(fieldset.hasAttribute('aria-required')).toBe(false);
     const marker = container.querySelector('legend span') as HTMLElement;
     expect(marker.textContent).toBe('*');
     expect(marker.getAttribute('aria-hidden')).toBe('true');
     expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('leaves the name alone when the group is not required', () => {
+    const { getByRole } = render(CheckboxGroup, { props: { label: 'Permissions', options } });
+    expect(getByRole('group', { name: 'Permissions' })).toBeTruthy();
+  });
+
+  it('carries the requirement in the name of a hidden legend too', () => {
+    // sr-only keeps the legend in the accessibility tree, so hiding it hides
+    // the asterisk and nothing else.
+    const { getByRole } = render(CheckboxGroup, {
+      props: { label: 'Permissions', options, required: true, labelHidden: true },
+    });
+    expect(getByRole('group', { name: 'Permissions (required)' })).toBeTruthy();
+  });
+
+  it('says what is required through the hint the caller supplies', () => {
+    // The name says that something is required; the hint says what. It reaches
+    // a reader through aria-describedby, which group does support.
+    const { container, getByRole } = render(CheckboxGroup, {
+      props: { label: 'Permissions', options, required: true, hint: 'Pick at least one' },
+    });
+    const fieldset = getByRole('group', { name: 'Permissions (required)' });
+    const hint = container.querySelector('p') as HTMLElement;
+    expect(hint.textContent).toBe('Pick at least one');
+    expect(fieldset.getAttribute('aria-describedby')).toBe(hint.id);
+  });
+
+  it('leaves no aria-required and no svelte-ignore in the source', () => {
+    // The attribute sat behind a scoped suppression of the rule that was
+    // telling the truth about it.
+    expect(code).not.toContain('aria-required');
+    expect(source).not.toMatch(/svelte-ignore/);
   });
 
   it('keys every option by its value', () => {
