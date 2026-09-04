@@ -74,7 +74,9 @@
        is fixed here and does not change with whether a description is set. -->
   <div class="flex flex-col gap-2">
     {#if breadcrumb}{@render breadcrumb()}{/if}
-    <PageHeader {title} {description} {actions} compact={fill} />
+    <!-- flush: the shell's own section stack supplies the gap below the title,
+         so the header must not add a second one. -->
+    <PageHeader {title} {description} {actions} compact={fill} flush />
   </div>
 
   <div class={content}>

@@ -81,9 +81,14 @@ apart again.
 - `Pagination` rendered its elision marker as a literal ellipsis character
   with no `aria-hidden`, so a screen reader read "horizontal ellipsis" between
   page buttons.
-- `PageHeader` hardcoded its bottom margin and appended the consumer's class
-  after it, so a page asking for a different gap shipped two competing margin
-  utilities in one attribute.
+- `PageHeader` appended its bottom margin ahead of the consumer's class, so a
+  page asking for a different gap shipped two competing margin utilities in one
+  attribute and Tailwind's emitted order picked the winner rather than the page.
+  The margin is now opt-out through `flush`, which `PageShell` sets because it
+  owns the rhythm itself. It is opt-out rather than removed because 43 pages
+  across the estate render the component directly and take their heading gap
+  from it; deleting it would have moved every one of them by 32px with nothing
+  in their own source to explain why.
 
 ### Changed
 

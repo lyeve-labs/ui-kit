@@ -25,17 +25,26 @@ describe('PageHeader', () => {
     expect(getByText('New')).toBeTruthy();
   });
 
-  it('carries no margin of its own', () => {
-    // mb-8 was appended ahead of the consumer's class, so a page asking for a
-    // different gap shipped two margin utilities in one attribute and the
-    // winner was whichever Tailwind emitted last. The shell owns the gap.
+  it('keeps its heading gap by default', () => {
+    // Forty-three pages across the estate render this component directly and
+    // take their heading gap from it. Removing the margin outright moved every
+    // one of them by 32px with nothing in their own source to explain it, so
+    // the margin stays and the caller that owns the rhythm opts out.
     const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
+    expect((container.querySelector('header') as HTMLElement).className).toMatch(/\bmb-8\b/);
+  });
+
+  it('drops the margin when the caller owns the rhythm', () => {
+    const { container } = render(PageHeader, { props: { title: 'Dashboard', flush: true } });
     expect((container.querySelector('header') as HTMLElement).className).not.toMatch(/\bmb-/);
   });
 
-  it('leaves a consumer margin uncontested', () => {
+  it('leaves a consumer margin uncontested when it is flush', () => {
+    // The defect this guards is two margin utilities in one attribute, where
+    // the winner is whichever Tailwind emitted last rather than the one the
+    // page asked for. A page setting its own gap says so.
     const { container } = render(PageHeader, {
-      props: { title: 'Dashboard', class: 'mb-2' },
+      props: { title: 'Dashboard', flush: true, class: 'mb-2' },
     });
     const margins = (container.querySelector('header') as HTMLElement).className.match(/\bmb-\S+/g);
     expect(margins).toEqual(['mb-2']);
