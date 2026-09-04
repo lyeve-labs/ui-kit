@@ -382,7 +382,9 @@ describe('DateTimePicker required marker', () => {
       props: { label: 'When', required: true },
     });
     expect(getByRole('group', { name: 'When' })).toBeTruthy();
-    const trigger = getByRole('button', { name: 'When' }) as HTMLButtonElement;
+    // The date half's trigger is a combobox: aria-required is not a property
+    // ARIA gives button, so the role changed under it and the query follows.
+    const trigger = getByRole('combobox', { name: 'When' }) as HTMLButtonElement;
     expect(trigger.getAttribute('aria-required')).toBe('true');
     expect((getByLabelText('Hour') as HTMLElement).getAttribute('aria-required')).toBe('true');
     const marker = container.querySelector('label span') as HTMLElement;

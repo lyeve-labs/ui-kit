@@ -107,20 +107,16 @@
   it outright. The error still reaches a reader through aria-describedby, which
   is global and points at the message paragraph below.
 
-  aria-required is refused by the same rule and is kept anyway, because the
-  requirement has no other element to live on. The asterisk in the legend is
-  decorative, the group posts no control of its own, and `required` on each
-  checkbox would say every box must be checked, which is the opposite of what a
-  required group asks for. Browsers expose the property here; the alternative
-  is announcing the requirement nowhere.
+  aria-required is gone for the same reason and is not replaced by `required` on
+  each box, which would demand every option be ticked instead of one of them.
+  The requirement is in the group's name instead: a group's name comes from its
+  legend, so the legend says "(required)" and the set announces as "Interests
+  (required), group". Naming a group that way is accurate, where naming a single
+  control that way puts a word into what a voice user has to speak at it. The
+  asterisk stays decoration, and the hint, when the caller writes one, says what
+  is required and reaches the reader through aria-describedby.
 -->
-<!-- svelte-ignore a11y_role_supports_aria_props_implicit -->
-<fieldset
-  class="{CHOICE_GROUP} {cls}"
-  {disabled}
-  aria-required={required ? 'true' : undefined}
-  aria-describedby={describedBy(uid, error, hint)}
->
+<fieldset class="{CHOICE_GROUP} {cls}" {disabled} aria-describedby={describedBy(uid, error, hint)}>
   <!--
     The legend stays a legend when it is hidden. Swapping it for an aria-label
     on the fieldset would name the group and drop it out of the reading order,
@@ -128,7 +124,11 @@
     ahead of them saying what the set is for.
   -->
   <legend class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-    {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
+    {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span><span
+        class="sr-only"
+      >
+        (required)</span
+      >{/if}
   </legend>
 
   <div class={choiceGroupList(orientation)}>

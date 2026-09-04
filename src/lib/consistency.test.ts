@@ -55,6 +55,55 @@ function code(src: string): string {
   return src.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
+/** The implicit ARIA role of the host elements the kit hangs aria-* on. */
+const IMPLICIT_ROLE: Record<string, string> = {
+  button: 'button',
+  fieldset: 'group',
+  input: 'textbox',
+  select: 'combobox',
+  textarea: 'textbox',
+  div: 'generic',
+  span: 'generic',
+};
+
+/**
+ * The role each `aria-required` in a source sits on, in source order.
+ *
+ * The element's own `role` attribute when it has one, its implicit role
+ * otherwise, so a fieldset counts as the group it is. The tag is read to its
+ * closing `>` at brace depth zero: an attribute value holds `=>` and `>` of its
+ * own, and stopping at the first one would take the role of whatever element
+ * the scan happened to land in.
+ */
+function ariaRequiredRoles(src: string): string[] {
+  const roles: string[] = [];
+  for (let i = src.indexOf('aria-required'); i !== -1; i = src.indexOf('aria-required', i + 1)) {
+    const open = src.lastIndexOf('<', i);
+    const name = /^<([a-zA-Z][\w-]*)/.exec(src.slice(open))?.[1];
+    if (name === undefined) continue;
+    let depth = 0;
+    let quote = '';
+    let end = open + 1;
+    for (; end < src.length; end++) {
+      const c = src[end];
+      if (quote !== '') {
+        if (c === quote) quote = '';
+      } else if (c === '"' || c === "'") {
+        quote = c;
+      } else if (c === '{') {
+        depth += 1;
+      } else if (c === '}') {
+        depth -= 1;
+      } else if (c === '>' && depth === 0) {
+        break;
+      }
+    }
+    const tag = src.slice(open, end);
+    roles.push(/\brole="([a-z]+)"/.exec(tag)?.[1] ?? IMPLICIT_ROLE[name] ?? name);
+  }
+  return roles;
+}
+
 /** The asterisk a component draws beside a label when the field is required. */
 const REQUIRED_MARKER = /\{#if required\}\s*<span/;
 
@@ -129,10 +178,10 @@ describe('component consistency', () => {
     }
   });
 
-  // MultiSelect and DatePicker open their list from a role="button" trigger,
-  // which holds no value for aria-invalid to describe. Their error still
-  // reaches a screen reader, through aria-describedby.
-  it.each(FIELDS.filter((n) => !['SearchInput', 'MultiSelect', 'DatePicker'].includes(n)))(
+  // MultiSelect's trigger is a chip well: the error belongs to the field and
+  // not to any one chip, and its message reaches a screen reader through
+  // aria-describedby instead.
+  it.each(FIELDS.filter((n) => !['SearchInput', 'MultiSelect'].includes(n)))(
     '%s announces its own error to a screen reader',
     (name) => {
       const src = files.find((x) => x.name === name)!.src;
@@ -260,19 +309,50 @@ describe('component consistency', () => {
   it('states the requirement on the control of every component that draws a marker', () => {
     // The marker is decorative, so a component that draws one and stops has
     // told a screen reader nothing at all. A native input, select or textarea
-    // takes `required`; a trigger, a fieldset or a segmented group takes
-    // aria-required. DateTimePicker owns neither and forwards `required` to the
-    // two halves, which is the same attribute reaching the same place.
+    // takes `required`; a control whose role supports it takes aria-required; a
+    // group takes it into its own name, because a group is named by its legend
+    // and "Permissions (required)" describes the set rather than putting a word
+    // into what a voice user speaks at a control. DateTimePicker owns no
+    // control and forwards `required` to the two halves, which is the same
+    // attribute reaching the same place.
     const native = /^\s*\{required\}\s*$/m;
     const offenders = files
       .filter((f) => REQUIRED_MARKER.test(f.src))
       .filter((f) => !NO_CONTROL_OF_THEIR_OWN.includes(f.name))
       .filter((f) => {
         const c = code(f.src);
-        return !native.test(c) && !c.includes('aria-required=');
+        return !native.test(c) && !c.includes('aria-required=') && !c.includes('(required)');
       })
       .map((f) => f.name);
     expect(offenders).toEqual([]);
+  });
+
+  it('puts no aria-required on a role that does not support it', () => {
+    // ARIA 1.2 lists aria-required for the roles that hold a value a form can
+    // reject. button is not one, and neither is group, which is the implicit
+    // role of a fieldset. A user agent drops the property there, so the picker
+    // and the checkbox group announced no requirement at all while their source
+    // read as though they did, both of them behind a scoped svelte-ignore of
+    // the rule that was right. combobox, radiogroup, spinbutton and the native
+    // controls carry it properly.
+    const offenders = files
+      .filter((f) => ariaRequiredRoles(code(f.src)).some((r) => r === 'button' || r === 'group'))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('finds a bad aria-required through the role, not through the tag name', () => {
+    // The guard above is a filter over the library, so it passes on an empty
+    // library and on a scanner that reads nothing. This is the shape it has to
+    // catch, including the two attribute forms the kit writes and a tag whose
+    // handler holds the `>` of an arrow function.
+    const fixture = [
+      `<button aria-required={required ? 'true' : undefined} onclick={() => go()}>x</button>`,
+      `<fieldset {disabled} aria-required="true"></fieldset>`,
+      `<button role="combobox" aria-expanded={open} aria-required="true">y</button>`,
+      `<input type="text" role="spinbutton" aria-required="true" />`,
+    ].join('\n');
+    expect(ariaRequiredRoles(fixture)).toEqual(['button', 'group', 'combobox', 'spinbutton']);
   });
 
   it.each(NO_CONTROL_OF_THEIR_OWN)(
