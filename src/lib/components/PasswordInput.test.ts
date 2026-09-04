@@ -191,6 +191,17 @@ describe('PasswordInput', () => {
     });
     expect(input(container).readOnly).toBe(true);
     expect(input(container).required).toBe(true);
-    expect(container.querySelector('span[aria-label="required"]')?.textContent).toBe('*');
+    // A password input has no ARIA role, so getByRole cannot reach it and the
+    // name has to be checked through what feeds it. Nothing overrides the
+    // label, and the marker inside the label is hidden, so the name is "Key"
+    // and not the "Key required" the old aria-label produced.
+    const label = container.querySelector('label') as HTMLLabelElement;
+    expect(label.getAttribute('for')).toBe(input(container).id);
+    expect(input(container).hasAttribute('aria-label')).toBe(false);
+    expect(input(container).hasAttribute('aria-labelledby')).toBe(false);
+    const marker = label.querySelector('span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 });

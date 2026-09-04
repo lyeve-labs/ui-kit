@@ -445,3 +445,21 @@ describe('TimePicker accessibility', () => {
     expect((named[0] as HTMLInputElement).type).toBe('hidden');
   });
 });
+
+describe('TimePicker required marker', () => {
+  it('states the requirement on the segments, not in the group name', () => {
+    // The marker carried aria-label="required" inside the label the group names
+    // itself from, so the field announced as "At required". Each segment
+    // already carried aria-required; only the marker was wrong.
+    const { container, getByRole, getByLabelText } = render(TimePicker, {
+      props: { label: 'At', required: true },
+    });
+    expect(getByRole('group', { name: 'At' })).toBeTruthy();
+    expect((getByLabelText('Hour') as HTMLElement).getAttribute('aria-required')).toBe('true');
+    expect((getByLabelText('Minute') as HTMLElement).getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

@@ -109,7 +109,7 @@
     ahead of them saying what the set is for.
   -->
   <legend class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-    {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+    {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
   </legend>
 
   <div class={choiceGroupList(orientation)}>

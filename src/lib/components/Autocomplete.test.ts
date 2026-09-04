@@ -276,3 +276,21 @@ describe('the parts it no longer owns', () => {
     expect(source).not.toMatch(/max-h-60|shadow-2xl|border-line\b/);
   });
 });
+
+describe('Autocomplete required marker', () => {
+  it('states the requirement on the input, not in its accessible name', () => {
+    // The marker carried aria-label="required" inside the label, which fed the
+    // combobox name, so the field announced as "City required".
+    const { container, getByRole } = render(Autocomplete, {
+      props: { label: 'City', options, required: true },
+    });
+    expect(getByRole('combobox', { name: 'City' })).toBeTruthy();
+    expect((container.querySelector('input[role="combobox"]') as HTMLInputElement).required).toBe(
+      true,
+    );
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

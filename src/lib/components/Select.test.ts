@@ -319,3 +319,35 @@ describe('Select: icons and a custom trigger', () => {
     expect((first.textContent ?? '').trim()).toBe('Pick a plan');
   });
 });
+
+describe('Select required marker', () => {
+  const rows: SelectOption[] = [
+    { value: 'free', label: 'Free' },
+    { value: 'team', label: 'Team' },
+  ];
+
+  it('states the requirement on the native select, not in its accessible name', () => {
+    // The marker carried aria-label="required" inside the label, which fed the
+    // control's name, so the field announced as "Plan required".
+    const { container, getByRole } = render(Select, {
+      props: { label: 'Plan', options: rows, required: true },
+    });
+    expect(getByRole('combobox', { name: 'Plan' })).toBeTruthy();
+    expect((container.querySelector('select') as HTMLSelectElement).required).toBe(true);
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('states the requirement on the listbox trigger too', () => {
+    // Listbox mode has no native control to take `required`, so the trigger
+    // carries aria-required. It is a combobox, which is a role that supports it.
+    const { container, getByRole } = render(Select, {
+      props: { label: 'Plan', options: rows, mode: 'listbox' as const, required: true },
+    });
+    expect(getByRole('combobox', { name: 'Plan' })).toBeTruthy();
+    const trigger = container.querySelector('[role="combobox"]') as HTMLElement;
+    expect(trigger.getAttribute('aria-required')).toBe('true');
+  });
+});

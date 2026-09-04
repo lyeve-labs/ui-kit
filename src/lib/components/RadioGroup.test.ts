@@ -278,12 +278,20 @@ describe('RadioGroup', () => {
     expect(getByText('One project, no card needed')).toBeTruthy();
   });
 
-  it('marks a required group in its legend', () => {
-    const { container } = render(RadioGroup, {
+  it('marks a required group in its legend and states it on the fieldset', () => {
+    // The marker carried aria-label="required" inside the legend, and a legend
+    // is where the group's name comes from, so the set announced as "Plan
+    // required". aria-required on the radiogroup is what reports the state.
+    const { container, getByRole } = render(RadioGroup, {
       props: { label: 'Plan', options, required: true },
     });
-    const marker = container.querySelector('legend span[aria-label="required"]');
-    expect(marker?.textContent).toBe('*');
+    expect(getByRole('radiogroup', { name: 'Plan' })).toBeTruthy();
+    const fieldset = container.querySelector('fieldset') as HTMLFieldSetElement;
+    expect(fieldset.getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('legend span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 
   it('keys every option by its value', () => {

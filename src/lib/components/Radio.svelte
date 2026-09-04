@@ -145,8 +145,7 @@
                  own text it became part of the name, and the reader heard the
                  whole paragraph before it reached the selected state. -->
             <span id="{fieldId}-label" class="{choiceLabel(size)} {labelHidden ? 'sr-only' : ''}">
-              {label}{#if required}<span class="ml-0.5 text-danger" aria-label="required">*</span
-                >{/if}
+              {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
             </span>
           {/if}
         </span>

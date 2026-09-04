@@ -274,12 +274,20 @@ describe('CheckboxGroup', () => {
     expect(getByText('View records only')).toBeTruthy();
   });
 
-  it('marks a required group in its legend', () => {
-    const { container } = render(CheckboxGroup, {
+  it('marks a required group in its legend and states it on the fieldset', () => {
+    // The marker carried aria-label="required" inside the legend, and a legend
+    // is where the group's name comes from, so the set announced as
+    // "Permissions required". The fieldset carries aria-required instead.
+    const { container, getByRole } = render(CheckboxGroup, {
       props: { label: 'Permissions', options, required: true },
     });
-    const marker = container.querySelector('legend span[aria-label="required"]');
-    expect(marker?.textContent).toBe('*');
+    expect(getByRole('group', { name: 'Permissions' })).toBeTruthy();
+    const fieldset = container.querySelector('fieldset') as HTMLFieldSetElement;
+    expect(fieldset.getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('legend span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 
   it('keys every option by its value', () => {

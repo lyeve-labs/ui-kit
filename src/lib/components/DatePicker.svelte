@@ -163,16 +163,26 @@
 <div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
     <label for={id} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ml-0.5" aria-label="required">*</span>{/if}
+      {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
   <div class="relative">
+    <!--
+      aria-required on a button, which ARIA 1.2 does not list and the a11y gate
+      refuses. The trigger is the only element a reader lands on: this picker
+      posts no value of its own, so there is no native input to take `required`,
+      and naming the trigger a combobox would claim a textbox and a controlled
+      list that the calendar popup below is not. The asterisk beside the label
+      is decorative, so dropping this announces the requirement nowhere.
+    -->
+    <!-- svelte-ignore a11y_role_supports_aria_props_implicit -->
     <button
       type="button"
       {id}
       {disabled}
       onclick={() => (open ? (open = false) : openCal())}
+      aria-required={required ? 'true' : undefined}
       aria-describedby={describedBy(id, error, hint)}
       class="{CONTROL_BASE} {controlBorder(!!error)} flex items-center justify-between text-left"
     >

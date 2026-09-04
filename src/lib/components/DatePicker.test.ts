@@ -44,3 +44,22 @@ describe('DatePicker', () => {
     expect(queryByLabelText('Previous month')).toBeNull();
   });
 });
+
+describe('DatePicker required marker', () => {
+  it('states the requirement on the trigger, not in its accessible name', () => {
+    // The marker carried aria-label="required" inside the label, and a label
+    // names the button it points at, so the field announced as "Starts
+    // required". The trigger posts no value of its own, so aria-required is
+    // what it can carry. An id is passed because the label's `for` needs one.
+    const { container, getByRole } = render(DatePicker, {
+      props: { id: 'starts', label: 'Starts', required: true },
+    });
+    expect(getByRole('button', { name: 'Starts' })).toBeTruthy();
+    const trigger = container.querySelector('button#starts') as HTMLButtonElement;
+    expect(trigger.getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

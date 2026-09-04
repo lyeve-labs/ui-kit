@@ -57,3 +57,21 @@ describe('Input', () => {
     expect((container.querySelector('input') as HTMLInputElement).disabled).toBe(true);
   });
 });
+
+describe('Input required marker', () => {
+  it('states the requirement on the input, not in its accessible name', () => {
+    // The marker carried aria-label="required". Name computation walks into the
+    // label and concatenates it, and an aria-label on a descendant replaces
+    // that descendant's text rather than being skipped, so the field announced
+    // as "Email required". Nobody speaks that to a voice control.
+    const { container, getByRole } = render(Input, {
+      props: { label: 'Email', required: true },
+    });
+    expect(getByRole('textbox', { name: 'Email' })).toBeTruthy();
+    expect((container.querySelector('input') as HTMLInputElement).required).toBe(true);
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.textContent).toBe('*');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
+  });
+});

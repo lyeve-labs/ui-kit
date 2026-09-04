@@ -9,6 +9,12 @@
     children,
   }: {
     for?: string;
+    /**
+     * Draws the marker beside the text. Set `required` on the control this
+     * label points at as well: the marker is decorative, and the control's own
+     * attribute is what a screen reader reports. A label is read in full to
+     * name what it points at, so anything said here lands in that name.
+     */
     required?: boolean;
     hint?: string;
     class?: string;
@@ -22,7 +28,7 @@
 >
   {@render children()}
   {#if required}
-    <span class="text-danger font-bold leading-none" aria-label="required">*</span>
+    <span class="text-danger font-bold leading-none" aria-hidden="true">*</span>
   {/if}
   {#if hint}
     <span class="text-faint normal-case font-normal ml-0.5">({hint})</span>
