@@ -1,6 +1,6 @@
 {
   "name": "@lyeve-labs/ui-kit",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "description": "A clean, accessible, palette-aware Svelte 5 component library. The design system behind LyEve.",
   "license": "MIT",
   "author": "LyEve Labs <hello@lyeve.com>",
@@ -23,7 +23,7 @@
   ],
   "type": "module",
   "sideEffects": false,
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@11.25.0",
   "engines": {
     "node": ">=20"
   },
@@ -37,6 +37,8 @@
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ct": "playwright test --config playwright-ct.config.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

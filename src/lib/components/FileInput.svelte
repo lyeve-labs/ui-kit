@@ -51,7 +51,10 @@
     <label for={id} class={FIELD_LABEL}>{label}</label>
   {/if}
 
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- The dashed border is the only thing marking this region as a control, so
+       it rests on line-strong: line reads 1.25:1 and failed SC 1.4.11. The
+       hover is full-strength brand, because a focus-adjacent colour dropped to
+       half alpha reads as a weaker affordance for no reason a user can infer. -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
       border-2 border-dashed px-4 py-8 text-center transition-colors duration-150
@@ -59,7 +62,7 @@
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver
         ? 'border-brand bg-brand/8'
-        : 'border-line bg-surface-2/40 hover:border-brand/50 hover:bg-brand/5'}
+        : 'border-line-strong bg-surface-2/40 hover:border-brand hover:bg-brand/5'}
       {disabled ? 'cursor-not-allowed opacity-50' : ''}"
     ondragover={(e) => {
       e.preventDefault();

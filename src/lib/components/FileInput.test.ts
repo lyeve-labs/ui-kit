@@ -2,6 +2,19 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import FileInput from './FileInput.svelte';
 
+/** The bare divider token, which must never identify a control on its own. */
+const WEAK_BORDER = /border-line(?!-strong)/;
+
+/** The dashed drop target, which is the first label only when there is no field label. */
+function dropzone(container: HTMLElement): HTMLElement {
+  const labels = [...container.querySelectorAll<HTMLElement>('label')];
+  return labels[labels.length - 1];
+}
+
+function input(container: HTMLElement): HTMLInputElement {
+  return container.querySelector('input[type="file"]') as HTMLInputElement;
+}
+
 describe('FileInput', () => {
   it('renders the upload prompt', () => {
     const { getByText } = render(FileInput, { props: {} });
@@ -57,31 +70,68 @@ describe('FileInput', () => {
 
   it('shows drag-over styling when dragging over the drop zone', async () => {
     const { container } = render(FileInput, { props: {} });
-    const label = container.querySelector('label');
-    expect(label).toBeTruthy();
+    const label = dropzone(container);
 
-    // Initially should have border-line, not the drag-over brand bg
-    const classBefore = label!.className;
-    expect(classBefore).toContain('border-line');
+    const classBefore = label.className;
+    expect(classBefore).toContain('border-line-strong');
     expect(classBefore).not.toContain('bg-brand/8');
 
-    // Simulate dragover
-    await fireEvent.dragOver(label!);
-    const classDuring = label!.className;
+    await fireEvent.dragOver(label);
+    const classDuring = label.className;
     expect(classDuring).toContain('bg-brand/8');
     expect(classDuring).toContain('border-brand');
 
-    // Simulate dragleave
-    await fireEvent.dragLeave(label!);
-    const classAfter = label!.className;
+    await fireEvent.dragLeave(label);
+    const classAfter = label.className;
     expect(classAfter).not.toContain('bg-brand/8');
-    expect(classAfter).toContain('border-line');
+    expect(classAfter).toContain('border-line-strong');
+  });
+
+  it('rests the dropzone on line-strong, never on the bare divider colour', () => {
+    // The dashed border is the only thing identifying this region as a control,
+    // and line reads 1.25:1, so at rest it failed SC 1.4.11.
+    const { container } = render(FileInput, { props: {} });
+    expect(dropzone(container).className).toContain('border-line-strong');
+    expect(dropzone(container).className).not.toMatch(WEAK_BORDER);
+  });
+
+  it('hovers to full-strength brand, never a focus colour at reduced alpha', () => {
+    // border-brand/50 read as a weaker affordance for no reason a user could
+    // infer, and half-alpha brand does not clear the 3:1 boundary floor.
+    const { container } = render(FileInput, { props: {} });
+    const cls = dropzone(container).className;
+    expect(cls).toContain('hover:border-brand');
+    expect(cls).not.toMatch(/border-brand\//);
+  });
+
+  it('keeps the dropzone border stated once per state', () => {
+    // Error, drag-over and rest are one ternary, so no two border colours can
+    // land on the element at once and resolve by emitted order.
+    const { container } = render(FileInput, { props: { error: 'Too big' } });
+    const cls = dropzone(container).className;
+    expect(cls).toContain('border-danger');
+    expect(cls).not.toContain('border-line-strong');
+  });
+
+  it('points aria-describedby at whichever message is on screen', () => {
+    const withError = render(FileInput, { props: { id: 'doc', error: 'Too big' } });
+    expect(input(withError.container).getAttribute('aria-describedby')).toBe('doc-error');
+    expect(input(withError.container).getAttribute('aria-invalid')).toBe('true');
+
+    const withHint = render(FileInput, { props: { id: 'doc2', hint: 'Max 5MB' } });
+    expect(input(withHint.container).getAttribute('aria-describedby')).toBe('doc2-hint');
+    expect(input(withHint.container).getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('names one duration for the colour transition it declares', () => {
+    const { container } = render(FileInput, { props: {} });
+    expect(dropzone(container).className).toMatch(/transition-colors duration-150/);
   });
 
   it('calls onchange with dropped files on drop', async () => {
     const onchange = vi.fn();
     const { container } = render(FileInput, { props: { onchange } });
-    const label = container.querySelector('label') as HTMLElement;
+    const label = dropzone(container);
 
     await fireEvent.dragOver(label);
     expect(label.className).toContain('bg-brand/8');
@@ -98,7 +148,7 @@ describe('FileInput', () => {
   it('does not fire onchange on drop when disabled', async () => {
     const onchange = vi.fn();
     const { container } = render(FileInput, { props: { disabled: true, onchange } });
-    const label = container.querySelector('label') as HTMLElement;
+    const label = dropzone(container);
 
     // Dragover still shows visual feedback but drop does nothing
     await fireEvent.dragOver(label);
