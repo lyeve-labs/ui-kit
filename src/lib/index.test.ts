@@ -9,6 +9,7 @@ const COMPONENTS = [
   // Layout & structure
   'Card',
   'Panel',
+  'AppShell',
   'PageShell',
   'PageHeader',
   'SectionHeading',
@@ -51,6 +52,7 @@ const COMPONENTS = [
   'StepIndicator',
   'Dropdown',
   'SidebarNav',
+  'AccountMenu',
   // Overlays
   'Modal',
   'Drawer',

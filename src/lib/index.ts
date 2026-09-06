@@ -10,6 +10,7 @@
 // ── Layout & structure ─────────────────────────────────────────────────────
 export { default as Card } from './components/Card.svelte';
 export { default as Panel } from './components/Panel.svelte';
+export { default as AppShell } from './components/AppShell.svelte';
 export { default as PageShell } from './components/PageShell.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as SectionHeading } from './components/SectionHeading.svelte';
@@ -68,6 +69,7 @@ export { default as Pagination } from './components/Pagination.svelte';
 export { default as StepIndicator } from './components/StepIndicator.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
 export { default as SidebarNav } from './components/SidebarNav.svelte';
+export { default as AccountMenu } from './components/AccountMenu.svelte';
 export type { NavNode, NavTree } from './internal/nav-tree.js';
 
 // ── Overlays ───────────────────────────────────────────────────────────────
@@ -123,4 +125,4 @@ export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line; the build and the test suite fail when the two disagree.
-export const VERSION = '0.13.1';
+export const VERSION = '0.15.0';
