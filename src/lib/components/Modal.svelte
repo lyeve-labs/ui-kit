@@ -72,9 +72,7 @@
       aria-label={title ? undefined : 'Dialog'}
     >
       {#if title}
-        <div
-          class="flex shrink-0 items-start justify-between gap-4 px-5 py-4 border-b border-line"
-        >
+        <div class="flex shrink-0 items-start justify-between gap-4 px-5 py-4 border-b border-line">
           <div>
             <h2 id={headingId} class="font-semibold text-fg">{title}</h2>
             {#if description}

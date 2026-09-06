@@ -188,8 +188,7 @@ export const APP_HEADER =
  * Its inset is the nav row inset, so the mark lines up with the nav icons
  * under it instead of with their labels.
  */
-export const APP_BRAND =
-  'flex h-header shrink-0 items-center gap-2 border-b border-line px-inline';
+export const APP_BRAND = 'flex h-header shrink-0 items-center gap-2 border-b border-line px-inline';
 
 /** A band at the foot of the sidebar, on the nav's own inset. */
 export const APP_SIDEBAR_BAND = 'shrink-0 border-t border-line px-inline py-3';

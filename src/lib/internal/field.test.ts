@@ -9,13 +9,13 @@ import { CONTROL_BASE, CONTROL_MULTILINE, CONTROL_SEGMENT } from './field';
 // shipped: every text input, textarea, number and select in the kit.
 // CONTROL_SEGMENT and SidebarNav's buttons already pair the two correctly.
 describe('control bases keep a focus indicator', () => {
-	const bases = { CONTROL_BASE, CONTROL_MULTILINE, CONTROL_SEGMENT };
+  const bases = { CONTROL_BASE, CONTROL_MULTILINE, CONTROL_SEGMENT };
 
-	for (const [name, cls] of Object.entries(bases)) {
-		it(`${name} pairs outline-none with a focus ring`, () => {
-			if (!cls.includes('outline-none')) return;
-			expect(cls, `${name} silences the outline`).toContain('focus-visible:ring-2');
-			expect(cls, `${name} names a ring colour`).toContain('focus-visible:ring-brand');
-		});
-	}
+  for (const [name, cls] of Object.entries(bases)) {
+    it(`${name} pairs outline-none with a focus ring`, () => {
+      if (!cls.includes('outline-none')) return;
+      expect(cls, `${name} silences the outline`).toContain('focus-visible:ring-2');
+      expect(cls, `${name} names a ring colour`).toContain('focus-visible:ring-brand');
+    });
+  }
 });

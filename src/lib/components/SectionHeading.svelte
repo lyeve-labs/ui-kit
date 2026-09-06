@@ -26,13 +26,7 @@
     children: Snippet;
   }
 
-  let {
-    level = 2,
-    variant = 'default',
-    actions,
-    class: klass = '',
-    children,
-  }: Props = $props();
+  let { level = 2, variant = 'default', actions, class: klass = '', children }: Props = $props();
 </script>
 
 <div class="flex flex-wrap items-center justify-between gap-4 {klass}">

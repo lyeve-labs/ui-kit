@@ -34,26 +34,51 @@ const define = (target: object, name: string, desc: PropertyDescriptor) => {
   }
 };
 
-if (isDom) Object.entries({
-  length: { configurable: true, get(this: object) { return dataOf(this).size; } },
-  clear: { configurable: true, writable: true, value(this: object) { dataOf(this).clear(); } },
-  getItem: {
-    configurable: true, writable: true,
-    value(this: object, key: string) { const m = dataOf(this); return m.has(String(key)) ? m.get(String(key))! : null; },
-  },
-  key: {
-    configurable: true, writable: true,
-    value(this: object, i: number) { return Array.from(dataOf(this).keys())[i] ?? null; },
-  },
-  removeItem: {
-    configurable: true, writable: true,
-    value(this: object, key: string) { dataOf(this).delete(String(key)); },
-  },
-  setItem: {
-    configurable: true, writable: true,
-    value(this: object, key: string, value: string) { dataOf(this).set(String(key), String(value)); },
-  },
-}).forEach(([name, desc]) => define(StorageCtor.prototype, name, desc as PropertyDescriptor));
+if (isDom)
+  Object.entries({
+    length: {
+      configurable: true,
+      get(this: object) {
+        return dataOf(this).size;
+      },
+    },
+    clear: {
+      configurable: true,
+      writable: true,
+      value(this: object) {
+        dataOf(this).clear();
+      },
+    },
+    getItem: {
+      configurable: true,
+      writable: true,
+      value(this: object, key: string) {
+        const m = dataOf(this);
+        return m.has(String(key)) ? m.get(String(key))! : null;
+      },
+    },
+    key: {
+      configurable: true,
+      writable: true,
+      value(this: object, i: number) {
+        return Array.from(dataOf(this).keys())[i] ?? null;
+      },
+    },
+    removeItem: {
+      configurable: true,
+      writable: true,
+      value(this: object, key: string) {
+        dataOf(this).delete(String(key));
+      },
+    },
+    setItem: {
+      configurable: true,
+      writable: true,
+      value(this: object, key: string, value: string) {
+        dataOf(this).set(String(key), String(value));
+      },
+    },
+  }).forEach(([name, desc]) => define(StorageCtor.prototype, name, desc as PropertyDescriptor));
 
 for (const name of isDom ? (['localStorage', 'sessionStorage'] as const) : []) {
   if ((globalThis as Record<string, unknown>)[name]) continue;
