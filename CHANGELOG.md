@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Controls keep a focus indicator. `CONTROL_BASE` and `CONTROL_MULTILINE` ended
+  in `outline-none` and named no replacement, and a utility beats the base
+  layer, so they cancelled the global `:focus-visible` outline this theme
+  declares for its contrast. Focus was left as a 1px border-colour change on
+  every text input, textarea, number and select in the kit. Both now pair the
+  silenced outline with `focus-visible:ring-2`, which is what `CONTROL_SEGMENT`
+  and `SidebarNav`'s buttons already did.
 - `SidebarNav` no longer sets `role="group"` on a section's list. That role
   overrides the implicit `list` role, so every `<li>` inside sat under a parent
   that is not a list, which is an ARIA required-context error and a serious axe
