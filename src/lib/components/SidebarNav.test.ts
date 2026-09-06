@@ -79,9 +79,14 @@ describe('SidebarNav landmark', () => {
     }
   });
 
-  it('marks a child list as a group', () => {
+  it('leaves a child list as a list', () => {
+    // role="group" on the nested ul took the list role off it, and a listitem
+    // whose parent is not a list is an ARIA context error that axe reports as
+    // serious on every row of an open section.
     const { container } = mount();
-    expect(container.querySelectorAll('ul[role="group"]').length).toBeGreaterThan(0);
+    const nested = [...container.querySelectorAll('ul ul')];
+    expect(nested.length).toBeGreaterThan(0);
+    for (const list of nested) expect(list.getAttribute('role')).toBeNull();
   });
 });
 
@@ -140,7 +145,7 @@ describe('SidebarNav disclosure', () => {
     expect(id).toBeTruthy();
     const list = container.querySelector(`[id="${id}"]`);
     expect(list).toBeTruthy();
-    expect(list!.getAttribute('role')).toBe('group');
+    expect(list!.tagName).toBe('UL');
   });
 
   it('builds that id from $props.id() and never from Math.random', () => {

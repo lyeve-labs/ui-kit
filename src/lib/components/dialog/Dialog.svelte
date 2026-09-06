@@ -14,10 +14,7 @@
   import type { DialogEntry } from './types.js';
   import { sizeClass } from './types.js';
   import { overlay } from '../../internal/overlay.js';
-  import {
-    closeDialog,
-    dismissDialog,
-  } from './dialog-manager.svelte';
+  import { closeDialog, dismissDialog } from './dialog-manager.svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
 
   let {

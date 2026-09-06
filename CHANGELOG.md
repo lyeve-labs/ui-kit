@@ -5,6 +5,88 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-09-06
+
+### Added
+
+- `SectionHeading` takes `variant="eyebrow"`, the small uppercase label the
+  consoles head a band of content with. It is a second treatment rather than a
+  third level, because the element is a decision about document structure and
+  the treatment is not: an eyebrow appears at both levels. The kit never named
+  it, so thirty of them shipped hand rolled across two apps in four different
+  bottom margins, and two bands on the same page sat different distances from
+  their content. The heading carries no margin at either variant - the stack
+  around it owns that distance.
+
+## [0.15.0] - 2026-09-06
+
+### Added
+
+- `AppShell`, the authed application frame: the sidebar, the header bar and the
+  content column. Three apps each hand rolled this and no two agreed. The
+  sidebar was 224px in the admin and 240px in the customer portal and the ops
+  console, opaque in two of them and 30% translucent in the third, built from
+  `SidebarNav` in one and from inline anchors in the other two. Two of the three
+  had no header at all above `md:`, so the page had no name on screen and no
+  fixed place for the theme toggle or the account. Every one of those was a
+  defensible local choice, and together they read as three products.
+- `AccountMenu`, the signed-in identity and the actions that belong to it, at
+  the end of the header. Where it lives is the point: two apps put it in the
+  bottom left corner of the sidebar and one put it in the header. The sidebar is
+  also the worse of the two, because that column is already full height, so
+  opening a menu in its last row pushes the last entry - Sign out, every time -
+  past the bottom edge of the window. It is a native `details`, so the links and
+  the sign-out post keep working on a page that never hydrated.
+- `--spacing-header`, the 56px shared by the header bar and the sidebar's brand
+  row. The two meet at the top left corner and a 4px disagreement there reads as
+  a broken seam.
+
+### Fixed
+
+- `VERSION` reported `0.13.1` from the `0.14.0` package. The constant was not
+  bumped with the manifest, so a consumer reading the export to decide whether a
+  fix had landed was told it had not.
+
+## [0.14.0] - 2026-09-06
+
+### Changed
+
+- `PageShell` keeps the page gutter and the full-size title on a `fill` page.
+  Owning the viewport is a statement about the content pane, so `fill` now drops
+  only the content cap and the content gutter. It used to drop the title row's
+  gutter too and render the heading through `PageHeader compact`, which made the
+  pages that own the viewport the only ones in an app whose name sat at body
+  size hard against the window edge: moving between one of those and any other
+  page moved where the page began and changed how large its name was. The gutter
+  composes from the same `PAGE_PAD` tokens, so the two titles now start at the
+  same distance from the edge.
+
+### Added
+
+- `PageShell` takes `compact`, which drops the title to body size and hides the
+  description. It was previously implied by `fill` and unreachable on its own, so
+  a page with genuinely no room for a heading had to take the full-bleed content
+  frame to get the small title, and a full-bleed page could not refuse it.
+
+## [0.13.1] - 2026-09-06
+
+### Fixed
+
+- Controls keep a focus indicator. `CONTROL_BASE` and `CONTROL_MULTILINE` ended
+  in `outline-none` and named no replacement, and a utility beats the base
+  layer, so they cancelled the global `:focus-visible` outline this theme
+  declares for its contrast. Focus was left as a 1px border-colour change on
+  every text input, textarea, number and select in the kit. Both now pair the
+  silenced outline with `focus-visible:ring-2`, which is what `CONTROL_SEGMENT`
+  and `SidebarNav`'s buttons already did.
+- `SidebarNav` no longer sets `role="group"` on a section's list. That role
+  overrides the implicit `list` role, so every `<li>` inside sat under a parent
+  that is not a list, which is an ARIA required-context error and a serious axe
+  violation on every admin page that ships a section expanded. Grouping
+  semantics belong to a tree, where the parent is a `treeitem`; this is a nav of
+  plain links whose disclosure already declares itself through `aria-expanded`
+  and `aria-controls`, so the role bought nothing and cost list semantics.
+
 ## [0.13.0] - 2026-09-04
 
 The kit did not cover the controls the product needed, so every consuming page
