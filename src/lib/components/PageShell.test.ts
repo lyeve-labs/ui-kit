@@ -80,21 +80,53 @@ describe('PageShell', () => {
     expect(frame.className).toContain('py-page-y');
   });
 
-  it('fill drops the gutter and the cap and renders the compact title', () => {
+  it('fill drops the cap and the content gutter', () => {
     // The shape a split pane needs. Two pages carry a documented waiver against
     // their app's own layout lint because the shell had no way to express it.
-    const { container, queryByText } = render(PageShell, {
-      props: {
-        title: 'Canvas',
-        description: 'Suppressed while compact',
-        fill: true,
-        children: text('Body'),
-      },
+    const { container } = render(PageShell, {
+      props: { title: 'Canvas', fill: true, children: text('Body') },
     });
     const frame = frameOf(container);
     expect(frame.className).not.toContain('px-page-x');
     expect(frame.className).not.toContain('py-page-y');
     expect(capOf(frame), 'a fill page states no cap').toBeUndefined();
+  });
+
+  it('fill keeps the title row in the page gutter, at full size', () => {
+    // This case used to assert the opposite, and the opposite is what shipped:
+    // the two pages that own the viewport were the only two whose name rendered
+    // at body size hard against the window edge, so moving between them and any
+    // other page moved where the page began. Owning the viewport is a statement
+    // about the content pane and not about the heading.
+    const { container, getByText } = render(PageShell, {
+      props: {
+        title: 'Canvas',
+        description: 'Still described',
+        fill: true,
+        children: text('Body'),
+      },
+    });
+    const h1 = container.querySelector('h1') as HTMLElement;
+    expect(h1.className).toContain('text-2xl');
+    expect(getByText('Still described')).toBeTruthy();
+
+    // The same tokens the frame states on an ordinary page, so the two titles
+    // start at the same distance from the edge.
+    const band = (h1.closest('header') as HTMLElement).parentElement as HTMLElement;
+    expect(band.className).toContain('px-page-x');
+    expect(band.className).toContain('pt-page-y');
+  });
+
+  it('compact drops the title to body size and hides the description', () => {
+    // Available to any page, not implied by fill.
+    const { container, queryByText } = render(PageShell, {
+      props: {
+        title: 'Canvas',
+        description: 'Suppressed while compact',
+        compact: true,
+        children: text('Body'),
+      },
+    });
     const h1 = container.querySelector('h1') as HTMLElement;
     expect(h1.className).toContain('text-sm');
     expect(h1.className).not.toContain('text-2xl');

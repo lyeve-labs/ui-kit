@@ -5,6 +5,27 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-09-06
+
+### Changed
+
+- `PageShell` keeps the page gutter and the full-size title on a `fill` page.
+  Owning the viewport is a statement about the content pane, so `fill` now drops
+  only the content cap and the content gutter. It used to drop the title row's
+  gutter too and render the heading through `PageHeader compact`, which made the
+  pages that own the viewport the only ones in an app whose name sat at body
+  size hard against the window edge: moving between one of those and any other
+  page moved where the page began and changed how large its name was. The gutter
+  composes from the same `PAGE_PAD` tokens, so the two titles now start at the
+  same distance from the edge.
+
+### Added
+
+- `PageShell` takes `compact`, which drops the title to body size and hides the
+  description. It was previously implied by `fill` and unreachable on its own, so
+  a page with genuinely no room for a heading had to take the full-bleed content
+  frame to get the small title, and a full-bleed page could not refuse it.
+
 ## [0.13.1] - 2026-09-06
 
 ### Fixed
