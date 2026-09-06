@@ -30,15 +30,25 @@ export const FIELD_ERROR = 'text-xs text-danger';
  * MultiSelect chip well - use `CONTROL_MULTILINE` instead and keep the token as
  * a minimum.
  */
+/**
+ * outline-none must be paired with a replacement. It was not here: theme.css
+ * declares a global :focus-visible outline of 2px solid brand, chosen for its
+ * contrast, and a utility beats the base layer, so these two cancelled the
+ * kit's own focus indicator for every text input, textarea, number and select.
+ * Focus was left as a 1px border-colour change. SidebarNav's buttons and
+ * CONTROL_SEGMENT already pair the two correctly; these did half of it.
+ */
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +
   'placeholder:text-faint transition-colors duration-150 outline-none ' +
+  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /** As CONTROL_BASE, for controls whose height is driven by their content. */
 export const CONTROL_MULTILINE =
   'w-full min-h-control rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg ' +
   'placeholder:text-faint transition-colors duration-150 outline-none ' +
+  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /**

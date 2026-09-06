@@ -64,3 +64,35 @@ describe('SectionHeading', () => {
     expect((container.firstElementChild as HTMLElement).className).toContain('pt-2');
   });
 });
+
+describe('SectionHeading eyebrow', () => {
+  it('reads the same at both levels', () => {
+    // An eyebrow labels the band under it rather than titling it, so it does
+    // not take the level's size. The level still decides the element.
+    const two = render(SectionHeading, {
+      props: { level: 2, variant: 'eyebrow', children: text('Revenue') },
+    });
+    const three = render(SectionHeading, {
+      props: { level: 3, variant: 'eyebrow', children: text('Revenue') },
+    });
+    const h2 = two.container.querySelector('h2')!;
+    const h3 = three.container.querySelector('h3')!;
+    expect(h2.className).toBe(h3.className);
+    expect(h2.className).toContain('uppercase');
+  });
+
+  it('carries no margin of its own', () => {
+    // Thirty of these shipped hand rolled across two apps in four different
+    // bottom margins. The stack around the heading owns the distance to what
+    // follows, so the heading must not add one.
+    const { container } = render(SectionHeading, {
+      props: { variant: 'eyebrow', children: text('Revenue') },
+    });
+    expect(container.querySelector('h2')!.className).not.toMatch(/\bm[bt]?-\d/);
+  });
+
+  it('defaults to the title treatment', () => {
+    const { container } = render(SectionHeading, { props: { children: text('Revenue') } });
+    expect(container.querySelector('h2')!.className).toContain('text-lg');
+  });
+});

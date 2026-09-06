@@ -137,6 +137,11 @@
    * the 13px/1.25 control text plus input-y padding and a 1px border. */
   --spacing-control: 2.375rem;
   --spacing-panel-max: 15rem; /* 240px - the scroll cap on a floating option list */
+  /* 56px - the app header bar, and the sidebar's brand row above the nav.
+   * One token, because the two sit side by side across the top of every
+   * authed screen and a 4px disagreement between them reads as a broken
+   * seam. Three apps each picked their own height before this existed. */
+  --spacing-header: 3.5rem;
   --spacing-nav-indent: 0.875rem; /* 14px - one level of sidebar nesting */
   --spacing-nav-rail: 3.5rem; /* 56px - the collapsed icon rail */
   --spacing-sidebar: 14rem; /* 224px - the expanded sidebar */

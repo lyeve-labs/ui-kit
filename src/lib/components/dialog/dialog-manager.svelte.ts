@@ -18,7 +18,6 @@
 import type { DialogOptions, DialogEntry } from './types.js';
 import { lockBodyScroll, unlockBodyScroll } from '../../internal/overlay.js';
 
-
 // ──────────────────────────────────────────────────────────
 // Module-level reactive state
 // ──────────────────────────────────────────────────────────

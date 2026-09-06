@@ -37,7 +37,9 @@ function ratio(a: string, b: string): number {
 /** Flatten `fg` at `alpha` over `bg`, which is what a /10 tint actually paints. */
 function over(fg: string, bg: string, alpha: number): string {
   const mix = (i: number) =>
-    Math.round(parseInt(fg.slice(i, i + 2), 16) * alpha + parseInt(bg.slice(i, i + 2), 16) * (1 - alpha))
+    Math.round(
+      parseInt(fg.slice(i, i + 2), 16) * alpha + parseInt(bg.slice(i, i + 2), 16) * (1 - alpha),
+    )
       .toString(16)
       .padStart(2, '0');
   return `#${mix(1)}${mix(3)}${mix(5)}`;
@@ -64,7 +66,17 @@ const light = palette('light');
 const GROUNDS = ['ink', 'surface', 'surface-2'] as const;
 
 /** Tokens used as text. Each is also painted inside a tint of itself. */
-const TEXT_TOKENS = ['fg', 'muted', 'faint', 'brand', 'brand-deep', 'violet', 'success', 'warn', 'danger'];
+const TEXT_TOKENS = [
+  'fg',
+  'muted',
+  'faint',
+  'brand',
+  'brand-deep',
+  'violet',
+  'success',
+  'warn',
+  'danger',
+];
 
 describe.each([
   ['dark', dark],
@@ -91,7 +103,10 @@ describe.each([
       // The bg-token/10 badge drags the background toward the text, so a value
       // that passes on the bare canvas can still fail inside its own chip.
       const colour = tokens[name];
-      expect(ratio(colour, over(colour, tokens.surface, 0.1)), `${name} in its own tint`).toBeGreaterThanOrEqual(4.5);
+      expect(
+        ratio(colour, over(colour, tokens.surface, 0.1)),
+        `${name} in its own tint`,
+      ).toBeGreaterThanOrEqual(4.5);
     },
   );
 
@@ -107,7 +122,9 @@ describe.each([
     // SC 1.4.11. The ring is solid brand; a colour-mix down to 60 percent put
     // it at 2.39:1 on the light palette.
     for (const ground of GROUNDS) {
-      expect(ratio(tokens.brand, tokens[ground]), `focus ring on ${ground}`).toBeGreaterThanOrEqual(3);
+      expect(ratio(tokens.brand, tokens[ground]), `focus ring on ${ground}`).toBeGreaterThanOrEqual(
+        3,
+      );
     }
   });
 
@@ -115,7 +132,10 @@ describe.each([
     // SC 1.4.11 again. `line` is 1.25:1 and stays the divider colour; a control
     // whose boundary is the only thing identifying it uses line-strong.
     for (const ground of ['surface', 'surface-2'] as const) {
-      expect(ratio(tokens['line-strong'], tokens[ground]), `line-strong on ${ground}`).toBeGreaterThanOrEqual(3);
+      expect(
+        ratio(tokens['line-strong'], tokens[ground]),
+        `line-strong on ${ground}`,
+      ).toBeGreaterThanOrEqual(3);
     }
   });
 });

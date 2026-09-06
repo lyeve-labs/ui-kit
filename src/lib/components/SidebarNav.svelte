@@ -209,10 +209,15 @@
         that appears only once the group is open leaves the reference dangling
         in the one state where a reader needs it to tell them what the button
         will reveal.
+
+        It keeps the implicit list role. role="group" here overrode it, and a
+        listitem whose parent is not a list is an ARIA context error, so every
+        row of an open section came back as a serious axe violation. Grouping
+        semantics belong to a tree, where the parent is a treeitem; this is a
+        nav of plain links and the disclosure already says what it controls.
       -->
       <ul
         id={listId(node.id)}
-        role="group"
         class="{open && !node.disabled ? 'flex' : 'hidden'} mt-0.5 flex-col gap-0.5"
       >
         {#each children as child (child.id)}
