@@ -5,6 +5,18 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.1] - 2026-09-06
+
+### Fixed
+
+- `SidebarNav` no longer sets `role="group"` on a section's list. That role
+  overrides the implicit `list` role, so every `<li>` inside sat under a parent
+  that is not a list, which is an ARIA required-context error and a serious axe
+  violation on every admin page that ships a section expanded. Grouping
+  semantics belong to a tree, where the parent is a `treeitem`; this is a nav of
+  plain links whose disclosure already declares itself through `aria-expanded`
+  and `aria-controls`, so the role bought nothing and cost list semantics.
+
 ## [0.13.0] - 2026-09-04
 
 The kit did not cover the controls the product needed, so every consuming page
