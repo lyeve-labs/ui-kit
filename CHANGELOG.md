@@ -5,6 +5,19 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-09-06
+
+### Added
+
+- `SectionHeading` takes `variant="eyebrow"`, the small uppercase label the
+  consoles head a band of content with. It is a second treatment rather than a
+  third level, because the element is a decision about document structure and
+  the treatment is not: an eyebrow appears at both levels. The kit never named
+  it, so thirty of them shipped hand rolled across two apps in four different
+  bottom margins, and two bands on the same page sat different distances from
+  their content. The heading carries no margin at either variant - the stack
+  around it owns that distance.
+
 ## [0.15.0] - 2026-09-06
 
 ### Added

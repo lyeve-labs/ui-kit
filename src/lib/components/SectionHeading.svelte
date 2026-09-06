@@ -10,17 +10,29 @@
    * the element, and the element is always a real heading.
    */
   import type { Snippet } from 'svelte';
-  import { sectionHeading } from '../internal/layout.js';
+  import { sectionHeading, type SectionVariant } from '../internal/layout.js';
 
   interface Props {
-    /** 2 under a page title, 3 inside a card. */
+    /** 2 under a page title, 3 inside a card. The element, not the treatment. */
     level?: 2 | 3;
+    /**
+     * `eyebrow` is the small uppercase label the consoles head a band with. It
+     * is separate from the level because an eyebrow appears at both, and it was
+     * unnamed here while thirty of them shipped hand rolled across two apps.
+     */
+    variant?: SectionVariant;
     actions?: Snippet;
     class?: string;
     children: Snippet;
   }
 
-  let { level = 2, actions, class: klass = '', children }: Props = $props();
+  let {
+    level = 2,
+    variant = 'default',
+    actions,
+    class: klass = '',
+    children,
+  }: Props = $props();
 </script>
 
 <div class="flex flex-wrap items-center justify-between gap-4 {klass}">
@@ -28,9 +40,9 @@
        structure decision, and a reader of this file should be able to see both
        headings it can produce. -->
   {#if level === 2}
-    <h2 class={sectionHeading(2)}>{@render children()}</h2>
+    <h2 class={sectionHeading(2, variant)}>{@render children()}</h2>
   {:else}
-    <h3 class={sectionHeading(3)}>{@render children()}</h3>
+    <h3 class={sectionHeading(3, variant)}>{@render children()}</h3>
   {/if}
 
   {#if actions}

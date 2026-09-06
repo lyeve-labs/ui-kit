@@ -18,6 +18,9 @@
  * Not exported from the package entry point - this is an implementation detail.
  */
 
+/** The treatment a section heading takes, independent of its level. */
+export type SectionVariant = 'default' | 'eyebrow';
+
 /** How much of the viewport a page's content is allowed to fill. */
 export type PageWidth = 'narrow' | 'default' | 'wide' | 'full';
 
@@ -139,8 +142,19 @@ export const MODAL_PAD = 'px-card py-card-sm';
  * page can render at different sizes and weights. Taking the level rather than
  * a free-form string means the class cannot disagree with the heading element
  * the caller is already writing.
+ *
+ * `eyebrow` is the small uppercase label the consoles use to head a band of
+ * content. It is a second treatment rather than a third level because the
+ * element is a decision about document structure and the treatment is not: an
+ * eyebrow appears at both levels. It went unnamed here while thirty of them
+ * shipped hand rolled across two apps in four different bottom margins, and a
+ * margin is exactly what this function must not carry - the stack around the
+ * heading owns the distance to what follows.
  */
-export function sectionHeading(level: 2 | 3): string {
+export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'): string {
+  // The eyebrow reads the same at both levels. It is a label for the band under
+  // it rather than a title, so it does not take the level's size at all.
+  if (variant === 'eyebrow') return 'text-xs font-medium uppercase tracking-wide text-faint';
   // Level 3 drops a size rather than a weight. Inside a card it sits under the
   // card's own semibold title, and two semibold lines at the same size read as
   // one heading broken in half.

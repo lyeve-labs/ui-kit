@@ -22,7 +22,7 @@ export { default as Table } from './components/Table.svelte';
 export { default as DescriptionList } from './components/DescriptionList.svelte';
 export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
-export type { PageWidth } from './internal/layout.js';
+export type { PageWidth, SectionVariant } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
 
 // ── Forms & inputs ─────────────────────────────────────────────────────────
@@ -125,4 +125,4 @@ export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line; the build and the test suite fail when the two disagree.
-export const VERSION = '0.15.0';
+export const VERSION = '0.16.0';
