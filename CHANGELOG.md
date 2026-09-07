@@ -5,6 +5,22 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2026-09-07
+
+### Added
+
+- `AppShell` takes `collapsible` and a bindable `collapsed`, which put the
+  sidebar away above md: and give the control that brings it back the
+  hamburger's own square and gutter. Three products render this shell, and a
+  page that owns the viewport, a canvas or a split pane, had 240px less than
+  the viewport with no way to ask for it back. It is opt-in rather than on by
+  default, because a new button in three headers at once is a decision each of
+  those products makes for itself, and nothing here persists the state: where
+  it is remembered is the app's decision, and the server cannot know, so the
+  first paint is always the expanded one. Below md: the flag is ignored, since
+  the same aside is the drawer there and honouring it would leave the hamburger
+  opening nothing.
+
 ## [0.16.0] - 2026-09-06
 
 ### Added
