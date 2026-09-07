@@ -11,9 +11,6 @@ importers:
       '@lucide/svelte':
         specifier: ^0.511.0
         version: 0.511.0(svelte@5.55.9)
-      '@lyeve-labs/ui-kit':
-        specifier: ^0.17.0
-        version: 0.17.0(svelte@5.55.9)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.7
@@ -290,12 +287,6 @@ packages:
     resolution: {integrity: sha512-aLCSPMUJmHlCuLXzXENXa4Z1NV2mN1iAZAFKk4bEbey+/MdsNlu+/DqwVkgW3Yvj6p8y8Vn5xZ2v9CLmPlA6Vw==}
     peerDependencies:
       svelte: ^5
-
-  '@lyeve-labs/ui-kit@0.17.0':
-    resolution: {integrity: sha512-LK0fytVfQU64dgDYRF2HJl/EmGyWMyXN3gv6ZQIE+O/Vx+1rizL5Hps5sxO3kr9/Ib9/8bRqHzHP+R/WgTdYyg==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      svelte: ^5.0.0
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -1608,11 +1599,6 @@ snapshots:
 
   '@lucide/svelte@0.511.0(svelte@5.55.9)':
     dependencies:
-      svelte: 5.55.9
-
-  '@lyeve-labs/ui-kit@0.17.0(svelte@5.55.9)':
-    dependencies:
-      '@lucide/svelte': 0.511.0(svelte@5.55.9)
       svelte: 5.55.9
 
   '@pkgjs/parseargs@0.11.0':
