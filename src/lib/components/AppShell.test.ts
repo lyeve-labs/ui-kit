@@ -1,4 +1,4 @@
-import { render } from '@testing-library/svelte';
+import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { beforeEach, describe, expect, it } from 'vitest';
 import AppShell from './AppShell.svelte';
@@ -123,5 +123,29 @@ describe('AppShell', () => {
     expect(aside.textContent).toContain('Nav');
     expect(aside.textContent).toContain('DB synced');
     expect(container.querySelector('header')!.textContent).toContain('Toggle');
+  });
+  it('offers no collapse control until a caller asks for one', () => {
+    const { queryByTestId } = render(AppShell, { props: base });
+    expect(queryByTestId('app-sidebar-toggle')).toBeNull();
+  });
+
+  it('puts the sidebar away above md: and keeps the control that brings it back', async () => {
+    const { container, getByLabelText } = render(AppShell, {
+      props: { ...base, collapsible: true },
+    });
+    await fireEvent.click(getByLabelText('Hide sidebar'));
+    expect(container.querySelector('aside')).toBeNull();
+    expect(getByLabelText('Show sidebar').getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('ignores collapsed below md:, where the same aside is the drawer', () => {
+    // Honouring it there leaves the hamburger opening nothing, and the drawer
+    // is the only way to the nav at that width.
+    viewport(true);
+    const { getByLabelText, queryByTestId } = render(AppShell, {
+      props: { ...base, collapsible: true, collapsed: true, navOpen: true },
+    });
+    expect(getByLabelText('Close navigation')).toBeTruthy();
+    expect(queryByTestId('app-sidebar-toggle')).toBeNull();
   });
 });
