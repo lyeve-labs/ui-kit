@@ -66,7 +66,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@lucide/svelte": "^0.511.0"
+    "@lucide/svelte": "^0.511.0",
+    "@lyeve-labs/ui-kit": "^0.17.0"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.5.7",
