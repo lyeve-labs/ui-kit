@@ -5,6 +5,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.1] - 2026-09-07
+
+### Fixed
+
+- The package listed itself in its own `dependencies`, so the lockfile resolved
+  `@lyeve-labs/ui-kit` from the registry as a dependency of `@lyeve-labs/ui-kit`.
+  A dependency bump meant for a consumer of the kit had been applied to the kit.
+  Nothing imported it. The supply-chain exemption that had been added to let the
+  entry install is removed with it.
+
 ## [0.17.0] - 2026-09-07
 
 ### Added
