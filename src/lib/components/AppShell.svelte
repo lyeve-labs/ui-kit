@@ -21,7 +21,7 @@
    * reader announce the page name twice.
    */
   import type { Snippet } from 'svelte';
-  import { Menu } from '@lucide/svelte';
+  import { Menu, PanelLeft, PanelLeftClose } from '@lucide/svelte';
   import { overlay } from '../internal/overlay.js';
   import { APP_BRAND, APP_HEADER, APP_SIDEBAR, APP_SIDEBAR_BAND } from '../internal/layout.js';
 
@@ -30,6 +30,23 @@
     section?: string;
     /** Bindable so the app router can close the drawer after a navigation. */
     navOpen?: boolean;
+    /**
+     * Offers a control that puts the sidebar away above md:.
+     *
+     * Opt-in rather than on by default: three products render this shell, and
+     * a new button in every header of all three is a decision each of them
+     * makes for itself. A page that owns the viewport - a canvas, a split pane
+     * - is the case it exists for.
+     */
+    collapsible?: boolean;
+    /**
+     * Whether the sidebar is put away. Desktop only: below md: the sidebar is
+     * already a drawer and `navOpen` is the state that governs it.
+     *
+     * Bindable and not held here, because where it is remembered is the app's
+     * decision. Nothing persists it for you.
+     */
+    collapsed?: boolean;
     /** The sidebar landmark's accessible name. */
     sidebarLabel?: string;
     /** The drawer's accessible name, below md: where the sidebar is a dialog. */
@@ -49,6 +66,8 @@
   let {
     section = undefined,
     navOpen = $bindable(false),
+    collapsible = false,
+    collapsed = $bindable(false),
     sidebarLabel = 'Sidebar',
     drawerLabel = 'Navigation',
     brand,
@@ -66,6 +85,11 @@
    */
   let isMobile = $state(false);
   const drawerOpen = $derived(isMobile && navOpen);
+  /**
+   * Collapsing is a desktop gesture. Below md: the same aside is the drawer,
+   * so honouring `collapsed` there would leave the hamburger opening nothing.
+   */
+  const railHidden = $derived(collapsible && collapsed && !isMobile);
 
   $effect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -129,7 +153,7 @@
     >
       {@render sidebar(false)}
     </div>
-  {:else}
+  {:else if !railHidden}
     <div class="hidden md:flex">
       {@render sidebar(isMobile)}
     </div>
@@ -150,6 +174,19 @@
             onclick={() => (navOpen = !navOpen)}
           >
             <Menu size={20} />
+          </button>
+        {:else if collapsible}
+          <!-- Same square and the same gutter as the hamburger it replaces, so
+               the header's first control sits in one place at every width. -->
+          <button
+            type="button"
+            data-testid="app-sidebar-toggle"
+            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+            aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+            aria-expanded={!collapsed}
+            onclick={() => (collapsed = !collapsed)}
+          >
+            {#if collapsed}<PanelLeft size={18} />{:else}<PanelLeftClose size={18} />{/if}
           </button>
         {/if}
         {#if section}
