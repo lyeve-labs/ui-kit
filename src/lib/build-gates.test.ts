@@ -246,3 +246,53 @@ describe('the package declares what it cannot run without', () => {
     expect(pkg.peerDependenciesMeta).toBeUndefined();
   });
 });
+
+/*
+ * The README is part of the published tarball, so a count in it is a claim the
+ * package makes about itself. This one said 48 in three places while the
+ * library shipped 67, and the estate's own rules had to carry a note telling
+ * readers not to trust it. A number nobody re-derives goes stale silently, so
+ * derive it here instead.
+ */
+describe('README against the library', () => {
+  const readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
+
+  const exported = (
+    readFileSync(join(ROOT, 'src/lib/index.ts'), 'utf8').match(/^export \{ default as \w+ \}/gm) ??
+    []
+  ).length;
+
+  it('ships one component per default export', () => {
+    const files = [
+      ...readdirSync(join(ROOT, 'src/lib/components')),
+      ...readdirSync(join(ROOT, 'src/lib/components/dialog')),
+    ].filter((f) => f.endsWith('.svelte'));
+    expect(files.length).toBe(exported);
+  });
+
+  it('states the real component count everywhere it states one', () => {
+    const claims = [...readme.matchAll(/(\d+) (?:components|\.svelte files)/g)].map((m) =>
+      Number(m[1]),
+    );
+    expect(claims.length).toBeGreaterThan(0);
+    for (const claim of claims) expect(claim).toBe(exported);
+  });
+
+  it('names every exported component in its list', () => {
+    const names = (
+      readFileSync(join(ROOT, 'src/lib/index.ts'), 'utf8').match(
+        /^export \{ default as (\w+) \}/gm,
+      ) ?? []
+    ).map((line) => line.replace(/^export \{ default as /, '').replace(/ \}$/, ''));
+    const missing = names.filter((n) => !new RegExp(`\\b${n}\\b`).test(readme));
+    expect(missing).toEqual([]);
+  });
+
+  /*
+   * Unicode separators in published prose are forbidden by the estate standard,
+   * and this file had 48 of them in the component list alone.
+   */
+  it('uses ascii punctuation', () => {
+    expect(readme).not.toMatch(/[–—‘’“”•·…]/);
+  });
+});
