@@ -79,6 +79,61 @@
   --radius-xl: 16px;
   --radius-2xl: 24px;
 
+  /* -- Elevation - the stacking order of everything that floats --- *
+   *  Every floating surface in the kit carried a bare z-50, so which
+   *  one won was decided by document order: a Dropdown opened after a
+   *  Modal painted over it, and the same two in the other order did
+   *  not. The layer a surface belongs to is a property of the surface,
+   *  so it is named here once and each component asks for its layer by
+   *  name.
+   *
+   *  The ramp starts at 100 and leaves everything below it to the
+   *  consuming app. The admin's own chrome sits at z-10 and z-20
+   *  today, and a kit layer landing on either number would tie with
+   *  it and resolve, again, by document order.
+   *
+   *  The steps are 100 apart because one of these layers holds a
+   *  stack rather than a surface: the dialog manager offsets each
+   *  dialog above the one it opened over, and a ramp in steps of ten
+   *  would put the eleventh dialog through the ceiling of its own
+   *  layer and under the tooltip above it.
+   *
+   *  tooltip sits above modal because a tooltip on a control inside a
+   *  dialog is drawn while that dialog is the topmost surface. toast
+   *  sits above tooltip because it reports the outcome of the action
+   *  the tooltip described. skip-link is above everything: it is the
+   *  first focusable thing in the document and nothing may cover it.
+   *
+   *  No sticky rung is declared. Nothing in the kit is sticky or
+   *  fixed below the dropdown layer, and a token no rule reads is the
+   *  defect this scale was written to end.                           */
+  --z-index-dropdown: 100; /* a panel anchored to its trigger    */
+  --z-index-overlay: 200; /* the scrim behind a drawer or modal */
+  --z-index-drawer: 300; /* a panel docked to a viewport edge  */
+  --z-index-modal: 400; /* a centred dialog, and the stack    */
+  --z-index-tooltip: 500; /* a label attached to a control      */
+  --z-index-toast: 600; /* transient status                   */
+  --z-index-skip-link: 700; /* the first tab stop in the document */
+
+  /* -- Motion - how long a transition or an entrance runs -------- *
+   *  Four durations shipped as literals inside the animate-[...]
+   *  utility of the component that used them, so the only way to
+   *  read the kit's motion was to grep four components. They are
+   *  stated here at the values they already ran at.
+   *
+   *  Tailwind builds no utility from a --duration-* token: there is
+   *  no such theme namespace, and `duration-collapse` compiles to
+   *  nothing at all. Each one is read through var() from an
+   *  arbitrary utility instead, which is why they are listed in
+   *  VAR_ONLY in theme-tokens.test.ts.
+   *
+   *  The reduced-motion block at the foot of this file overrides
+   *  every one of them and stays the authority on whether they run. */
+  --duration-modal-in: 120ms; /* Modal, the centred entrance   */
+  --duration-toast-in: 140ms; /* Toaster, one toast arriving   */
+  --duration-drawer-in: 150ms; /* Drawer, either edge           */
+  --duration-collapse: 200ms; /* Accordion and Collapsible     */
+
   /* ── Typography · families ───────────────────────────────────── */
   --font-sans:
     'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
@@ -181,6 +236,65 @@ html[data-theme='light'] {
   --color-danger: #ab1a1a;
 }
 
+/*
+ * The entrance keyframes, declared here and not in the components that play
+ * them.
+ *
+ * Modal, Drawer and Toaster each held their own `@keyframes` in a scoped
+ * `<style>` block and started it from a Tailwind `animate-[...]` class. Svelte
+ * renames a scoped keyframe to `svelte-<hash>-<name>` and rewrites only the
+ * references inside that same style block, so the class asked the browser for
+ * `modal-in` while the only rule declared was `svelte-ta60gp-modal-in`. An
+ * animation-name that resolves to nothing is not an error: the element simply
+ * appears, and all four entrances had been dead in every consumer.
+ *
+ * A keyframe named from a class has to be global, and the file every consumer
+ * already imports is the one place it can be global from.
+ */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes drawer-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes drawer-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @layer base {
   html {
     background-color: var(--color-ink);
@@ -236,5 +350,126 @@ html[data-theme='light'] {
       transition-duration: 1ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/*
+ * Print.
+ *
+ * The estate had no `@media print` rule anywhere, and three surfaces print:
+ * the portal prints an invoice, the ops console prints an audit log, the admin
+ * prints a subject-access export. All three printed the sidebar, the theme
+ * toggle and the nav, in a dark palette, and all three printed one screenful
+ * and stopped, because the shell is `h-screen` with the content column set to
+ * `overflow-auto` and paper has neither a viewport nor a scrollbar.
+ *
+ * These rules are deliberately outside `@layer base`. An unlayered declaration
+ * beats every layered one whatever its specificity, so a `bg-surface` utility
+ * on a card cannot put the dark surface back.
+ *
+ * Three markers, each stating what paper needs rather than what an element is:
+ *
+ *   data-print="hide"    chrome that exists to navigate. Paper cannot be
+ *                        navigated, so it is noise on every page.
+ *   data-print="unclip"  a box that clips on screen because the screen is a
+ *                        fixed height. On paper it must give up its height and
+ *                        its overflow or the content past the first page is
+ *                        never printed.
+ *   data-print="keep"    a block that reads as one thing and must not be split
+ *                        across a page break.
+ */
+@media print {
+  /*
+   * The palette, not the components.
+   *
+   * Every kit component paints from these tokens, so redefining them here
+   * turns the whole library monochrome without a single component knowing
+   * about paper. Browsers drop backgrounds when printing by default, which
+   * left light text on the white the printer supplies; naming white here means
+   * the two agree either way.
+   *
+   * The status hues collapse to black rather than to a print-safe tint. A
+   * colour that carries meaning on screen carries none through a mono printer,
+   * and a legible black label beats an unreadable coloured one.
+   */
+  html,
+  html[data-theme='light'] {
+    --color-ink: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-2: #ffffff;
+    --color-line: #999999;
+    --color-line-strong: #666666;
+    --color-fg: #000000;
+    --color-muted: #000000;
+    --color-faint: #000000;
+    --color-brand: #000000;
+    --color-brand-light: #000000;
+    --color-brand-deep: #000000;
+    --color-violet: #000000;
+    --color-success: #000000;
+    --color-warn: #000000;
+    --color-danger: #000000;
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  [data-print='hide'] {
+    display: none !important;
+  }
+
+  /*
+   * height as well as overflow. The shell is `h-screen`, so releasing the
+   * overflow alone still caps the printed document at one viewport.
+   */
+  [data-print='unclip'] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  [data-print='keep'],
+  tr,
+  li {
+    break-inside: avoid;
+  }
+
+  /* A table running past one page repeats its own column headings. */
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /*
+   * A heading orphaned at the foot of a page belongs to the section on the
+   * next one.
+   */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  /*
+   * The target of a link, for the links a reader cannot follow from paper and
+   * could not guess.
+   *
+   * Absolute links only. An invoice full of "(/portal/invoices/8841)" after
+   * every internal link is noise, and the reader holding the paper is already
+   * inside that application. A caller whose absolute link is decorative, or
+   * whose text is the URL already, opts out per link.
+   */
+  a[href^='http']:not([data-print='bare'])::after {
+    content: ' <' attr(href) '>';
+    font-size: 0.85em;
+    font-weight: normal;
+    word-break: break-all;
   }
 }

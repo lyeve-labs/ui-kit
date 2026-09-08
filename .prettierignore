@@ -12,3 +12,9 @@ yarn.lock
 
 # generated release notes
 CHANGELOG.md
+
+# Emitted from vitest.config.ts by the TypeScript compiler, which writes
+# double-quoted import() types. Prettier rewrites them to single quotes, the
+# next build writes them back, and the two gates cannot both pass on the same
+# tree. The emitter owns the file.
+vitest.config.d.ts

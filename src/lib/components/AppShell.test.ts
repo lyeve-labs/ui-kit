@@ -107,6 +107,21 @@ describe('AppShell', () => {
     expect(container.querySelector('#content')).toBeTruthy();
   });
 
+  it('gives the skip link a target that can hold focus', () => {
+    // A fragment link scrolls to its target and focuses it only if the target
+    // is focusable. Without this the page moved and focus stayed on the body,
+    // so the next Tab restarted at the top: the sidebar the reader had just
+    // asked to skip. It reaches all three consoles from here.
+    const { container } = render(AppShell, { props: base });
+    const main = container.querySelector('#content') as HTMLElement;
+    expect(main.tagName).toBe('MAIN');
+    expect(main.getAttribute('tabindex')).toBe('-1');
+
+    // Focusable on demand and never a tab stop of its own.
+    main.focus();
+    expect(document.activeElement).toBe(main);
+  });
+
   it('omits the header actions row and the sidebar bands when nothing fills them', () => {
     const { container } = render(AppShell, { props: { children: text('Body') } });
     const header = container.querySelector('header')!;

@@ -72,7 +72,7 @@
     {id}
     role="tooltip"
     hidden={!visible}
-    class="absolute {pos[position]} z-50 max-w-[min(16rem,calc(100vw-2rem))]
+    class="absolute {pos[position]} z-tooltip max-w-[min(16rem,calc(100vw-2rem))]
       rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-xl"
   >
     {text}

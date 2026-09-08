@@ -36,7 +36,7 @@ describe('SectionHeading', () => {
     const three = render(SectionHeading, { props: { level: 3, children: text('b') } });
     const h2 = two.container.querySelector('h2') as HTMLElement;
     const h3 = three.container.querySelector('h3') as HTMLElement;
-    expect(h2.className).toContain('text-lg');
+    expect(h2.className).toContain('text-h3');
     expect(h3.className).toContain('text-sm');
     expect(h2.className).not.toBe(h3.className);
     expect(h2.className).toContain('font-semibold');
@@ -93,6 +93,21 @@ describe('SectionHeading eyebrow', () => {
 
   it('defaults to the title treatment', () => {
     const { container } = render(SectionHeading, { props: { children: text('Revenue') } });
-    expect(container.querySelector('h2')!.className).toContain('text-lg');
+    expect(container.querySelector('h2')!.className).toContain('text-h3');
+  });
+
+  it('sizes the title from the brand ramp and not from a Tailwind step', () => {
+    // The ramp shipped as eighteen tokens nothing referenced, so every heading
+    // in the estate rendered at whichever Tailwind step someone reached for.
+    // A --text-* token carries no line-height and no tracking of its own, so
+    // adopting the size alone leaves a 22px heading leading at whatever it
+    // inherited: all three have to be named together or the ramp is a third
+    // adopted.
+    const { container } = render(SectionHeading, { props: { children: text('Revenue') } });
+    const cls = container.querySelector('h2')!.className;
+    expect(cls).toContain('text-h3');
+    expect(cls).toContain('leading-h3');
+    expect(cls).toContain('tracking-h3');
+    expect(cls).not.toMatch(/\btext-(xs|sm|base|lg|xl|\dxl)\b/);
   });
 });

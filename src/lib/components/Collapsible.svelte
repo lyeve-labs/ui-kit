@@ -116,7 +116,7 @@
     clipped rather than spilling while the row grows.
   -->
   <div
-    class="grid transition-[grid-template-rows] duration-200 ease-out {open
+    class="grid transition-[grid-template-rows] duration-[var(--duration-collapse)] ease-out {open
       ? 'grid-rows-[1fr]'
       : 'grid-rows-[0fr]'}"
   >

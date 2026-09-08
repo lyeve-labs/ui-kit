@@ -94,6 +94,10 @@ export { default as CopyButton } from './components/CopyButton.svelte';
 // ── Media ──────────────────────────────────────────────────────────────────
 export { default as Avatar } from './components/Avatar.svelte';
 export { default as AvatarGroup } from './components/AvatarGroup.svelte';
+// The product mark. Two applications carried their own copy of the same lockup
+// and the two had drifted apart in size, in weight and in how they answered the
+// theme; the kit owns it now.
+export { default as Logo } from './components/Logo.svelte';
 
 // ── Theming & toasts ───────────────────────────────────────────────────────
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
@@ -116,11 +120,26 @@ export {
   setDialogMeta,
   getDialogStack,
 } from './components/dialog/dialog-manager.svelte.js';
+export type { ConfirmOptions } from './components/dialog/dialog-manager.svelte.js';
 export type { DialogOptions, DialogEntry, DialogSize } from './components/dialog/types.js';
 
 // ── Utilities ──────────────────────────────────────────────────────────────
 export { cn, type ClassValue } from './utils/cn.js';
-export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './utils/theme.js';
+export {
+  getTheme,
+  getThemePreference,
+  nextThemePreference,
+  resolveTheme,
+  setTheme,
+  setThemePreference,
+  systemTheme,
+  themeBootScript,
+  toggleTheme,
+  watchSystemTheme,
+  THEME_PREFERENCES,
+  type Theme,
+  type ThemePreference,
+} from './utils/theme.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never

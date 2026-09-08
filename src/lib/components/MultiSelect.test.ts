@@ -335,3 +335,24 @@ describe('MultiSelect required marker', () => {
     expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 });
+
+describe("a chip's remove button", () => {
+  it('has a target that clears 24px', () => {
+    // SC 2.5.8 at AA. The button sits inside the trigger, so the spacing
+    // exception cannot apply to it. jsdom lays nothing out, so the box is
+    // computed from what the markup states: a 12px glyph inside 6px of padding
+    // on each side is 24px square.
+    const { getByLabelText } = render(MultiSelect, { props: { options, value: ['a'] } });
+    const button = getByLabelText('Remove Alpha');
+    const glyph = Number(button.querySelector('svg')?.getAttribute('width'));
+    expect(button.className).toContain('p-1.5');
+    expect(glyph + 2 * 6).toBeGreaterThanOrEqual(24);
+  });
+
+  it('lays the chip out as it did before the target grew', () => {
+    // The button is in normal flow here, so the padding comes straight back off
+    // on both axes and the chip keeps its size and its gaps.
+    const { getByLabelText } = render(MultiSelect, { props: { options, value: ['a'] } });
+    expect(getByLabelText('Remove Alpha').className).toContain('-m-1.5');
+  });
+});

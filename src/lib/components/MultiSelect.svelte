@@ -199,11 +199,20 @@
                 event.stopPropagation();
                 remove(option.value);
               }}
-              class="transition-colors duration-150 hover:text-brand-light"
+              class="-m-1.5 p-1.5 transition-colors duration-150 hover:text-brand-light"
             >
+              <!--
+                12px inside 6px of padding is a 24px target, which is the floor
+                SC 2.5.8 puts on a control that cannot claim the spacing
+                exception, and this one sits inside the trigger. The padding is
+                taken straight back off as margin, so the chip is laid out
+                exactly as it was and only the reachable area grew. The glyph
+                is the same 12px cross Autocomplete clears its value with; it
+                was drawn a pixel smaller here for no reason anyone recorded.
+              -->
               <svg
-                width="11"
-                height="11"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
