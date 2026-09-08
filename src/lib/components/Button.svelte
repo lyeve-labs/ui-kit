@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import Spinner from './Spinner.svelte';
+  import { safeHref } from '../internal/href.js';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
   type Size = 'sm' | 'md' | 'lg';
@@ -88,8 +89,10 @@
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );
 
-  // Reject javascript: and data: URIs - only allow standard schemes and relative URLs.
-  let safeHref = $derived(href && !/^(javascript|data):/i.test(href) ? href : undefined);
+  // Only standard schemes and relative URLs reach the DOM. The rule itself
+  // lives in internal/href.ts, because Pagination applies the same one to the
+  // hrefs its caller builds and two copies of it would drift.
+  let resolvedHref = $derived(safeHref(href));
 
   /**
    * An anchor has no `disabled`. The prop was accepted and then dropped on this
@@ -103,7 +106,7 @@
 
 {#if href}
   <a
-    href={inert ? undefined : safeHref}
+    href={inert ? undefined : resolvedHref}
     class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
     aria-disabled={inert ? 'true' : undefined}
     tabindex={inert ? -1 : undefined}
