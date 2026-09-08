@@ -187,3 +187,160 @@ describe('Pagination under a finger', () => {
     expect(group.className).not.toContain('ml-auto');
   });
 });
+
+/*
+ * A callback pager does nothing until the page hydrates, so the first paint of
+ * every server-rendered list carried a control that looked live and was not.
+ * One application in the estate had already stopped using this component and
+ * shipped its own link pager for exactly that reason.
+ */
+describe('Pagination as links', () => {
+  const to = (page: number) => `/users?page=${page}`;
+
+  it('renders the steps as links rather than buttons', () => {
+    const { container, getByLabelText } = render(Pagination, {
+      props: { page: 2, total: 100, perPage: 20, href: to },
+    });
+    expect(container.querySelector('button')).toBeNull();
+    expect(getByLabelText('Previous page').tagName).toBe('A');
+    expect(getByLabelText('Next page').tagName).toBe('A');
+  });
+
+  it('sends each step to the page the caller built for it', () => {
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 3, total: 100, perPage: 20, href: to },
+    });
+    expect(getByLabelText('Previous page').getAttribute('href')).toBe('/users?page=2');
+    expect(getByLabelText('Next page').getAttribute('href')).toBe('/users?page=4');
+  });
+
+  it('links every numbered page it draws', () => {
+    const { getByText } = render(Pagination, {
+      props: { page: 1, total: 100, perPage: 20, href: to },
+    });
+    expect(getByText('2').getAttribute('href')).toBe('/users?page=2');
+    expect(getByText('5').getAttribute('href')).toBe('/users?page=5');
+  });
+
+  it('marks the current page the same way it does with buttons', () => {
+    const { getByText } = render(Pagination, {
+      props: { page: 3, total: 100, perPage: 20, href: to },
+    });
+    expect(getByText('3').getAttribute('aria-current')).toBe('page');
+    expect(getByText('2').getAttribute('aria-current')).toBeNull();
+  });
+
+  it('gives a step with nowhere to go no href at all', () => {
+    // An anchor has no `disabled` and `disabled:` never matches one, so a link
+    // that keeps its href on the first page is a live control that pages to
+    // page zero. Dropping the href is what removes it from the tab order.
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 1, total: 100, perPage: 20, href: to },
+    });
+    const prev = getByLabelText('Previous page');
+    expect(prev.hasAttribute('href')).toBe(false);
+    expect(prev.getAttribute('aria-disabled')).toBe('true');
+    expect(prev.className).toContain('pointer-events-none');
+  });
+
+  it('refuses a scheme that executes, wherever the builder got it', () => {
+    // The builder is caller code and the caller builds from data.
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 1, total: 100, perPage: 20, href: () => 'javascript:alert(1)' },
+    });
+    expect(getByLabelText('Next page').hasAttribute('href')).toBe(false);
+  });
+
+  it('keeps the held state on a link, which a finger needs either way', () => {
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 2, total: 100, perPage: 20, href: to },
+    });
+    expect(getByLabelText('Next page').className).toMatch(/\bactive:/);
+  });
+
+  it('still states the count beside the links', () => {
+    const { getByText } = render(Pagination, {
+      props: { page: 2, total: 100, perPage: 20, href: to },
+    });
+    expect(getByText('21 to 40 of 100')).toBeTruthy();
+  });
+});
+
+/*
+ * Several list endpoints report no total at all, and the ones that do report it
+ * cannot afford the count on a tenant with ten thousand rows. Asking for one row
+ * more than the page holds answers "is there another page" without counting the
+ * collection, and that answer is all this mode needs.
+ */
+describe('Pagination without a total', () => {
+  it('offers the next page on the strength of hasNext alone', () => {
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 1, hasNext: true, onchange: vi.fn() },
+    });
+    expect((getByLabelText('Next page') as HTMLButtonElement).disabled).toBe(false);
+    expect((getByLabelText('Previous page') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('fires onchange with the next page number', async () => {
+    const onchange = vi.fn();
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 4, hasNext: true, onchange },
+    });
+    await fireEvent.click(getByLabelText('Next page'));
+    expect(onchange).toHaveBeenCalledWith(5);
+  });
+
+  it('stops at the end of the list when there is no next page', () => {
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 4, hasNext: false, onchange: vi.fn() },
+    });
+    expect((getByLabelText('Next page') as HTMLButtonElement).disabled).toBe(true);
+    expect((getByLabelText('Previous page') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('draws no numbered pages, because it does not know where the list ends', () => {
+    const { container, queryByText } = render(Pagination, {
+      props: { page: 4, hasNext: true, onchange: vi.fn() },
+    });
+    expect(queryByText('4')).toBeNull();
+    expect(gaps(container).length).toBe(0);
+  });
+
+  it('says which page it is on rather than inventing a range', () => {
+    // The last page of an uncounted list is short and nothing tells this
+    // component how short, so "61 to 80" would be a number it made up.
+    const { getByText, container } = render(Pagination, {
+      props: { page: 4, hasNext: true, onchange: vi.fn() },
+    });
+    expect(getByText('Page 4')).toBeTruthy();
+    expect(container.textContent).not.toContain(' of ');
+  });
+
+  it('renders no controls for a single uncounted page', () => {
+    const { queryByLabelText, getByText } = render(Pagination, {
+      props: { page: 1, hasNext: false, onchange: vi.fn() },
+    });
+    expect(queryByLabelText('Next page')).toBeNull();
+    expect(queryByLabelText('Previous page')).toBeNull();
+    expect(getByText('Page 1')).toBeTruthy();
+  });
+
+  it('reads a total of zero as an empty counted list, not as an uncounted one', () => {
+    // `total` absent is the uncounted list. Present and zero is a list that was
+    // counted and holds nothing, which has its own sentence.
+    const { getByText } = render(Pagination, {
+      props: { page: 1, total: 0, hasNext: false, onchange: vi.fn() },
+    });
+    expect(getByText('No results')).toBeTruthy();
+  });
+
+  it('pages an uncounted list from links as well', () => {
+    // The two additions compose: no total and no hydration at once is the case
+    // the application that forked this component was actually in.
+    const { getByLabelText } = render(Pagination, {
+      props: { page: 2, hasNext: true, href: (p: number) => `/audit?page=${p}` },
+    });
+    expect(getByLabelText('Previous page').getAttribute('href')).toBe('/audit?page=1');
+    expect(getByLabelText('Next page').getAttribute('href')).toBe('/audit?page=3');
+  });
+});
