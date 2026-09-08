@@ -60,7 +60,8 @@
     "./package.json": "./package.json"
   },
   "peerDependencies": {
-    "svelte": "^5.0.0"
+    "svelte": "^5.0.0",
+    "tailwindcss": "^4"
   },
   "publishConfig": {
     "access": "public"

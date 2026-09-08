@@ -351,3 +351,54 @@ describe('Select required marker', () => {
     expect(trigger.getAttribute('aria-required')).toBe('true');
   });
 });
+
+describe('Select: dismissal', () => {
+  it('closes the panel on Escape and puts focus back on the trigger', async () => {
+    const { container } = render(Select, { props: { mode: 'listbox', options: PLANS } });
+    const button = trigger(container);
+
+    await fireEvent.keyDown(button, { key: 'ArrowDown' });
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+
+    await fireEvent.keyDown(button, { key: 'Escape' });
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(rows(container)).toEqual([]);
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('hands focus back from the search box, which is about to be unmounted', async () => {
+    const { container } = render(Select, {
+      props: { mode: 'listbox', options: PLANS, searchable: true },
+    });
+    const button = trigger(container);
+    await fireEvent.click(button);
+
+    const search = container.querySelector('input[type="text"]') as HTMLInputElement;
+    await fireEvent.keyDown(search, { key: 'Escape' });
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('stops Escape from reaching a modal around it', async () => {
+    // Unstopped, one press closes both the panel and the surface holding it.
+    // Consumed while closed, Escape would never reach the modal at all.
+    const outer = vi.fn();
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') outer();
+    };
+    document.addEventListener('keydown', onKeydown);
+    try {
+      const { container } = render(Select, { props: { mode: 'listbox', options: PLANS } });
+      const button = trigger(container);
+
+      await fireEvent.keyDown(button, { key: 'ArrowDown' });
+      await fireEvent.keyDown(button, { key: 'Escape' });
+      expect(outer).not.toHaveBeenCalled();
+
+      await fireEvent.keyDown(button, { key: 'Escape' });
+      expect(outer).toHaveBeenCalledTimes(1);
+    } finally {
+      document.removeEventListener('keydown', onKeydown);
+    }
+  });
+});

@@ -59,7 +59,28 @@ describe('PageHeader', () => {
     const h1 = container.querySelector('h1') as HTMLElement;
     expect(h1.textContent).toBe('Canvas');
     expect(h1.className).toContain('text-sm');
-    expect(h1.className).not.toContain('text-2xl');
+    expect(h1.className).not.toContain('text-h2');
     expect(queryByText('Your overview')).toBeNull();
+  });
+
+  it('sizes the page title from the brand ramp', () => {
+    // The title rendered at 24px, which is not a step the ramp holds at all,
+    // while every one of the ramp's size tokens went unreferenced. text-h2 is
+    // 32px; text-h1 is 44px and belongs to a marketing page rather than to a
+    // console whose table under this heading sets at 14px.
+    const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
+    const cls = (container.querySelector('h1') as HTMLElement).className;
+    expect(cls).toContain('text-h2');
+    expect(cls).toContain('leading-h2');
+    expect(cls).toContain('tracking-h2');
+    expect(cls).not.toContain('text-h1');
+    expect(cls).not.toMatch(/\btext-\dxl\b/);
+  });
+
+  it('keeps the H1 weight of the ramp while it takes the H2 size', () => {
+    // Size and weight are two decisions. Taking 600 along with the 32px would
+    // have moved the page title twice for one of them.
+    const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
+    expect((container.querySelector('h1') as HTMLElement).className).toContain('font-bold');
   });
 });

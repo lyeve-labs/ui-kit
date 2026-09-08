@@ -264,6 +264,40 @@ describe('modal surface', () => {
   });
 });
 
+/**
+ * The rendered size of whichever font-size class a string carries, in pixels.
+ *
+ * Tailwind's own steps are its published defaults; the brand steps are read
+ * out of theme.css, so a token whose value moves moves this test with it
+ * rather than against a number copied into the assertion.
+ */
+const TAILWIND_TEXT_PX: Record<string, number> = {
+  'text-xs': 12,
+  'text-sm': 14,
+  'text-base': 16,
+  'text-lg': 18,
+  'text-xl': 20,
+  'text-2xl': 24,
+  'text-3xl': 30,
+};
+
+function brandTextPx(): Record<string, number> {
+  const css = readFileSync(join(__dirname, '../styles/theme.css'), 'utf8');
+  const out: Record<string, number> = {};
+  for (const [, name, value] of css.matchAll(/--text-([a-z0-9]+):\s*([0-9.]+)rem/g)) {
+    out[`text-${name}`] = Number(value) * 16;
+  }
+  return out;
+}
+
+function pxOf(classes: string): number {
+  const sizes = { ...TAILWIND_TEXT_PX, ...brandTextPx() };
+  for (const token of classes.split(/\s+/)) {
+    if (token in sizes) return sizes[token];
+  }
+  throw new Error(`no font-size class in "${classes}"`);
+}
+
 describe('section heading', () => {
   it('gives level 2 and level 3 different treatments', () => {
     // Fourteen class strings served this role. Two levels that render alike
@@ -272,9 +306,24 @@ describe('section heading', () => {
   });
 
   it('sets level 2 above level 3', () => {
-    const size = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'];
-    const rank = (v: string) => size.findIndex((s) => v.split(/\s+/).includes(s));
-    expect(rank(sectionHeading(2))).toBeGreaterThan(rank(sectionHeading(3)));
+    // Measured in pixels rather than ranked by class name. The two levels are
+    // no longer drawn from one vocabulary - level 2 sizes from the brand ramp
+    // and level 3 from a Tailwind step - and a list of class names has no way
+    // to compare across the two. It also silently ranked an unlisted class at
+    // -1, which is below every real size, so a heading that stopped naming a
+    // size at all would have passed as the smaller of the pair.
+    expect(pxOf(sectionHeading(2))).toBeGreaterThan(pxOf(sectionHeading(3)));
+  });
+
+  it('takes level 2 from the brand ramp, with its leading and its tracking', () => {
+    // Eighteen ramp tokens shipped and nothing referenced one. A --text-*
+    // token sets font-size alone, so a component adopting the size and not the
+    // ratio leaves the heading leading at whatever it inherits.
+    const two = sectionHeading(2);
+    expect(two).toContain('text-h3');
+    expect(two).toContain('leading-h3');
+    expect(two).toContain('tracking-h3');
+    expect(pxOf(two)).toBe(22);
   });
 
   it.each([2, 3] as const)('level %i reads as a heading', (level) => {
@@ -283,8 +332,10 @@ describe('section heading', () => {
   });
 
   it('sits under the page title rather than competing with it', () => {
-    // PageHeader draws the page title at text-2xl font-bold.
-    expect(sectionHeading(2)).not.toContain('text-2xl');
+    // PageHeader draws the page title at text-h2 font-bold, which is 32px.
+    // Stated as a measurement because the two now name different tokens and a
+    // string comparison cannot tell 22px from 32px.
+    expect(pxOf(sectionHeading(2))).toBeLessThan(32);
     expect(sectionHeading(2)).not.toContain('font-bold');
   });
 });

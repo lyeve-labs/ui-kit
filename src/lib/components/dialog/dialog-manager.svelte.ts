@@ -154,16 +154,48 @@ export function dismissAllDialogs(): void {
   }
 }
 
+/** The labels a caller may override on a confirm dialog. */
+export interface ConfirmOptions {
+  /**
+   * The verb on the accepting button. Defaults to `Confirm`.
+   *
+   * Name the action rather than accepting the default wherever the caller has
+   * a verb of its own: a button reading `Delete` says what happens, and one
+   * reading `Confirm` only says that something does. ConfirmDialog has always
+   * read this, but until it was reachable from here a caller had to drop to
+   * openDialog and setDialogMeta to reach it, so every call site took the
+   * generic label instead.
+   */
+  confirmLabel?: string;
+  /** The verb on the dismissing button. Defaults to `Cancel`. */
+  cancelLabel?: string;
+}
+
 /**
  * Convenience: confirm dialog.
  * Returns `true` if user confirmed, `false` if cancelled.
  *
  *   const ok = await confirm('Delete item?', 'This cannot be undone.');
+ *   const ok = await confirm('Delete item?', 'This cannot be undone.', {
+ *     confirmLabel: 'Delete',
+ *   });
  */
-export function confirm(title: string, message?: string): Promise<boolean> {
+export function confirm(
+  title: string,
+  message?: string,
+  options?: ConfirmOptions,
+): Promise<boolean> {
   const id = `confirm-${++idCounter}`;
   const promise = openDialog<boolean>({ id, size: 'sm', title });
-  setDialogMeta(id, { confirmTitle: title, confirmMessage: message ?? '' });
+  setDialogMeta(id, {
+    confirmTitle: title,
+    confirmMessage: message ?? '',
+    // Undefined keys are dropped rather than written, because ConfirmDialog
+    // decides its default by type-checking the meta value: writing undefined
+    // would be indistinguishable from an override to the empty case.
+    ...(options?.confirmLabel !== undefined ? { confirmLabel: options.confirmLabel } : {}),
+    ...(options?.cancelLabel !== undefined ? { cancelLabel: options.cancelLabel } : {}),
+  });
   // Cancelling a dialog dismisses it, and dismissal rejects. Callers write
   // `if (await confirm(...))`, so a rejection on Cancel is an unhandled
   // rejection on the ordinary path rather than an error anyone meant to

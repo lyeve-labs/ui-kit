@@ -197,11 +197,20 @@
     />
 
     {#if allowClear && value && !disabled}
+      <!--
+        12px inside 6px of padding is a 24px target, the floor SC 2.5.8 puts on
+        a control with no spacing exception to claim, and this one sits inside
+        the field. The padding is taken back off the horizontal axis only: the
+        box is positioned from its right edge, so a negative right margin holds
+        the glyph exactly where it was, while a negative top margin would fight
+        the translate that centres it and lift it 6px off the middle of the
+        field.
+      -->
       <button
         type="button"
         aria-label="Clear"
         onclick={clear}
-        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint transition-colors duration-150 hover:text-fg"
+        class="absolute right-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors duration-150 hover:text-fg"
       >
         <svg
           width="12"

@@ -47,7 +47,7 @@ describe('Panel', () => {
     const three = render(Panel, { props: { heading: 'b', children: text('Body') } });
     const h2 = two.container.querySelector('h2') as HTMLElement;
     const h3 = three.container.querySelector('h3') as HTMLElement;
-    expect(h2.className).toContain('text-lg');
+    expect(h2.className).toContain('text-h3');
     expect(h3.className).toContain('text-sm');
     expect(h2.className).toContain('font-semibold');
     expect(h3.className).toContain('font-semibold');

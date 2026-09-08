@@ -51,7 +51,7 @@
 <svelte:window onkeydown={open ? onkeydown : undefined} />
 
 {#if open}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="fixed inset-0 z-modal flex items-center justify-center p-4">
     <button
       type="button"
       tabindex="-1"
@@ -64,7 +64,7 @@
       use:overlay
       class="relative flex max-h-[calc(100dvh-2rem)] w-full {widths[size]} flex-col
              overflow-hidden rounded-xl border border-line bg-surface shadow-2xl
-             animate-[modal-in_120ms_ease-out]"
+             animate-[modal-in_var(--duration-modal-in)_ease-out]"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? headingId : undefined}
@@ -114,16 +114,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  @keyframes modal-in {
-    from {
-      opacity: 0;
-      transform: translateY(6px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-</style>

@@ -42,7 +42,7 @@
  * resting text colour so a row can override it with a single utility.
  */
 export const PANEL_SURFACE =
-  'absolute z-50 mt-1 rounded-xl border border-line-strong bg-surface text-fg shadow-2xl';
+  'absolute z-dropdown mt-1 rounded-xl border border-line-strong bg-surface text-fg shadow-2xl';
 
 /**
  * The scrolling region inside it.

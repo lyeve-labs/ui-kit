@@ -463,3 +463,25 @@ describe('TimePicker required marker', () => {
     expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 });
+
+describe('TimePicker dismissal', () => {
+  it('lets Escape through to whatever surface holds the field', async () => {
+    // The field has nothing to dismiss: it is three inputs and, in 12-hour
+    // display, a native select, with no panel and no open state anywhere in it.
+    // Consuming Escape here would take the key away from the modal or the
+    // drawer the field is sitting in, which is the one thing it must not do.
+    const outer = vi.fn();
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') outer();
+    };
+    document.addEventListener('keydown', onKeydown);
+    try {
+      const r = render(TimePicker, { props: { value: '09:30' } });
+      const event = await fireEvent.keyDown(hourOf(r), { key: 'Escape' });
+      expect(event).toBe(true);
+      expect(outer).toHaveBeenCalledTimes(1);
+    } finally {
+      document.removeEventListener('keydown', onKeydown);
+    }
+  });
+});
