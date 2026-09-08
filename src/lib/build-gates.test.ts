@@ -223,3 +223,26 @@ describe('the dist check sees a broken relative import', () => {
     expect(run(dir).code).toBe(0);
   });
 });
+
+describe('the package declares what it cannot run without', () => {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
+    peerDependencies?: Record<string, string>;
+    peerDependenciesMeta?: Record<string, { optional?: boolean }>;
+  };
+
+  it('names the Tailwind major its stylesheet is written against', () => {
+    // styles.css opens with `@import 'tailwindcss'` and every component is
+    // built from v4 utilities and v4 @theme tokens. A consumer on v3 got the
+    // tokens and none of the utilities, with no error anywhere: the components
+    // rendered as unstyled markup and the palette looked like a theming bug.
+    expect(pkg.peerDependencies?.tailwindcss).toBe('^4');
+  });
+
+  it('marks neither peer optional', () => {
+    // Both are hard requirements. svelte compiles the components and tailwind
+    // emits the classes they are made of, so a build with either one missing
+    // produces something that mounts and cannot be read.
+    expect(Object.keys(pkg.peerDependencies ?? {}).sort()).toEqual(['svelte', 'tailwindcss']);
+    expect(pkg.peerDependenciesMeta).toBeUndefined();
+  });
+});
