@@ -13,9 +13,9 @@
 {#if orientation === 'horizontal'}
   <div
     class="inline-flex
-      [&>*:not(:first-child)]:rounded-l-none
-      [&>*:not(:last-child)]:rounded-r-none
-      [&>*:not(:first-child)]:-ml-px
+      [&>*:not(:first-child)]:rounded-s-none
+      [&>*:not(:last-child)]:rounded-e-none
+      [&>*:not(:first-child)]:-ms-px
       {cls}"
   >
     {@render children()}

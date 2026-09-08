@@ -70,7 +70,7 @@
     aria-expanded={open}
     aria-controls={panelId}
     onclick={toggle}
-    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium
+    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm font-medium
       text-fg transition-colors duration-150 outline-none focus-visible:ring-2
       focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed
       disabled:opacity-50 {disabled ? '' : 'hover:bg-surface-2'}"
@@ -88,7 +88,7 @@
       stroke-linejoin="round"
       class="shrink-0 text-faint transition-transform duration-200 ease-out {open
         ? ''
-        : '-rotate-90'}"
+        : '-rotate-90 rtl:rotate-90'}"
       aria-hidden="true"
     >
       <path d="M6 9l6 6 6-6" />
@@ -102,7 +102,7 @@
     <span class="truncate">{label}</span>
 
     {#if badge !== undefined}
-      <span class="ml-auto shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">
+      <span class="ms-auto shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">
         {badge}
       </span>
     {/if}

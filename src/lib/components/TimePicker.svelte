@@ -401,7 +401,7 @@
          takes its name from this same element. The hour keeps its own aria-label,
          which is what a screen reader reads for it. -->
     <label id="{fieldId}-label" for="{fieldId}-hour" class={FIELD_LABEL}>
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
@@ -459,7 +459,7 @@
         aria-required={required ? 'true' : undefined}
         onchange={onMeridiemChange}
         onkeydown={onMeridiemKeydown}
-        class="{CONTROL_SEGMENT} ml-1"
+        class="{CONTROL_SEGMENT} ms-1"
       >
         <option value="AM">AM</option>
         <option value="PM">PM</option>

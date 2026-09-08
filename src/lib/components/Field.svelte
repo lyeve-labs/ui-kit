@@ -90,7 +90,7 @@
       the controls with nothing ahead of them saying what each one is.
     -->
     <label for={fieldId} class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 

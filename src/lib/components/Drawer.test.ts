@@ -24,14 +24,21 @@ describe('Drawer', () => {
     const { container } = render(Drawer, { props: { open: true, children: text('x') } });
     const panel = container.querySelector('[role="dialog"]') as HTMLElement;
     expect(panel.className).toContain('w-80');
-    expect(panel.className).toContain('border-l');
+    /*
+     * Split into class names rather than searched as a substring. The rule is
+     * drawn on the panel's inner edge, and the old `toContain('border-l')` was
+     * satisfied by the `border-line` sitting beside it, so the assertion held
+     * whichever edge the border was actually on.
+     */
+    expect(panel.className.split(/\s+/)).toContain('border-s');
   });
 
   it('anchors to the left when side="left"', () => {
     const { container } = render(Drawer, {
       props: { open: true, side: 'left', children: text('x') },
     });
-    expect(container.querySelector('[role="dialog"]')?.className).toContain('border-r');
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    expect(panel.className.split(/\s+/)).toContain('border-e');
   });
 
   it('fires onclose when a close control is clicked', async () => {

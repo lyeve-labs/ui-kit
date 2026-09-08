@@ -247,7 +247,7 @@
       role="menu"
       class="absolute z-dropdown mt-1 py-1 min-w-36 rounded-xl border border-line
         bg-surface shadow-2xl
-        {align === 'right' ? 'right-0' : 'left-0'}"
+        {align === 'right' ? 'end-0' : 'start-0'}"
     >
       {#each items as item, index}
         <button

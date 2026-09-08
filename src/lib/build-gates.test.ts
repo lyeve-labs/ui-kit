@@ -296,3 +296,97 @@ describe('README against the library', () => {
     expect(readme).not.toMatch(/[–—‘’“”•·…]/);
   });
 });
+
+/**
+ * The kit mirrors.
+ *
+ * A component library that writes `ml-`, `pl-`, `left-` or `text-left` renders
+ * the same way whichever direction the page reads, which is to say wrongly in
+ * half of them. The count when this gate was written was 69 physical
+ * directional properties against 16 logical ones, and the visible end of it was
+ * a sidebar that stayed on the left under `dir="rtl"`.
+ *
+ * A gate rather than a one-off sweep, because the sweep is the easy half: every
+ * component added after it would have started physical again, and nothing in
+ * the build says which axis a utility belongs to.
+ */
+describe('the components read in both directions', () => {
+  /**
+   * Prose is not markup. Every one of these files explains itself, and the
+   * explanations say "right-to-left" and "border-r" while the code says
+   * neither.
+   */
+  const strip = (src: string) =>
+    src
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '');
+
+  /*
+   * Tooltip is physical on purpose and is the only one.
+   *
+   * Its `position` prop is a contract with the caller, who asked for the label
+   * on a named side and gets it there. Its top and bottom placements centre
+   * with `left-1/2 -translate-x-1/2`, which is symmetric: converting that pair
+   * to `start-1/2` would leave the tooltip off-centre rather than mirrored.
+   */
+  const PHYSICAL_BY_DESIGN = new Set(['Tooltip.svelte']);
+
+  const PHYSICAL =
+    /(?:^|[\s"'`{(])(-?(?:ml|mr|pl|pr)-[\w./[\]]+|text-(?:left|right)|(?:left|right)-[\w./[\]]+|border-[lr](?:-\d+)?|rounded-[lr]-[\w]+)(?=[\s"'`})]|$)/g;
+
+  const sources = () => {
+    const dirs = [
+      join(ROOT, 'src/lib/components'),
+      join(ROOT, 'src/lib/components/dialog'),
+      join(ROOT, 'src/lib/internal'),
+    ];
+    const out: { name: string; code: string }[] = [];
+    for (const dir of dirs) {
+      for (const file of readdirSync(dir)) {
+        if (!file.endsWith('.svelte') && !file.endsWith('.ts')) continue;
+        if (file.includes('.test.')) continue;
+        out.push({ name: file, code: strip(readFileSync(join(dir, file), 'utf8')) });
+      }
+    }
+    return out;
+  };
+
+  it('reads every component and internal module', () => {
+    expect(sources().length).toBeGreaterThan(60);
+  });
+
+  it('writes no physical inline-axis utility outside the one that means one', () => {
+    const offenders: string[] = [];
+    for (const { name, code } of sources()) {
+      if (PHYSICAL_BY_DESIGN.has(name)) continue;
+      for (const m of code.matchAll(PHYSICAL)) offenders.push(`${name}: ${m[1]}`);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  /*
+   * The allow-list has to keep earning its place. A name left in it after the
+   * component stopped needing it is how an exception becomes the rule.
+   */
+  it('keeps the deliberate exception honest', () => {
+    for (const name of PHYSICAL_BY_DESIGN) {
+      const entry = sources().find((s) => s.name === name);
+      expect(entry).toBeTruthy();
+      expect([...(entry?.code.matchAll(PHYSICAL) ?? [])].length).toBeGreaterThan(0);
+    }
+  });
+
+  /*
+   * The gate above is satisfiable by deleting every directional utility in the
+   * kit as well as by converting them, and the two look identical from there.
+   * This is the half that says the spacing is still being asked for, just on
+   * the axis that mirrors.
+   */
+  it('asks for the same spacing on the logical axis', () => {
+    const LOGICAL =
+      /(?:^|[\s"'`{(])(-?(?:ms|me|ps|pe)-[\w./[\]]+|text-(?:start|end)|(?:start|end)-[\w./[\]]+|border-[se](?:-\d+)?|rounded-[se]-[\w]+)(?=[\s"'`})]|$)/g;
+    const total = sources().reduce((n, { code }) => n + [...code.matchAll(LOGICAL)].length, 0);
+    expect(total).toBeGreaterThan(60);
+  });
+});

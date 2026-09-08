@@ -177,7 +177,7 @@ describe('PasswordInput', () => {
 
   it('keeps the button clear of the text and its focus ring inside the control', () => {
     const { container } = render(PasswordInput, { props: { label: 'Key' } });
-    expect(input(container).className).toContain('pr-10');
+    expect(input(container).className).toContain('pe-10');
     // The button sits on top of the control, so an outset ring would be drawn
     // over the control's own border rather than around the button.
     expect((toggle(container) as HTMLButtonElement).className).toContain(
