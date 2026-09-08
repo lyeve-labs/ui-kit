@@ -201,7 +201,12 @@
       {/if}
     </header>
 
-    <main id="content" class="min-w-0 flex-1 overflow-auto bg-ink">
+    <!-- tabindex -1 is what makes the skip link work. A fragment link scrolls
+         to its target and moves focus to it only if the target can hold focus,
+         so without this the link moved the page and left focus on the body, and
+         the next Tab started again at the top of the document: the sidebar the
+         reader had just skipped. -->
+    <main id="content" tabindex="-1" class="min-w-0 flex-1 overflow-auto bg-ink">
       {@render children()}
     </main>
   </div>
