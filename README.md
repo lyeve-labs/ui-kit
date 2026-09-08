@@ -7,7 +7,7 @@ A clean, accessible Svelte 5 component library. The design system behind [LyEve]
 [![Tailwind CSS 4](https://img.shields.io/badge/tailwind-v4-38bdf8.svg)](https://tailwindcss.com)
 
 ```bash
-pnpm add @lyeve-labs/ui-kit
+pnpm add @lyeve-labs/ui-kit @lucide/svelte
 ```
 
 ```svelte
@@ -69,15 +69,22 @@ ThemeToggle, Toaster (plus the `toast` service)
 
 - **Svelte 5.0** or newer
 - **Tailwind CSS v4** with the `@tailwindcss/vite` plugin
+- **`@lucide/svelte`** 0.511 or newer, below 2.0
 - **Node 20** or newer
 
 ## Install
 
 ```bash
-pnpm add @lyeve-labs/ui-kit
-# or npm install @lyeve-labs/ui-kit
-# or yarn add @lyeve-labs/ui-kit
+pnpm add @lyeve-labs/ui-kit @lucide/svelte
+# or npm install @lyeve-labs/ui-kit @lucide/svelte
+# or yarn add @lyeve-labs/ui-kit @lucide/svelte
 ```
+
+The icon set is a peer dependency, so it installs once and the application
+picks the version. Most applications already depend on it directly, and while
+the kit owned a copy of its own they resolved two: the same icons shipped twice
+in the bundle and an upgrade on the application's side moved only one of them.
+A missing peer is resolved for you by pnpm and by npm, and not by yarn.
 
 If you don't have Tailwind v4 yet:
 

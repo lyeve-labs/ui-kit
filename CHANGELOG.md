@@ -5,6 +5,34 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- `@lucide/svelte` is a peer dependency instead of a dependency, at
+  `>=0.511.0 <2`. It was the only runtime dependency the kit owned, and every
+  application in the estate depends on it directly too, so each resolved two
+  copies: 42MB on disk in one of them, and eleven of the icons it imports
+  shipped twice in that application's built bundle. Add `@lucide/svelte`
+  alongside the kit if it is not already in your dependencies: a missing peer is
+  resolved for you by pnpm and by npm, and not by yarn.
+
+### Added
+
+- `Pagination` renders links instead of buttons when given an `href` builder,
+  and pages from `hasNext` when the endpoint states no `total`. A callback
+  pager cannot run before the page hydrates, so paging a server-rendered list
+  did nothing at all until the bundle arrived, and a list endpoint that reports
+  no count could not drive the component. `page`, `total`, `perPage` and
+  `onchange` behave exactly as before.
+
+- The console type scale is declared beside the brand ramp in `styles.css`:
+  `--text-xs` through `--text-2xl`, each with its leading. The brand ramp is a
+  marketing ramp with no step at 14px, which is the console's body size, so the
+  components were built from sizes the token file never mentioned while five
+  ramp tokens were referenced by nothing. Nothing renders at a different size
+  for this.
+
 ## [0.18.0] - 2026-09-08
 
 ### Added
