@@ -73,6 +73,7 @@ const COMPONENTS = [
   // Media
   'Avatar',
   'AvatarGroup',
+  'Logo',
   // Theming & toasts
   'ThemeToggle',
   'Toaster',

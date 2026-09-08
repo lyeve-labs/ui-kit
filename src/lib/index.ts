@@ -94,6 +94,10 @@ export { default as CopyButton } from './components/CopyButton.svelte';
 // ── Media ──────────────────────────────────────────────────────────────────
 export { default as Avatar } from './components/Avatar.svelte';
 export { default as AvatarGroup } from './components/AvatarGroup.svelte';
+// The product mark. Two applications carried their own copy of the same lockup
+// and the two had drifted apart in size, in weight and in how they answered the
+// theme; the kit owns it now.
+export { default as Logo } from './components/Logo.svelte';
 
 // ── Theming & toasts ───────────────────────────────────────────────────────
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
