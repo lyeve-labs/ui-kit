@@ -155,10 +155,19 @@ export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'
   // The eyebrow reads the same at both levels. It is a label for the band under
   // it rather than a title, so it does not take the level's size at all.
   if (variant === 'eyebrow') return 'text-xs font-medium uppercase tracking-wide text-faint';
+  // Level 2 is the brand ramp's H3, which the guideline describes as the card
+  // and group head this is. Its leading and tracking come with it: a --text-*
+  // token sets font-size and nothing else, so the ratio has to be asked for by
+  // name or the heading inherits whatever line-height its parent had.
+  //
   // Level 3 drops a size rather than a weight. Inside a card it sits under the
   // card's own semibold title, and two semibold lines at the same size read as
-  // one heading broken in half.
-  return level === 2 ? 'text-lg font-semibold text-fg' : 'text-sm font-semibold text-fg';
+  // one heading broken in half. It stays at text-sm: the ramp holds nothing
+  // between 16px and 22px, and 16px is exactly the size of the card title it
+  // has to sit below.
+  return level === 2
+    ? 'text-h3 leading-h3 tracking-h3 font-semibold text-fg'
+    : 'text-sm font-semibold text-fg';
 }
 
 /**

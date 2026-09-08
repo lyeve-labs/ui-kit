@@ -68,7 +68,7 @@
   const surface = $derived(`${SURFACE[variant]} ${CARD_PAD[pad]}`.trim());
 </script>
 
-<div class="flex flex-col gap-stack {surface} {klass}">
+<div data-print="keep" class="flex flex-col gap-stack {surface} {klass}">
   {#snippet headingText()}
     {#if icon}
       {@const Icon = icon}
