@@ -69,11 +69,25 @@
     'transition-colors duration-150 outline-none ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
-  /** Exactly one border colour, one background and one text colour per state. */
+  /**
+   * Exactly one border colour, one background and one text colour per state.
+   *
+   * Every state answers the pointer, including the current one. It did not: the
+   * current row was the only paint with no hover step, and the current row is
+   * the tail of the active trail, so on any nav deep enough to have sections it
+   * is a nested entry. Beside its own siblings, which all lit up, the row for
+   * the page you were on read as the one dead entry in the list.
+   *
+   * The held step is separate from the hovered one because `hover:` compiles
+   * inside `@media (hover: hover)` and never matches a finger. A sidebar is
+   * mostly used on a phone as a drawer, where the tap that closed it was the
+   * one gesture in the component with nothing on screen behind it.
+   */
   function rowPaint(state: 'current' | 'ancestor' | 'rest'): string {
-    if (state === 'current') return 'border-brand bg-surface-2 font-medium text-brand';
-    if (state === 'ancestor') return 'border-brand text-fg hover:bg-surface-2';
-    return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg';
+    if (state === 'current')
+      return 'border-brand bg-surface-2 font-medium text-brand hover:bg-line active:bg-line';
+    if (state === 'ancestor') return 'border-brand text-fg hover:bg-surface-2 active:bg-line';
+    return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';
   }
 
   const ROW_DISABLED = 'cursor-not-allowed border-transparent text-muted opacity-50';
@@ -87,6 +101,7 @@
   const DISCLOSURE =
     'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted ' +
     'transition-colors duration-150 outline-none hover:bg-surface-2 hover:text-fg ' +
+    'active:bg-line active:text-fg ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
   const BADGE_TONE: Record<AccentTone, string> = {
@@ -257,7 +272,7 @@
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"
-    class="shrink-0 transition-transform duration-150 {open ? 'rotate-90' : ''}"
+    class="shrink-0 transition-transform duration-150 {open ? 'rotate-90' : 'rtl:rotate-180'}"
   >
     <path d="M9 18l6-6-6-6" />
   </svg>
