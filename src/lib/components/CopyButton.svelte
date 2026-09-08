@@ -105,7 +105,7 @@
     type="button"
     aria-label={label}
     onclick={copy}
-    class="inline-flex items-center justify-center rounded-md p-1 outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand {status ===
+    class="inline-flex items-center justify-center rounded-md p-1 outline-none transition-colors duration-150 active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand {status ===
     'copied'
       ? 'text-success'
       : 'text-faint hover:text-fg'}"

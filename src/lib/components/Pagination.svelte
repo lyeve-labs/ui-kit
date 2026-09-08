@@ -55,6 +55,20 @@
 
   const btnBase =
     'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors duration-150';
+
+  /**
+   * A page control that is not the page you are on, in every state a pointer
+   * can put it in.
+   *
+   * Held as well as hovered, because `hover:` never matches on a touch screen
+   * and paging is a thumb gesture: without the pressed step a tap on a phone
+   * changed the page with nothing on the control to say it had been hit.
+   *
+   * Stated once rather than spelled out on the previous button, the next button
+   * and every numbered one. It was written three times, and a state added to
+   * one copy is a state missing from two.
+   */
+  const btnRest = 'text-muted hover:text-fg hover:bg-surface-2 active:bg-line active:text-fg';
 </script>
 
 <!-- The summary renders whenever there is a count to state, and the page
@@ -68,13 +82,13 @@
   </span>
 
   {#if totalPages > 1}
-    <div class="flex flex-wrap items-center gap-0.5 ml-auto">
+    <div class="flex flex-wrap items-center gap-0.5 ms-auto">
       <button
         type="button"
         disabled={safePage <= 1}
         onclick={() => onchange(safePage - 1)}
         aria-label="Previous page"
-        class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
+        class="{btnBase} {btnRest}
             disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <svg
@@ -87,6 +101,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           aria-hidden="true"
+          class="rtl:rotate-180"
         >
           <path d="M15 18l-6-6 6-6" />
         </svg>
@@ -117,9 +132,7 @@
             onclick={() => onchange(n as number)}
             aria-current={safePage === n ? 'page' : undefined}
             class="{btnBase}
-                {safePage === n
-              ? 'bg-brand text-ink'
-              : 'text-muted hover:text-fg hover:bg-surface-2'}"
+                {safePage === n ? 'bg-brand text-ink' : btnRest}"
           >
             {n}
           </button>
@@ -131,7 +144,7 @@
         disabled={safePage >= totalPages}
         onclick={() => onchange(safePage + 1)}
         aria-label="Next page"
-        class="{btnBase} text-muted hover:text-fg hover:bg-surface-2
+        class="{btnBase} {btnRest}
           disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <svg
@@ -144,6 +157,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           aria-hidden="true"
+          class="rtl:rotate-180"
         >
           <path d="M9 18l6-6-6-6" />
         </svg>

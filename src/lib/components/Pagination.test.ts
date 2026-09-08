@@ -152,3 +152,38 @@ describe('Pagination', () => {
     expect(container.textContent).not.toMatch(/[\u2013\u2014]/);
   });
 });
+
+describe('Pagination under a finger', () => {
+  const page = (props: Record<string, unknown> = {}) =>
+    render(Pagination, {
+      props: { page: 3, total: 100, perPage: 20, onchange: vi.fn(), ...props },
+    });
+
+  /*
+   * Paging is a thumb gesture and `hover:` never matches a thumb, so before
+   * this a tap changed the page with nothing on the control to say it had
+   * landed.
+   */
+  it('gives every control that is not the current page a held state', () => {
+    const { container } = page();
+    const buttons = [...container.querySelectorAll('button')].filter(
+      (b) => b.getAttribute('aria-current') === null,
+    );
+    expect(buttons.length).toBeGreaterThan(2);
+    for (const b of buttons) expect(b.className).toMatch(/\bactive:/);
+  });
+
+  it('turns the previous and next arrows round in a right-to-left page', () => {
+    const { container } = page();
+    const arrows = [...container.querySelectorAll('button svg')];
+    expect(arrows.length).toBe(2);
+    for (const svg of arrows) expect(svg.getAttribute('class')).toContain('rtl:rotate-180');
+  });
+
+  it('pushes the controls to the reading end rather than the left', () => {
+    const { container } = page();
+    const group = container.querySelector('button')?.parentElement as HTMLElement;
+    expect(group.className).toContain('ms-auto');
+    expect(group.className).not.toContain('ml-auto');
+  });
+});
