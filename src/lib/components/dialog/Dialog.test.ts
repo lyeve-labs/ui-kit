@@ -141,14 +141,19 @@ describe('Dialog', () => {
     // An inline style, not a `z-[...]` class: Tailwind matches complete class
     // names in source text, so a class built from a runtime value generated no
     // rule and every stacked dialog rendered at `z-index: auto`.
-    expect(outerDiv.style.zIndex).toBe('53');
+    expect(outerDiv.style.zIndex).toBe('calc(var(--z-index-modal) + 3)');
   });
 
-  it('applies default z-index at depth 0', () => {
+  it('stacks from the modal layer and not from a number of its own', () => {
+    // The base was the literal 50, which is the number every floating surface
+    // in the kit happened to carry. A dialog therefore sat above a drawer and
+    // below a tooltip by accident rather than by decision, and moving any one
+    // of those surfaces moved the dialog against it silently.
     const entry = makeEntry({ depth: 0 });
     const { container } = render(Dialog, { props: { entry } });
     const outerDiv = container.firstElementChild as HTMLElement;
-    expect(outerDiv.style.zIndex).toBe('50');
+    expect(outerDiv.style.zIndex).toBe('calc(var(--z-index-modal) + 0)');
+    expect(outerDiv.style.zIndex).not.toMatch(/\b50\b/);
   });
 
   // ── Title Snippet ──────────────────────────────────────

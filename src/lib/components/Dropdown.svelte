@@ -245,7 +245,7 @@
     <div
       bind:this={menuEl}
       role="menu"
-      class="absolute z-50 mt-1 py-1 min-w-36 rounded-xl border border-line
+      class="absolute z-dropdown mt-1 py-1 min-w-36 rounded-xl border border-line
         bg-surface shadow-2xl
         {align === 'right' ? 'right-0' : 'left-0'}"
     >
