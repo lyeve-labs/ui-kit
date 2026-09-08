@@ -99,7 +99,9 @@ describe('Card', () => {
       const two = render(Card, {
         props: { children: text('x'), heading: 'A', headingLevel: 2 },
       });
-      expect(two.container.querySelector('h2')?.className).toBe('text-lg font-semibold text-fg');
+      expect(two.container.querySelector('h2')?.className).toBe(
+        'text-h3 leading-h3 tracking-h3 font-semibold text-fg',
+      );
     });
 
     it('draws the icon and the meta row beside the heading', () => {
