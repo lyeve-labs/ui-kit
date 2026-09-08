@@ -1,23 +1,72 @@
 <script lang="ts">
+  import { safeHref } from '../internal/href.js';
+
+  interface Base {
+    page: number;
+    /**
+     * Collection size, when the endpoint states one.
+     *
+     * Leave it out for a list whose endpoint reports no count and say `hasNext`
+     * instead. Absent is not zero: a caller who does state a total, even a
+     * nonsense one, gets the counted pager with that total clamped.
+     */
+    total?: number;
+    perPage?: number;
+    /**
+     * Whether a page after this one exists.
+     *
+     * Read only when `total` is absent, because a counted list already knows
+     * where it ends. It is the answer an endpoint can give without counting the
+     * collection: ask for one row more than the page holds and see if it comes
+     * back.
+     */
+    hasNext?: boolean;
+    class?: string;
+  }
+
+  /**
+   * How the pager moves, and why it takes both spellings.
+   *
+   * `onchange` cannot run before the page hydrates, so a pager that has only a
+   * callback is inert on the first paint and an early click lands on nothing.
+   * That is not a rare state: it is every server-rendered document, for as long
+   * as the bundle takes to arrive. A caller that has to page from that document
+   * supplies `href` instead and gets links, which the browser follows with no
+   * script at all.
+   *
+   * Exclusive rather than both together: an anchor whose click also ran the
+   * callback would page twice, once through the handler and again through the
+   * navigation it did not cancel.
+   */
+  type Nav =
+    | { onchange: (page: number) => void; href?: undefined }
+    | { href: (page: number) => string; onchange?: undefined };
+
   let {
     page,
-    total,
+    total = undefined,
     perPage = 20,
+    hasNext = false,
     class: cls = '',
     onchange,
-  }: {
-    page: number;
-    total: number;
-    perPage?: number;
-    class?: string;
-    onchange: (page: number) => void;
-  } = $props();
+    href,
+  }: Base & Nav = $props();
 
-  let safeTotal = $derived(isFinite(total) && total >= 0 ? total : 0);
+  /**
+   * A stated total is what makes the numbered pages knowable. Without one the
+   * pager can offer the step either side of where it stands and nothing more,
+   * because the last page is not a number anybody here has.
+   */
+  let counted = $derived(total !== undefined);
+  let safeTotal = $derived(typeof total === 'number' && isFinite(total) && total >= 0 ? total : 0);
   let safePage = $derived(isFinite(page) && page >= 1 ? page : 1);
   let totalPages = $derived(Math.max(1, Math.ceil(safeTotal / perPage)));
   let from = $derived(Math.min((safePage - 1) * perPage + 1, safeTotal));
   let to = $derived(Math.min(safePage * perPage, safeTotal));
+
+  let canPrev = $derived(safePage > 1);
+  let canNext = $derived(counted ? safePage < totalPages : hasNext);
+  let hasControls = $derived(counted ? totalPages > 1 : canPrev || canNext);
 
   /**
    * The elided run is the sentinel string 'gap', never the horizontal-ellipsis
@@ -51,7 +100,27 @@
     return slot === 'gap' ? `gap-${index}` : `page-${slot}`;
   }
 
-  let nums = $derived(pageNumbers(safePage, totalPages));
+  let nums = $derived(counted ? pageNumbers(safePage, totalPages) : []);
+
+  /**
+   * The count, when there is one to state.
+   *
+   * An uncounted list says which page it is on and nothing else. It cannot say
+   * "1 to 20 of 400" without the total, and it cannot say "1 to 20" either: the
+   * last page is short and this component is never told how short.
+   */
+  let summary = $derived(
+    counted
+      ? safeTotal === 0
+        ? 'No results'
+        : `${from} to ${to} of ${safeTotal}`
+      : `Page ${safePage}`,
+  );
+
+  /** The target of a control, sanitized, or nothing when the step is unavailable. */
+  function linkTo(target: number, enabled: boolean): string | undefined {
+    return href && enabled ? safeHref(href(target)) : undefined;
+  }
 
   const btnBase =
     'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors duration-150';
@@ -69,7 +138,62 @@
    * one copy is a state missing from two.
    */
   const btnRest = 'text-muted hover:text-fg hover:bg-surface-2 active:bg-line active:text-fg';
+
+  const btnCurrent = 'bg-brand text-ink';
+
+  /**
+   * A link with nowhere to go.
+   *
+   * An anchor has no `disabled`, and `disabled:` never matches one, so the two
+   * states have to be painted rather than declared. Dropping the href is what
+   * takes it out of the tab order and stops activation; the class is only the
+   * part a reader can see, at the same 30% the disabled buttons use.
+   */
+  const linkInert = 'pointer-events-none opacity-30';
 </script>
+
+{#snippet arrow(d: string)}
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="rtl:rotate-180"
+  >
+    <path {d} />
+  </svg>
+{/snippet}
+
+<!-- Previous and next, as a link when the caller builds hrefs and as a button
+     when it hands over a callback. The two branches carry the same classes and
+     the same label, so the pager reads and sounds the same either way. -->
+{#snippet step(target: number, label: string, enabled: boolean, d: string)}
+  {#if href}
+    <a
+      href={linkTo(target, enabled)}
+      aria-label={label}
+      aria-disabled={enabled ? undefined : 'true'}
+      class="{btnBase} {btnRest} {enabled ? '' : linkInert}"
+    >
+      {@render arrow(d)}
+    </a>
+  {:else}
+    <button
+      type="button"
+      disabled={!enabled}
+      onclick={() => onchange?.(target)}
+      aria-label={label}
+      class="{btnBase} {btnRest} disabled:cursor-not-allowed disabled:opacity-30"
+    >
+      {@render arrow(d)}
+    </button>
+  {/if}
+{/snippet}
 
 <!-- The summary renders whenever there is a count to state, and the page
      buttons only when there is more than one page. The whole component used to
@@ -77,35 +201,11 @@
      results' line below could never appear and a single page of results showed
      no count at all. -->
 <div class="flex flex-wrap items-center gap-x-3 gap-y-2 {cls}">
-  <span class="text-xs text-faint shrink-0">
-    {safeTotal === 0 ? 'No results' : `${from} to ${to} of ${safeTotal}`}
-  </span>
+  <span class="shrink-0 text-xs text-faint">{summary}</span>
 
-  {#if totalPages > 1}
-    <div class="flex flex-wrap items-center gap-0.5 ms-auto">
-      <button
-        type="button"
-        disabled={safePage <= 1}
-        onclick={() => onchange(safePage - 1)}
-        aria-label="Previous page"
-        class="{btnBase} {btnRest}
-            disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-          class="rtl:rotate-180"
-        >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
+  {#if hasControls}
+    <div class="ms-auto flex flex-wrap items-center gap-0.5">
+      {@render step(safePage - 1, 'Previous page', canPrev, 'M15 18l-6-6 6-6')}
 
       {#each nums as n, i (slotKey(n, i))}
         {#if n === 'gap'}
@@ -126,42 +226,27 @@
               <path d="M5 12h.01M12 12h.01M19 12h.01" />
             </svg>
           </span>
+        {:else if href}
+          <a
+            href={linkTo(n, true)}
+            aria-current={safePage === n ? 'page' : undefined}
+            class="{btnBase} {safePage === n ? btnCurrent : btnRest}"
+          >
+            {n}
+          </a>
         {:else}
           <button
             type="button"
-            onclick={() => onchange(n as number)}
+            onclick={() => onchange?.(n as number)}
             aria-current={safePage === n ? 'page' : undefined}
-            class="{btnBase}
-                {safePage === n ? 'bg-brand text-ink' : btnRest}"
+            class="{btnBase} {safePage === n ? btnCurrent : btnRest}"
           >
             {n}
           </button>
         {/if}
       {/each}
 
-      <button
-        type="button"
-        disabled={safePage >= totalPages}
-        onclick={() => onchange(safePage + 1)}
-        aria-label="Next page"
-        class="{btnBase} {btnRest}
-          disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-          class="rtl:rotate-180"
-        >
-          <path d="M9 18l6-6-6-6" />
-        </svg>
-      </button>
+      {@render step(safePage + 1, 'Next page', canNext, 'M9 18l6-6-6-6')}
     </div>
   {/if}
 </div>
