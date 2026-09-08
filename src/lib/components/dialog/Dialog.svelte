@@ -32,9 +32,8 @@
   let visible = $state(false);
   let exiting = $state(false);
 
-  // Stacked offset: each deeper dialog shrinks and shifts back
+  // Stacked offset: each deeper dialog shrinks, shifts back and rises
   let offset = $derived(entry.depth);
-  let zIndex = $derived(50 + offset);
 
   // ──────────────────────────────────────────────────────
   // DOM refs
@@ -93,10 +92,16 @@
 <!-- z-index is an inline style, not a `z-[...]` class. Tailwind scans source text
      for complete class names, so a class built from a runtime value matches no
      candidate and no rule is ever generated: every stacked dialog rendered at
-     `z-index: auto` and the stacking order came down to DOM order. -->
+     `z-index: auto` and the stacking order came down to DOM order.
+
+     The base is the modal layer rather than the literal 50 it used to be. 50
+     was the number every floating surface in the kit happened to hold, so a
+     dialog neither sat above a drawer nor below a tooltip on purpose; it sat
+     wherever the document put it. The offset climbs from there, and the layer
+     above is 100 clear of this one. -->
 <div
   class="fixed inset-0 flex items-center justify-center"
-  style="z-index: {zIndex}"
+  style="z-index: calc(var(--z-index-modal) + {offset})"
   role="presentation"
 >
   <!-- Backdrop -->

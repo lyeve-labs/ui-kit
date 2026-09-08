@@ -245,3 +245,39 @@ describe('dialog-manager', () => {
     });
   });
 });
+
+describe('confirm labels', () => {
+  it('leaves the labels alone when no options are given', async () => {
+    const promise = confirm('Delete item?', 'This cannot be undone.');
+    const entry = getDialogStack()[0];
+    expect(entry.meta?.confirmLabel).toBeUndefined();
+    expect(entry.meta?.cancelLabel).toBeUndefined();
+    dismissDialog(entry.id);
+    await promise;
+  });
+
+  it('carries a caller verb through to the dialog', async () => {
+    const promise = confirm('Delete item?', 'Gone for good.', {
+      confirmLabel: 'Delete',
+      cancelLabel: 'Keep',
+    });
+    const entry = getDialogStack()[0];
+    expect(entry.meta?.confirmLabel).toBe('Delete');
+    expect(entry.meta?.cancelLabel).toBe('Keep');
+    dismissDialog(entry.id);
+    await promise;
+  });
+
+  /*
+   * ConfirmDialog picks its default by type-checking the meta value, so a
+   * written-but-undefined key would read as an override to nothing rather than
+   * as an absent one.
+   */
+  it('omits a key rather than writing undefined for a partial override', async () => {
+    const promise = confirm('Delete item?', undefined, { confirmLabel: 'Delete' });
+    const entry = getDialogStack()[0];
+    expect(Object.prototype.hasOwnProperty.call(entry.meta ?? {}, 'cancelLabel')).toBe(false);
+    dismissDialog(entry.id);
+    await promise;
+  });
+});

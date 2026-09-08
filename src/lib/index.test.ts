@@ -73,6 +73,7 @@ const COMPONENTS = [
   // Media
   'Avatar',
   'AvatarGroup',
+  'Logo',
   // Theming & toasts
   'ThemeToggle',
   'Toaster',
@@ -85,9 +86,15 @@ const COMPONENTS = [
 const FUNCTIONS = [
   'cn',
   'getTheme',
+  'getThemePreference',
+  'nextThemePreference',
+  'resolveTheme',
   'setTheme',
+  'setThemePreference',
+  'systemTheme',
   'toggleTheme',
   'themeBootScript',
+  'watchSystemTheme',
   'openDialog',
   'closeDialog',
   'dismissDialog',
@@ -96,6 +103,12 @@ const FUNCTIONS = [
   'setDialogMeta',
   'getDialogStack',
 ] as const;
+
+/**
+ * Public values that are neither a component nor a function. `toast` and
+ * `VERSION` predate the list and are named directly in the filter below.
+ */
+const CONSTANTS = ['THEME_PREFERENCES'] as const;
 
 type KitKey = keyof typeof kit;
 
@@ -138,8 +151,23 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     // the list complete by construction and retires the magic number.
     const exported = Object.keys(kit)
       .filter((name) => !FUNCTIONS.includes(name as (typeof FUNCTIONS)[number]))
+      .filter((name) => !CONSTANTS.includes(name as (typeof CONSTANTS)[number]))
       .filter((name) => name !== 'VERSION' && name !== 'toast')
       .sort();
     expect(exported).toEqual([...COMPONENTS].sort());
+  });
+
+  it('exports the preference order a three-state theme control cycles through', () => {
+    // The control could offer dark and light and nothing else, which is why a
+    // console forked it rather than adopt it. The order is exported so a
+    // surface offering a subset states which subset rather than inventing one.
+    expect(kit.THEME_PREFERENCES).toEqual(['light', 'dark', 'system']);
+  });
+
+  it('keeps the two-state helpers a consumer already calls', () => {
+    // The three-state work is additive. Anything importing these keeps working.
+    for (const name of ['getTheme', 'setTheme', 'toggleTheme', 'themeBootScript'] as const) {
+      expect(typeof kit[name]).toBe('function');
+    }
   });
 });
