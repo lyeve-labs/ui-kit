@@ -124,7 +124,21 @@ export type { DialogOptions, DialogEntry, DialogSize } from './components/dialog
 
 // ── Utilities ──────────────────────────────────────────────────────────────
 export { cn, type ClassValue } from './utils/cn.js';
-export { getTheme, setTheme, toggleTheme, themeBootScript, type Theme } from './utils/theme.js';
+export {
+  getTheme,
+  getThemePreference,
+  nextThemePreference,
+  resolveTheme,
+  setTheme,
+  setThemePreference,
+  systemTheme,
+  themeBootScript,
+  toggleTheme,
+  watchSystemTheme,
+  THEME_PREFERENCES,
+  type Theme,
+  type ThemePreference,
+} from './utils/theme.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
