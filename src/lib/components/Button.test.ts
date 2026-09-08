@@ -110,3 +110,43 @@ describe('Button', () => {
     expect(button.disabled).toBe(true);
   });
 });
+
+describe('Button pressed state', () => {
+  const variants = ['primary', 'secondary', 'danger', 'ghost', 'outline', 'violet'] as const;
+
+  const classesOf = (variant: (typeof variants)[number]) => {
+    const { container } = render(Button, { props: { children: text('x'), variant } });
+    return (container.querySelector('button')?.className ?? '').split(/\s+/).filter(Boolean);
+  };
+
+  it('gives every variant something to show while it is held', () => {
+    for (const variant of variants) {
+      const held = classesOf(variant).filter((c) => c.startsWith('active:'));
+      expect({ variant, held: held.length }).toEqual({ variant, held: held.length || -1 });
+      expect(held.length).toBeGreaterThan(0);
+    }
+  });
+
+  /*
+   * A pressed state that paints the resting appearance is not a pressed state.
+   * Two variants shipped one: `active:bg-brand` on a button already wearing
+   * `bg-brand`, and `active:brightness-100` on a button with no filter to
+   * return to. Both read as feedback in the source and neither moved a pixel,
+   * which nothing caught because a pointer device covers the gap with
+   * `hover:` and a finger, for which `hover:` never matches, does not.
+   */
+  it('never spells the held state as the resting one', () => {
+    for (const variant of variants) {
+      const cls = classesOf(variant);
+      const held = cls.filter((c) => c.startsWith('active:')).map((c) => c.slice(7));
+      for (const step of held) {
+        expect({ variant, step, alsoAtRest: cls.includes(step) }).toEqual({
+          variant,
+          step,
+          alsoAtRest: false,
+        });
+        expect({ variant, step }).not.toEqual({ variant, step: 'brightness-100' });
+      }
+    }
+  });
+});
