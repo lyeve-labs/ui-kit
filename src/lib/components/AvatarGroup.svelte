@@ -30,14 +30,14 @@
 
 <div class="flex items-center {cls}">
   {#each visible as user}
-    <span class="-ml-1.5 inline-block rounded-full ring-2 ring-ink first:ml-0">
+    <span class="-ms-1.5 inline-block rounded-full ring-2 ring-ink first:ms-0">
       <Avatar name={user.name} src={user.src} {size} />
     </span>
   {/each}
 
   {#if overflow > 0}
     <span
-      class="-ml-1.5 inline-flex shrink-0 items-center justify-center rounded-full
+      class="-ms-1.5 inline-flex shrink-0 items-center justify-center rounded-full
         bg-surface-2 font-semibold text-faint ring-2 ring-ink
         {overflowSizes[size]}">+{overflow}</span
     >

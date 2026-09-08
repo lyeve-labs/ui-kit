@@ -24,7 +24,7 @@
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="text-faint shrink-0"
+        class="text-faint shrink-0 rtl:rotate-180"
         aria-hidden="true"
       >
         <path d="M9 18l6-6-6-6" />

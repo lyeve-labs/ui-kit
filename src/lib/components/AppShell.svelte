@@ -116,7 +116,7 @@
   <a
     href="#content"
     data-print="hide"
-    class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-skip-link focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-fg focus:outline-none focus:ring-2 focus:ring-brand"
+    class="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-skip-link focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-fg focus:outline-none focus:ring-2 focus:ring-brand"
   >
     Skip to content
   </a>
@@ -171,7 +171,7 @@
                still lines up with the page content below. -->
           <button
             type="button"
-            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
             aria-expanded={navOpen}
             onclick={() => (navOpen = !navOpen)}
@@ -184,7 +184,7 @@
           <button
             type="button"
             data-testid="app-sidebar-toggle"
-            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
             aria-expanded={!collapsed}
             onclick={() => (collapsed = !collapsed)}

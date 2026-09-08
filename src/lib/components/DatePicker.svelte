@@ -176,7 +176,7 @@
 <div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
@@ -206,7 +206,7 @@
       aria-invalid={error ? 'true' : undefined}
       aria-required={required ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
-      class="{CONTROL_BASE} {controlBorder(!!error)} flex items-center justify-between text-left"
+      class="{CONTROL_BASE} {controlBorder(!!error)} flex items-center justify-between text-start"
     >
       <span class={display ? 'text-fg' : 'text-faint'}>{display || placeholder}</span>
       <span class="text-faint shrink-0" aria-hidden="true">
