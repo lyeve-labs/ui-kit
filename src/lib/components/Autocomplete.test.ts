@@ -294,3 +294,27 @@ describe('Autocomplete required marker', () => {
     expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 });
+
+describe('the clear button', () => {
+  it('has a target that clears 24px', () => {
+    // SC 2.5.8 at AA. The button sits inside the field, so the spacing
+    // exception cannot apply to it. jsdom lays nothing out, so the box is
+    // computed from what the markup states: a 12px glyph inside 6px of padding
+    // on each side is 24px square.
+    const { getByLabelText } = render(Autocomplete, { props: { options, value: 'a' } });
+    const button = getByLabelText('Clear');
+    const glyph = Number(button.querySelector('svg')?.getAttribute('width'));
+    expect(button.className).toContain('p-1.5');
+    expect(glyph + 2 * 6).toBeGreaterThanOrEqual(24);
+  });
+
+  it('stays centred on the field once the target grows', () => {
+    // The box is placed from its right edge, so the padding comes back off the
+    // horizontal axis alone. A negative top margin would fight the translate
+    // that centres it and lift the glyph 6px.
+    const { getByLabelText } = render(Autocomplete, { props: { options, value: 'a' } });
+    const button = getByLabelText('Clear');
+    expect(button.className).toContain('-mx-1.5');
+    expect(button.className).not.toMatch(/-m-1\.5|-my-1\.5|-mt-1\.5/);
+  });
+});
