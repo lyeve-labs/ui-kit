@@ -242,7 +242,7 @@
         id={calendarId}
         role="dialog"
         aria-label="Choose date"
-        class="absolute z-50 mt-1 w-[17rem] rounded-xl border border-line bg-surface shadow-2xl p-3"
+        class="absolute z-dropdown mt-1 w-[17rem] rounded-xl border border-line bg-surface shadow-2xl p-3"
       >
         <!-- Header -->
         <div class="flex items-center justify-between mb-2">

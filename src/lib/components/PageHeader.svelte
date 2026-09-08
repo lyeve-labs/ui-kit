@@ -43,9 +43,31 @@
   <div class="min-w-0">
     <!-- The app shells render their own h1 for the current route, so a heading
          lookup by name matches two elements. This names the page's own title. -->
+    <!--
+      The page title is the one place the brand type scale had a component to
+      land on and did not: eighteen type tokens shipped and nothing referenced
+      one of them, while this rendered at 24px, a size the ramp does not
+      contain.
+
+      text-h2 and not text-h1. The brand ramp is a marketing ramp - it runs
+      64 / 44 / 32 / 22 / 16 and holds nothing between 16 and 22, which is
+      where a console's own type lives. A 44px page title over a 14px table on
+      a 390px screen is the ramp applied rather than adopted. 32px is the step
+      the ramp does hold and the step this was already reaching for.
+
+      The weight stays at 700, which is the ramp's H1 weight, because this is
+      still the page's h1. Taking H2's 600 along with its size would move the
+      title twice for one decision.
+
+      Each size token names its own leading and tracking. A `text-*` token
+      built from `--text-*` alone sets font-size and leaves line-height to
+      whatever it inherits, which is not the ratio the ramp specifies.
+    -->
     <h1
       data-testid="page-title"
-      class={compact ? 'text-sm font-semibold text-fg' : 'text-2xl font-bold text-fg'}
+      class={compact
+        ? 'text-sm font-semibold text-fg'
+        : 'text-h2 leading-h2 tracking-h2 font-bold text-fg'}
     >
       {title}
     </h1>

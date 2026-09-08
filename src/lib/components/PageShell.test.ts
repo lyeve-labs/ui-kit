@@ -107,7 +107,7 @@ describe('PageShell', () => {
       },
     });
     const h1 = container.querySelector('h1') as HTMLElement;
-    expect(h1.className).toContain('text-2xl');
+    expect(h1.className).toContain('text-h2');
     expect(getByText('Still described')).toBeTruthy();
 
     // The same tokens the frame states on an ordinary page, so the two titles
@@ -129,7 +129,7 @@ describe('PageShell', () => {
     });
     const h1 = container.querySelector('h1') as HTMLElement;
     expect(h1.className).toContain('text-sm');
-    expect(h1.className).not.toContain('text-2xl');
+    expect(h1.className).not.toContain('text-h2');
     expect(queryByText('Suppressed while compact')).toBeNull();
   });
 

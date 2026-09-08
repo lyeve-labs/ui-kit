@@ -5,6 +5,74 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-09-08
+
+### Added
+
+- `Logo` renders the canonical product mark. Every surface that needed it drew
+  its own inline SVG, so the mark drifted between them and a change to it had
+  no single place to land.
+
+- The theme control offers a system preference alongside light and dark.
+  `ThemePreference` is `'light' | 'dark' | 'system'`, and `getThemePreference`,
+  `setThemePreference`, `resolveTheme`, `systemTheme`, `nextThemePreference`
+  and `watchSystemTheme` are exported with it. A visitor who has expressed no
+  preference now follows the operating system, and keeps following it when the
+  system flips, rather than staying pinned to whichever theme the first paint
+  chose. `getTheme`, `setTheme`, `toggleTheme` and `themeBootScript` are
+  unchanged.
+
+- Stacking order, motion and print are declared as tokens. Overlays, drawers,
+  modals, dropdowns, tooltips, toasts and the skip link each name their layer
+  (`z-overlay`, `z-drawer`, `z-modal`, `z-dropdown`, `z-tooltip`, `z-toast`,
+  `z-skip-link`) instead of carrying a bare number. Seven components held
+  `z-50` and one held `z-[60]`, so everything at one value fell back to DOM
+  order and a tooltip could sit beneath the modal that opened it. Print is
+  declared the same way: `data-print="hide"` on chrome, and
+  `data-print="unclip"` where a scroll container would otherwise crop the
+  printed page to a single screen.
+
+- `Table` fades the edge that has more content to show, so a table wider than
+  its container says so instead of ending flush at the boundary.
+
+- `confirm` takes `confirmLabel` and `cancelLabel` through the new
+  `ConfirmOptions` type. The dialog has always read them, but reaching them
+  meant dropping to the lower level dialog API, so in practice every call site
+  took the generic `Confirm` and no confirmation named the action it was
+  confirming. A button reading `Delete` says what happens; one reading
+  `Confirm` says only that something does.
+
+### Changed
+
+- `PageHeader` and `SectionHeading` sit on the brand type ramp. A `--text-*`
+  token sets font size and nothing else, so both headings inherited whatever
+  line height their parent happened to have. They now ask for the ramp's
+  leading and tracking by name. The level 2 section heading stays at 16px,
+  because the ramp holds nothing between 16px and 22px and 16px is the size of
+  the card title it has to sit below.
+
+### Fixed
+
+- The skip link moves focus to the main region. It scrolled there and left
+  focus behind, so the next Tab went back into the navigation the link exists
+  to skip.
+
+- `Dropdown` implements the menu keyboard contract it declares. It took the
+  ARIA menu role without the behavior that role promises: arrow keys, Home and
+  End, type-ahead, and Escape returning focus to the trigger.
+
+- The icon-only controls in `Autocomplete`, `MultiSelect` and `SearchInput`
+  meet a 24px target. The clear and remove affordances were drawn at the size
+  of their glyph, which left them under the minimum on touch.
+
+- `Table`'s scroll container is reachable by keyboard, and rows show a hover
+  state. A region that scrolls could be scrolled only by pointer.
+
+- The exported `VERSION` agrees with `package.json` again. The 0.17.1 release
+  bumped the manifest and the changelog and left the constant at `0.17.0`. The
+  two are checked against each other before the package is built, so the
+  released tree did not build.
+
 ## [0.17.1] - 2026-09-07
 
 ### Fixed
