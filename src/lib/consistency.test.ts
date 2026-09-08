@@ -462,3 +462,139 @@ describe('the kit carries its own styles', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe('one stacking order', () => {
+  const theme = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
+  const LAYERS = ['dropdown', 'overlay', 'drawer', 'modal', 'tooltip', 'toast', 'skip-link'];
+
+  /** Sources that can carry a class, components and the shared class strings. */
+  const sources = [
+    ...files.map((f) => ({ name: f.name, src: f.src })),
+    ...['panel', 'layout', 'field'].map((n) => ({
+      name: `internal/${n}`,
+      src: readFileSync(join(__dirname, 'internal', `${n}.ts`), 'utf8'),
+    })),
+  ];
+
+  it('leaves no component holding a bare z-index number', () => {
+    // Seven components carried z-50 and one carried z-[60]. Everything at one
+    // number stacks by document order, so a Dropdown opened after a Modal
+    // painted over it and the same pair the other way round did not. The layer
+    // is a property of the surface, so it is asked for by name.
+    const offenders = sources.filter((f) => /\bz-(?:\[|\d)/.test(code(f.src))).map((f) => f.name);
+    expect(offenders, 'name the layer instead: z-modal, z-drawer, z-dropdown').toEqual([]);
+  });
+
+  it('asks only for layers the theme declares', () => {
+    // A z-* class naming a token that does not exist compiles to nothing at
+    // all, which is the same undefined stacking order arrived at by a different
+    // route and with no z-index in the file to find it by.
+    // Anchored so it reads class names and not CSS. `z-index` inside Dialog's
+    // inline style is the property, and `--z-index-modal` inside it is the
+    // token that style resolves against; a bare word scan counted both as a
+    // layer called `index` that the theme does not declare.
+    const used = new Set<string>();
+    for (const f of sources) {
+      for (const [, name] of code(f.src).matchAll(/(?<![-\w])z-([a-z][a-z-]*)(?![-\w:])/g)) {
+        used.add(name);
+      }
+    }
+    const undeclared = [...used].filter((name) => !theme.includes(`--z-index-${name}:`));
+    expect(undeclared).toEqual([]);
+  });
+
+  it('puts every declared layer to work', () => {
+    // The other direction. A layer nothing asks for is a token nobody reads,
+    // which is the defect this scale replaced.
+    const all = sources.map((f) => code(f.src)).join('\n');
+    const unused = LAYERS.filter((name) => !new RegExp(`\\bz-${name}\\b`).test(all));
+    expect(unused).toEqual([]);
+  });
+});
+
+describe('the shell prints', () => {
+  const theme = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
+
+  /**
+   * Where the print rules start, found at the start of a line.
+   *
+   * The comment introducing them names `@media print` too, so a plain indexOf
+   * lands in the prose and every assertion below it reads the comment as part
+   * of the block it describes.
+   */
+  const printAt = theme.search(/^@media print/m);
+  const printBlock = theme.slice(printAt);
+
+  /** Every value the components hand to `data-print`. */
+  function markers(): Set<string> {
+    const found = new Set<string>();
+    for (const f of files) {
+      for (const [, value] of f.src.matchAll(/data-print="([a-z]+)"/g)) found.add(value);
+    }
+    return found;
+  }
+
+  it('declares a print stylesheet at all', () => {
+    // There was no `@media print` rule anywhere in the estate, and three
+    // surfaces print: an invoice, an audit log and a subject-access export.
+    expect(printAt).toBeGreaterThan(-1);
+  });
+
+  it('keeps the print rules out of a cascade layer', () => {
+    // An unlayered declaration beats every layered one whatever its
+    // specificity. Inside `@layer base` a `bg-surface` utility on a card would
+    // put the dark surface straight back on the paper.
+    expect(printAt).toBeGreaterThan(theme.indexOf('@layer base'));
+    // Everything after the base layer closes is unlayered, and the base layer
+    // is the last layer the file opens.
+    expect(printBlock.includes('@layer')).toBe(false);
+  });
+
+  it('repaints the palette rather than every component', () => {
+    // Each component paints from these tokens, so redefining them is the whole
+    // library turned monochrome without one component knowing about paper.
+    for (const token of ['--color-ink', '--color-surface', '--color-fg', '--color-muted']) {
+      expect(printBlock, `${token} keeps its screen value on paper`).toContain(token);
+    }
+  });
+
+  it('gives a rule to every marker a component sets', () => {
+    // A marker with no rule behind it is an attribute that does nothing, and
+    // nothing about the printed page says which of the two it was.
+    const orphans = [...markers()].filter((v) => !printBlock.includes(`[data-print='${v}']`));
+    expect(orphans).toEqual([]);
+  });
+
+  it('hides the chrome a reader cannot navigate on paper', () => {
+    for (const name of ['AppShell', 'ThemeToggle', 'Toaster', 'Drawer']) {
+      const f = files.find((x) => x.name === name)!;
+      expect(f.src, `${name} prints itself onto every page`).toContain('data-print="hide"');
+    }
+  });
+
+  it('releases the boxes that clip, so the content past the first page prints', () => {
+    // The shell is `h-screen` with the content column set to `overflow-auto`,
+    // and the table scrolls sideways inside its own box. Paper has no viewport:
+    // every one of those prints one screenful and drops the rest.
+    for (const name of ['AppShell', 'Table']) {
+      const f = files.find((x) => x.name === name)!;
+      expect(f.src, `${name} clips its own content on paper`).toContain('data-print="unclip"');
+    }
+    expect(printBlock).toMatch(/\[data-print='unclip'\][\s\S]{0,200}height:\s*auto/);
+  });
+
+  it('holds a card and a row together across a page break', () => {
+    expect(printBlock).toContain('break-inside: avoid');
+    expect(printBlock).toMatch(/thead\s*\{[^}]*table-header-group/);
+    for (const name of ['Card', 'Panel']) {
+      expect(files.find((x) => x.name === name)!.src).toContain('data-print="keep"');
+    }
+  });
+
+  it('prints the target of a link a reader cannot follow, and only that one', () => {
+    // An invoice carrying "(/portal/invoices/8841)" after every internal link
+    // is noise to a reader who is already inside that application.
+    expect(printBlock).toMatch(/a\[href\^='http'\]/);
+    expect(printBlock).toContain('attr(href)');
+  });
+});

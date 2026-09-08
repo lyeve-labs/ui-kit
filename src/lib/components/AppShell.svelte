@@ -110,12 +110,13 @@
 
 <svelte:window onkeydown={onWindowKeydown} />
 
-<div class="flex h-screen {klass}">
+<div data-print="unclip" class="flex h-screen {klass}">
   <!-- First focusable thing in the document. Without it a keyboard reader tabs
        the whole sidebar again on every page. -->
   <a
     href="#content"
-    class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-fg focus:outline-none focus:ring-2 focus:ring-brand"
+    data-print="hide"
+    class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-skip-link focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-fg focus:outline-none focus:ring-2 focus:ring-brand"
   >
     Skip to content
   </a>
@@ -125,7 +126,8 @@
          themes. Closing on it is the gesture people expect, and it stops a tap
          reaching the page under the open drawer. -->
     <div
-      class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+      data-print="hide"
+      class="fixed inset-0 z-overlay bg-black/60 backdrop-blur-sm"
       role="presentation"
       onclick={() => (navOpen = false)}
     ></div>
@@ -145,7 +147,8 @@
   -->
   {#if drawerOpen}
     <div
-      class="fixed inset-y-0 start-0 z-50 flex shadow-2xl"
+      data-print="hide"
+      class="fixed inset-y-0 start-0 z-drawer flex shadow-2xl"
       role="dialog"
       aria-modal="true"
       aria-label={drawerLabel}
@@ -160,7 +163,7 @@
   {/if}
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <header class={APP_HEADER}>
+    <header data-print="hide" class={APP_HEADER}>
       <div class="flex min-w-0 flex-1 items-center gap-2">
         {#if isMobile}
           <!-- 44px square, the smallest tap target SC 2.5.5 accepts. The -ms-2
@@ -206,7 +209,12 @@
          so without this the link moved the page and left focus on the body, and
          the next Tab started again at the top of the document: the sidebar the
          reader had just skipped. -->
-    <main id="content" tabindex="-1" class="min-w-0 flex-1 overflow-auto bg-ink">
+    <main
+      id="content"
+      tabindex="-1"
+      data-print="unclip"
+      class="min-w-0 flex-1 overflow-auto bg-ink"
+    >
       {@render children()}
     </main>
   </div>
@@ -215,6 +223,7 @@
 {#snippet sidebar(hidden: boolean)}
   <aside
     aria-label={sidebarLabel}
+    data-print="hide"
     class="{APP_SIDEBAR} flex"
     inert={hidden}
     aria-hidden={hidden ? 'true' : undefined}

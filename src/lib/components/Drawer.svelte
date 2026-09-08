@@ -53,7 +53,10 @@
 <svelte:window onkeydown={open ? onkeydown : undefined} />
 
 {#if open}
-  <div class="fixed inset-0 z-50 flex {side === 'right' ? 'justify-end' : 'justify-start'}">
+  <div
+    data-print="hide"
+    class="fixed inset-0 z-drawer flex {side === 'right' ? 'justify-end' : 'justify-start'}"
+  >
     <button
       type="button"
       tabindex="-1"
@@ -67,8 +70,8 @@
       class="relative flex h-full max-w-full flex-col {widths[size]} bg-surface shadow-2xl
         {side === 'right' ? 'border-l' : 'border-r'} border-line
         {side === 'right'
-        ? 'animate-[drawer-in-right_150ms_ease-out]'
-        : 'animate-[drawer-in-left_150ms_ease-out]'}"
+        ? 'animate-[drawer-in-right_var(--duration-drawer-in)_ease-out]'
+        : 'animate-[drawer-in-left_var(--duration-drawer-in)_ease-out]'}"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? headingId : undefined}
@@ -117,26 +120,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  @keyframes drawer-in-right {
-    from {
-      opacity: 0;
-      transform: translateX(16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  @keyframes drawer-in-left {
-    from {
-      opacity: 0;
-      transform: translateX(-16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-</style>
