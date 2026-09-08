@@ -120,6 +120,7 @@ export {
   setDialogMeta,
   getDialogStack,
 } from './components/dialog/dialog-manager.svelte.js';
+export type { ConfirmOptions } from './components/dialog/dialog-manager.svelte.js';
 export type { DialogOptions, DialogEntry, DialogSize } from './components/dialog/types.js';
 
 // ── Utilities ──────────────────────────────────────────────────────────────
