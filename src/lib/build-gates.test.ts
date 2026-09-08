@@ -226,6 +226,8 @@ describe('the dist check sees a broken relative import', () => {
 
 describe('the package declares what it cannot run without', () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
     peerDependenciesMeta?: Record<string, { optional?: boolean }>;
   };
@@ -238,12 +240,70 @@ describe('the package declares what it cannot run without', () => {
     expect(pkg.peerDependencies?.tailwindcss).toBe('^4');
   });
 
-  it('marks neither peer optional', () => {
-    // Both are hard requirements. svelte compiles the components and tailwind
-    // emits the classes they are made of, so a build with either one missing
-    // produces something that mounts and cannot be read.
-    expect(Object.keys(pkg.peerDependencies ?? {}).sort()).toEqual(['svelte', 'tailwindcss']);
+  it('marks no peer optional', () => {
+    // All three are hard requirements. svelte compiles the components,
+    // tailwind emits the classes they are made of, and eight components import
+    // an icon at module scope, so a build missing any one of them produces
+    // something that either fails to resolve or mounts and cannot be read.
+    expect(Object.keys(pkg.peerDependencies ?? {}).sort()).toEqual([
+      '@lucide/svelte',
+      'svelte',
+      'tailwindcss',
+    ]);
     expect(pkg.peerDependenciesMeta).toBeUndefined();
+  });
+
+  it('owns no runtime dependency of its own', () => {
+    // The icon set was the only one, and every consumer in the estate depends
+    // on it directly as well, so each resolved two copies of it: 42MB on disk
+    // in one application, and eleven of the icons it imports shipped twice in
+    // that application's built bundle. A component library that installs a
+    // second copy of what its host already has is choosing the host's version
+    // for it.
+    expect(Object.keys(pkg.dependencies ?? {})).toEqual([]);
+  });
+
+  it('keeps the icon set installed for its own build and tests', () => {
+    // A peer is not installed for the package that declares it. Without the
+    // dev entry, svelte-package, svelte-check and vitest all resolve nothing
+    // for the eight components that import an icon.
+    expect(pkg.devDependencies?.['@lucide/svelte']).toBeDefined();
+  });
+
+  /**
+   * Whether a version falls inside a `>=lower <upper` range, comparing the
+   * numbers rather than the strings.
+   *
+   * Hand-rolled because semver is not a dependency here and adding one to
+   * assert a range would be the second copy of the problem this suite is
+   * about.
+   */
+  const admits = (range: string, version: string): boolean => {
+    const parts = (v: string) => v.split('.').map(Number);
+    const cmp = (a: number[], b: number[]) =>
+      a[0] - b[0] || (a[1] ?? 0) - (b[1] ?? 0) || (a[2] ?? 0) - (b[2] ?? 0);
+    const bounds = /^>=([0-9.]+) <([0-9.]+)$/.exec(range);
+    if (!bounds) return false;
+    const v = parts(version);
+    return cmp(v, parts(bounds[1])) >= 0 && cmp(v, parts(bounds[2])) < 0;
+  };
+
+  it('admits every icon-set version a consumer in the estate declares', () => {
+    // The three consoles span 0.511, 0.577 and 1.x. A caret range on any one
+    // of them excludes the other two, and an excluded peer is a warning at
+    // install time and a second copy on disk immediately after.
+    const range = pkg.peerDependencies?.['@lucide/svelte'] ?? '';
+    for (const version of ['0.511.0', '0.577.0', '1.0.0', '1.9.4']) {
+      expect(admits(range, version), `${range} excludes ${version}`).toBe(true);
+    }
+  });
+
+  it('holds the icon range to versions the icon names in the kit exist in', () => {
+    // Open-ended is the other failure. The next major can rename an icon, and
+    // TriangleAlert is already the second name of the one ConfirmDialog draws.
+    const range = pkg.peerDependencies?.['@lucide/svelte'] ?? '';
+    expect(admits(range, '2.0.0')).toBe(false);
+    expect(admits(range, '0.510.0')).toBe(false);
   });
 });
 
