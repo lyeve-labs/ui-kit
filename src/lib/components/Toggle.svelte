@@ -27,13 +27,19 @@
   };
 
   const thumb: Record<'sm' | 'md', string> = {
-    sm: 'w-3 h-3 top-0.5 left-0.5',
-    md: 'w-4 h-4 top-0.5 left-0.5',
+    sm: 'w-3 h-3 top-0.5 start-0.5',
+    md: 'w-4 h-4 top-0.5 start-0.5',
   };
 
+  /*
+   * The travel is mirrored by hand. `start-0.5` moves the resting knob to the
+   * right-hand end of the track in a right-to-left page, and a positive
+   * translate from there would carry it straight off the track; there is no
+   * logical translate utility, so the sign is flipped instead.
+   */
   const thumbOn: Record<'sm' | 'md', string> = {
-    sm: 'translate-x-4',
-    md: 'translate-x-5',
+    sm: 'translate-x-4 rtl:-translate-x-4',
+    md: 'translate-x-5 rtl:-translate-x-5',
   };
 
   function handleClick() {

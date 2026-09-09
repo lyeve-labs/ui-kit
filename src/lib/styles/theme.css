@@ -151,6 +151,8 @@
    *  Body      16px   1.55   0        400     Default body copy  *
    *  Caption   13px   1.50   0        400     Labels, metadata   *
    *  Mono      18px   1.50   0        500     Code, eyebrows     *
+   *  The ramp the guideline states, for marketing surfaces.      *
+   *  The scale the console renders is declared below it.         *
    *                                                          */
   --text-display: 4rem; /* 64px */
   --text-h1: 2.75rem; /* 44px */
@@ -172,6 +174,57 @@
   --tracking-h1: -0.025em;
   --tracking-h2: -0.02em;
   --tracking-h3: -0.015em;
+
+  /* -- Typography - console type scale --------------------------- *
+   *  Token       Size   Line   Where it renders                    *
+   *  text-xs     12px   16px   labels, table heads, metadata, hints*
+   *  text-sm     14px   20px   body copy and every control         *
+   *  text-base   16px   24px   a card title, the large button      *
+   *  text-lg     18px   28px   a dialog title, a small stat value  *
+   *  text-xl     20px   28px   the large wordmark                  *
+   *  text-2xl    24px   32px   a stat value, an empty-state glyph  *
+   *
+   *  Two scales, on purpose, and this is the one the components
+   *  are drawn in.
+   *
+   *  The ramp above is the brand guideline's, and it is a marketing
+   *  ramp: it runs 64 / 44 / 32 / 22 / 16 / 13, holds nothing
+   *  between 16px and 22px, and has no step at 14px at all. A
+   *  console's body copy is 14px and its labels are 12px, both
+   *  below the ramp's floor, so adopting the ramp wholesale would
+   *  have meant restyling every screen to fit a scale drawn for a
+   *  landing page. The ramp keeps its steps for the surfaces it was
+   *  drawn for, and the two overlap at exactly the two steps a
+   *  console does reach: PageHeader takes H2 for the page title and
+   *  SectionHeading takes H3 for a section head.
+   *
+   *  These are Tailwind's own steps at Tailwind's own values,
+   *  stated here rather than inherited silently. Nothing renders
+   *  one pixel differently for it. What changes is that the scale
+   *  the components are built from is now declared beside the one
+   *  they are not, so a designer reading this file sees both, and
+   *  moving console body copy to 15px is one line here instead of
+   *  49 class attributes. Restated rather than renamed: an app
+   *  writing `text-sm` in its own markup and a component writing it
+   *  in the kit's must mean the same size, and a private spelling
+   *  of the same 14px would be a second name for one thing.
+   *
+   *  A step is declared with its leading, because a --text-* token
+   *  sets font-size and nothing else. Only the six steps the kit
+   *  actually renders are declared; the larger ones a marketing
+   *  page reaches for stay as Tailwind ships them.               */
+  --text-xs: 0.75rem; /* 12px */
+  --text-xs--line-height: calc(1 / 0.75); /* 16px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-sm--line-height: calc(1.25 / 0.875); /* 20px */
+  --text-base: 1rem; /* 16px */
+  --text-base--line-height: calc(1.5 / 1); /* 24px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-lg--line-height: calc(1.75 / 1.125); /* 28px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-xl--line-height: calc(1.75 / 1.25); /* 28px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-2xl--line-height: calc(2 / 1.5); /* 32px */
 
   /* ── Spacing grid · 4px base (semantic shortcuts) ────────────── *
    *  Tailwind's default 0.25rem (4px) grid is unchanged.          *

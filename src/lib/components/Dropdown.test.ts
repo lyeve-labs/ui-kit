@@ -229,3 +229,30 @@ describe('the menu keyboard contract', () => {
     }
   });
 });
+
+describe('Dropdown aligns in reading order', () => {
+  /*
+   * A menu anchored to its trigger is reading-direction furniture: `align`
+   * names the edge it hangs from, and in a right-to-left page that edge is the
+   * other one. The physical `left-0` / `right-0` pair pinned it either way.
+   */
+  it('hangs from the logical end when aligned right', async () => {
+    const { container } = render(Dropdown, {
+      props: { items, trigger: liveTrigger, align: 'right' },
+    });
+    await openMenu(container);
+    const menu = container.querySelector('[role="menu"]') as HTMLElement;
+    expect(menu.className).toContain('end-0');
+    expect(menu.className).not.toContain('right-0');
+  });
+
+  it('hangs from the logical start when aligned left', async () => {
+    const { container } = render(Dropdown, {
+      props: { items, trigger: liveTrigger, align: 'left' },
+    });
+    await openMenu(container);
+    const menu = container.querySelector('[role="menu"]') as HTMLElement;
+    expect(menu.className).toContain('start-0');
+    expect(menu.className).not.toContain('left-0');
+  });
+});

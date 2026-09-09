@@ -169,7 +169,7 @@
 <div class="{FIELD_WRAP} {cls}">
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
@@ -193,7 +193,7 @@
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
       {...box.triggerAttrs}
-      class="{CONTROL_BASE} {controlBorder(!!error)} {allowClear && value ? 'pr-8' : 'pr-3'}"
+      class="{CONTROL_BASE} {controlBorder(!!error)} {allowClear && value ? 'pe-8' : 'pe-3'}"
     />
 
     {#if allowClear && value && !disabled}
@@ -210,7 +210,7 @@
         type="button"
         aria-label="Clear"
         onclick={clear}
-        class="absolute right-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors duration-150 hover:text-fg"
+        class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors duration-150 hover:text-fg"
       >
         <svg
           width="12"
@@ -264,7 +264,7 @@
                   height="10"
                   viewBox="0 0 12 10"
                   fill="none"
-                  class="ml-auto shrink-0"
+                  class="ms-auto shrink-0"
                   aria-hidden="true"
                 >
                   <path

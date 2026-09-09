@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import Spinner from './Spinner.svelte';
+  import { safeHref } from '../internal/href.js';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
   type Size = 'sm' | 'md' | 'lg';
@@ -43,14 +44,36 @@
     ...rest
   }: Props = $props();
 
+  /**
+   * Colour per variant, in three states: at rest, under a pointer, and held.
+   *
+   * The pressed step is the one a touch screen depends on. `hover:` compiles
+   * inside `@media (hover: hover)`, which is false on a finger, so a tap ran
+   * rest to rest with the action already fired and the control never
+   * acknowledged the press. `active:` matches under a finger as well as under a
+   * mouse, and Tailwind emits it after `hover:` at equal specificity, so the
+   * held colour wins on a device that has both.
+   *
+   * primary and violet had a pressed state already and neither one showed:
+   * `active:bg-brand` on a `bg-brand` button and `active:brightness-100` on an
+   * unfiltered one are both the resting appearance spelled twice.
+   *
+   * Every pressed step moves the same way in both palettes. brand-deep sits
+   * below brand-light on the dark ramp and below it again on the light one, and
+   * the filtered variants darken rather than brighten, so a press does not read
+   * as one gesture in one theme and its opposite in the other.
+   */
   const variants: Record<Variant, string> = {
-    primary: 'bg-brand text-ink hover:bg-brand-light active:bg-brand shadow-sm shadow-brand/20',
+    primary:
+      'bg-brand text-ink hover:bg-brand-light active:bg-brand-deep shadow-sm shadow-brand/20',
     violet:
-      'bg-violet text-ink hover:brightness-110 active:brightness-100 shadow-sm shadow-violet/20',
-    secondary: 'bg-surface-2 text-fg border border-line-strong hover:bg-line',
-    danger: 'bg-danger text-ink hover:brightness-110 active:brightness-100',
-    ghost: 'text-muted hover:bg-surface-2 hover:text-fg',
-    outline: 'border border-line-strong text-fg hover:border-brand hover:text-brand',
+      'bg-violet text-ink hover:brightness-110 active:brightness-90 shadow-sm shadow-violet/20',
+    secondary:
+      'bg-surface-2 text-fg border border-line-strong hover:bg-line active:bg-line-strong/30',
+    danger: 'bg-danger text-ink hover:brightness-110 active:brightness-90',
+    ghost: 'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg',
+    outline:
+      'border border-line-strong text-fg hover:border-brand hover:text-brand active:bg-brand/10',
   };
 
   const sizes: Record<Size, string> = {
@@ -66,8 +89,10 @@
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );
 
-  // Reject javascript: and data: URIs - only allow standard schemes and relative URLs.
-  let safeHref = $derived(href && !/^(javascript|data):/i.test(href) ? href : undefined);
+  // Only standard schemes and relative URLs reach the DOM. The rule itself
+  // lives in internal/href.ts, because Pagination applies the same one to the
+  // hrefs its caller builds and two copies of it would drift.
+  let resolvedHref = $derived(safeHref(href));
 
   /**
    * An anchor has no `disabled`. The prop was accepted and then dropped on this
@@ -81,7 +106,7 @@
 
 {#if href}
   <a
-    href={inert ? undefined : safeHref}
+    href={inert ? undefined : resolvedHref}
     class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
     aria-disabled={inert ? 'true' : undefined}
     tabindex={inert ? -1 : undefined}

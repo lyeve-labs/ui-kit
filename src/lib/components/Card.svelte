@@ -109,7 +109,7 @@
           {:else}
             <h3 class={sectionHeading(3)}>{heading}</h3>
           {/if}
-          {#if meta}<span class="ml-auto shrink-0 text-xs text-faint">{meta}</span>{/if}
+          {#if meta}<span class="ms-auto shrink-0 text-xs text-faint">{meta}</span>{/if}
         </div>
         {#if description}<p class="text-sm text-muted mt-0.5">{description}</p>{/if}
       {:else}

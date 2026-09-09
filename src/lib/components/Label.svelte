@@ -31,6 +31,6 @@
     <span class="text-danger font-bold leading-none" aria-hidden="true">*</span>
   {/if}
   {#if hint}
-    <span class="text-faint normal-case font-normal ml-0.5">({hint})</span>
+    <span class="text-faint normal-case font-normal ms-0.5">({hint})</span>
   {/if}
 </label>
