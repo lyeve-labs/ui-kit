@@ -19,6 +19,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Every component lays out with logical properties, so the kit mirrors under
+  `dir="rtl"`. It did not: the count was 69 physical directional utilities
+  against 16 logical ones, and the visible end of it was a sidebar that stayed
+  on the left in a right-to-left page. A unit gate holds the line, because the
+  sweep is the easy half and the next component added would have started
+  physical again.
+
+- `Button`, `Pagination`, `SegmentedControl`, `Tabs`, `ThemeToggle` and
+  `CopyButton` acknowledge a press. `hover:` compiles inside
+  `@media (hover: hover)`, which is false on a finger, so a tap ran from rest
+  to rest with the action already fired and the control never showed it had
+  been touched. Every pressed step moves the same way on both ramps, so a press
+  does not read as one gesture in one theme and its opposite in the other.
+
+- `Table` takes `cell` and `truncateAt`, and a single column overrides both
+  through `data-cell` and the `--cell-truncate` custom property. One cell
+  holding an unbroken token, an API key or a signed URL, pushed the table past
+  its container and the columns after it left the screen. `cell` defaults to
+  `wrap`, which breaks that token and does nothing else. `truncate` holds a
+  cell to one line and keeps the whole value in its title.
+
 - `Pagination` renders links instead of buttons when given an `href` builder,
   and pages from `hasNext` when the endpoint states no `total`. A callback
   pager cannot run before the page hydrates, so paging a server-rendered list
@@ -32,6 +53,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   components were built from sizes the token file never mentioned while five
   ramp tokens were referenced by nothing. Nothing renders at a different size
   for this.
+
+
+### Fixed
+
+- `Button` and `Pagination` drop an href whose scheme no component here will
+  emit, and the rule lives in one place instead of two. The URL parser trims
+  surrounding whitespace and strips tab, line feed and carriage return from
+  anywhere in the value before it reads the scheme, so a tab written inside the
+  word `javascript` still navigated while an anchored test on the raw string
+  saw an unknown scheme and allowed it through.
+
+- The current row in `SidebarNav` answers the pointer like every other row. It
+  was the only paint with no hover step, and it is the tail of the active
+  trail, so on any nav deep enough to have sections it is a nested entry:
+  beside siblings that all lit up, the row for the page you were on read as the
+  one dead entry in the list.
 
 ## [0.18.0] - 2026-09-08
 
