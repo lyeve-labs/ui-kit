@@ -459,3 +459,60 @@ describe('Pagination grouping its figures', () => {
     expect(summary(container)).toBe('1 to 20 of 24,000');
   });
 });
+
+describe('Pagination stating a range without a total', () => {
+  const nav = { href: (p: number) => `?page=${p}` };
+
+  it('states the range from the rows on screen', () => {
+    const { container } = render(Pagination, {
+      props: { page: 2, perPage: 50, hasNext: true, count: 50, noun: 'jobs', ...nav },
+    });
+    expect(summary(container)).toBe('jobs 51 to 100');
+  });
+
+  /*
+   * The last page of an uncounted list is short, and the component is told how
+   * short only by count. Deriving the end from perPage would overstate it.
+   */
+  it('ends a short last page where the rows end', () => {
+    const { container } = render(Pagination, {
+      props: { page: 3, perPage: 50, hasNext: false, count: 12, noun: 'jobs', ...nav },
+    });
+    expect(summary(container)).toBe('jobs 101 to 112');
+  });
+
+  it('states the range with no noun', () => {
+    const { container } = render(Pagination, {
+      props: { page: 2, perPage: 20, hasNext: true, count: 20, ...nav },
+    });
+    expect(summary(container)).toBe('21 to 40');
+  });
+
+  it('names the page when no count is given', () => {
+    const { container } = render(Pagination, {
+      props: { page: 2, perPage: 20, hasNext: true, noun: 'jobs', ...nav },
+    });
+    expect(summary(container)).toBe('jobs, page 2');
+  });
+
+  it('names the page rather than inverting a range on an empty page', () => {
+    const { container } = render(Pagination, {
+      props: { page: 2, perPage: 20, hasNext: false, count: 0, noun: 'jobs', ...nav },
+    });
+    expect(summary(container)).toBe('jobs, page 2');
+  });
+
+  it('groups a large range', () => {
+    const { container } = render(Pagination, {
+      props: { page: 101, perPage: 50, hasNext: true, count: 50, noun: 'files', ...nav },
+    });
+    expect(summary(container)).toBe('files 5,001 to 5,050');
+  });
+
+  it('ignores count when a total is stated', () => {
+    const { container } = render(Pagination, {
+      props: { page: 2, perPage: 50, total: 4210, count: 7, noun: 'files', ...nav },
+    });
+    expect(summary(container)).toBe('files 51 to 100 of 4,210');
+  });
+});
