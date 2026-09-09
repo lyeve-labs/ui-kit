@@ -5,28 +5,6 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-- `Pagination` takes a `noun` and names it in the summary: `files 51 to 100 of
-  4,210` instead of `51 to 100 of 4,210`, `jobs, page 3` instead of `Page 3`,
-  and `No webhooks` instead of `No results`. A console that stacks several
-  lists under one page title said which count belonged to which list nowhere.
-  The word is plural at every size, because it labels the collection rather
-  than agreeing with any figure in the sentence. A caller that passes no noun
-  reads exactly as it did before.
-
-- The figures in that summary are grouped: `of 4,210`, not `of 4210`. The pager
-  carries the largest number on the screen and sat under tables that already
-  grouped their own, so one screen printed the same kind of number two ways.
-  Grouping is `en-US` rather than the host's locale, because a server and the
-  browser that hydrates its output need not report the same one and the figure
-  would change under the reader. The page number of an uncounted list is
-  grouped too, since `href` mode puts it in the URL and a link can land deep in
-  a list nobody stepped through. The numbered page buttons stay ungrouped: they
-  are a fixed square a separator does not fit.
-
 ## [0.19.0] - 2026-09-09
 
 ### Changed
