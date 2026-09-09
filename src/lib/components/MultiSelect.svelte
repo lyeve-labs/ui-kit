@@ -154,7 +154,7 @@
 <div class="{FIELD_WRAP} {cls}">
   {#if label}
     <label id="{fieldId}-label" for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
@@ -181,7 +181,7 @@
       onkeydown={onTriggerKeydown}
       {...box.triggerAttrs}
       class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg
-        border bg-surface-2 px-2.5 py-1.5 text-left text-sm transition-colors duration-150
+        border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors duration-150
         outline-none {disabled ? 'cursor-not-allowed opacity-50' : ''} {controlBorder(!!error)}"
     >
       {#if selected.length === 0}
@@ -226,7 +226,7 @@
           </span>
         {/each}
       {/if}
-      <span class="ml-auto shrink-0 text-faint" aria-hidden="true">
+      <span class="ms-auto shrink-0 text-faint" aria-hidden="true">
         <svg
           width="12"
           height="12"
@@ -315,7 +315,7 @@
                   </svg>
                 {/if}
               </span>
-              <span class="min-w-0 truncate text-left">{option.label}</span>
+              <span class="min-w-0 truncate text-start">{option.label}</span>
             </button>
           {:else}
             <p class={PANEL_EMPTY}>No matches</p>

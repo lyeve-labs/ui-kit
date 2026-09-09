@@ -79,7 +79,7 @@
 <div class="{FIELD_WRAP} {cls}">
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
@@ -89,7 +89,7 @@
       onclick={dec}
       disabled={!canDec}
       aria-label="Decrease"
-      class="{step_} rounded-l-lg border border-r-0"
+      class="{step_} rounded-s-lg border border-e-0"
     >
       <svg
         width="14"
@@ -132,7 +132,7 @@
       onclick={inc}
       disabled={!canInc}
       aria-label="Increase"
-      class="{step_} rounded-r-lg border border-l-0"
+      class="{step_} rounded-e-lg border border-s-0"
     >
       <svg
         width="14"

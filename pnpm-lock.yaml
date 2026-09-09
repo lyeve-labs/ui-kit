@@ -8,13 +8,13 @@ importers:
 
   .:
     dependencies:
-      '@lucide/svelte':
-        specifier: ^0.511.0
-        version: 0.511.0(svelte@5.55.9)
       tailwindcss:
         specifier: ^4
         version: 4.3.3
     devDependencies:
+      '@lucide/svelte':
+        specifier: ^0.511.0
+        version: 0.511.0(svelte@5.55.9)
       '@sveltejs/package':
         specifier: ^2.5.7
         version: 2.5.7(svelte@5.55.9)(typescript@5.9.3)

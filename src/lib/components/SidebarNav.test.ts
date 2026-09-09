@@ -339,3 +339,48 @@ describe('SidebarNav badge', () => {
     expect(queryByText('12')).toBeNull();
   });
 });
+
+describe('SidebarNav pointer feedback', () => {
+  /*
+   * The current row is the tail of the active trail, so on any nav with
+   * sections in it the row for the page you are on is a nested one. It was the
+   * single state with no hover step: every sibling around it lit up under the
+   * pointer and it did not, which reads as the one disabled entry in the list.
+   */
+  it('answers the pointer on the row for the current page', () => {
+    const { container } = mount({ activePath: '/content/entries' });
+    const current = container.querySelector('[aria-current="page"]');
+    expect(current).toBeTruthy();
+    expect(current?.className).toMatch(/\bhover:/);
+  });
+
+  it('answers the pointer on every row, whatever state it is in', () => {
+    const { container } = mount({ activePath: '/content/entries' });
+    const rows = [...container.querySelectorAll('a, button')].filter((el) =>
+      el.className.includes('border-s-2'),
+    );
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows) expect(row.className).toMatch(/\bhover:/);
+  });
+
+  /*
+   * `hover:` compiles inside `@media (hover: hover)` and never matches a
+   * finger, and below md: this nav is the drawer a phone opens.
+   */
+  it('acknowledges a finger on a row', () => {
+    const { container } = mount({ activePath: '/' });
+    const rows = [...container.querySelectorAll('a, button')].filter((el) =>
+      el.className.includes('border-s-2'),
+    );
+    for (const row of rows) expect(row.className).toMatch(/\bactive:/);
+  });
+
+  it('turns the closed disclosure chevron round in a right-to-left page', () => {
+    const { container } = mount({ activePath: '/' });
+    const closed = [...container.querySelectorAll('svg')].filter(
+      (s) => !s.className.baseVal.includes('rotate-90'),
+    );
+    expect(closed.length).toBeGreaterThan(0);
+    for (const svg of closed) expect(svg.className.baseVal).toContain('rtl:rotate-180');
+  });
+});

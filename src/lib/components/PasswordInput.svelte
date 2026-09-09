@@ -85,12 +85,12 @@
 <div class="{FIELD_WRAP} {klass}">
   {#if label}
     <label for={fieldId} class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-      {label}{#if required}<span class="ml-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
   <div class="relative">
-    <!-- pr-10 overrides the px-3 CONTROL_BASE states, because `pr` is emitted
+    <!-- pe-10 overrides the px-3 CONTROL_BASE states, because `pe` is emitted
          after `px` and so wins. Without it a long key ran under the button and
          the operator could not read the end of what they had pasted. -->
     <input
@@ -107,7 +107,7 @@
       {onchange}
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
-      class="{CONTROL_BASE} {controlBorder(!!error)} {showToggle ? 'pr-10' : ''} {controlClass}"
+      class="{CONTROL_BASE} {controlBorder(!!error)} {showToggle ? 'pe-10' : ''} {controlClass}"
     />
 
     {#if showToggle}
@@ -120,7 +120,7 @@
         aria-pressed={revealed}
         aria-controls={fieldId}
         aria-label={revealed ? 'Hide password' : 'Show password'}
-        class="absolute top-1/2 right-1 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors duration-150 hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="absolute top-1/2 end-1 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors duration-150 hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
       >
         {#if revealed}
           <EyeOff size={15} aria-hidden="true" />

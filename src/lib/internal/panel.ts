@@ -60,7 +60,7 @@ export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain py
  * surface, which leaves each state below a single utility to override.
  */
 export const PANEL_OPTION =
-  'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm ' +
+  'flex w-full items-center gap-2.5 px-3 py-2 text-start text-sm ' +
   'transition-colors duration-150 outline-none hover:bg-surface-2 ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 

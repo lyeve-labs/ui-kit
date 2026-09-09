@@ -51,7 +51,7 @@
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint"
+      class="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-faint"
       aria-hidden="true"
     >
       <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
@@ -65,9 +65,9 @@
       {disabled}
       {value}
       oninput={handleInput}
-      class="{CONTROL_BASE} {controlBorder(false)} pl-9
+      class="{CONTROL_BASE} {controlBorder(false)} ps-9
         [&::-webkit-search-cancel-button]:appearance-none
-        {value ? 'pr-8' : 'pr-3'}"
+        {value ? 'pe-8' : 'pe-3'}"
     />
 
     {#if value}
@@ -84,7 +84,7 @@
         type="button"
         onclick={clear}
         aria-label="Clear search"
-        class="absolute right-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint
+        class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint
           transition-colors duration-150 hover:text-fg"
       >
         <svg

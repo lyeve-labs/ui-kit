@@ -41,8 +41,8 @@ This is a single-purpose component library. The docs site lives in
   `export { Button }`).
 - **Svelte 5 only.** Use runes (`$state`, `$derived`, `$effect`) and snippets.
   No `writable()`, no `$:` reactive statements, no `<slot />`.
-- **Type the props.** Every component has an explicit `interface Props { … }`
-  and destructures with `let { … }: Props = $props();`.
+- **Type the props.** Every component has an explicit `interface Props { ... }`
+  and destructures with `let { ... }: Props = $props();`.
 - **Forward rest props with `[key: string]: unknown`** when the component is a
   thin wrapper around a native element (Input, Textarea, Select). Consumers
   expect `autocomplete`, `min`, `data-*`, and friends to just work.
