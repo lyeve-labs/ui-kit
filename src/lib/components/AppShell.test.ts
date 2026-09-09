@@ -164,3 +164,29 @@ describe('AppShell', () => {
     expect(queryByTestId('app-sidebar-toggle')).toBeNull();
   });
 });
+
+describe('AppShell reads in both directions', () => {
+  /*
+   * The skip link is the first focusable thing in the document. It pinned
+   * itself to the physical top left, which in a right-to-left page is the far
+   * corner from where the reader is looking.
+   */
+  it('puts the skip link on the start edge', () => {
+    const { container } = render(AppShell, { props: base });
+    const skip = container.querySelector('a[href="#content"]') as HTMLElement;
+    expect(skip.className).toContain('focus:start-3');
+    expect(skip.className).not.toContain('focus:left-3');
+  });
+});
+
+describe('AppShell header controls answer a finger', () => {
+  /*
+   * `hover:` compiles inside `@media (hover: hover)`, so on the phone where
+   * the hamburger is the only way into the nav it never matched anything.
+   */
+  it('gives the sidebar toggle a held state', () => {
+    const { container } = render(AppShell, { props: { ...base, collapsible: true } });
+    const toggle = container.querySelector('[data-testid="app-sidebar-toggle"]') as HTMLElement;
+    expect(toggle.className).toMatch(/\bactive:/);
+  });
+});

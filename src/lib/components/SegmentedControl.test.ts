@@ -335,3 +335,18 @@ describe('SegmentedControl presentation', () => {
     }
   });
 });
+
+describe('SegmentedControl under a finger', () => {
+  /*
+   * An unselected segment previews where the press will land, which is the
+   * feedback a touch screen otherwise has none of: `hover:` is compiled inside
+   * `@media (hover: hover)` and never matches.
+   */
+  it('shows an unselected segment being held', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: { label: 'Theme', options, value: 'light' },
+    });
+    const unselected = getByRole('radio', { name: 'Dark' });
+    expect(unselected.className).toMatch(/\bactive:/);
+  });
+});

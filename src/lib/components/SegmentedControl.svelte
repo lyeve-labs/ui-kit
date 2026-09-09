@@ -164,7 +164,9 @@
         onkeydown={(e) => onSegmentKeydown(e, i)}
         class="inline-flex items-center justify-center rounded-md outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed {SIZES[
           size
-        ].segment} {selected ? 'bg-surface text-fg shadow-sm' : 'text-muted hover:text-fg'}"
+        ].segment} {selected
+          ? 'bg-surface text-fg shadow-sm'
+          : 'text-muted hover:text-fg active:bg-surface active:text-fg'}"
       >
         {#if Icon}
           <Icon size={SIZES[size].icon} class="shrink-0" />

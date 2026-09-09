@@ -270,11 +270,11 @@
         scan, so no rule is generated and every row draws flush left.
       -->
       <div
-        class="flex w-full items-center gap-2 rounded-md py-1.5 pr-2 text-sm transition-colors duration-150 {rowPaint(
+        class="flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors duration-150 {rowPaint(
           selected === node.id,
           !!node.disabled,
         )}"
-        style="padding-left: calc(var(--spacing-inline) + {depth} * var(--spacing-stack))"
+        style="padding-inline-start: calc(var(--spacing-inline) + {depth} * var(--spacing-stack))"
       >
         {#if isBranch(node)}
           <span
@@ -283,7 +283,7 @@
           >
             <ChevronRight
               size={14}
-              class="transition-transform duration-150 {open ? 'rotate-90' : ''}"
+              class="transition-transform duration-150 {open ? 'rotate-90' : 'rtl:rotate-180'}"
             />
           </span>
         {:else}
@@ -321,7 +321,7 @@
         <span class="truncate">{node.label}</span>
 
         {#if node.badge !== undefined}
-          <span class="ml-auto shrink-0 pl-2 text-xs text-faint">{node.badge}</span>
+          <span class="ms-auto shrink-0 ps-2 text-xs text-faint">{node.badge}</span>
         {/if}
       </div>
 

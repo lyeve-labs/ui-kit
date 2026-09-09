@@ -274,7 +274,7 @@
 
 {#snippet chevron(open: boolean)}
   <span
-    class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-faint"
+    class="pointer-events-none absolute end-2.5 top-1/2 -translate-y-1/2 text-faint"
     aria-hidden="true"
   >
     <svg
@@ -328,7 +328,7 @@
         height="12"
         viewBox="0 0 12 12"
         fill="none"
-        class="ml-auto shrink-0"
+        class="ms-auto shrink-0"
         aria-hidden="true"
       >
         <path
@@ -346,7 +346,7 @@
 <div class="{FIELD_WRAP} {cls}">
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ml-0.5" aria-hidden="true">*</span>{/if}
+      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
     </label>
   {/if}
 
@@ -381,8 +381,8 @@
         aria-required={required ? 'true' : undefined}
         aria-describedby={describedBy(fieldId, error, hint)}
         {...box.triggerAttrs}
-        class="{CONTROL_BASE} {controlBorder(!!error)} flex cursor-pointer items-center gap-2 pr-8
-          text-left"
+        class="{CONTROL_BASE} {controlBorder(!!error)} flex cursor-pointer items-center gap-2 pe-8
+          text-start"
       >
         {#if trigger}
           {@render trigger({ selected, open: box.open })}
@@ -472,7 +472,7 @@
         onchange={nativeChange}
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={describedBy(fieldId, error, hint)}
-        class="{CONTROL_BASE} {controlBorder(!!error)} cursor-pointer appearance-none pr-8"
+        class="{CONTROL_BASE} {controlBorder(!!error)} cursor-pointer appearance-none pe-8"
       >
         {#if children}
           {@render children()}

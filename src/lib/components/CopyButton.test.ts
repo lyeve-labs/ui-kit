@@ -262,3 +262,16 @@ describe('CopyButton presentation', () => {
     expect(source).toContain('transition-colors duration-150');
   });
 });
+
+describe('CopyButton under a finger', () => {
+  /*
+   * The one control on the page whose whole job is to be pressed. `hover:`
+   * never matches a touch screen, so on a phone the only signal that the press
+   * had registered was the icon swap that follows the clipboard write, which
+   * does not happen at all on an insecure origin.
+   */
+  it('acknowledges the press itself, not just the result', () => {
+    const { container } = render(CopyButton, { props: { value: 'sk-live-1' } });
+    expect((container.querySelector('button') as HTMLElement).className).toMatch(/\bactive:/);
+  });
+});

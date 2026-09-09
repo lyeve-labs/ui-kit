@@ -226,6 +226,8 @@ describe('the dist check sees a broken relative import', () => {
 
 describe('the package declares what it cannot run without', () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
     peerDependenciesMeta?: Record<string, { optional?: boolean }>;
   };
@@ -238,12 +240,70 @@ describe('the package declares what it cannot run without', () => {
     expect(pkg.peerDependencies?.tailwindcss).toBe('^4');
   });
 
-  it('marks neither peer optional', () => {
-    // Both are hard requirements. svelte compiles the components and tailwind
-    // emits the classes they are made of, so a build with either one missing
-    // produces something that mounts and cannot be read.
-    expect(Object.keys(pkg.peerDependencies ?? {}).sort()).toEqual(['svelte', 'tailwindcss']);
+  it('marks no peer optional', () => {
+    // All three are hard requirements. svelte compiles the components,
+    // tailwind emits the classes they are made of, and eight components import
+    // an icon at module scope, so a build missing any one of them produces
+    // something that either fails to resolve or mounts and cannot be read.
+    expect(Object.keys(pkg.peerDependencies ?? {}).sort()).toEqual([
+      '@lucide/svelte',
+      'svelte',
+      'tailwindcss',
+    ]);
     expect(pkg.peerDependenciesMeta).toBeUndefined();
+  });
+
+  it('owns no runtime dependency of its own', () => {
+    // The icon set was the only one, and every consumer in the estate depends
+    // on it directly as well, so each resolved two copies of it: 42MB on disk
+    // in one application, and eleven of the icons it imports shipped twice in
+    // that application's built bundle. A component library that installs a
+    // second copy of what its host already has is choosing the host's version
+    // for it.
+    expect(Object.keys(pkg.dependencies ?? {})).toEqual([]);
+  });
+
+  it('keeps the icon set installed for its own build and tests', () => {
+    // A peer is not installed for the package that declares it. Without the
+    // dev entry, svelte-package, svelte-check and vitest all resolve nothing
+    // for the eight components that import an icon.
+    expect(pkg.devDependencies?.['@lucide/svelte']).toBeDefined();
+  });
+
+  /**
+   * Whether a version falls inside a `>=lower <upper` range, comparing the
+   * numbers rather than the strings.
+   *
+   * Hand-rolled because semver is not a dependency here and adding one to
+   * assert a range would be the second copy of the problem this suite is
+   * about.
+   */
+  const admits = (range: string, version: string): boolean => {
+    const parts = (v: string) => v.split('.').map(Number);
+    const cmp = (a: number[], b: number[]) =>
+      a[0] - b[0] || (a[1] ?? 0) - (b[1] ?? 0) || (a[2] ?? 0) - (b[2] ?? 0);
+    const bounds = /^>=([0-9.]+) <([0-9.]+)$/.exec(range);
+    if (!bounds) return false;
+    const v = parts(version);
+    return cmp(v, parts(bounds[1])) >= 0 && cmp(v, parts(bounds[2])) < 0;
+  };
+
+  it('admits every icon-set version a consumer in the estate declares', () => {
+    // The three consoles span 0.511, 0.577 and 1.x. A caret range on any one
+    // of them excludes the other two, and an excluded peer is a warning at
+    // install time and a second copy on disk immediately after.
+    const range = pkg.peerDependencies?.['@lucide/svelte'] ?? '';
+    for (const version of ['0.511.0', '0.577.0', '1.0.0', '1.9.4']) {
+      expect(admits(range, version), `${range} excludes ${version}`).toBe(true);
+    }
+  });
+
+  it('holds the icon range to versions the icon names in the kit exist in', () => {
+    // Open-ended is the other failure. The next major can rename an icon, and
+    // TriangleAlert is already the second name of the one ConfirmDialog draws.
+    const range = pkg.peerDependencies?.['@lucide/svelte'] ?? '';
+    expect(admits(range, '2.0.0')).toBe(false);
+    expect(admits(range, '0.510.0')).toBe(false);
   });
 });
 
@@ -294,5 +354,99 @@ describe('README against the library', () => {
    */
   it('uses ascii punctuation', () => {
     expect(readme).not.toMatch(/[–—‘’“”•·…]/);
+  });
+});
+
+/**
+ * The kit mirrors.
+ *
+ * A component library that writes `ml-`, `pl-`, `left-` or `text-left` renders
+ * the same way whichever direction the page reads, which is to say wrongly in
+ * half of them. The count when this gate was written was 69 physical
+ * directional properties against 16 logical ones, and the visible end of it was
+ * a sidebar that stayed on the left under `dir="rtl"`.
+ *
+ * A gate rather than a one-off sweep, because the sweep is the easy half: every
+ * component added after it would have started physical again, and nothing in
+ * the build says which axis a utility belongs to.
+ */
+describe('the components read in both directions', () => {
+  /**
+   * Prose is not markup. Every one of these files explains itself, and the
+   * explanations say "right-to-left" and "border-r" while the code says
+   * neither.
+   */
+  const strip = (src: string) =>
+    src
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '');
+
+  /*
+   * Tooltip is physical on purpose and is the only one.
+   *
+   * Its `position` prop is a contract with the caller, who asked for the label
+   * on a named side and gets it there. Its top and bottom placements centre
+   * with `left-1/2 -translate-x-1/2`, which is symmetric: converting that pair
+   * to `start-1/2` would leave the tooltip off-centre rather than mirrored.
+   */
+  const PHYSICAL_BY_DESIGN = new Set(['Tooltip.svelte']);
+
+  const PHYSICAL =
+    /(?:^|[\s"'`{(])(-?(?:ml|mr|pl|pr)-[\w./[\]]+|text-(?:left|right)|(?:left|right)-[\w./[\]]+|border-[lr](?:-\d+)?|rounded-[lr]-[\w]+)(?=[\s"'`})]|$)/g;
+
+  const sources = () => {
+    const dirs = [
+      join(ROOT, 'src/lib/components'),
+      join(ROOT, 'src/lib/components/dialog'),
+      join(ROOT, 'src/lib/internal'),
+    ];
+    const out: { name: string; code: string }[] = [];
+    for (const dir of dirs) {
+      for (const file of readdirSync(dir)) {
+        if (!file.endsWith('.svelte') && !file.endsWith('.ts')) continue;
+        if (file.includes('.test.')) continue;
+        out.push({ name: file, code: strip(readFileSync(join(dir, file), 'utf8')) });
+      }
+    }
+    return out;
+  };
+
+  it('reads every component and internal module', () => {
+    expect(sources().length).toBeGreaterThan(60);
+  });
+
+  it('writes no physical inline-axis utility outside the one that means one', () => {
+    const offenders: string[] = [];
+    for (const { name, code } of sources()) {
+      if (PHYSICAL_BY_DESIGN.has(name)) continue;
+      for (const m of code.matchAll(PHYSICAL)) offenders.push(`${name}: ${m[1]}`);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  /*
+   * The allow-list has to keep earning its place. A name left in it after the
+   * component stopped needing it is how an exception becomes the rule.
+   */
+  it('keeps the deliberate exception honest', () => {
+    for (const name of PHYSICAL_BY_DESIGN) {
+      const entry = sources().find((s) => s.name === name);
+      expect(entry).toBeTruthy();
+      expect([...(entry?.code.matchAll(PHYSICAL) ?? [])].length).toBeGreaterThan(0);
+    }
+  });
+
+  /*
+   * The gate above is satisfiable by deleting every directional utility in the
+   * kit as well as by converting them, and the two look identical from there.
+   * This is the half that says the spacing is still being asked for, just on
+   * the axis that mirrors.
+   */
+  it('asks for the same spacing on the logical axis', () => {
+    const LOGICAL =
+      /(?:^|[\s"'`{(])(-?(?:ms|me|ps|pe)-[\w./[\]]+|text-(?:start|end)|(?:start|end)-[\w./[\]]+|border-[se](?:-\d+)?|rounded-[se]-[\w]+)(?=[\s"'`})]|$)/g;
+    const total = sources().reduce((n, { code }) => n + [...code.matchAll(LOGICAL)].length, 0);
+    expect(total).toBeGreaterThan(60);
   });
 });

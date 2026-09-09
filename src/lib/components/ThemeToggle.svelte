@@ -81,7 +81,7 @@
   data-print="hide"
   data-theme-preference={preference}
   aria-label="Theme: {LABEL[preference]}. Switch to {LABEL[upcoming]}."
-  class="rounded-lg p-2 text-faint transition-colors duration-150 hover:bg-surface-2 hover:text-fg {klass}"
+  class="rounded-lg p-2 text-faint transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg {klass}"
 >
   <!-- The icon shows the state the control is in, not the one it moves to. It
        showed the destination while the label named the same destination, which

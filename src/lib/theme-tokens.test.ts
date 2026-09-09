@@ -311,3 +311,131 @@ describe('the entrance keyframes are global', () => {
     expect(sources.some((src) => src.includes(`animate-[${name}_`))).toBe(true);
   });
 });
+
+/**
+ * The console renders none of the brand ramp below its H3. Its body copy is
+ * 14px and its labels are 12px, and the ramp holds neither: it steps 16 to 22
+ * with nothing between and its smallest step is 13. So there are two scales,
+ * and the question these tests settle is which one a component may reach into
+ * and whether either holds a step nobody renders.
+ *
+ * Five ramp tokens were referenced by nothing while 87 class attributes named a
+ * size the token file never mentioned. Both halves are checked here: a size the
+ * components render has to be declared, and a console step that is declared has
+ * to be rendered.
+ */
+describe('console type scale', () => {
+  /** The six steps the components are drawn in, at the px they render. */
+  const CONSOLE: Record<string, { size: number; leading: number }> = {
+    xs: { size: 12, leading: 16 },
+    sm: { size: 14, leading: 20 },
+    base: { size: 16, leading: 24 },
+    lg: { size: 18, leading: 28 },
+    xl: { size: 20, leading: 28 },
+    '2xl': { size: 24, leading: 32 },
+  };
+
+  const RAMP = ['display', 'h1', 'h2', 'h3', 'body', 'caption', 'mono'];
+
+  /** Every Tailwind font-size step, whether or not this file declares it. */
+  const TAILWIND = [
+    'xs',
+    'sm',
+    'base',
+    'lg',
+    'xl',
+    '2xl',
+    '3xl',
+    '4xl',
+    '5xl',
+    '6xl',
+    '7xl',
+    '8xl',
+    '9xl',
+  ];
+
+  /**
+   * Source with its prose removed. Every one of these files explains its type
+   * choices, and a comment naming a size it decided against reads to any scan
+   * as the component asking for that size.
+   */
+  const strip = (src: string) =>
+    src
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '');
+
+  /** The font-size steps the components actually ask for. */
+  function rendered(): Set<string> {
+    const found = new Set<string>();
+    for (const src of sourceFiles()) {
+      for (const [, name] of strip(src).matchAll(/\btext-(\[[^\]]*\]|[a-z0-9]+)\b/g)) {
+        if (TAILWIND.includes(name) || RAMP.includes(name) || name.startsWith('[')) found.add(name);
+      }
+    }
+    return found;
+  }
+
+  /** rem values in the @theme block, in px. */
+  function px(token: string): number | undefined {
+    const m = new RegExp(`${token}:\\s*([0-9.]+)rem`).exec(themeBlock(css));
+    return m ? Number(m[1]) * 16 : undefined;
+  }
+
+  /** `calc(1.25 / 0.875)` is a ratio of rem values, so its numerator is the px. */
+  function leadingPx(step: string): number | undefined {
+    const m = new RegExp(`--text-${step}--line-height:\\s*calc\\(([0-9.]+) / [0-9.]+\\)`).exec(
+      themeBlock(css),
+    );
+    return m ? Number(m[1]) * 16 : undefined;
+  }
+
+  it.each(Object.keys(CONSOLE))('declares %s, and declares it as a size', (step) => {
+    expect(tokens).toContain(`--text-${step}`);
+    expect(px(`--text-${step}`)).toBe(CONSOLE[step].size);
+  });
+
+  it.each(Object.keys(CONSOLE))('gives %s the leading it already rendered at', (step) => {
+    // A --text-* token sets font-size alone. Declaring the size without the
+    // ratio would leave every line in the console at whatever leading it
+    // inherited, which is the one way this file could restyle the product
+    // while claiming to name it.
+    expect(tokens).toContain(`--text-${step}--line-height`);
+    expect(leadingPx(step)).toBe(CONSOLE[step].leading);
+  });
+
+  it('renders no size the theme file leaves undeclared', () => {
+    // The class is what a component asks for; the token is what answers. A
+    // component reaching for text-3xl or text-[15px] is a size nobody chose
+    // and nobody can find from this file.
+    const declared = [...Object.keys(CONSOLE), ...RAMP];
+    expect([...rendered()].filter((step) => !declared.includes(step)).sort()).toEqual([]);
+  });
+
+  it('declares no console step the components stopped rendering', () => {
+    // The other direction, and the defect this scale was written to end. A
+    // token nothing reads is a decision with no consequence, which is how
+    // five ramp steps came to be declared and referenced nowhere.
+    const used = rendered();
+    expect(Object.keys(CONSOLE).filter((step) => !used.has(step))).toEqual([]);
+  });
+
+  it('keeps the two scales apart at every step but the two that overlap', () => {
+    // A console surface reaches the ramp exactly twice, and both are headings:
+    // PageHeader takes H2 for the page title and SectionHeading takes H3 for a
+    // section head. Anything below those is the console's own scale, because
+    // the ramp has no step at 14px and its 13px caption is not the console's
+    // 12px label.
+    const fromRamp = [...rendered()].filter((step) => RAMP.includes(step));
+    expect(fromRamp.sort()).toEqual(['h2', 'h3']);
+  });
+
+  it('leaves the larger Tailwind steps alone, where a marketing page reaches', () => {
+    // Redeclaring a step the kit does not render would change the size of a
+    // heading on every site that imports this stylesheet, none of which asked
+    // the kit for a type scale.
+    for (const step of TAILWIND.filter((s) => !(s in CONSOLE))) {
+      expect(tokens, `--text-${step} is not the kit's to state`).not.toContain(`--text-${step}`);
+    }
+  });
+});

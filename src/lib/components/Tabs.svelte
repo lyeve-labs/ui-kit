@@ -27,7 +27,7 @@
       {tab.label}
       {#if tab.count !== undefined}
         <span
-          class="ml-1.5 inline-flex items-center justify-center min-w-4.5 h-4.5 px-1
+          class="ms-1.5 inline-flex items-center justify-center min-w-4.5 h-4.5 px-1
             rounded-full text-[10px] font-semibold
             {active === tab.id ? 'bg-brand/40 text-brand' : 'bg-surface-2 text-faint'}"
         >
