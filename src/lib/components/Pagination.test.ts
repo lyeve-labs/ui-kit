@@ -7,6 +7,11 @@ function gaps(container: HTMLElement): HTMLElement[] {
   return [...container.querySelectorAll<HTMLElement>('span[aria-hidden="true"]')];
 }
 
+/** The summary line, which is the first span the pager renders. */
+function summary(container: HTMLElement): string {
+  return container.querySelector('span')?.textContent?.trim() ?? '';
+}
+
 describe('Pagination', () => {
   it('renders nothing when there is only one page', () => {
     const { container } = render(Pagination, {
@@ -342,5 +347,115 @@ describe('Pagination without a total', () => {
     });
     expect(getByLabelText('Previous page').getAttribute('href')).toBe('/audit?page=1');
     expect(getByLabelText('Next page').getAttribute('href')).toBe('/audit?page=3');
+  });
+});
+
+/*
+ * A console stacks several lists under one page title, and '51 to 100' beside
+ * '1 to 25' says which is which nowhere. The application that forked this
+ * component named the collection in its own pager, and that sentence is the
+ * reason it could not swap the fork out for this.
+ */
+describe('Pagination naming what it pages', () => {
+  it('names the collection in the counted summary', () => {
+    const { container } = render(Pagination, {
+      props: { page: 2, total: 4210, perPage: 50, noun: 'files', onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('files 51 to 100 of 4,210');
+  });
+
+  it('names it on an uncounted list as well', () => {
+    const { container } = render(Pagination, {
+      props: { page: 3, hasNext: true, noun: 'jobs', onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('jobs, page 3');
+  });
+
+  it('names it when the list holds nothing', () => {
+    const { container } = render(Pagination, {
+      props: { page: 1, total: 0, noun: 'webhooks', onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('No webhooks');
+  });
+
+  it('keeps every word it had for a caller that supplies no noun', () => {
+    // The addition is additive or it is a downgrade for every existing caller.
+    const counted = render(Pagination, {
+      props: { page: 2, total: 100, perPage: 20, onchange: vi.fn() },
+    });
+    expect(summary(counted.container)).toBe('21 to 40 of 100');
+
+    const uncounted = render(Pagination, {
+      props: { page: 4, hasNext: true, onchange: vi.fn() },
+    });
+    expect(summary(uncounted.container)).toBe('Page 4');
+
+    const empty = render(Pagination, {
+      props: { page: 1, total: 0, onchange: vi.fn() },
+    });
+    expect(summary(empty.container)).toBe('No results');
+  });
+
+  it('reads a noun of nothing but spaces as no noun at all', () => {
+    // A caller composing the word from data can hand over ' ' as easily as
+    // 'files', and a summary opening with a stray space names nothing anyway.
+    const { container } = render(Pagination, {
+      props: { page: 2, total: 100, perPage: 20, noun: '   ', onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('21 to 40 of 100');
+  });
+
+  it('renders the noun as the caller wrote it', () => {
+    const { container } = render(Pagination, {
+      props: { page: 1, total: 40, perPage: 20, noun: 'API keys', onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('API keys 1 to 20 of 40');
+  });
+});
+
+/*
+ * The pager sits under a table that groups its own figures, and it holds the
+ * largest number on the screen. Ungrouped, one screen printed the same kind of
+ * number two ways.
+ */
+describe('Pagination grouping its figures', () => {
+  it('groups the total', () => {
+    const { container } = render(Pagination, {
+      props: { page: 1, total: 4210, perPage: 50, onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('1 to 50 of 4,210');
+  });
+
+  it('groups both ends of the range, not only the total', () => {
+    const { container } = render(Pagination, {
+      props: { page: 85, total: 4210, perPage: 50, onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('4,201 to 4,210 of 4,210');
+  });
+
+  it('groups the page number of an uncounted list', () => {
+    // `href` mode puts the page number in the URL, so a link, a bookmark or a
+    // crawler can land deep in a list nobody stepped through.
+    const { container } = render(Pagination, {
+      props: { page: 5000, hasNext: true, href: (p: number) => `/audit?page=${p}` },
+    });
+    expect(summary(container)).toBe('Page 5,000');
+  });
+
+  it('adds no separator to a figure that does not need one', () => {
+    const { container } = render(Pagination, {
+      props: { page: 1, total: 999, perPage: 500, onchange: vi.fn() },
+    });
+    expect(summary(container)).toBe('1 to 500 of 999');
+  });
+
+  it('leaves the page buttons ungrouped, because a separator does not fit one', () => {
+    // The buttons are a fixed square. Grouping there would either overflow the
+    // control or change what every existing caller with a long list renders.
+    const { getByText, container } = render(Pagination, {
+      props: { page: 1, total: 24000, perPage: 20, onchange: vi.fn() },
+    });
+    expect(getByText('1200')).toBeTruthy();
+    expect(summary(container)).toBe('1 to 20 of 24,000');
   });
 });
