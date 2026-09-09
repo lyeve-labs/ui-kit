@@ -1,5 +1,6 @@
 <script lang="ts">
   import { safeHref } from '../internal/href.js';
+  import { formatCount } from '../internal/number.js';
 
   interface Base {
     page: number;
@@ -21,6 +22,19 @@
      * back.
      */
     hasNext?: boolean;
+    /**
+     * What the list holds, in the plural: 'files', 'jobs', 'webhooks'.
+     *
+     * The summary names it, because a console that stacks three lists under one
+     * page title prints '51 to 100' three times and says of what nowhere. Left
+     * out, the summary reads exactly as it did before this existed.
+     *
+     * Plural at every size, including a list of one. The noun labels the
+     * collection here rather than agreeing with a figure in the sentence, the
+     * same way the column header above it does, and a singular form would have
+     * to pick which of the three figures governs it.
+     */
+    noun?: string;
     class?: string;
   }
 
@@ -47,6 +61,7 @@
     total = undefined,
     perPage = 20,
     hasNext = false,
+    noun = '',
     class: cls = '',
     onchange,
     href,
@@ -103,19 +118,34 @@
   let nums = $derived(counted ? pageNumbers(safePage, totalPages) : []);
 
   /**
+   * The noun as it will be read.
+   *
+   * Trimmed, and empty means absent: a caller composing the word from data can
+   * hand over ' ' as easily as 'files', and a summary that opens with a stray
+   * space is worse than one that names nothing.
+   */
+  let label = $derived(noun.trim());
+
+  /**
    * The count, when there is one to state.
    *
    * An uncounted list says which page it is on and nothing else. It cannot say
    * "1 to 20 of 400" without the total, and it cannot say "1 to 20" either: the
-   * last page is short and this component is never told how short.
+   * last page is short and this component is never told how short. It still
+   * groups the page number: `href` mode puts that number in the URL, so a link
+   * or a reader can land on page 5,000 without stepping there.
+   *
+   * Every figure is grouped, because a pager sits under a table that groups its
+   * own figures and the pager is where the largest number on the screen is.
    */
-  let summary = $derived(
-    counted
-      ? safeTotal === 0
-        ? 'No results'
-        : `${from} to ${to} of ${safeTotal}`
-      : `Page ${safePage}`,
-  );
+  let summary = $derived.by(() => {
+    if (!counted) {
+      return label ? `${label}, page ${formatCount(safePage)}` : `Page ${formatCount(safePage)}`;
+    }
+    if (safeTotal === 0) return label ? `No ${label}` : 'No results';
+    const range = `${formatCount(from)} to ${formatCount(to)} of ${formatCount(safeTotal)}`;
+    return label ? `${label} ${range}` : range;
+  });
 
   /** The target of a control, sanitized, or nothing when the step is unavailable. */
   function linkTo(target: number, enabled: boolean): string | undefined {
