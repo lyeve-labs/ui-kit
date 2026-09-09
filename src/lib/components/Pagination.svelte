@@ -23,6 +23,18 @@
      */
     hasNext?: boolean;
     /**
+     * How many rows the page on screen actually holds.
+     *
+     * Only an uncounted list needs it, and only for the sentence: without a
+     * total the component knows where the page starts but not where it ends,
+     * because the last page is short and nothing here says how short. Given it,
+     * the summary states a range instead of naming the page.
+     *
+     * It is the row count of what was rendered, not a page size. A caller that
+     * asked for 50 and received 12 passes 12.
+     */
+    count?: number;
+    /**
      * What the list holds, in the plural: 'files', 'jobs', 'webhooks'.
      *
      * The summary names it, because a console that stacks three lists under one
@@ -61,6 +73,7 @@
     total = undefined,
     perPage = 20,
     hasNext = false,
+    count = undefined,
     noun = '',
     class: cls = '',
     onchange,
@@ -78,6 +91,15 @@
   let totalPages = $derived(Math.max(1, Math.ceil(safeTotal / perPage)));
   let from = $derived(Math.min((safePage - 1) * perPage + 1, safeTotal));
   let to = $derived(Math.min(safePage * perPage, safeTotal));
+
+  /**
+   * The rows on screen, when the caller states them. Zero and a negative are
+   * both "nothing to describe": a page of no rows has no range, and the summary
+   * falls back to naming the page rather than printing an inverted one.
+   */
+  let safeCount = $derived(
+    typeof count === 'number' && isFinite(count) && count > 0 ? Math.floor(count) : undefined,
+  );
 
   let canPrev = $derived(safePage > 1);
   let canNext = $derived(counted ? safePage < totalPages : hasNext);
@@ -140,6 +162,11 @@
    */
   let summary = $derived.by(() => {
     if (!counted) {
+      if (safeCount !== undefined) {
+        const start = (safePage - 1) * perPage + 1;
+        const span = `${formatCount(start)} to ${formatCount(start + safeCount - 1)}`;
+        return label ? `${label} ${span}` : span;
+      }
       return label ? `${label}, page ${formatCount(safePage)}` : `Page ${formatCount(safePage)}`;
     }
     if (safeTotal === 0) return label ? `No ${label}` : 'No results';
