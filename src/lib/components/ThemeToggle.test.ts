@@ -136,3 +136,10 @@ describe('ThemeToggle', () => {
     expect(getByRole('button').getAttribute('data-print')).toBe('hide');
   });
 });
+
+describe('ThemeToggle under a finger', () => {
+  it('acknowledges a press', () => {
+    const { container } = render(ThemeToggle, { props: {} });
+    expect((container.querySelector('button') as HTMLElement).className).toMatch(/\bactive:/);
+  });
+});

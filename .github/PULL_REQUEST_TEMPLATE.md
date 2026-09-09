@@ -16,7 +16,7 @@
 - [ ] Existing component — additive change
 - [ ] Existing component — **breaking change** (call this out in the changelog as well)
 - [ ] Theming / design tokens
-- [ ] Utility (`cn`, theme helpers, …)
+- [ ] Utility (`cn`, theme helpers, ...)
 - [ ] Docs / examples only
 - [ ] Build / tooling
 

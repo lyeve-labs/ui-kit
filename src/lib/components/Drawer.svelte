@@ -68,7 +68,7 @@
     <div
       use:overlay
       class="relative flex h-full max-w-full flex-col {widths[size]} bg-surface shadow-2xl
-        {side === 'right' ? 'border-l' : 'border-r'} border-line
+        {side === 'right' ? 'border-s' : 'border-e'} border-line
         {side === 'right'
         ? 'animate-[drawer-in-right_var(--duration-drawer-in)_ease-out]'
         : 'animate-[drawer-in-left_var(--duration-drawer-in)_ease-out]'}"

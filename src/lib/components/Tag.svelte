@@ -37,7 +37,7 @@
       type="button"
       onclick={onremove}
       aria-label="Remove {label}"
-      class="ml-0.5 rounded transition-opacity hover:opacity-60 leading-none"
+      class="ms-0.5 rounded transition-opacity hover:opacity-60 leading-none"
     >
       <svg
         width="10"

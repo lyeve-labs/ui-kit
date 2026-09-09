@@ -39,3 +39,19 @@ describe('Toggle', () => {
     expect(onchange).not.toHaveBeenCalled();
   });
 });
+
+describe('Toggle in a right-to-left page', () => {
+  /*
+   * The knob rests at the start of its track and travels to the end. With a
+   * physical `left-0.5` it rested on the left in both directions, and the
+   * positive translate that moves it would have carried it off a track laid
+   * out the other way round.
+   */
+  it('rests the knob on the start edge and mirrors its travel', () => {
+    const { container } = render(Toggle, { props: { checked: true } });
+    const knob = container.querySelector('[role="switch"] span') as HTMLElement;
+    expect(knob.className).toContain('start-0.5');
+    expect(knob.className).not.toContain('left-0.5');
+    expect(knob.className).toContain('rtl:-translate-x-');
+  });
+});
