@@ -5,6 +5,32 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-09-09
+
+### Added
+
+- `Pagination` takes `count`, the rows the page on screen actually holds, and
+  states a range for a list with no total: `jobs 51 to 100` rather than
+  `jobs, page 2`. Without a total the component knew where a page started and
+  not where it ended, because the last page is short and nothing told it how
+  short, so an application whose endpoint reports no row count had to keep its
+  own pager to say the sentence. `count` is read only when `total` is absent,
+  and a page of no rows still names the page rather than printing an inverted
+  range.
+
+## [Unreleased]
+
+### Added
+
+- `Pagination` takes `count`, the rows the page on screen actually holds, and
+  states a range for a list with no total: `jobs 51 to 100` rather than
+  `jobs, page 2`. Without a total the component knew where a page started and
+  not where it ended, because the last page is short and nothing told it how
+  short, so an application whose endpoint reports no row count had to keep its
+  own pager to say the sentence. `count` is read only when `total` is absent,
+  and a page of no rows still names the page rather than printing an inverted
+  range.
+
 ## [0.20.0] - 2026-09-09
 
 ### Added
