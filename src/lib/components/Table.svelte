@@ -210,7 +210,10 @@
   }
 </script>
 
-<div data-testid="table-frame" class="relative w-full rounded-xl border border-line {cls}">
+<!-- overflow-hidden on the frame, not only on the scroller: the hovered row's
+     ring is square and the frame is not, and the last row's corners drew past
+     the frame's rounded ones. -->
+<div data-testid="table-frame" class="relative w-full overflow-hidden rounded-xl border border-line {cls}">
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.

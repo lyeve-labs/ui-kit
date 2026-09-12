@@ -116,6 +116,9 @@ describe('AppShell', () => {
     const main = container.querySelector('#content') as HTMLElement;
     expect(main.tagName).toBe('MAIN');
     expect(main.getAttribute('tabindex')).toBe('-1');
+    // A landing, not a control: the browser's default outline boxed the
+    // whole page body the moment the skip link was used.
+    expect(main.className).toContain('outline-none');
 
     // Focusable on demand and never a tab stop of its own.
     main.focus();
