@@ -5,6 +5,26 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.1] - 2026-09-12
+
+### Fixed
+
+- A listbox row's active ring no longer draws past the rounded corners of the
+  panel that holds it. The ring is square and the panel is not, so on the first
+  or last row the corners poked out of the panel. The surface clips now, and
+  `Table` takes the same clip on its frame so nothing a row draws can pass the
+  frame's corners.
+- `AppShell` drops the browser's default outline on its landing region. The
+  region is a target for the skip link, not a control, and the outline boxed
+  the whole page body the moment the link had been used.
+
+### Changed
+
+- The declared Node floor is 24. Continuous integration has run on Node 24 for
+  some time and the manifest still said 20, which described a runtime nothing
+  was tested against. Node 22 consumers are no longer within the declared
+  range.
+
 ## [0.22.0] - 2026-09-09
 
 ### Added
