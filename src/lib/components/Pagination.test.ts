@@ -148,7 +148,7 @@ describe('Pagination', () => {
   });
 
   it('writes its range without an en dash', () => {
-    // The estate bans en and em dashes in copy, and this one rendered into the
+    // The organisation's standard bans en and em dashes in copy, and this one rendered into the
     // DOM of every paginated list rather than sitting in a comment.
     const { container } = render(Pagination, {
       props: { page: 2, total: 100, perPage: 20, onchange: () => {} },
@@ -196,7 +196,7 @@ describe('Pagination under a finger', () => {
 /*
  * A callback pager does nothing until the page hydrates, so the first paint of
  * every server-rendered list carried a control that looked live and was not.
- * One application in the estate had already stopped using this component and
+ * One consuming application had already stopped using this component and
  * shipped its own link pager for exactly that reason.
  */
 describe('Pagination as links', () => {

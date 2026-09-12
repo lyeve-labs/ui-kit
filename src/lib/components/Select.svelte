@@ -4,7 +4,7 @@
   /**
    * The event a native select hands its change handler.
    *
-   * Frozen, and it stays frozen. Every call site in the estate passes an
+   * Frozen, and it stays frozen. Every call site in the consuming applications passes an
    * unannotated arrow whose parameter is contextually typed from this prop, and
    * several of them read `e.currentTarget.value` or call
    * `e.currentTarget.form.requestSubmit()`. Retyping the callback to take a
