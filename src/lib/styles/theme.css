@@ -409,7 +409,7 @@ html[data-theme='light'] {
 /*
  * Print.
  *
- * The estate had no `@media print` rule anywhere, and three surfaces print:
+ * The consuming applications had no `@media print` rule anywhere, and three surfaces print:
  * the portal prints an invoice, the ops console prints an audit log, the admin
  * prints a subject-access export. All three printed the sidebar, the theme
  * toggle and the nav, in a dark palette, and all three printed one screenful

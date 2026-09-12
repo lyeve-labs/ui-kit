@@ -11,7 +11,7 @@ import { join } from 'node:path';
  * The seven brand type-scale tokens shipped as `--font-size-display` and its
  * six siblings. Tailwind reads font sizes from `--text-*`, so `text-display`,
  * `text-h1`, `text-h2`, `text-h3`, `text-body`, `text-caption` and `text-mono`
- * were never real classes. A grep across every repo in the estate found zero
+ * were never real classes. A grep across every consuming application found zero
  * uses of any of the seven, which is what a class that has never worked looks
  * like from the outside: nobody reports it, they just write `text-4xl` instead
  * and the brand scale goes unused.
@@ -192,7 +192,7 @@ describe('brand type scale', () => {
 
   it('keeps the families on --font-, which is where font-family comes from', () => {
     // font-sans and font-mono are correct today and are the two utilities the
-    // estate leans on hardest. Renaming them into --text-* would turn every
+    // applications lean on hardest. Renaming them into --text-* would turn every
     // one of them into a size.
     expect(tokens).toContain('--font-sans');
     expect(tokens).toContain('--font-mono');

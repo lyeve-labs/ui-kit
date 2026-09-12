@@ -14,7 +14,7 @@
      * Drop the bottom margin, for a caller that owns the rhythm itself.
      *
      * The margin is opt-out rather than removed. Forty-three pages across the
-     * estate render this component directly and take their heading gap from
+     * consuming applications render this component directly and take their heading gap from
      * it, so deleting it outright would have moved every one of them by 32px
      * with nothing in their own source to explain why.
      */

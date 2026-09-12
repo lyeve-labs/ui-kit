@@ -29,7 +29,7 @@ export type Theme = 'dark' | 'light';
 export type ThemePreference = Theme | 'system';
 
 /**
- * The one key every surface in the estate reads and writes.
+ * The one key every surface of every consuming application reads and writes.
  *
  * Not exported. A surface that needs the name has `getThemePreference` and
  * `setThemePreference`; a surface that spells the key itself is how two of
