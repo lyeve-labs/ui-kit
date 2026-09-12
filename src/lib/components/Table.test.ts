@@ -52,6 +52,15 @@ describe('Table', () => {
     expect(container.querySelector('table')?.className).toContain('tr:hover');
   });
 
+  it('clips the rows to its rounded frame', () => {
+    // The hovered row's ring is square and the frame is not; on the last row
+    // the corners drew past the frame.
+    const { getByTestId } = render(Table, { props: { children: body } });
+    const frame = getByTestId('table-frame');
+    expect(frame.className).toContain('overflow-hidden');
+    expect(frame.className).toContain('rounded-xl');
+  });
+
   it('puts the scroll box in the tab sequence', () => {
     // A wide table scrolls sideways and holds nothing focusable, so without
     // this a keyboard alone cannot reach the columns past the right edge.
