@@ -40,9 +40,13 @@
  * border-line-strong, not border-line: a panel floating over arbitrary content
  * needs a boundary that clears 3:1, which line does not. It carries the
  * resting text colour so a row can override it with a single utility.
+ *
+ * overflow-hidden, because the rows are square and the panel is not: the
+ * active ring on the first or last row drew its corners past the panel's
+ * rounded ones, a box poking out of the box that holds it.
  */
 export const PANEL_SURFACE =
-  'absolute z-dropdown mt-1 rounded-xl border border-line-strong bg-surface text-fg shadow-2xl';
+  'absolute z-dropdown mt-1 overflow-hidden rounded-xl border border-line-strong bg-surface text-fg shadow-2xl';
 
 /**
  * The scrolling region inside it.

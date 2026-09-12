@@ -208,12 +208,14 @@
          to its target and moves focus to it only if the target can hold focus,
          so without this the link moved the page and left focus on the body, and
          the next Tab started again at the top of the document: the sidebar the
-         reader had just skipped. -->
+         reader had just skipped. No outline on it: the region is a landing, not
+         a control, and the browser's default drew a box around the whole page
+         body the moment the link was used. -->
     <main
       id="content"
       tabindex="-1"
       data-print="unclip"
-      class="min-w-0 flex-1 overflow-auto bg-ink"
+      class="min-w-0 flex-1 overflow-auto bg-ink outline-none"
     >
       {@render children()}
     </main>

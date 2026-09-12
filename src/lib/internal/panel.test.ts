@@ -87,6 +87,13 @@ describe('the surface', () => {
     expect(PANEL_SURFACE).not.toMatch(/border-line(?!-strong)/);
   });
 
+  it('clips its rows to its rounded shape', () => {
+    // The active ring on a square row drew its corners past the panel's
+    // rounded ones on the first and last row.
+    expect(hasAll(PANEL_SURFACE, 'overflow-hidden')).toBe(true);
+    expect(hasAll(PANEL_SURFACE, 'rounded-xl')).toBe(true);
+  });
+
   it('leaves the width to the caller', () => {
     // w-full suits a listbox and min-w-36 a menu. Fixing one here would make
     // the calendar wrong.
@@ -117,7 +124,8 @@ describe('the scrolling region', () => {
     // Autocomplete scrolled the surface and MultiSelect an inner region. On the
     // surface the sticky search field scrolls away with the options.
     expect(hasAll(PANEL_LIST, 'overflow-y-auto')).toBe(true);
-    expect(PANEL_SURFACE).not.toContain('overflow');
+    // The surface clips; it never scrolls.
+    expect(PANEL_SURFACE).not.toMatch(/overflow(?:-[xy])?-(?:auto|scroll)/);
   });
 });
 
