@@ -98,7 +98,7 @@ describe('SectionHeading eyebrow', () => {
 
   it('sizes the title from the brand ramp and not from a Tailwind step', () => {
     // The ramp shipped as eighteen tokens nothing referenced, so every heading
-    // in the estate rendered at whichever Tailwind step someone reached for.
+    // in the consuming applications rendered at whichever Tailwind step someone reached for.
     // A --text-* token carries no line-height and no tracking of its own, so
     // adopting the size alone leaves a 22px heading leading at whatever it
     // inherited: all three have to be named together or the ramp is a third

@@ -5,6 +5,26 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.1] - 2026-09-12
+
+### Fixed
+
+- A listbox row's active ring no longer draws past the rounded corners of the
+  panel that holds it. The ring is square and the panel is not, so on the first
+  or last row the corners poked out of the panel. The surface clips now, and
+  `Table` takes the same clip on its frame so nothing a row draws can pass the
+  frame's corners.
+- `AppShell` drops the browser's default outline on its landing region. The
+  region is a target for the skip link, not a control, and the outline boxed
+  the whole page body the moment the link had been used.
+
+### Changed
+
+- The declared Node floor is 24. Continuous integration has run on Node 24 for
+  some time and the manifest still said 20, which described a runtime nothing
+  was tested against. Node 22 consumers are no longer within the declared
+  range.
+
 ## [0.22.0] - 2026-09-09
 
 ### Added
@@ -72,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `@lucide/svelte` is a peer dependency instead of a dependency, at
   `>=0.511.0 <2`. It was the only runtime dependency the kit owned, and every
-  application in the estate depends on it directly too, so each resolved two
+  application that consumes the kit depends on it directly too, so each resolved two
   copies: 42MB on disk in one of them, and eleven of the icons it imports
   shipped twice in that application's built bundle. Add `@lucide/svelte`
   alongside the kit if it is not already in your dependencies: a missing peer is
@@ -358,7 +378,7 @@ apart again.
 - `FormMessage`, for the outcome of a submit. A danger message interrupts with
   `role="alert"`; a confirmation does not.
 - `CopyButton`, `SegmentedControl`, `Panel`, `DescriptionList`, `Toolbar` and
-  `Collapsible`, each replacing something the estate had hand-rolled: a copy
+  `Collapsible`, each replacing something the consuming applications had hand-rolled: a copy
   affordance with its own timing per page, a radio group drawn as buttons with
   the selection carried by colour alone and no aria state, a lighter grouping
   that did not want to be a `Card`, key and value pairs laid out as div grids
@@ -426,7 +446,7 @@ apart again.
   attribute and Tailwind's emitted order picked the winner rather than the page.
   The margin is now opt-out through `flush`, which `PageShell` sets because it
   owns the rhythm itself. It is opt-out rather than removed because 43 pages
-  across the estate render the component directly and take their heading gap
+  across the consuming applications render the component directly and take their heading gap
   from it; deleting it would have moved every one of them by 32px with nothing
   in their own source to explain why.
 
@@ -512,7 +532,7 @@ either, so the same component was accessible in one app and not in another.
 ### Fixed
 - The contributing guide named two private internal applications. This is one of
   the few repos that is actually public, and the list told a public reader what
-  exists inside the estate for no benefit.
+  exists inside the consuming applications for no benefit.
 
 ## [0.11.3] - 2026-09-02
 
@@ -577,7 +597,7 @@ from 0.11.0 to here and no consumer ever received it.
 ### Fixed
 
 - `homepage` pointed at `ui.lyeve.com`, which has no DNS record and has never
-  resolved. The docs site is served from `ui-kit.lyeve.com`. An estate audit
+  resolved. The docs site is served from `ui-kit.lyeve.com`. An audit
   noted the mismatch in July; the link has been dead on the npm package page
   since 0.7.0.
 

@@ -26,7 +26,7 @@ describe('PageHeader', () => {
   });
 
   it('keeps its heading gap by default', () => {
-    // Forty-three pages across the estate render this component directly and
+    // Forty-three pages across the consuming applications render this component directly and
     // take their heading gap from it. Removing the margin outright moved every
     // one of them by 32px with nothing in their own source to explain it, so
     // the margin stays and the caller that owns the rhythm opts out.

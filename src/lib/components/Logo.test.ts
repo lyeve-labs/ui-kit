@@ -40,7 +40,7 @@ describe('Logo', () => {
    * The two application copies this replaces painted hex behind a
    * prefers-color-scheme query, so the mark answered the operating system while
    * every other pixel answered data-theme. scripts/check-ui-cross-repo.sh gates
-   * that estate-wide; pinning it here catches a reintroduction at the source
+   * that in every consumer; pinning it here catches a reintroduction at the source
    * rather than one release later.
    */
   it('paints every face from a token rather than hex', () => {

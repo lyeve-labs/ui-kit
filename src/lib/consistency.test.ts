@@ -535,7 +535,7 @@ describe('the shell prints', () => {
   }
 
   it('declares a print stylesheet at all', () => {
-    // There was no `@media print` rule anywhere in the estate, and three
+    // There was no `@media print` rule anywhere in the consuming applications, and three
     // surfaces print: an invoice, an audit log and a subject-access export.
     expect(printAt).toBeGreaterThan(-1);
   });

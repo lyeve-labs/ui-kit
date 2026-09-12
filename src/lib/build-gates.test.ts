@@ -254,7 +254,7 @@ describe('the package declares what it cannot run without', () => {
   });
 
   it('owns no runtime dependency of its own', () => {
-    // The icon set was the only one, and every consumer in the estate depends
+    // The icon set was the only one, and every consumer of the kit depends
     // on it directly as well, so each resolved two copies of it: 42MB on disk
     // in one application, and eleven of the icons it imports shipped twice in
     // that application's built bundle. A component library that installs a
@@ -288,7 +288,7 @@ describe('the package declares what it cannot run without', () => {
     return cmp(v, parts(bounds[1])) >= 0 && cmp(v, parts(bounds[2])) < 0;
   };
 
-  it('admits every icon-set version a consumer in the estate declares', () => {
+  it('admits every icon-set version a consumer of the kit declares', () => {
     // The three consoles span 0.511, 0.577 and 1.x. A caret range on any one
     // of them excludes the other two, and an excluded peer is a warning at
     // install time and a second copy on disk immediately after.
@@ -310,7 +310,7 @@ describe('the package declares what it cannot run without', () => {
 /*
  * The README is part of the published tarball, so a count in it is a claim the
  * package makes about itself. This one said 48 in three places while the
- * library shipped 67, and the estate's own rules had to carry a note telling
+ * library shipped 67, and the organisation's own rules had to carry a note telling
  * readers not to trust it. A number nobody re-derives goes stale silently, so
  * derive it here instead.
  */
@@ -349,7 +349,7 @@ describe('README against the library', () => {
   });
 
   /*
-   * Unicode separators in published prose are forbidden by the estate standard,
+   * Unicode separators in published prose are forbidden by the organisation's standard,
    * and this file had 48 of them in the component list alone.
    */
   it('uses ascii punctuation', () => {
