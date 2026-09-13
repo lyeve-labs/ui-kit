@@ -56,6 +56,23 @@
     children: Snippet;
   }
 
+  /**
+   * The hover ring, as inset shadows on the cells of the hovered row: top
+   * and bottom on every cell, the start edge on the first, the end edge on
+   * the last, so the four lines meet as one rectangle and the two outer
+   * cells of the last row carry it round the frame's corner. The shadow
+   * offsets are physical, which is what a shadow is; the first cell is the
+   * start cell in either direction and the two agree in left-to-right text.
+   */
+  const HOVER_RING = [
+    '[&_tbody_tr:hover]:bg-surface-2/60',
+    '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
+    '[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_var(--color-brand),inset_1px_-1px_var(--color-brand)]',
+    '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
+    '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
+    '[&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150',
+  ].join(' ');
+
   let {
     striped = false,
     hoverable = true,
@@ -231,6 +248,11 @@
     <!--
       border-separate with no spacing, and the row separators on the cells.
 
+      The last row's outer cells are rounded to the frame's inner radius. A
+      row takes no radius, so a ring drawn on it was a square inset in a
+      rounded frame and the frame's bottom arcs sat outside it; the ring is
+      drawn on the cells now (see HOVER_RING) and follows the corner.
+
       The hovered row draws a ring, and a ring is a box-shadow: a browser paints
       no box-shadow on a table row while the table collapses its borders, so the
       same row treatment the panels use would have rendered nothing at all here.
@@ -251,9 +273,9 @@
       [&_tbody_td]:px-4 [&_tbody_td]:py-3 [&_tbody_td]:text-fg [&_tbody_td]:align-middle
       [&_tbody_td]:border-b [&_tbody_td]:border-line [&_tbody_tr:last-child_td]:border-0
       {striped ? '[&_tbody_tr:nth-child(even)]:bg-surface-2/40' : ''}
-      {hoverable
-        ? '[&_tbody_tr:hover]:bg-surface-2/60 [&_tbody_tr:hover]:ring-1 [&_tbody_tr:hover]:ring-inset [&_tbody_tr:hover]:ring-brand [&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150'
-        : ''}"
+      [&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]
+      [&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]
+      {hoverable ? HOVER_RING : ''}"
     >
       {@render children()}
     </table>
