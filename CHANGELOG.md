@@ -27,31 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.22.0] - 2026-09-09
 
-### Added
+### Changed
 
-- `Pagination` takes `count`, the rows the page on screen actually holds, and
-  states a range for a list with no total: `jobs 51 to 100` rather than
-  `jobs, page 2`. Without a total the component knew where a page started and
-  not where it ended, because the last page is short and nothing told it how
-  short, so an application whose endpoint reports no row count had to keep its
-  own pager to say the sentence. `count` is read only when `total` is absent,
-  and a page of no rows still names the page rather than printing an inverted
-  range.
+- Nothing in the package. The release carried edits to the pull request
+  template only. The entry that stood here repeated the 0.21.0 entry below.
 
 ## [0.21.0] - 2026-09-09
-
-### Added
-
-- `Pagination` takes `count`, the rows the page on screen actually holds, and
-  states a range for a list with no total: `jobs 51 to 100` rather than
-  `jobs, page 2`. Without a total the component knew where a page started and
-  not where it ended, because the last page is short and nothing told it how
-  short, so an application whose endpoint reports no row count had to keep its
-  own pager to say the sentence. `count` is read only when `total` is absent,
-  and a page of no rows still names the page rather than printing an inverted
-  range.
-
-## [Unreleased]
 
 ### Added
 
