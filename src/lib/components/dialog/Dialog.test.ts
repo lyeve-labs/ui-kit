@@ -54,6 +54,22 @@ describe('Dialog', () => {
     expect(closeBtn).toBeTruthy();
   });
 
+  it('gives a confirm dialog no header and no close control, and lands focus on Cancel', () => {
+    // The header was an empty row holding only the X, and the X was the first
+    // thing focused: a dialog asking "Delete?" opened with the ring on a
+    // control that closes it and Enter one keystroke from the danger button.
+    const entry = makeEntry({
+      options: { id: 'c', title: 'Delete it?' },
+      meta: { confirmTitle: 'Delete it?', confirmMessage: 'This cannot be undone.', confirmDetail: '4af5ef43-3ca5-4ef2-909b-8fcec97e49d4' },
+    });
+    const { container, getByText } = render(Dialog, { props: { entry } });
+    expect(container.querySelector('button[aria-label="Close"]')).toBeNull();
+    expect(container.querySelector('h2')).toBeNull();
+    expect(getByText('Delete it?')).toBeTruthy();
+    expect(getByText('4af5ef43-3ca5-4ef2-909b-8fcec97e49d4').className).toContain('font-mono');
+    expect((document.activeElement as HTMLElement | null)?.textContent?.trim()).toBe('Cancel');
+  });
+
   it('does not render the close button for persistent dialogs', () => {
     const entry = makeEntry({ options: { id: 'p', persistent: true } });
     const { container } = render(Dialog, { props: { entry } });
