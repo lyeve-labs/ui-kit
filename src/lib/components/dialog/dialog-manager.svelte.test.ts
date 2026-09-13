@@ -274,9 +274,10 @@ describe('confirm labels', () => {
    * as an absent one.
    */
   it('omits a key rather than writing undefined for a partial override', async () => {
-    const promise = confirm('Delete item?', undefined, { confirmLabel: 'Delete' });
+    const promise = confirm('Delete item?', undefined, { confirmLabel: 'Delete', detail: 'id-1' });
     const entry = getDialogStack()[0];
     expect(Object.prototype.hasOwnProperty.call(entry.meta ?? {}, 'cancelLabel')).toBe(false);
+    expect(entry.meta?.confirmDetail).toBe('id-1');
     dismissDialog(entry.id);
     await promise;
   });
