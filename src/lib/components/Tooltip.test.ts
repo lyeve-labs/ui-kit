@@ -71,3 +71,15 @@ describe('Tooltip', () => {
     expect(getByRole('tooltip', { hidden: true }).hasAttribute('hidden')).toBe(true);
   });
 });
+
+describe('Tooltip describe', () => {
+  it('leaves the trigger undescribed and the text out of the tree when switched off', () => {
+    const { container } = render(Tooltip, {
+      props: { text: 'Delete', describe: false, children: trigger },
+    });
+    const button = container.querySelector('button')!;
+    expect(button.getAttribute('aria-describedby')).toBeNull();
+    expect(container.querySelector('[role="tooltip"]')).toBeNull();
+    expect(container.querySelector('[aria-hidden="true"]')?.textContent).toContain('Delete');
+  });
+});
