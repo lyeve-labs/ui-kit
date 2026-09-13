@@ -5,6 +5,29 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.2] - 2026-09-13
+
+### Fixed
+
+- A confirm dialog no longer renders the generic header above its own title.
+  That header was an empty row holding only the close control, and the
+  overlay put the first focus on that control, so a dialog asking "Delete?"
+  opened with the ring on an X and Enter one Tab away from the danger button.
+  The title now sits beside the warning icon, Cancel is the way out, and
+  Escape still dismisses.
+
+- Focus lands on Cancel when a confirm dialog opens, so an Enter pressed
+  before the dialog was read does nothing.
+
+### Added
+
+- The overlay honours `data-initial-focus` before falling back to the first
+  focusable element, so a panel can name where focus lands.
+
+- `confirm()` takes a `detail` option, rendered on its own monospace line
+  under the message. It holds the identifier a message used to carry
+  mid-sentence, where a UUID wrapped.
+
 ## [0.22.1] - 2026-09-12
 
 ### Fixed
@@ -27,31 +50,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.22.0] - 2026-09-09
 
-### Added
+### Changed
 
-- `Pagination` takes `count`, the rows the page on screen actually holds, and
-  states a range for a list with no total: `jobs 51 to 100` rather than
-  `jobs, page 2`. Without a total the component knew where a page started and
-  not where it ended, because the last page is short and nothing told it how
-  short, so an application whose endpoint reports no row count had to keep its
-  own pager to say the sentence. `count` is read only when `total` is absent,
-  and a page of no rows still names the page rather than printing an inverted
-  range.
+- Nothing in the package. The release carried edits to the pull request
+  template only. The entry that stood here repeated the 0.21.0 entry below.
 
 ## [0.21.0] - 2026-09-09
-
-### Added
-
-- `Pagination` takes `count`, the rows the page on screen actually holds, and
-  states a range for a list with no total: `jobs 51 to 100` rather than
-  `jobs, page 2`. Without a total the component knew where a page started and
-  not where it ended, because the last page is short and nothing told it how
-  short, so an application whose endpoint reports no row count had to keep its
-  own pager to say the sentence. `count` is read only when `total` is absent,
-  and a page of no rows still names the page rather than printing an inverted
-  range.
-
-## [Unreleased]
 
 ### Added
 
