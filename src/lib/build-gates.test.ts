@@ -383,14 +383,15 @@ describe('the components read in both directions', () => {
       .replace(/\/\/[^\n]*/g, '');
 
   /*
-   * Tooltip is physical on purpose and is the only one.
-   *
-   * Its `position` prop is a contract with the caller, who asked for the label
-   * on a named side and gets it there. Its top and bottom placements centre
-   * with `left-1/2 -translate-x-1/2`, which is symmetric: converting that pair
-   * to `start-1/2` would leave the tooltip off-centre rather than mirrored.
+   * Nothing is physical by design any more. Tooltip was the one exception:
+   * its `position` prop is a contract with the caller, who asks for the label
+   * on a named side, and it placed the box with `left-1/2` and friends. It
+   * now computes a fixed position from the trigger's bounding box, so the
+   * physical geometry lives in a style value the gate does not read and the
+   * component writes no physical utility. The set stays so the next
+   * exception has to be named here and argued for.
    */
-  const PHYSICAL_BY_DESIGN = new Set(['Tooltip.svelte']);
+  const PHYSICAL_BY_DESIGN = new Set<string>([]);
 
   const PHYSICAL =
     /(?:^|[\s"'`{(])(-?(?:ml|mr|pl|pr)-[\w./[\]]+|text-(?:left|right)|(?:left|right)-[\w./[\]]+|border-[lr](?:-\d+)?|rounded-[lr]-[\w]+)(?=[\s"'`})]|$)/g;

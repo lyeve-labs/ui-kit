@@ -83,3 +83,37 @@ describe('Tooltip describe', () => {
     expect(container.querySelector('[aria-hidden="true"]')?.textContent).toContain('Delete');
   });
 });
+
+/*
+ * The box is fixed to the viewport and sized to its text. Inside the wrapper
+ * it took the wrapper's width and any scrolling ancestor clipped it, which a
+ * hint on a row action in a table met on its first day.
+ */
+describe('Tooltip placement', () => {
+  it('sizes to its text and positions itself fixed from the trigger', async () => {
+    const { container } = render(Tooltip, { props: { text: 'Delete default', children: trigger } });
+    const wrapper = container.firstElementChild as HTMLElement;
+    wrapper.getBoundingClientRect = () =>
+      ({ top: 100, bottom: 130, left: 400, right: 430, width: 30, height: 30 }) as DOMRect;
+
+    await fireEvent.mouseEnter(wrapper);
+
+    const tip = container.querySelector<HTMLElement>('[role="tooltip"]')!;
+    expect(tip.className).toContain('fixed');
+    expect(tip.className).toContain('w-max');
+    expect(tip.style.top).toBe('92px');
+    expect(tip.style.left).toBe('415px');
+  });
+
+  it('closes when anything scrolls, since a fixed box cannot follow its trigger', async () => {
+    const { container } = render(Tooltip, { props: { text: 'Delete', children: trigger } });
+    const wrapper = container.firstElementChild as HTMLElement;
+    await fireEvent.mouseEnter(wrapper);
+    const tip = container.querySelector<HTMLElement>('[role="tooltip"]')!;
+    expect(tip.hasAttribute('hidden')).toBe(false);
+
+    await fireEvent.scroll(window);
+
+    expect(tip.hasAttribute('hidden')).toBe(true);
+  });
+});
