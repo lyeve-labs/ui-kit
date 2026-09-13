@@ -137,34 +137,39 @@
     tabindex="-1"
     onkeydown={handleKeydown}
   >
-    <!-- Header -->
-    <div class="flex items-center justify-between px-6 pt-6 pb-2">
-      <div class="flex-1 min-w-0">
-        {#if entry.options.title && entry.meta?.confirmTitle === undefined}
-          {#if typeof entry.options.title === 'string'}
-            <h2 class="text-lg font-semibold text-fg truncate">
-              {entry.options.title}
-            </h2>
-          {:else}
-            {@render entry.options.title()}
+    <!-- Header. A confirm dialog has none: it renders its own title beside
+         the warning icon and offers Cancel, so a header here was an empty row
+         with a close control in it, and that control was the first thing
+         focused. Escape still dismisses. -->
+    {#if entry.meta?.confirmTitle === undefined}
+      <div class="flex items-center justify-between px-6 pt-6 pb-2">
+        <div class="flex-1 min-w-0">
+          {#if entry.options.title}
+            {#if typeof entry.options.title === 'string'}
+              <h2 class="text-lg font-semibold text-fg truncate">
+                {entry.options.title}
+              </h2>
+            {:else}
+              {@render entry.options.title()}
+            {/if}
           {/if}
+        </div>
+
+        {#if !entry.options.persistent}
+          <button
+            class="inline-flex items-center justify-center w-8 h-8 -me-2 rounded-lg
+						text-muted hover:text-fg hover:bg-surface-2 transition-colors duration-150 shrink-0"
+            onclick={() => handleClose()}
+            aria-label="Close"
+          >
+            <X class="w-4 h-4" />
+          </button>
         {/if}
       </div>
-
-      {#if !entry.options.persistent}
-        <button
-          class="inline-flex items-center justify-center w-8 h-8 -me-2 rounded-lg
-						text-muted hover:text-fg hover:bg-surface-2 transition-colors duration-150 shrink-0"
-          onclick={() => handleClose()}
-          aria-label="Close"
-        >
-          <X class="w-4 h-4" />
-        </button>
-      {/if}
-    </div>
+    {/if}
 
     <!-- Body -->
-    <div class="px-6 py-2">
+    <div class={entry.meta?.confirmTitle === undefined ? 'px-6 py-2' : 'px-6 pt-6 pb-2'}>
       {#if entry.options.body}
         {@render entry.options.body()}
       {:else if entry.meta?.confirmTitle !== undefined}
