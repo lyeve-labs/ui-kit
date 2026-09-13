@@ -15,7 +15,7 @@
  * Not exported from the package entry point - this is an implementation detail.
  */
 
-import { FIELD_HINT } from './field.js';
+import { FIELD_HINT, FIELD_LABEL } from './field.js';
 
 /** The scale of the painted box: sm 14px, md 16px, lg 20px. */
 export type ChoiceSize = 'sm' | 'md' | 'lg';
@@ -184,6 +184,16 @@ export const CHOICE_ICON_PX: Record<ChoiceSize, number> = {
  * wrapping.
  */
 export const CHOICE_GROUP = 'flex min-w-0 flex-col gap-2';
+
+/**
+ * The group's heading. A rendered legend is not a flex item: the browser lays
+ * it out as the fieldset's legend, outside the flex formatting context, so
+ * the group's gap applies between the list and the hint and never between
+ * the legend and the list. The legend carries the distance itself, the same
+ * 6px a Field puts between its label and its control. A hidden legend is
+ * absolutely positioned and the margin does nothing there.
+ */
+export const CHOICE_LEGEND = `${FIELD_LABEL} mb-1.5`;
 
 /**
  * The row or column the options sit in.
