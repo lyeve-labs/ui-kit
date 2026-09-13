@@ -5,6 +5,19 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.1] - 2026-09-13
+
+### Fixed
+
+- A tooltip is sized to its text and placed outside any scroller. The box
+  was positioned inside an inline wrapper the size of its trigger, so the
+  hint on an icon button took the button's width and broke one character
+  per line, and a scrolling ancestor clipped it: a table's horizontal
+  scroller clips vertically as well, so a hint on a row action was cut at
+  the header row. The box is now fixed to the viewport and positioned from
+  the trigger when it opens; a scroll anywhere closes it, since a fixed box
+  cannot follow a trigger that scrolls out from under it.
+
 ## [0.23.0] - 2026-09-13
 
 ### Added
