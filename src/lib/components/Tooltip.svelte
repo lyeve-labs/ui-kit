@@ -27,12 +27,62 @@
 
   const id = $props.id();
 
+  /**
+   * The box is positioned from the trigger's bounding box, fixed to the
+   * viewport, rather than absolutely inside the wrapper.
+   *
+   * Inside the wrapper it took the wrapper's width, so a hint on an icon
+   * button broke one character per line, and any ancestor that scrolls cut
+   * it off: a Table's scroller is overflow-x auto, which makes its vertical
+   * overflow auto as well, so a hint on a row action was clipped at the
+   * header. Nothing between a fixed box and the viewport can clip it. The
+   * translate carries the half of the geometry that depends on the box's own
+   * size, which is not known until it renders.
+   */
   const pos: Record<Position, string> = {
-    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
-    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
-    left: 'right-full top-1/2 -translate-y-1/2 mr-2',
-    right: 'left-full top-1/2 -translate-y-1/2 ml-2',
+    top: '-translate-x-1/2 -translate-y-full',
+    bottom: '-translate-x-1/2',
+    left: '-translate-x-full -translate-y-1/2',
+    right: '-translate-y-1/2',
   };
+
+  /** The distance between the trigger's edge and the box. */
+  const GAP = 8;
+
+  let anchor = $state({ top: 0, left: 0 });
+
+  function place() {
+    const r = wrapper?.getBoundingClientRect();
+    if (!r) return;
+    switch (position) {
+      case 'top':
+        anchor = { top: r.top - GAP, left: r.left + r.width / 2 };
+        break;
+      case 'bottom':
+        anchor = { top: r.bottom + GAP, left: r.left + r.width / 2 };
+        break;
+      case 'left':
+        anchor = { top: r.top + r.height / 2, left: r.left - GAP };
+        break;
+      case 'right':
+        anchor = { top: r.top + r.height / 2, left: r.right + GAP };
+        break;
+    }
+  }
+
+  function show() {
+    place();
+    visible = true;
+  }
+
+  // A fixed box does not follow a trigger that scrolls away from under it,
+  // so a scroll anywhere closes the hint rather than leaving it stranded.
+  $effect(() => {
+    if (!visible) return;
+    const close = () => (visible = false);
+    window.addEventListener('scroll', close, { capture: true, passive: true });
+    return () => window.removeEventListener('scroll', close, { capture: true });
+  });
 
   /**
    * `role="tooltip"` on its own is inert: assistive technology reads a tooltip
@@ -68,9 +118,9 @@
 <span
   bind:this={wrapper}
   class="relative inline-flex {cls}"
-  onmouseenter={() => (visible = true)}
+  onmouseenter={show}
   onmouseleave={() => (visible = false)}
-  onfocusin={() => (visible = true)}
+  onfocusin={show}
   onfocusout={() => (visible = false)}
   {onkeydown}
 >
@@ -84,7 +134,8 @@
     role={describe ? 'tooltip' : undefined}
     aria-hidden={describe ? undefined : 'true'}
     hidden={!visible}
-    class="absolute {pos[position]} z-tooltip max-w-[min(16rem,calc(100vw-2rem))]
+    style="top: {anchor.top}px; left: {anchor.left}px"
+    class="fixed {pos[position]} z-tooltip w-max max-w-[min(16rem,calc(100vw-2rem))]
       rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-xl"
   >
     {text}
