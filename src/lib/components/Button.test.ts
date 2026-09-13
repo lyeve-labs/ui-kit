@@ -150,3 +150,57 @@ describe('Button pressed state', () => {
     }
   });
 });
+
+/*
+ * An icon-only button is named by aria-label, which a pointer user never
+ * sees. The name doubles as a hover and focus hint, and because the button
+ * already announces it, the hint does not describe the button a second time.
+ */
+describe('Button hint', () => {
+  it('shows its aria-label on hover and hides it again', async () => {
+    const { container } = render(Button, {
+      props: { 'aria-label': 'Delete tenant', children: text('x') },
+    });
+    const button = container.querySelector('button')!;
+    const hint = container.querySelector('[aria-hidden="true"]')!;
+    expect(hint.textContent).toContain('Delete tenant');
+    expect(hint.hasAttribute('hidden')).toBe(true);
+    await fireEvent.mouseEnter(button.parentElement!);
+    expect(hint.hasAttribute('hidden')).toBe(false);
+    await fireEvent.mouseLeave(button.parentElement!);
+    expect(hint.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('does not describe the button with the words it is already named by', () => {
+    const { container } = render(Button, {
+      props: { 'aria-label': 'Delete tenant', children: text('x') },
+    });
+    const button = container.querySelector('button')!;
+    expect(button.getAttribute('aria-describedby')).toBeNull();
+    expect(container.querySelector('[role="tooltip"]')).toBeNull();
+  });
+
+  it('takes a hint of its own, and none when told', () => {
+    const own = render(Button, {
+      props: { 'aria-label': 'Copy', hint: 'Copy the URL', children: text('x') },
+    });
+    expect(own.container.querySelector('[aria-hidden="true"]')?.textContent).toContain('Copy the URL');
+
+    const silent = render(Button, {
+      props: { 'aria-label': 'Copy', hint: false, children: text('x') },
+    });
+    expect(silent.container.querySelector('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('renders a plain button when it has visible text and no aria-label', () => {
+    const { container } = render(Button, { props: { children: text('Save') } });
+    expect(container.firstElementChild?.tagName).toBe('BUTTON');
+  });
+
+  it('keeps a full-width button full inside its hint', () => {
+    const { container } = render(Button, {
+      props: { 'aria-label': 'Go', full: true, children: text('x') },
+    });
+    expect(container.firstElementChild?.className).toContain('w-full');
+  });
+});
