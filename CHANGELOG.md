@@ -5,6 +5,29 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.2] - 2026-09-13
+
+### Fixed
+
+- A confirm dialog no longer renders the generic header above its own title.
+  That header was an empty row holding only the close control, and the
+  overlay put the first focus on that control, so a dialog asking "Delete?"
+  opened with the ring on an X and Enter one Tab away from the danger button.
+  The title now sits beside the warning icon, Cancel is the way out, and
+  Escape still dismisses.
+
+- Focus lands on Cancel when a confirm dialog opens, so an Enter pressed
+  before the dialog was read does nothing.
+
+### Added
+
+- The overlay honours `data-initial-focus` before falling back to the first
+  focusable element, so a panel can name where focus lands.
+
+- `confirm()` takes a `detail` option, rendered on its own monospace line
+  under the message. It holds the identifier a message used to carry
+  mid-sentence, where a UUID wrapped.
+
 ## [0.22.1] - 2026-09-12
 
 ### Fixed
