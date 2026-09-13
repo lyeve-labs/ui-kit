@@ -169,6 +169,12 @@ export interface ConfirmOptions {
   confirmLabel?: string;
   /** The verb on the dismissing button. Defaults to `Cancel`. */
   cancelLabel?: string;
+  /**
+   * An identifier the message refers to, such as the id of the record about
+   * to be deleted. Rendered on its own line in monospace, so a UUID never
+   * wraps inside the sentence.
+   */
+  detail?: string;
 }
 
 /**
@@ -195,6 +201,7 @@ export function confirm(
     // would be indistinguishable from an override to the empty case.
     ...(options?.confirmLabel !== undefined ? { confirmLabel: options.confirmLabel } : {}),
     ...(options?.cancelLabel !== undefined ? { cancelLabel: options.cancelLabel } : {}),
+    ...(options?.detail !== undefined ? { confirmDetail: options.detail } : {}),
   });
   // Cancelling a dialog dismisses it, and dismissal rejects. Callers write
   // `if (await confirm(...))`, so a rejection on Cancel is an unhandled

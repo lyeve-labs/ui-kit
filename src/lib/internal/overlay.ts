@@ -61,9 +61,13 @@ export function overlay(node: HTMLElement): { destroy(): void } {
 
   lockBodyScroll();
 
-  // A panel with nothing focusable still has to receive focus, or the screen
-  // reader stays on the element behind the overlay and reads the wrong thing.
-  const first = focusable(node)[0];
+  // A panel may name where focus lands with data-initial-focus: a confirm
+  // dialog puts it on Cancel, so that Enter on a dialog a person has not read
+  // yet does nothing, and the close control is never the first thing focused.
+  // Otherwise the first focusable element takes it. A panel with nothing
+  // focusable still has to receive focus, or the screen reader stays on the
+  // element behind the overlay and reads the wrong thing.
+  const first = node.querySelector<HTMLElement>('[data-initial-focus]') ?? focusable(node)[0];
   if (first) {
     first.focus();
   } else {

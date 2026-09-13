@@ -42,6 +42,9 @@
   let confirmLabel = $derived(
     typeof entry.meta?.confirmLabel === 'string' ? entry.meta.confirmLabel : 'Confirm',
   );
+  // An identifier the message refers to. Set apart in monospace on its own
+  // line rather than inside the sentence, where a UUID wraps mid-string.
+  let detail = $derived(typeof entry.meta?.confirmDetail === 'string' ? entry.meta.confirmDetail : '');
 
   async function handleConfirm() {
     if (loading) return;
@@ -80,12 +83,16 @@
       {#if message}
         <p class="text-sm text-muted mt-1">{message}</p>
       {/if}
+      {#if detail}
+        <p class="mt-2 break-all font-mono text-xs text-faint">{detail}</p>
+      {/if}
     </div>
   </div>
 
-  <!-- Actions -->
+  <!-- Actions. Cancel takes focus first: a destructive dialog must not
+       accept an Enter pressed before it was read. -->
   <div class="flex items-center justify-end gap-3 pt-2">
-    <Button variant="secondary" size="sm" onclick={handleCancel}>
+    <Button variant="secondary" size="sm" onclick={handleCancel} data-initial-focus>
       {cancelLabel}
     </Button>
     <Button variant="danger" size="sm" onclick={handleConfirm} {loading}>

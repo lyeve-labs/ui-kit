@@ -79,6 +79,20 @@ describe('ConfirmDialog', () => {
     expect((confirmBtn as HTMLElement).className).toContain('bg-danger');
   });
 
+  it('sets an identifier apart from the sentence, in monospace', () => {
+    const entry = makeEntry({ meta: { confirmTitle: 'T', confirmMessage: 'Gone for good.', confirmDetail: 'abc-123' } });
+    const { getByText } = render(ConfirmDialog, { props: { entry } });
+    expect(getByText('Gone for good.').textContent).not.toContain('abc-123');
+    expect(getByText('abc-123').className).toContain('font-mono');
+  });
+
+  it('asks for focus on Cancel, never on the danger button', () => {
+    const entry = makeEntry({ meta: { confirmTitle: 'T' } });
+    const { container } = render(ConfirmDialog, { props: { entry } });
+    const marked = container.querySelector('[data-initial-focus]');
+    expect(marked?.textContent?.trim()).toBe('Cancel');
+  });
+
   it('uses custom button labels from meta', () => {
     const entry = makeEntry({
       meta: { confirmTitle: 'T', confirmLabel: 'Yes', cancelLabel: 'No' },
