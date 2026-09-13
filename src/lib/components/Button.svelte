@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import Spinner from './Spinner.svelte';
+  import Tooltip from './Tooltip.svelte';
   import { safeHref } from '../internal/href.js';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
@@ -25,6 +26,18 @@
     type?: 'button' | 'submit' | 'reset';
     href?: string;
     full?: boolean;
+    /**
+     * The words shown on hover and focus. Defaults to the button's own
+     * aria-label, so an icon-only button names itself to a sighted reader the
+     * way it already does to a screen reader; a string replaces those words,
+     * and `false` keeps the button silent.
+     *
+     * Thirty-five icon-only actions across one console had a name and no
+     * hint, so a pointer user learned what the trash can did by pressing it.
+     * The hint lives here rather than on each caller because the rule that
+     * makes a row action icon-only is the kit's, and so is the fix.
+     */
+    hint?: string | false;
     class?: string;
     onclick?: (e: MouseEvent) => void;
     children: Snippet;
@@ -38,11 +51,17 @@
     type = 'button',
     href = undefined,
     full = false,
+    hint = undefined,
     class: klass = '',
     onclick,
     children,
     ...rest
   }: Props = $props();
+
+  /** The hint text, or nothing: an explicit string, else the aria-label, unless switched off. */
+  const hintText = $derived(
+    hint === false ? undefined : (hint ?? (rest['aria-label'] || undefined)),
+  );
 
   /**
    * Colour per variant, in three states: at rest, under a pointer, and held.
@@ -104,27 +123,40 @@
   const inert = $derived(disabled || loading);
 </script>
 
-{#if href}
-  <a
-    href={inert ? undefined : resolvedHref}
-    class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
-    aria-disabled={inert ? 'true' : undefined}
-    tabindex={inert ? -1 : undefined}
-    {...rest}
-  >
-    {#if loading}<Spinner size={spinnerSize} />{/if}
-    {@render children()}
-  </a>
+{#snippet control()}
+  {#if href}
+    <a
+      href={inert ? undefined : resolvedHref}
+      class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
+      aria-disabled={inert ? 'true' : undefined}
+      tabindex={inert ? -1 : undefined}
+      {...rest}
+    >
+      {#if loading}<Spinner size={spinnerSize} />{/if}
+      {@render children()}
+    </a>
+  {:else}
+    <button
+      {type}
+      disabled={disabled || loading}
+      aria-busy={loading ? 'true' : undefined}
+      {onclick}
+      class={cls}
+      {...rest}
+    >
+      {#if loading}<Spinner size={spinnerSize} />{/if}
+      {@render children()}
+    </button>
+  {/if}
+{/snippet}
+
+<!-- The hint repeats the name, so it does not describe the control a second
+     time; the aria-label already announces it. The wrapper takes the full
+     width along with the button, or a full button would shrink to its text. -->
+{#if hintText}
+  <Tooltip text={hintText} describe={false} class={full ? 'w-full' : ''}>
+    {@render control()}
+  </Tooltip>
 {:else}
-  <button
-    {type}
-    disabled={disabled || loading}
-    aria-busy={loading ? 'true' : undefined}
-    {onclick}
-    class={cls}
-    {...rest}
-  >
-    {#if loading}<Spinner size={spinnerSize} />{/if}
-    {@render children()}
-  </button>
+  {@render control()}
 {/if}
