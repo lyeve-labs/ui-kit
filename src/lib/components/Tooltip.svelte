@@ -6,11 +6,21 @@
   interface Props {
     text: string;
     position?: Position;
+    /**
+     * Whether the text is the trigger's accessible description.
+     *
+     * On by default, because a tooltip that nothing points at is read by
+     * nobody. Off for a trigger that already carries the same words as its
+     * name: an icon-only button named by aria-label would otherwise be
+     * announced as "Delete, Delete", so the hint stays visual there and the
+     * name does the announcing.
+     */
+    describe?: boolean;
     class?: string;
     children: Snippet;
   }
 
-  let { text, position = 'top', class: cls = '', children }: Props = $props();
+  let { text, position = 'top', describe = true, class: cls = '', children }: Props = $props();
 
   let visible = $state(false);
   let wrapper = $state<HTMLElement>();
@@ -32,6 +42,7 @@
    * text was visible to a sighted mouse user and to nobody else.
    */
   $effect(() => {
+    if (!describe) return;
     const trigger = wrapper?.querySelector<HTMLElement>(
       'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
@@ -70,7 +81,8 @@
        moving onto it does not dismiss it, which SC 1.4.13 also requires. -->
   <span
     {id}
-    role="tooltip"
+    role={describe ? 'tooltip' : undefined}
+    aria-hidden={describe ? undefined : 'true'}
     hidden={!visible}
     class="absolute {pos[position]} z-tooltip max-w-[min(16rem,calc(100vw-2rem))]
       rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-xl"
