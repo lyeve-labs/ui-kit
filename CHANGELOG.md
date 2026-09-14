@@ -5,6 +5,24 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.2] - 2026-09-13
+
+### Fixed
+
+- A `CheckboxGroup` or `RadioGroup` legend keeps its distance from the first
+  option. A rendered legend is not a flex item, so the fieldset's gap applied
+  between the option list and the hint and never under the heading, and
+  "Events" sat on its first row of boxes where an `Input` label sits 6px
+  above its control. The legend now carries that 6px itself, the same
+  distance a `Field` uses, and a hidden legend takes none.
+
+- A `Table` row's hover ring follows the frame's rounded corner. The ring
+  was a box-shadow on the row, which takes no radius, so on the last row it
+  drew square inside a rounded frame and the two bottom arcs sat bare
+  outside it. The ring is drawn on the cells now, with the last row's outer
+  cells rounded to the frame's inner radius so the shadow goes round the
+  corner with it.
+
 ## [0.23.1] - 2026-09-13
 
 ### Fixed

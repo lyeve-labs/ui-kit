@@ -167,6 +167,14 @@ describe('RadioGroup', () => {
     expect(fieldset!.getAttribute('role')).toBe('radiogroup');
   });
 
+  it('keeps the legend off its options', () => {
+    // A rendered legend is not a flex item, so the fieldset's gap never
+    // applied under it and the heading sat on the first row of boxes.
+    const { container } = render(RadioGroup, { props: { label: 'Permissions', options } });
+    const legend = container.querySelector('legend') as HTMLElement;
+    expect(classes(legend)).toContain('mb-1.5');
+  });
+
   it.each([false, true])('has an accessible name with labelHidden=%s', (labelHidden) => {
     const { getByRole, container } = render(RadioGroup, {
       props: { label: 'Plan', options, labelHidden },
