@@ -26,12 +26,13 @@
 <script lang="ts">
   import {
     CHOICE_GROUP,
+    CHOICE_LEGEND,
     choiceGroupList,
     type ChoiceOrientation,
     type ChoiceSize,
     type ChoiceVariant,
   } from '../internal/choice.js';
-  import { FIELD_ERROR, FIELD_HINT, FIELD_LABEL, describedBy } from '../internal/field.js';
+  import { FIELD_ERROR, FIELD_HINT, describedBy } from '../internal/field.js';
   import Checkbox from './Checkbox.svelte';
 
   interface Props {
@@ -123,7 +124,7 @@
     so a reader moving through the page would meet the options with nothing
     ahead of them saying what the set is for.
   -->
-  <legend class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
+  <legend class="{CHOICE_LEGEND} {labelHidden ? 'sr-only' : ''}">
     {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span><span
         class="sr-only"
       >
