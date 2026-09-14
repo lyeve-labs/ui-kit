@@ -5,6 +5,29 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.3] - 2026-09-14
+
+### Fixed
+
+- A listbox row's active ring and hover tint stay inside the panel. The
+  rows were square and full width inside a rounded, clipping surface, so on
+  the first and last row the ring's corners were cut by the frame and the
+  arc read unfinished. The list now insets its rows and each row carries a
+  radius one step inside the surface's, so what a row paints has corners of
+  its own; group headings and the empty line keep their text flush with the
+  rows.
+
+- A panel opens upward when there is no room below. `Select`, `MultiSelect`,
+  `Autocomplete` and `Dropdown` always hung their panel under the trigger,
+  and nothing measured the space it needed, so a listbox near the bottom of
+  a modal opened into the part of the modal body nobody could see without
+  scrolling first. Each panel now measures its anchor against the nearest
+  scrolling or clipping ancestor, or the viewport, on open, on resize and on
+  scroll of that ancestor; it goes above only when it does not fit below and
+  there is more room above, and its list is capped to the room on the chosen
+  side. `Dropdown` takes the shared surface and scroll cap with it, so a long
+  menu scrolls instead of running off the window.
+
 ## [0.23.2] - 2026-09-13
 
 ### Fixed
