@@ -18,7 +18,13 @@
     describedBy,
   } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
-  import { PANEL_EMPTY, PANEL_LIST, PANEL_SURFACE, panelOption } from '../internal/panel.js';
+  import {
+    PANEL_EMPTY,
+    PANEL_LIST,
+    PANEL_SURFACE,
+    panelOption,
+    placePanel,
+  } from '../internal/panel.js';
   import type { ListOption } from './Autocomplete.svelte';
 
   interface Props {
@@ -246,7 +252,7 @@
     </div>
 
     {#if box.open}
-      <div class="{PANEL_SURFACE} w-full">
+      <div use:placePanel class="{PANEL_SURFACE} w-full">
         {#if searchable}
           <div class="border-b border-line p-2">
             <input
@@ -268,7 +274,13 @@
           </div>
         {/if}
 
-        <div class={PANEL_LIST} use:panel {...box.listAttrs} aria-multiselectable="true">
+        <div
+          class={PANEL_LIST}
+          data-panel-list
+          use:panel
+          {...box.listAttrs}
+          aria-multiselectable="true"
+        >
           {#each rows as option, index (option.value)}
             {@const isSelected = chosen.has(option.value)}
             <!--

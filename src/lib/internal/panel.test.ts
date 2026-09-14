@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  PANEL_ABOVE,
+  PANEL_BELOW,
   PANEL_EMPTY,
   PANEL_GROUP_LABEL,
   PANEL_LIST,
@@ -11,6 +13,7 @@ import {
   PANEL_OPTION_SELECTED,
   PANEL_SURFACE,
   panelOption,
+  placePanel,
 } from './panel.js';
 
 /**
@@ -88,12 +91,20 @@ describe('the surface', () => {
   });
 
   it('clips its rows to its rounded shape', () => {
-    // The active ring on a square row drew its corners past the panel's
-    // rounded ones on the first and last row.
+    // A backstop for a caller's stray full-width child; the rows themselves
+    // stay inside the frame by construction, see below.
     expect(hasAll(PANEL_SURFACE, 'overflow-hidden')).toBe(true);
     expect(hasAll(PANEL_SURFACE, 'rounded-xl')).toBe(true);
   });
 
+  it('leaves the offset and the side to placePanel', () => {
+    // mt-1 on the surface would survive a flip and push an upward panel down
+    // into its own trigger. The action states top-full mt-1 or bottom-full
+    // mb-1, and nothing else may.
+    expect(bare(PANEL_SURFACE).filter((t) => /^(?:mt|mb|top|bottom)-/.test(t))).toEqual([]);
+    expect(hasAll(PANEL_BELOW, 'top-full mt-1')).toBe(true);
+    expect(hasAll(PANEL_ABOVE, 'bottom-full mb-1')).toBe(true);
+  });
   it('leaves the width to the caller', () => {
     // w-full suits a listbox and min-w-36 a menu. Fixing one here would make
     // the calendar wrong.
@@ -103,6 +114,24 @@ describe('the surface', () => {
   it('carries the resting text colour so a row overrides it once', () => {
     expect(hasAll(PANEL_SURFACE, 'text-fg')).toBe(true);
     expect(bare(PANEL_OPTION).filter((t) => /^text-(?:fg|brand|faint|muted)$/.test(t))).toEqual([]);
+  });
+});
+
+describe('the rows inside the frame', () => {
+  it('insets the rows so a ring never reaches the rounded corners', () => {
+    // The ring on a full-width square row was cut at the panel's corners on
+    // the first and last row, an arc that read unfinished.
+    expect(hasAll(PANEL_LIST, 'px-1')).toBe(true);
+    expect(hasAll(PANEL_OPTION, 'rounded-lg')).toBe(true);
+    expect(hasAll(PANEL_OPTION_ACTIVE, 'ring-inset')).toBe(true);
+  });
+
+  it('keeps the heading and the empty line flush with row text', () => {
+    // The list's inset moved the rows in. A heading at its old padding would
+    // hang past the labels under it.
+    const pad = (cls: string): string[] => bare(cls).filter((t) => /^px-/.test(t));
+    expect(pad(PANEL_GROUP_LABEL)).toEqual(pad(PANEL_OPTION));
+    expect(pad(PANEL_EMPTY)).toEqual(pad(PANEL_OPTION));
   });
 });
 
@@ -184,4 +213,145 @@ describe('panelOption', () => {
       ).toBeLessThanOrEqual(1);
     },
   );
+});
+
+describe('placePanel', () => {
+  const rect = (top: number, bottom: number): DOMRect =>
+    ({ top, bottom, left: 0, right: 0, width: 0, height: bottom - top, x: 0, y: top }) as DOMRect;
+
+  interface Fixture {
+    clip: HTMLDivElement;
+    anchor: HTMLDivElement;
+    surface: HTMLDivElement;
+    list: HTMLDivElement;
+  }
+
+  /**
+   * A wrapper inside an optional scroller, holding a surface with a list, the
+   * shape every control renders. jsdom lays nothing out, so every rect and
+   * the panel's natural height are stated by the test.
+   */
+  function mount(opts: {
+    anchor: [number, number];
+    clip?: [number, number];
+    natural: number;
+    viewport?: number;
+  }): Fixture {
+    const clip = document.createElement('div');
+    if (opts.clip !== undefined) {
+      clip.style.overflowY = 'auto';
+      clip.getBoundingClientRect = () => rect(opts.clip![0], opts.clip![1]);
+    }
+    const anchor = document.createElement('div');
+    anchor.getBoundingClientRect = () => rect(opts.anchor[0], opts.anchor[1]);
+    const surface = document.createElement('div');
+    surface.className = PANEL_SURFACE;
+    Object.defineProperty(surface, 'scrollHeight', { get: () => opts.natural });
+    const list = document.createElement('div');
+    list.className = PANEL_LIST;
+    list.setAttribute('data-panel-list', '');
+    surface.append(list);
+    anchor.append(surface);
+    clip.append(anchor);
+    document.body.append(clip);
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: opts.viewport ?? 800,
+    });
+    return { clip, anchor, surface, list };
+  }
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+  });
+
+  it('stays below when the panel fits there', () => {
+    const f = mount({ anchor: [100, 140], natural: 200 });
+    const action = placePanel(f.surface);
+    expect(hasAll(f.surface.className, PANEL_BELOW)).toBe(true);
+    expect(hasAny(f.surface.className, PANEL_ABOVE)).toBe(false);
+    // 800 - 140 - 8
+    expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 652px)');
+    action.destroy();
+  });
+
+  it('flips above when nothing fits below and the room above is larger', () => {
+    const f = mount({ anchor: [700, 740], natural: 200 });
+    const action = placePanel(f.surface);
+    expect(hasAll(f.surface.className, PANEL_ABOVE)).toBe(true);
+    expect(hasAny(f.surface.className, PANEL_BELOW)).toBe(false);
+    // 700 - 0 - 8
+    expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 692px)');
+    action.destroy();
+  });
+
+  it('stays below when it fits there even with more room above', () => {
+    // Below is where a native select opens. Flipping for room alone would put
+    // every list in the lower half of a page above its field.
+    const f = mount({ anchor: [500, 540], natural: 200 });
+    const action = placePanel(f.surface);
+    expect(hasAll(f.surface.className, PANEL_BELOW)).toBe(true);
+    action.destroy();
+  });
+
+  it('keeps the side with more room when neither fits', () => {
+    const f = mount({ anchor: [300, 340], natural: 600 });
+    const action = placePanel(f.surface);
+    // 460 below, 292 above: below wins and the list is capped to it.
+    expect(hasAll(f.surface.className, PANEL_BELOW)).toBe(true);
+    expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 452px)');
+    action.destroy();
+  });
+
+  it('measures against a scrolling ancestor rather than the viewport', () => {
+    // A modal body clips what floats past it. The window had room; the body
+    // did not, and the panel opened into the part of it nobody could reach.
+    const f = mount({ anchor: [400, 440], clip: [100, 500], natural: 200 });
+    const action = placePanel(f.surface);
+    expect(hasAll(f.surface.className, PANEL_ABOVE)).toBe(true);
+    // 400 - 100 - 8
+    expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 292px)');
+    action.destroy();
+  });
+
+  it('re-measures when the scrolling ancestor scrolls', () => {
+    const f = mount({ anchor: [400, 440], clip: [100, 500], natural: 200 });
+    const action = placePanel(f.surface);
+    expect(hasAll(f.surface.className, PANEL_ABOVE)).toBe(true);
+
+    f.anchor.getBoundingClientRect = () => rect(150, 190);
+    f.clip.dispatchEvent(new Event('scroll'));
+    expect(hasAll(f.surface.className, PANEL_BELOW)).toBe(true);
+    expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 302px)');
+    action.destroy();
+  });
+
+  it('removes its listeners on destroy', () => {
+    const f = mount({ anchor: [100, 140], clip: [0, 800], natural: 200 });
+    const onClip = vi.spyOn(f.clip, 'removeEventListener');
+    const onWindow = vi.spyOn(window, 'removeEventListener');
+    const action = placePanel(f.surface);
+    action.destroy();
+    expect(onClip).toHaveBeenCalledWith('scroll', expect.any(Function));
+    expect(onWindow).toHaveBeenCalledWith('resize', expect.any(Function));
+
+    // Nothing listens any more, so a scroll leaves the classes as they were.
+    f.surface.classList.remove(...PANEL_BELOW.split(' '));
+    f.clip.dispatchEvent(new Event('scroll'));
+    expect(hasAny(f.surface.className, PANEL_BELOW)).toBe(false);
+  });
+
+  it('does nothing without a window', () => {
+    const f = mount({ anchor: [700, 740], natural: 200 });
+    vi.stubGlobal('window', undefined);
+    try {
+      const action = placePanel(f.surface);
+      expect(f.surface.className).toBe(PANEL_SURFACE);
+      expect(f.list.style.maxHeight).toBe('');
+      action.destroy();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
