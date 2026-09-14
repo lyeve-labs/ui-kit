@@ -402,3 +402,21 @@ describe('Select: dismissal', () => {
     }
   });
 });
+
+describe('Select: panel placement', () => {
+  it('hands the open panel to placePanel', async () => {
+    // The surface used to sit under the trigger unconditionally, so a listbox
+    // near the bottom of a modal opened into space that was not there. The
+    // action marks the side it chose, and it needs the list marked to cap it.
+    const { container } = render(Select, { props: { mode: 'listbox', options: PLANS } });
+    await fireEvent.click(trigger(container));
+
+    const list = container.querySelector('[role="listbox"]') as HTMLElement;
+    expect(list.hasAttribute('data-panel-list')).toBe(true);
+    expect(list.style.maxHeight).toMatch(/^min\(var\(--spacing-panel-max\), \d+px\)$/);
+
+    const surface = list.parentElement as HTMLElement;
+    expect(surface.className).toMatch(/\btop-full\b|\bbottom-full\b/);
+    expect(surface.className).not.toMatch(/\btop-full\b.*\bbottom-full\b/);
+  });
+});
