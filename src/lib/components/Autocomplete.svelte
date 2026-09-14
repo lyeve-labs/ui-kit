@@ -42,7 +42,13 @@
   } from '../internal/field.js';
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { createListbox } from '../internal/listbox.svelte.js';
-  import { PANEL_EMPTY, PANEL_LIST, PANEL_SURFACE, panelOption } from '../internal/panel.js';
+  import {
+    PANEL_EMPTY,
+    PANEL_LIST,
+    PANEL_SURFACE,
+    panelOption,
+    placePanel,
+  } from '../internal/panel.js';
 
   interface Props {
     /** The chosen option's value. Empty for none. */
@@ -228,8 +234,8 @@
     {/if}
 
     {#if box.open}
-      <div class="{PANEL_SURFACE} w-full">
-        <div class={PANEL_LIST} use:panel {...box.listAttrs}>
+      <div use:placePanel class="{PANEL_SURFACE} w-full">
+        <div class={PANEL_LIST} data-panel-list use:panel {...box.listAttrs}>
           {#each rows as option, index (option.value)}
             {@const isSelected = option.value === value}
             <!--
