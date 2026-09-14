@@ -82,6 +82,7 @@
     PANEL_LIST,
     PANEL_SURFACE,
     panelOption,
+    placePanel,
   } from '../internal/panel.js';
 
   interface Props {
@@ -407,7 +408,7 @@
       <input type="hidden" {name} {disabled} value={value ?? ''} />
 
       {#if box.open}
-        <div class="{PANEL_SURFACE} w-full">
+        <div use:placePanel class="{PANEL_SURFACE} w-full">
           {#if searchable}
             <div class="border-b border-line p-2">
               <!--
@@ -437,7 +438,7 @@
             </div>
           {/if}
 
-          <div class={PANEL_LIST} use:panel {...box.listAttrs}>
+          <div class={PANEL_LIST} data-panel-list use:panel {...box.listAttrs}>
             {#each blocks as block, position (position)}
               {#if block.group !== undefined}
                 <!-- Named once, on the group. The heading repeats it on screen. -->
