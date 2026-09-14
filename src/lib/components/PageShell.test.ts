@@ -142,6 +142,100 @@ describe('PageShell', () => {
     expect(crumb.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
   });
 
+  describe('back', () => {
+    const backOf = (container: HTMLElement) =>
+      container.querySelector('[data-testid="page-back"]') as HTMLAnchorElement | null;
+
+    it('renders nothing when unset', () => {
+      const { container } = render(PageShell, {
+        props: { title: 'Team', children: text('Body') },
+      });
+      expect(backOf(container)).toBeNull();
+      expect(container.querySelector('a')).toBeNull();
+    });
+
+    it('renders a plain anchor to the parent, carrying its label and an arrow', () => {
+      // A nested page had only the sidebar and the browser to get back with.
+      // The link is an anchor and nothing more, so it needs no handler and the
+      // keyboard reaches it like any other link.
+      const { container, getByText } = render(PageShell, {
+        props: {
+          title: 'Nightly export',
+          back: { href: '/flows', label: 'Flows' },
+          children: text('Body'),
+        },
+      });
+      const link = backOf(container) as HTMLAnchorElement;
+      expect(link.tagName).toBe('A');
+      expect(link.getAttribute('href')).toBe('/flows');
+      expect(link.textContent?.trim()).toBe('Flows');
+      expect(getByText('Flows')).toBe(link);
+      const icon = link.querySelector('svg') as SVGElement;
+      expect(icon, 'no arrow').toBeTruthy();
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      expect(icon.getAttribute('class')).toContain('rtl:rotate-180');
+    });
+
+    it('sits above the title', () => {
+      const { container } = render(PageShell, {
+        props: {
+          title: 'Nightly export',
+          back: { href: '/flows', label: 'Flows' },
+          children: text('Body'),
+        },
+      });
+      const link = backOf(container) as HTMLAnchorElement;
+      const h1 = container.querySelector('h1') as HTMLElement;
+      expect(link.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+    });
+
+    it('leads the breadcrumb on the same row', () => {
+      const { container, getByText } = render(PageShell, {
+        props: {
+          title: 'Nightly export',
+          back: { href: '/flows', label: 'Flows' },
+          breadcrumb: text('Settings'),
+          children: text('Body'),
+        },
+      });
+      const link = backOf(container) as HTMLAnchorElement;
+      const crumb = getByText('Settings');
+      expect(link.compareDocumentPosition(crumb) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+      expect(crumb.parentElement, 'the two are not siblings in one row').toBe(link.parentElement);
+      expect(link.parentElement?.className).toContain('flex');
+    });
+
+    it('reads muted at rest, foreground on hover, and states its own focus ring', () => {
+      // Tokens only. The ring replaces the global outline rather than doubling it.
+      const { container } = render(PageShell, {
+        props: {
+          title: 'Nightly export',
+          back: { href: '/flows', label: 'Flows' },
+          children: text('Body'),
+        },
+      });
+      const cls = (backOf(container) as HTMLAnchorElement).className;
+      expect(cls).toContain('text-muted');
+      expect(cls).toContain('hover:text-fg');
+      expect(cls).toContain('outline-none');
+      expect(cls).toContain('focus-visible:ring-2');
+      expect(cls).toContain('focus-visible:ring-brand');
+      expect(cls).toMatch(/transition-colors duration-\d+/);
+      expect(cls).not.toMatch(/#[0-9a-f]{3,6}/i);
+    });
+
+    it('drops an href with a scheme no component emits', () => {
+      const { container } = render(PageShell, {
+        props: {
+          title: 'Nightly export',
+          back: { href: 'javascript:alert(1)', label: 'Flows' },
+          children: text('Body'),
+        },
+      });
+      expect((backOf(container) as HTMLAnchorElement).hasAttribute('href')).toBe(false);
+    });
+  });
+
   it('wraps the children in the section stack', () => {
     // Adding a section is appending a child. The gap is the shell's, so a page
     // cannot set its own and no page has to remember to set one at all.
