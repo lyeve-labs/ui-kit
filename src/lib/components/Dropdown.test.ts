@@ -256,3 +256,21 @@ describe('Dropdown aligns in reading order', () => {
     expect(menu.className).not.toContain('left-0');
   });
 });
+
+describe('Dropdown places its menu', () => {
+  it('hands the open menu to placePanel', async () => {
+    // The menu was absolute under the trigger with no cap and no measurement,
+    // so a long one ran past the bottom of the window. It takes the shared
+    // surface and list now, and the action states which side it chose.
+    const { container } = render(Dropdown, { props: { items, trigger: liveTrigger } });
+    await openMenu(container);
+
+    const menu = container.querySelector('[role="menu"]') as HTMLElement;
+    expect(menu.className).toMatch(/\btop-full\b|\bbottom-full\b/);
+
+    const list = menu.querySelector('[data-panel-list]') as HTMLElement;
+    expect(list).not.toBeNull();
+    expect(list.style.maxHeight).toMatch(/^min\(var\(--spacing-panel-max\), \d+px\)$/);
+    expect(menuItems(container).every((row) => list.contains(row))).toBe(true);
+  });
+});
