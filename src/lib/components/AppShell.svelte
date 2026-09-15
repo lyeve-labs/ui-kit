@@ -16,7 +16,7 @@
    * The authed application frame: the sidebar, the header bar and the content
    * column, owned once so three apps cannot each invent their own.
    *
-   * They did. The admin, the customer portal and the ops console each hand
+   * They did. The admin, the customer portal and the third console each hand
    * rolled this shell, and no two agreed: the sidebar was 224px in one and
    * 240px in the other two, opaque in two and 30% translucent in the third,
    * built from the kit's SidebarNav in one and from inline anchors in the
