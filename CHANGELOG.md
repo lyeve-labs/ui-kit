@@ -5,6 +5,23 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `AppShell` takes `headerHidden`, bindable, which puts the header bar away
+  above md: for a page that owns the viewport, such as an editor in a focus
+  mode. Below md: the bar stays whatever the prop says, because it carries
+  the hamburger and that is the only way into the drawer. A page that hides
+  the bar keeps its own way back on screen, since the shell's controls go
+  with it.
+- `PageShell` takes `titleHidden`, which renders no title row at all and
+  keeps the page's one h1 as `sr-only`. An editor whose toolbar is its header
+  spent two rows before its canvas, the title row and then its own toolbar
+  carrying the same name, with the shell's gap between them. A heading query
+  and a screen reader still find exactly one h1; `back` renders nothing on
+  such a page, so the page takes on the way back itself.
+
 ## [0.24.0] - 2026-09-15
 
 ### Added
