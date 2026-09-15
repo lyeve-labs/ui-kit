@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   page with both does not stack two lines of navigation over its title.
   `PageHeader` is unchanged.
 
+### Fixed
+
+- A `Toggle`'s off track reads as a control on a raised panel. The track
+  was painted in surface-2 with no edge, and a form that sits on a
+  surface-2 panel painted the panel the same shade, so until the switch was
+  on only the knob showed, as a lone dot beside its label. The track now
+  carries the same resting border every other control draws, which clears
+  3:1 against both surface levels in both themes; on, the border takes the
+  fill's colour, so the on state, the disabled state and the focus ring look
+  as they did, and the knob's travel is unchanged.
+
 ## [0.23.3] - 2026-09-14
 
 ### Fixed
