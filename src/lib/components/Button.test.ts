@@ -206,3 +206,21 @@ describe('Button hint', () => {
     expect(container.firstElementChild?.className).toContain('w-full');
   });
 });
+
+describe('Button in a narrow row', () => {
+  it('never breaks its label across lines', () => {
+    // A two-word ghost button in a flex row rendered on two lines under a
+    // Table's `overflow-wrap: anywhere`.
+    const { container } = render(Button, { props: { children: text('New flow') } });
+    expect(container.querySelector('button')?.className.split(/\s+/)).toContain(
+      'whitespace-nowrap',
+    );
+  });
+
+  it('keeps the link form to one line as well', () => {
+    const { container } = render(Button, {
+      props: { href: '/flows/new', children: text('New flow') },
+    });
+    expect(container.querySelector('a')?.className.split(/\s+/)).toContain('whitespace-nowrap');
+  });
+});

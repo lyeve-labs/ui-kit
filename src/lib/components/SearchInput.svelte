@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CONTROL_BASE, FIELD_LABEL, FIELD_WRAP, controlBorder } from '../internal/field.js';
+  import { HIT_AREA_POSITIONED } from '../internal/touch.js';
 
   interface Props {
     value?: string;
@@ -84,7 +85,7 @@
         type="button"
         onclick={clear}
         aria-label="Clear search"
-        class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint
+        class="{HIT_AREA_POSITIONED} absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint
           transition-colors hover:text-fg"
       >
         <svg

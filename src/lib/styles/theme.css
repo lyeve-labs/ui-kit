@@ -277,7 +277,8 @@
   --spacing-input-y: 0.5rem; /* 8px  - input vertical padding     */
   /* 38px - the height of every single-line control. Stated once so an Input,
    * a Select and a NumberInput sitting in the same row line up. Derived from
-   * the 13px/1.25 control text plus input-y padding and a 1px border. */
+   * the 13px/1.25 control text plus input-y padding and a 1px border. Under a
+   * coarse pointer it is 44px; see the touch-target block below the palette. */
   --spacing-control: 2.375rem;
   --spacing-panel-max: 15rem; /* 240px - the scroll cap on a floating option list */
   /* 56px - the app header bar, and the sidebar's brand row above the nav.
@@ -290,6 +291,58 @@
   --spacing-sidebar: 14rem; /* 224px - the expanded sidebar */
   --spacing-stack: 1rem; /* 16px - default vertical stack gap */
   --spacing-inline: 0.5rem; /* 8px  - default inline gap         */
+}
+
+/*
+ * Touch targets.
+ *
+ * Measured over 48 admin routes at 400px: 2,007 of 2,097 visible controls
+ * were under the 44px SC 2.5.5 asks of a finger, and the kit owned 96% of
+ * them, because the control height above is 38px and it is right at 38px on
+ * a desktop. The size a pointer needs is a property of the pointer, not of
+ * the screen width, so the fix keys on `pointer: coarse` and a mouse never
+ * sees it: the desktop visual is unchanged to the pixel.
+ *
+ * Two mechanisms, chosen per control by whether the visual may grow.
+ *
+ * The token moves. Under a coarse pointer `--spacing-control` is 44px, so
+ * every single-line field, and every control that states `min-h-control`
+ * under the `coarse:` variant (Button, Tabs, a sidebar row, a menu item),
+ * grows to the finger's size and the row they share still lines up.
+ *
+ * `hit-area` does not move the visual. A switch, a checkbox, a breadcrumb, a
+ * pager button, a close cross and an icon inside an input are drawn small on
+ * purpose and grown to 44px would push their neighbours around; each one
+ * draws an invisible box centred on itself that is never smaller than the
+ * control size, and a tap on the box lands on the control. The element must
+ * be positioned (`relative`, or `absolute` where it already is) for the box
+ * to centre on it; the utility does not set position itself, because a
+ * position it set would fight the `absolute` an input's clear button relies
+ * on. Two neighbours' boxes may overlap; the later one in document order
+ * wins the overlap, which is the spacing exception SC 2.5.8 allows for.
+ */
+@custom-variant coarse (@media (pointer: coarse));
+
+@media (pointer: coarse) {
+  :root {
+    --spacing-control: 2.75rem; /* 44px */
+  }
+}
+
+@utility hit-area {
+  @media (pointer: coarse) {
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 100%;
+      height: 100%;
+      min-width: var(--spacing-control);
+      min-height: var(--spacing-control);
+      translate: -50% -50%;
+    }
+  }
 }
 
 /* ── Soft Light · activated by html[data-theme="light"] ──────────────────── */

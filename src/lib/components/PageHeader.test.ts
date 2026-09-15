@@ -84,3 +84,22 @@ describe('PageHeader', () => {
     expect((container.querySelector('h1') as HTMLElement).className).toContain('font-bold');
   });
 });
+
+describe('PageHeader actions on a narrow screen', () => {
+  it('lets the slot wrap: beside the title while it fits, under it at the end edge when not', () => {
+    // `shrink-0` sizes a flex item to its content, so the slot could not wrap
+    // even when the page put a wrapping row inside it: four actions pushed
+    // the primary one 83px past a 400px screen.
+    const actions = createRawSnippet(() => ({ render: () => '<button>New</button>' }));
+    const { container } = render(PageHeader, { props: { title: 'Flows', actions } });
+    const slot = container.querySelector('[data-testid="page-actions"]') as HTMLElement;
+    const list = slot.className.split(/\s+/);
+    expect(list).not.toContain('shrink-0');
+    expect(list).toContain('flex-wrap');
+    expect(list).toContain('min-w-0');
+    // ms-auto is what puts a dropped slot at the end edge; justify-end is
+    // what keeps every line of a wrapped slot there, in the order given.
+    expect(list).toContain('ms-auto');
+    expect(list).toContain('justify-end');
+  });
+});

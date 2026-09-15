@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { HIT_AREA } from '../internal/touch.js';
   import { overlay } from '../internal/overlay.js';
   import * as motion from '../motion.js';
 
@@ -84,7 +85,7 @@
           <button
             type="button"
             onclick={close}
-            class="shrink-0 rounded text-faint transition-colors hover:text-fg
+            class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg
                    outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             aria-label="Close"
           >

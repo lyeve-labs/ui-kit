@@ -39,7 +39,16 @@
     <h3 class={sectionHeading(3, variant)}>{@render children()}</h3>
   {/if}
 
+  <!-- Wraps as PageHeader's slot does: beside the heading while it fits,
+       under it at the end edge when not, and inside itself when wider than
+       the row. Five filter chips in this slot ran 212px past a phone's edge
+       while it was `shrink-0`. -->
   {#if actions}
-    <div class="flex shrink-0 items-center gap-2">{@render actions()}</div>
+    <div
+      data-testid="section-actions"
+      class="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-2"
+    >
+      {@render actions()}
+    </div>
   {/if}
 </div>

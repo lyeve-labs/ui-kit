@@ -23,6 +23,7 @@ export { default as DescriptionList } from './components/DescriptionList.svelte'
 export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
 export type { CellFit } from './components/Table.svelte';
+export type { SidebarState } from './components/AppShell.svelte';
 export type { PageWidth, SectionVariant } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
 
