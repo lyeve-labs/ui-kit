@@ -393,3 +393,15 @@ describe('DateTimePicker required marker', () => {
     expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 });
+
+describe('DateTimePicker calendar placement', () => {
+  it('places its date half through placePanel', async () => {
+    // The field composes DatePicker, so the calendar it opens takes the same
+    // flip and cap; this pins that the composition did not bypass it.
+    const r = render(DateTimePicker, { props: { label: 'Expires', value: '2024-06-15T09:30' } });
+    await fireEvent.click(dateTrigger(r));
+    const surface = r.container.querySelector('[role="dialog"]') as HTMLElement;
+    expect(surface.className).toMatch(/\btop-full\b|\bbottom-full\b/);
+    expect(surface.querySelector('[data-panel-list]')).toBeTruthy();
+  });
+});
