@@ -1,6 +1,7 @@
 <script lang="ts">
   import { safeHref } from '../internal/href.js';
   import { formatCount } from '../internal/number.js';
+  import { HIT_AREA } from '../internal/touch.js';
 
   interface Base {
     page: number;
@@ -179,8 +180,12 @@
     return href && enabled ? safeHref(href(target)) : undefined;
   }
 
-  const btnBase =
-    'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors';
+  /**
+   * 28px drawn, 44px under a finger. The steps sit 2px apart, so growing the
+   * visual would put a seven-page pager past a phone's width; the hit box
+   * grows instead and the pager keeps its shape.
+   */
+  const btnBase = `${HIT_AREA} inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors`;
 
   /**
    * A page control that is not the page you are on, in every state a pointer

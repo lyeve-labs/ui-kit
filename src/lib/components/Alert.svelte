@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { HIT_AREA } from '../internal/touch.js';
   import {
     TONE_GLYPH,
     statusTone,
@@ -69,7 +70,7 @@
     <button
       type="button"
       onclick={ondismiss}
-      class="shrink-0 text-faint transition-colors hover:text-fg"
+      class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
       aria-label="Dismiss"
     >
       <svg

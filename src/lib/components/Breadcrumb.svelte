@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { HIT_AREA } from '../internal/touch.js';
+
   let {
     items,
     class: cls = '',
@@ -32,8 +34,14 @@
     {/if}
 
     {#if item.href && i < items.length - 1}
-      <a href={safeUrl(item.href)} class="text-muted hover:text-fg transition-colors truncate">
-        {item.label}
+      <!-- The link is a flex box around a truncating span rather than
+           truncating itself: `truncate` clips overflow, and the hit box a
+           finger gets is drawn outside the link's own edges. -->
+      <a
+        href={safeUrl(item.href)}
+        class="{HIT_AREA} inline-flex min-w-0 text-muted hover:text-fg transition-colors"
+      >
+        <span class="min-w-0 truncate">{item.label}</span>
       </a>
     {:else}
       <span
