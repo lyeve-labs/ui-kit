@@ -40,14 +40,14 @@ export const FIELD_ERROR = 'text-xs text-danger';
  */
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +
-  'placeholder:text-faint transition-colors duration-150 outline-none ' +
+  'placeholder:text-faint transition-colors outline-none ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /** As CONTROL_BASE, for controls whose height is driven by their content. */
 export const CONTROL_MULTILINE =
   'w-full min-h-control rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg ' +
-  'placeholder:text-faint transition-colors duration-150 outline-none ' +
+  'placeholder:text-faint transition-colors outline-none ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -101,7 +101,7 @@ export function describedBy(
  */
 export const CONTROL_SEGMENTED =
   'inline-flex h-control items-center gap-0.5 rounded-lg bg-surface-2 border px-3 ' +
-  'text-sm text-fg transition-colors duration-150';
+  'text-sm text-fg transition-colors';
 
 /** As controlBorder, for a wrapper that is only ever focused through a child. */
 export function segmentedBorder(error: boolean): string {

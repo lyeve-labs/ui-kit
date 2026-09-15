@@ -31,6 +31,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   links and radios is refused with an error, since a radio beside two links
   would report a choice the URL never learns about. The value mode is
   unchanged.
+- One motion vocabulary, declared in `styles.css` beside the palette: four
+  durations (`--duration-fast`, `base`, `slow`, `progress`) and three curves
+  (`--ease-enter`, `exit`, `move`), each named for what it is used for. The
+  `transition-*` utilities now default to the fast rung and the move curve,
+  so `transition-colors` on its own is complete, and `duration-base`,
+  `duration-slow`, `duration-progress`, `ease-enter`, `ease-exit` and
+  `ease-move` are utilities for the rest. The values were never stated in
+  one place before: three entrances ran at 120, 140 and 150ms on Tailwind's
+  `ease-out`, and fifty class attributes said `duration-150` to mean the
+  default.
+- `motion`, a namespace of Svelte transitions that read those tokens at run
+  time: `dialog`, `scrim`, `drawer`, `popover`, `toast` for a surface that
+  mounts and unmounts, and `reorder` for `animate:` on a keyed list. An exit
+  runs one rung faster than its entrance, on the exit curve. Every preset
+  plays nothing for a reader who has asked for reduced motion, and nothing
+  in a document with no Web Animations API, so a test that mounts and
+  unmounts a surface sees what it always saw.
 
 ### Fixed
 
@@ -44,6 +61,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resize and on scroll, and inside a container too short for it on either
   side it scrolls rather than being cut. Its width moved from an arbitrary
   value onto the spacing scale; the calendar itself is unchanged.
+
+### Changed
+
+- Every overlay now leaves the way it arrived. `Modal`, `Drawer`, the dialog
+  stack and every toast played a CSS entrance and then vanished the instant
+  their `{#if}` turned false, which read as a fault after the easing in.
+  `Dropdown`, `Select`, `MultiSelect`, `Autocomplete` and `DatePicker`
+  panels, which appeared with no motion at all, now unfold from the edge
+  they hang off; `Tooltip` fades and settles; the `AccountMenu` panel plays
+  the same frame on the way in. A `SidebarNav` group collapses its row to
+  nothing the way an `AccordionItem` does instead of toggling display, and
+  stays in the document, inert, so the disclosure's `aria-controls` keeps
+  its target.
+- The dialog stack no longer waits a hand-written 200ms `setTimeout` before
+  removing an entry: removing the entry plays the exit.
+
+### Removed
+
+- `--duration-modal-in`, `--duration-toast-in`, `--duration-drawer-in` and
+  `--duration-collapse`, with the `modal-in`, `drawer-in-*` and `toast-in`
+  keyframes. Nothing outside the kit read them; the presets replace them.
 
 ## [0.24.0] - 2026-09-15
 

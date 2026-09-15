@@ -78,7 +78,7 @@ export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain px
  */
 export const PANEL_OPTION =
   'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ' +
-  'transition-colors duration-150 outline-none hover:bg-surface-2 ' +
+  'transition-colors outline-none hover:bg-surface-2 ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
 /**
@@ -160,10 +160,10 @@ export const PANEL_LIST_ATTR = 'data-panel-list';
 export const PANEL_LIST_UNCAPPED = 'uncapped';
 
 /** The classes that put the surface under its anchor. */
-export const PANEL_BELOW = 'top-full mt-1';
+export const PANEL_BELOW = 'top-full mt-1 origin-top';
 
 /** The classes that put the surface over its anchor. */
-export const PANEL_ABOVE = 'bottom-full mb-1';
+export const PANEL_ABOVE = 'bottom-full mb-1 origin-bottom';
 
 /**
  * Breathing room between the panel and the edge it is measured against, so a

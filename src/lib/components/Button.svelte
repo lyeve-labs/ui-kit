@@ -103,7 +103,7 @@
 
   const spinnerSize = $derived(size === 'lg' ? 18 : 15);
   const cls = $derived(
-    `inline-flex items-center justify-center font-medium transition-colors duration-150 ` +
+    `inline-flex items-center justify-center font-medium transition-colors ` +
       `disabled:opacity-50 disabled:cursor-not-allowed select-none ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );

@@ -196,7 +196,7 @@
       {@const selected = option.value === value}
       {@const Icon = option.icon}
       {@const segment =
-        'inline-flex items-center justify-center rounded-md outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ' +
+        'inline-flex items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ' +
         SIZES[size].segment +
         (selected
           ? ' bg-surface text-fg shadow-sm'

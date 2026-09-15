@@ -56,7 +56,7 @@
         type="button"
         onclick={dismiss}
         aria-label="Dismiss"
-        class="shrink-0 text-faint transition-colors duration-150 hover:text-fg"
+        class="shrink-0 text-faint transition-colors hover:text-fg"
       >
         <svg
           width="16"

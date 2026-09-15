@@ -369,14 +369,33 @@ describe('component consistency', () => {
     expect(files.filter((f) => REQUIRED_MARKER.test(f.src)).length).toBeGreaterThanOrEqual(16);
   });
 
-  it('names one duration for every colour transition', () => {
-    // A bare `transition-colors` inherits Tailwind's default and reads the same,
-    // but it means the value is not stated anywhere a designer can change it.
+  it('states no duration or curve the theme does not name', () => {
+    // The theme sets the fast rung and the move curve as the defaults every
+    // `transition-*` utility reads, so `transition-colors` alone is complete
+    // and the other rungs are `duration-base`, `duration-slow` and
+    // `duration-progress`. A number is a fifth speed nobody chose, and
+    // Tailwind's `ease-out` is a curve the theme never states. `transition-all`
+    // animates whatever happens to change, layout included, which is how a
+    // panel's width once eased while its text reflowed on every frame.
+    const LITERAL =
+      /\b(?:duration-\d+|duration-\[[^\]]*\]|ease-(?:in|out|in-out|linear)|transition-all)\b/;
     const offenders = files
-      .filter((f) =>
-        /transition-colors(?!\s+(?:duration-|\[&[^\]]*\]:duration-))/.test(
-          f.src.replace(/\s+/g, ' '),
-        ),
+      .filter((f) => LITERAL.test(f.src))
+      .map((f) => `${f.name}: ${LITERAL.exec(f.src)![0]}`);
+    expect(offenders).toEqual([]);
+  });
+
+  it('enters and leaves through the motion presets and nothing else', () => {
+    // svelte/transition and svelte/easing each carry their own numbers. One
+    // fly({ y: 8, duration: 150 }) in a component is a fifth vocabulary, and
+    // a setTimeout that waits for an animation is a duration written twice,
+    // which is how the dialog stack held its own 200ms for a year.
+    const offenders = files
+      .filter(
+        (f) =>
+          /from 'svelte\/(?:transition|easing|animate)'/.test(f.src) ||
+          /setTimeout\([^)]*\b(?:1[2-9]\d|[2-9]\d\d)\b/.test(f.src) ||
+          /\s(?:transition|in|out|animate):(?!motion\.)[A-Za-z_$]/.test(f.src),
       )
       .map((f) => f.name);
     expect(offenders).toEqual([]);

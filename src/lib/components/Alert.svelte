@@ -69,7 +69,7 @@
     <button
       type="button"
       onclick={ondismiss}
-      class="shrink-0 text-faint transition-colors duration-150 hover:text-fg"
+      class="shrink-0 text-faint transition-colors hover:text-fg"
       aria-label="Dismiss"
     >
       <svg

@@ -107,8 +107,9 @@ const FUNCTIONS = [
 /**
  * Public values that are neither a component nor a function. `toast` and
  * `VERSION` predate the list and are named directly in the filter below.
+ * `motion` is the namespace of transition presets.
  */
-const CONSTANTS = ['THEME_PREFERENCES'] as const;
+const CONSTANTS = ['THEME_PREFERENCES', 'motion'] as const;
 
 type KitKey = keyof typeof kit;
 

@@ -2,18 +2,19 @@
   /**
    * Dialog - modal frame component.
    *
-   * Handles: focus trap, ESC to close, click-outside to close,
-   * scale+fade animation, stacked z-indexing, portal to body.
+   * Handles: focus trap, ESC to close, click-outside to close, the entrance
+   * and exit through the kit's motion presets, stacked z-indexing, portal to
+   * body.
    *
    * Rendered by DialogContainer for each entry in the dialog stack.
    * Not meant to be used directly - use openDialog() from dialog-manager.
    */
   import { X } from '@lucide/svelte';
-  import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
   import type { DialogEntry } from './types.js';
   import { sizeClass } from './types.js';
   import { overlay } from '../../internal/overlay.js';
+  import * as motion from '../../motion.js';
   import { closeDialog, dismissDialog } from './dialog-manager.svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
 
@@ -24,13 +25,6 @@
     entry: DialogEntry<any>;
     children?: Snippet;
   } = $props();
-
-  // ──────────────────────────────────────────────────────
-  // Animation state
-  // ──────────────────────────────────────────────────────
-
-  let visible = $state(false);
-  let exiting = $state(false);
 
   // Stacked offset: each deeper dialog shrinks, shifts back and rises
   let offset = $derived(entry.depth);
@@ -47,12 +41,9 @@
 
   // Focus entry, the Tab trap, the body scroll lock and focus restore all come
   // from `use:overlay` on the panel below, which is the same implementation
-  // Modal and Drawer use. This is only the enter animation.
-  onMount(() => {
-    requestAnimationFrame(() => {
-      visible = true;
-    });
-  });
+  // Modal and Drawer use. The entrance and the exit are the same presets too:
+  // removing the entry from the stack plays the exit before the element goes,
+  // so nothing here waits on a timer to match a duration written elsewhere.
 
   // ──────────────────────────────────────────────────────
   // Handlers
@@ -74,16 +65,11 @@
     }
   }
 
-  async function handleDismiss(): Promise<void> {
-    exiting = true;
-    // Wait for exit animation
-    await new Promise((r) => setTimeout(r, 200));
+  function handleDismiss(): void {
     dismissDialog(entry.id);
   }
 
-  async function handleClose(value?: unknown): Promise<void> {
-    exiting = true;
-    await new Promise((r) => setTimeout(r, 200));
+  function handleClose(value?: unknown): void {
     closeDialog(value, entry.id);
   }
 </script>
@@ -107,9 +93,8 @@
   <!-- Backdrop -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200"
-    class:opacity-0={!visible || exiting}
-    class:opacity-100={visible && !exiting}
+    transition:motion.scrim
+    class="absolute inset-0 bg-black/60 backdrop-blur-sm"
     onclick={handleBackdropClick}
     onkeydown={(e: KeyboardEvent) => {
       if (e.key === 'Escape' && !entry.options.persistent) handleDismiss();
@@ -122,14 +107,12 @@
   <div
     bind:this={dialogEl}
     use:overlay
+    transition:motion.dialog
     class="relative w-full {sizeClass(entry.options.size ?? 'md')} mx-4
 			bg-surface border border-line rounded-xl shadow-2xl
-			transition-all duration-200 ease-out
+			transition-transform duration-slow
 			focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-    class:opacity-0={!visible || exiting}
-    class:opacity-100={visible && !exiting}
-    style="transform: scale({visible && !exiting ? 1 - offset * 0.03 : 0.95}) translateY({offset *
-      16}px);
+    style="transform: scale({1 - offset * 0.03}) translateY({offset * 16}px);
 			transform-origin: center;"
     role="dialog"
     aria-modal="true"
@@ -158,7 +141,7 @@
         {#if !entry.options.persistent}
           <button
             class="inline-flex items-center justify-center w-8 h-8 -me-2 rounded-lg
-						text-muted hover:text-fg hover:bg-surface-2 transition-colors duration-150 shrink-0"
+						text-muted hover:text-fg hover:bg-surface-2 transition-colors shrink-0"
             onclick={() => handleClose()}
             aria-label="Close"
           >

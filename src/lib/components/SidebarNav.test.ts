@@ -173,11 +173,16 @@ describe('SidebarNav disclosure', () => {
     expect(getByRole('button', { name: /Billing/ }).getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('hides a shut group with a display utility rather than dropping it', () => {
+  it('keeps a shut group in the document, inert, in a row collapsed to nothing', () => {
+    // aria-controls needs the element to exist while the group is shut, and a
+    // row that animates to zero height keeps it, where a display utility
+    // cannot animate at all.
     const { getByRole, container } = mount();
     const id = getByRole('button', { name: /Content/ }).getAttribute('aria-controls')!;
     const list = container.querySelector(`[id="${id}"]`)!;
-    expect(list.getAttribute('class')).toContain('hidden');
+    // Svelte sets inert as a DOM property, not a reflected attribute.
+    expect((list as HTMLElement).inert).toBe(true);
+    expect(list.parentElement!.parentElement!.getAttribute('class')).toContain('grid-rows-[0fr]');
   });
 
   it('gives every button an inset focus ring', () => {
@@ -288,8 +293,8 @@ describe('SidebarNav indentation', () => {
     }
   });
 
-  it('follows every colour transition with a stated duration', () => {
-    expect(src).not.toMatch(/transition-colors(?!\s+duration-150)/);
+  it('states no duration beside a colour transition, which the theme already sets', () => {
+    expect(src).not.toMatch(/transition-colors\s+duration-/);
   });
 });
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { toast } from '../stores/toast.svelte';
   import { TONE_GLYPH, statusTone, type StatusTone } from '../internal/tone.js';
+  import * as motion from '../motion.js';
 
   const styles: Record<StatusTone, { bar: string; icon: string }> = {
     neutral: { bar: 'bg-muted', icon: 'text-muted' },
@@ -25,8 +26,10 @@
 >
   {#each toast.items as t (t.id)}
     <div
+      transition:motion.toast
+      animate:motion.reorder
       class="pointer-events-auto flex items-start gap-3 overflow-hidden rounded-lg border border-line
-             bg-surface ps-0 pe-3 py-3 shadow-xl animate-[toast-in_var(--duration-toast-in)_ease-out]"
+             bg-surface ps-0 pe-3 py-3 shadow-xl"
     >
       <span class="w-1 self-stretch shrink-0 {styles[statusTone(t.tone)].bar}"></span>
       <span
@@ -51,7 +54,7 @@
       <p class="flex-1 text-sm text-fg leading-snug">{t.message}</p>
       <button
         type="button"
-        class="shrink-0 rounded text-faint transition-colors duration-150 hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
         aria-label="Dismiss"
         onclick={() => toast.dismiss(t.id)}
       >
