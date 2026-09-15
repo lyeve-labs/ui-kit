@@ -25,6 +25,32 @@ describe('Toggle', () => {
     expect(sm.container.querySelector('[role="switch"]')?.className).toContain('w-8');
   });
 
+  /*
+   * Off, the track sat in surface-2 with no edge, the same shade as the panel
+   * a form sits on, so only the knob showed. The resting border is the one
+   * every other control draws; on, the border takes the fill's colour.
+   */
+  it('draws the off track with the control border and the on track filled', () => {
+    const off = render(Toggle, { props: { checked: false } });
+    const offTrack = off.container.querySelector('[role="switch"]') as HTMLElement;
+    expect(offTrack.className).toContain('border-line-strong');
+    expect(offTrack.className).toContain('bg-surface-2');
+    expect(offTrack.className).not.toContain('bg-brand');
+
+    const on = render(Toggle, { props: { checked: true } });
+    const onTrack = on.container.querySelector('[role="switch"]') as HTMLElement;
+    expect(onTrack.className).toContain('bg-brand');
+    expect(onTrack.className).toContain('border-brand');
+    expect(onTrack.className).not.toContain('border-line-strong');
+  });
+
+  it('keeps the knob one step inside the bordered track', () => {
+    const { container } = render(Toggle, { props: {} });
+    const knob = container.querySelector('[role="switch"] span') as HTMLElement;
+    expect(knob.className).toContain('top-px');
+    expect(knob.className).toContain('start-px');
+  });
+
   it('fires onchange with the toggled value on click', async () => {
     const onchange = vi.fn();
     const { container } = render(Toggle, { props: { checked: false, onchange } });
@@ -50,8 +76,8 @@ describe('Toggle in a right-to-left page', () => {
   it('rests the knob on the start edge and mirrors its travel', () => {
     const { container } = render(Toggle, { props: { checked: true } });
     const knob = container.querySelector('[role="switch"] span') as HTMLElement;
-    expect(knob.className).toContain('start-0.5');
-    expect(knob.className).not.toContain('left-0.5');
+    expect(knob.className).toContain('start-px');
+    expect(knob.className).not.toContain('left-px');
     expect(knob.className).toContain('rtl:-translate-x-');
   });
 });

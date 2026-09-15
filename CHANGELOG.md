@@ -5,6 +5,31 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-09-15
+
+### Added
+
+- `PageShell` takes `back`, an `{ href, label }` pair rendered above the title
+  as an arrow and the parent page's name. A page two levels into a console had
+  only the sidebar and the browser to get back with; a third of the nested
+  pages in one app built a breadcrumb of their own, half of those drew an
+  arrow by hand, and the rest offered nothing. The link is a plain anchor in
+  the muted token, foreground on hover, with the kit's focus ring, and it
+  shares the breadcrumb's row when both are given, the back link first, so a
+  page with both does not stack two lines of navigation over its title.
+  `PageHeader` is unchanged.
+
+### Fixed
+
+- A `Toggle`'s off track reads as a control on a raised panel. The track
+  was painted in surface-2 with no edge, and a form that sits on a
+  surface-2 panel painted the panel the same shade, so until the switch was
+  on only the knob showed, as a lone dot beside its label. The track now
+  carries the same resting border every other control draws, which clears
+  3:1 against both surface levels in both themes; on, the border takes the
+  fill's colour, so the on state, the disabled state and the focus ring look
+  as they did, and the knob's travel is unchanged.
+
 ## [0.23.3] - 2026-09-14
 
 ### Fixed
