@@ -11,6 +11,7 @@
 export { default as Card } from './components/Card.svelte';
 export { default as Panel } from './components/Panel.svelte';
 export { default as AppShell } from './components/AppShell.svelte';
+export { default as AuthShell } from './components/AuthShell.svelte';
 export { default as PageShell } from './components/PageShell.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as SectionHeading } from './components/SectionHeading.svelte';
