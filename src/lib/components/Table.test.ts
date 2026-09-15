@@ -90,7 +90,9 @@ describe('Table', () => {
     // ring; the table uses the same one.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
-    expect(cls).toContain('[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]');
+    expect(cls).toContain(
+      '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
+    );
     expect(cls).toContain('[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_');
     expect(cls).toContain('[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_');
   });
@@ -102,10 +104,16 @@ describe('Table', () => {
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
     expect(cls).not.toMatch(/\[&_tbody_tr:hover\]:ring/);
-    expect(cls).toContain('[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]');
-    expect(cls).toContain('[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]');
+    expect(cls).toContain(
+      '[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]',
+    );
+    expect(cls).toContain(
+      '[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]',
+    );
     // A one-cell row is both ends and gets all four edges.
-    expect(cls).toContain('[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]');
+    expect(cls).toContain(
+      '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
+    );
   });
 
   it('separates its borders so the hover ring is painted at all', () => {

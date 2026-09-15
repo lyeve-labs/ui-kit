@@ -48,6 +48,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   plays nothing for a reader who has asked for reduced motion, and nothing
   in a document with no Web Animations API, so a test that mounts and
   unmounts a surface sees what it always saw.
+- `AppShell` narrows the sidebar to a 56px icon rail between md: and lg:.
+  At 768px the 224px column left the page 496px, and a flow editor with two
+  docked panes had no canvas at all; `--spacing-nav-rail` existed and
+  nothing used it. Under a pointer or with focus inside it the rail opens to
+  the full column over the page, at the dropdown layer, and closes when
+  either leaves, so the labels are one hover or one Tab away and the page
+  keeps its width. The `brand`, `nav` and `sidebarFooter` snippets are
+  told `{ rail }`, so a `SidebarNav` takes it as `collapsed` and a brand
+  row can drop its wordmark; a snippet written for the old contract still
+  renders, clipped to the rail. A page can ask for the rail at every width
+  above md: with `rail`, which is the focus mode the flow editor wanted;
+  the drawer below md: is unchanged, and a collapsible shell that is
+  collapsed still puts the sidebar away. `SidebarState` is exported for a
+  caller that types the snippet by hand.
+- Every interactive primitive meets a finger at 44px and a mouse at the
+  size it always had. Measured over 48 routes at 400px, 2,007 of 2,097
+  visible controls were under 44px and the kit owned 96% of them, because
+  the control height is 38px and it is right at 38px on a desktop. The fix
+  keys on `pointer: coarse`, so the desktop is unchanged to the pixel, and
+  works two ways. `--spacing-control` is 44px under a coarse pointer, and
+  the controls whose visual may grow (`Button` at every size, `Tabs`,
+  `SidebarNav` rows and disclosures, `ThemeToggle`, `AccountMenu`,
+  `Collapsible`, `Dropdown` items) state `coarse:min-h-control`, so a
+  button and the input beside it grow together and stay level. The
+  controls that are small on purpose keep their visual and grow an
+  invisible hit box centred on themselves through the new `hit-area`
+  utility: `Toggle`, `Checkbox` and `Radio` (on the label, which reaches
+  the input), `Breadcrumb` links, `PageShell`'s back link, `Pagination`,
+  `CopyButton`, the close and dismiss crosses of `Modal`, `Drawer`,
+  `Alert`, `Banner`, `Toaster` and `Tag`, the clear and reveal buttons
+  inside `SearchInput` and `PasswordInput`, `MultiSelect`'s chip remove,
+  and `DatePicker`'s days and month steps. The `coarse:` variant and the
+  utility are declared in the theme file beside the tokens, so a consumer's
+  build emits them and can use them on its own controls.
+
+### Changed
+
+- Every overlay now leaves the way it arrived. `Modal`, `Drawer`, the dialog
+  stack and every toast played a CSS entrance and then vanished the instant
+  their `{#if}` turned false, which read as a fault after the easing in.
+  `Dropdown`, `Select`, `MultiSelect`, `Autocomplete` and `DatePicker`
+  panels, which appeared with no motion at all, now unfold from the edge
+  they hang off; `Tooltip` fades and settles; the `AccountMenu` panel plays
+  the same frame on the way in. A `SidebarNav` group collapses its row to
+  nothing the way an `AccordionItem` does instead of toggling display, and
+  stays in the document, inert, so the disclosure's `aria-controls` keeps
+  its target.
+- The dialog stack no longer waits a hand-written 200ms `setTimeout` before
+  removing an entry: removing the entry plays the exit.
 
 ### Fixed
 
@@ -71,21 +120,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `text-overflow` does not reach into a flex item. A `Button` whose width
   is capped wraps its label in a `truncate` span itself, since the label and
   an icon before it are flex items and the button cannot tell them apart.
-
-### Changed
-
-- Every overlay now leaves the way it arrived. `Modal`, `Drawer`, the dialog
-  stack and every toast played a CSS entrance and then vanished the instant
-  their `{#if}` turned false, which read as a fault after the easing in.
-  `Dropdown`, `Select`, `MultiSelect`, `Autocomplete` and `DatePicker`
-  panels, which appeared with no motion at all, now unfold from the edge
-  they hang off; `Tooltip` fades and settles; the `AccountMenu` panel plays
-  the same frame on the way in. A `SidebarNav` group collapses its row to
-  nothing the way an `AccordionItem` does instead of toggling display, and
-  stays in the document, inert, so the disclosure's `aria-controls` keeps
-  its target.
-- The dialog stack no longer waits a hand-written 200ms `setTimeout` before
-  removing an entry: removing the entry plays the exit.
+- `Table` head cells align to the start. The table said `text-start` and
+  the browser's own `th { text-align: center }` beat the inherited value,
+  so every heading floated over a left-aligned column unless the page wrote
+  `text-left` on each one. A column marked `data-col="numeric"` on its
+  head and body cells ranges to the end in tabular figures instead. A sort
+  button the page puts in a heading gets the same 44px hit box the kit's
+  own small controls grow under a coarse pointer, through the table.
+- `Tabs` scroll sideways when the strip does not fit, and say so. Five
+  tabs are 480px, and at 400px the fifth was past the edge with nothing on
+  screen to say it existed; the workaround was a wrapped strip, which
+  breaks the one line the underline runs along. The strip is a scroll box
+  now, with the edge fades `Table` already draws on the side the tabs
+  continue past, no scrollbar of its own, and the active tab scrolled into
+  view when it changes. A tab never breaks inside its label, its focus ring
+  is inset where the box cannot clip it, and the count pill is 12px, the
+  last text on a measured page under that floor. The caller's `class` lands
+  on the frame around the strip, so a margin does not scroll with it.
+- `PageHeader` and `SectionHeading` action slots wrap. Both were
+  `shrink-0`, which sizes a flex item to its content and so cannot wrap
+  even when the page puts a wrapping row inside it: four actions pushed
+  `New flow` 83px past a 400px screen, and five filter chips ran 212px
+  past it. The slot now sits beside the title while both fit, drops under
+  it at the end edge when they do not, and wider than the row on its own
+  wraps its controls inside itself with every line ending at the end edge,
+  in the order given.
 
 ### Removed
 
