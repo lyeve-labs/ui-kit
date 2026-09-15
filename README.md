@@ -168,6 +168,48 @@ the import:
 }
 ```
 
+## Motion
+
+Every component moves on the same four durations and three curves, declared
+in `styles.css` beside the palette:
+
+| Token                 | Value                            | For                                                                                                            |
+| --------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `--duration-fast`     | 120ms                            | a state change in place: colour, opacity, border, shadow, focus                                                |
+| `--duration-base`     | 200ms                            | movement in place (a knob, a chevron, a collapse) and a small surface arriving (menu, popover, tooltip, toast) |
+| `--duration-slow`     | 320ms                            | a large surface arriving (dialog, drawer)                                                                      |
+| `--duration-progress` | 500ms                            | a value moving (a progress bar's width)                                                                        |
+| `--ease-enter`        | `cubic-bezier(0.22, 1, 0.36, 1)` | arriving: starts fast and settles                                                                              |
+| `--ease-exit`         | `cubic-bezier(0.32, 0, 0.67, 0)` | leaving: starts slow and accelerates away                                                                      |
+| `--ease-move`         | `cubic-bezier(0.65, 0, 0.35, 1)` | changing in place                                                                                              |
+
+An exit runs one rung faster than its entrance, on the exit curve. The
+`transition-*` utilities default to the fast rung and the move curve, so
+`transition-colors` on its own is complete; `duration-base`, `duration-slow`,
+`duration-progress`, `ease-enter`, `ease-exit` and `ease-move` are utilities
+for the rest. A surface of your own that mounts and unmounts enters and
+leaves through the same presets the kit's overlays use:
+
+```svelte
+<script>
+  import { motion } from '@lyeve-labs/ui-kit';
+</script>
+
+{#if open}
+  <div transition:motion.popover>...</div>
+{/if}
+
+{#each items as item (item.id)}
+  <li transition:motion.toast animate:motion.reorder>...</li>
+{/each}
+```
+
+`dialog`, `scrim`, `drawer`, `popover` and `toast` read the tokens at run
+time, so retuning a token retunes them, and every one of them plays nothing
+for a reader who has asked for reduced motion. Do not write `duration-150`,
+`ease-out` or `transition-all` beside a kit class: they are a fifth speed and
+a fourth curve, and the kit's own test suite refuses them.
+
 ## Local development
 
 ```bash

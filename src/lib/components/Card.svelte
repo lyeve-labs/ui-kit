@@ -83,7 +83,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   data-print="keep"
-  class="bg-surface border border-line rounded-xl overflow-hidden transition-colors duration-150 {hover
+  class="bg-surface border border-line rounded-xl overflow-hidden transition-colors {hover
     ? 'hover:border-line/0 hover:ring-1 hover:ring-brand/30'
     : ''} {onclick ? 'cursor-pointer' : ''} {klass}"
   role={onclick ? 'button' : undefined}

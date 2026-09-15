@@ -49,6 +49,7 @@
     panelOption,
     placePanel,
   } from '../internal/panel.js';
+  import * as motion from '../motion.js';
 
   interface Props {
     /** The chosen option's value. Empty for none. */
@@ -216,7 +217,7 @@
         type="button"
         aria-label="Clear"
         onclick={clear}
-        class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors duration-150 hover:text-fg"
+        class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors hover:text-fg"
       >
         <svg
           width="12"
@@ -234,7 +235,7 @@
     {/if}
 
     {#if box.open}
-      <div use:placePanel class="{PANEL_SURFACE} w-full">
+      <div use:placePanel transition:motion.popover class="{PANEL_SURFACE} w-full">
         <div class={PANEL_LIST} data-panel-list use:panel {...box.listAttrs}>
           {#each rows as option, index (option.value)}
             {@const isSelected = option.value === value}

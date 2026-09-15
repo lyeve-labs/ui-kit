@@ -70,16 +70,10 @@ describe('panel class strings', () => {
     );
   });
 
-  it.each(CONSTANTS)('%s states a duration beside every transition', (_name, cls) => {
-    // The shipped guard rejects a bare transition-colors, and a duration that
-    // is merely somewhere in the string lands on whatever it follows.
-    expect(cls).not.toMatch(/transition-colors(?!\s+duration-)/);
-    const parts = tokens(cls);
-    parts.forEach((t, i) => {
-      if (t.startsWith('transition-')) {
-        expect(parts[i + 1] ?? '', `${t} has no duration after it`).toMatch(/^duration-/);
-      }
-    });
+  it.each(CONSTANTS)('%s names no duration the theme does not', (_name, cls) => {
+    // The theme's defaults complete a bare transition-colors. A number beside
+    // it is a speed nobody chose.
+    expect(cls).not.toMatch(/duration-\d/);
   });
 });
 

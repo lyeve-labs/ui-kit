@@ -34,7 +34,7 @@
       aria-expanded={open}
       aria-controls={panelId}
       class="flex w-full items-center justify-between px-5 py-4 text-start text-sm font-medium
-        text-fg transition-colors duration-150 hover:bg-surface-2/50
+        text-fg transition-colors hover:bg-surface-2/50
         outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand
         {open ? 'bg-surface-2/40' : ''}"
     >
@@ -48,9 +48,7 @@
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="shrink-0 text-faint transition-transform duration-200 ease-out {open
-          ? 'rotate-180'
-          : ''}"
+        class="shrink-0 text-faint transition-transform duration-base {open ? 'rotate-180' : ''}"
         aria-hidden="true"
       >
         <path d="M6 9l6 6 6-6" />
@@ -66,7 +64,7 @@
     clipped rather than spilling while the row grows.
   -->
   <div
-    class="grid transition-[grid-template-rows] duration-[var(--duration-collapse)] ease-out {open
+    class="grid transition-[grid-template-rows] duration-base {open
       ? 'grid-rows-[1fr]'
       : 'grid-rows-[0fr]'}"
   >

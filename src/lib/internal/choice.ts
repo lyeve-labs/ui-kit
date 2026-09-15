@@ -39,8 +39,7 @@ const CHOICE_SQUARE: Record<ChoiceSize, string> = {
 
 const WRAP_INLINE = 'inline-flex select-none items-start gap-2.5';
 
-const WRAP_CARD =
-  'flex select-none items-start gap-2.5 rounded-lg border p-3 transition-colors duration-150';
+const WRAP_CARD = 'flex select-none items-start gap-2.5 rounded-lg border p-3 transition-colors';
 
 /**
  * The clickable wrapper. Card is a bordered option the whole surface of which
@@ -73,8 +72,7 @@ export function choiceWrap(variant: ChoiceVariant, checked: boolean, disabled: b
 export const CHOICE_INPUT =
   'peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed';
 
-const BOX_BASE =
-  'pointer-events-none flex shrink-0 items-center justify-center transition-colors duration-150';
+const BOX_BASE = 'pointer-events-none flex shrink-0 items-center justify-center transition-colors';
 
 /**
  * The painted box or circle. Square for a checkbox, round for a radio, sized by

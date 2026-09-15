@@ -164,11 +164,11 @@ describe('Button hint', () => {
     const button = container.querySelector('button')!;
     const hint = container.querySelector('[aria-hidden="true"]')!;
     expect(hint.textContent).toContain('Delete tenant');
-    expect(hint.hasAttribute('hidden')).toBe(true);
+    expect(hint.classList.contains('invisible')).toBe(true);
     await fireEvent.mouseEnter(button.parentElement!);
-    expect(hint.hasAttribute('hidden')).toBe(false);
+    expect(hint.classList.contains('invisible')).toBe(false);
     await fireEvent.mouseLeave(button.parentElement!);
-    expect(hint.hasAttribute('hidden')).toBe(true);
+    expect(hint.classList.contains('invisible')).toBe(true);
   });
 
   it('does not describe the button with the words it is already named by', () => {
@@ -184,7 +184,9 @@ describe('Button hint', () => {
     const own = render(Button, {
       props: { 'aria-label': 'Copy', hint: 'Copy the URL', children: text('x') },
     });
-    expect(own.container.querySelector('[aria-hidden="true"]')?.textContent).toContain('Copy the URL');
+    expect(own.container.querySelector('[aria-hidden="true"]')?.textContent).toContain(
+      'Copy the URL',
+    );
 
     const silent = render(Button, {
       props: { 'aria-label': 'Copy', hint: false, children: text('x') },

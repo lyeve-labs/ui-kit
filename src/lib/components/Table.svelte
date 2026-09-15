@@ -70,7 +70,7 @@
     '[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_var(--color-brand),inset_1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
-    '[&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150',
+    '[&_tbody_tr]:transition-colors',
   ].join(' ');
 
   let {
@@ -230,7 +230,10 @@
 <!-- overflow-hidden on the frame, not only on the scroller: the hovered row's
      ring is square and the frame is not, and the last row's corners drew past
      the frame's rounded ones. -->
-<div data-testid="table-frame" class="relative w-full overflow-hidden rounded-xl border border-line {cls}">
+<div
+  data-testid="table-frame"
+  class="relative w-full overflow-hidden rounded-xl border border-line {cls}"
+>
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.

@@ -17,21 +17,24 @@ describe('Tooltip', () => {
   });
 
   it('hides the tooltip until hovered', () => {
-    const { queryByRole } = render(Tooltip, {
+    // In the document and invisible, not absent: the trigger's aria-describedby
+    // needs the element to exist, and visibility is what the transition moves.
+    const { getByRole } = render(Tooltip, {
       props: { text: 'More info', children: text('?') },
     });
-    expect(queryByRole('tooltip')).toBeNull();
+    expect(getByRole('tooltip', { hidden: true }).classList.contains('invisible')).toBe(true);
   });
 
   it('shows the tooltip text on mouse enter and hides on leave', async () => {
-    const { container, queryByRole, getByRole } = render(Tooltip, {
+    const { container, getByRole } = render(Tooltip, {
       props: { text: 'More info', children: text('?') },
     });
     const wrap = container.firstElementChild as HTMLElement;
     await fireEvent.mouseEnter(wrap);
     expect(getByRole('tooltip').textContent).toContain('More info');
+    expect(getByRole('tooltip').classList.contains('invisible')).toBe(false);
     await fireEvent.mouseLeave(wrap);
-    expect(queryByRole('tooltip')).toBeNull();
+    expect(getByRole('tooltip', { hidden: true }).classList.contains('invisible')).toBe(true);
   });
 
   it('opens on keyboard focus reaching the trigger', async () => {
@@ -41,13 +44,13 @@ describe('Tooltip', () => {
       props: { text: 'More info', children: trigger },
     });
     const wrap = container.firstElementChild as HTMLElement;
-    expect(getByRole('tooltip', { hidden: true }).hasAttribute('hidden')).toBe(true);
+    expect(getByRole('tooltip', { hidden: true }).classList.contains('invisible')).toBe(true);
 
     await fireEvent.focusIn(wrap.querySelector('button') as HTMLElement);
-    expect(getByRole('tooltip').hasAttribute('hidden')).toBe(false);
+    expect(getByRole('tooltip').classList.contains('invisible')).toBe(false);
 
     await fireEvent.focusOut(wrap.querySelector('button') as HTMLElement);
-    expect(getByRole('tooltip', { hidden: true }).hasAttribute('hidden')).toBe(true);
+    expect(getByRole('tooltip', { hidden: true }).classList.contains('invisible')).toBe(true);
   });
 
   it('points the trigger at the tooltip so it is announced', () => {
@@ -66,9 +69,9 @@ describe('Tooltip', () => {
     });
     const wrap = container.firstElementChild as HTMLElement;
     await fireEvent.mouseEnter(wrap);
-    expect(getByRole('tooltip').hasAttribute('hidden')).toBe(false);
+    expect(getByRole('tooltip').classList.contains('invisible')).toBe(false);
     await fireEvent.keyDown(wrap, { key: 'Escape' });
-    expect(getByRole('tooltip', { hidden: true }).hasAttribute('hidden')).toBe(true);
+    expect(getByRole('tooltip', { hidden: true }).classList.contains('invisible')).toBe(true);
   });
 });
 
@@ -110,10 +113,10 @@ describe('Tooltip placement', () => {
     const wrapper = container.firstElementChild as HTMLElement;
     await fireEvent.mouseEnter(wrapper);
     const tip = container.querySelector<HTMLElement>('[role="tooltip"]')!;
-    expect(tip.hasAttribute('hidden')).toBe(false);
+    expect(tip.classList.contains('invisible')).toBe(false);
 
     await fireEvent.scroll(window);
 
-    expect(tip.hasAttribute('hidden')).toBe(true);
+    expect(tip.classList.contains('invisible')).toBe(true);
   });
 });

@@ -142,6 +142,14 @@ export {
   type ThemePreference,
 } from './utils/theme.js';
 
+// ── Motion ─────────────────────────────────────────────────────────────────
+// The entrances and exits as Svelte transitions, for a surface a consumer
+// builds that the kit does not ship: `transition:motion.popover`,
+// `animate:motion.reorder`. They read the duration and easing tokens, so a
+// page that uses them cannot drift from the components beside it.
+export * as motion from './motion.js';
+export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
+
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line; the build and the test suite fail when the two disagree.
