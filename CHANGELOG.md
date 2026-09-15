@@ -61,6 +61,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resize and on scroll, and inside a container too short for it on either
   side it scrolls rather than being cut. Its width moved from an arbitrary
   value onto the spacing scale; the calendar itself is unchanged.
+- `Badge` and `Button` labels never break inside a word. Neither carried
+  `whitespace-nowrap`, so under a `Table`'s default `overflow-wrap: anywhere`
+  a status badge rendered as `dra ft`, a role as `sup er_a dmi n`, and a
+  two-word ghost button in a flex row broke across two lines; one console
+  marked 156 cells `data-cell="nowrap"` to stop it. A `Badge` also caps at
+  its container's width and truncates with an ellipsis when its caller sets
+  a narrower one; its label sits in a span of its own for that, because
+  `text-overflow` does not reach into a flex item. A `Button` whose width
+  is capped wraps its label in a `truncate` span itself, since the label and
+  an icon before it are flex items and the button cannot tell them apart.
 
 ### Changed
 

@@ -38,11 +38,16 @@
   };
 </script>
 
+<!-- whitespace-nowrap: a badge is one token and never breaks inside itself.
+     Under a Table's default `overflow-wrap: anywhere` a status rendered as
+     `dra ft` and a role as `sup er_a dmi n`. The label sits in a truncating
+     span so a badge whose caller caps its width ends in an ellipsis instead of
+     painting past its own border; with no cap the span never shrinks. -->
 <span
-  class="inline-flex items-center font-medium rounded-full border {tones[tone]} {sizes[
-    size
-  ]} {klass}"
+  class="inline-flex max-w-full items-center font-medium whitespace-nowrap rounded-full border {tones[
+    tone
+  ]} {sizes[size]} {klass}"
 >
-  {#if dot}<span class="w-1.5 h-1.5 rounded-full {dotColor[tone]}"></span>{/if}
-  {@render children()}
+  {#if dot}<span class="w-1.5 h-1.5 shrink-0 rounded-full {dotColor[tone]}"></span>{/if}
+  <span class="min-w-0 truncate">{@render children()}</span>
 </span>
