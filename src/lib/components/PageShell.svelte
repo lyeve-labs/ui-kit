@@ -54,6 +54,18 @@
      * It is a plain anchor, so the keyboard needs nothing extra.
      */
     back?: { href: string; label: string };
+    /**
+     * Keep the h1 for assistive technology and render no title row at all: no
+     * back link, no breadcrumb, no description, no actions.
+     *
+     * For a page whose toolbar is its header. An editor that owns the viewport
+     * spent two rows before its canvas, the title row and then its own toolbar
+     * carrying the same name, with the shell's gap between them. The page
+     * still has exactly one h1, so a heading query and a screen reader see
+     * what every other page gives them; it is `sr-only`, not absent. A page
+     * that hides the row takes on the way back: `back` renders nothing here.
+     */
+    titleHidden?: boolean;
     /** Rendered above the title at one fixed distance, after `back` when both are set. */
     breadcrumb?: Snippet;
     /** Right-aligned controls in the title row. */
@@ -69,6 +81,7 @@
     fill = false,
     compact = false,
     back = undefined,
+    titleHidden = false,
     breadcrumb,
     actions,
     class: klass = '',
@@ -119,26 +132,30 @@
 </script>
 
 <div class="{frame} {klass}">
-  <!-- The breadcrumb and the title are one group, so the distance between them
+  {#if titleHidden}
+    <h1 data-testid="page-title" class="sr-only">{title}</h1>
+  {:else}
+    <!-- The breadcrumb and the title are one group, so the distance between them
        is fixed here and does not change with whether a description is set. -->
-  <div class="flex flex-col gap-2 {headerPad}">
-    <!-- The back link leads and the breadcrumb follows on one row, so a page
+    <div class="flex flex-col gap-2 {headerPad}">
+      <!-- The back link leads and the breadcrumb follows on one row, so a page
          that has both does not stack two lines of navigation over its title. -->
-    {#if back || breadcrumb}
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-        {#if back}
-          <a href={safeHref(back.href)} data-testid="page-back" class={BACK}>
-            <ArrowLeft size={14} aria-hidden="true" class="shrink-0 rtl:rotate-180" />
-            {back.label}
-          </a>
-        {/if}
-        {#if breadcrumb}{@render breadcrumb()}{/if}
-      </div>
-    {/if}
-    <!-- flush: the shell's own section stack supplies the gap below the title,
+      {#if back || breadcrumb}
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+          {#if back}
+            <a href={safeHref(back.href)} data-testid="page-back" class={BACK}>
+              <ArrowLeft size={14} aria-hidden="true" class="shrink-0 rtl:rotate-180" />
+              {back.label}
+            </a>
+          {/if}
+          {#if breadcrumb}{@render breadcrumb()}{/if}
+        </div>
+      {/if}
+      <!-- flush: the shell's own section stack supplies the gap below the title,
          so the header must not add a second one. -->
-    <PageHeader {title} {description} {actions} {compact} flush />
-  </div>
+      <PageHeader {title} {description} {actions} {compact} flush />
+    </div>
+  {/if}
 
   <div class={content}>
     {@render children()}
