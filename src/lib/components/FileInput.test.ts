@@ -125,7 +125,7 @@ describe('FileInput', () => {
 
   it('names one duration for the colour transition it declares', () => {
     const { container } = render(FileInput, { props: {} });
-    expect(dropzone(container).className).toMatch(/transition-colors duration-150/);
+    expect(dropzone(container).className).toMatch(/transition-colors(?!\s+duration-)/);
   });
 
   it('calls onchange with dropped files on drop', async () => {

@@ -9,6 +9,7 @@
     describedBy,
   } from '../internal/field.js';
   import { PANEL_LIST_UNCAPPED, PANEL_SURFACE, placePanel } from '../internal/panel.js';
+  import * as motion from '../motion.js';
   // DatePicker: a text trigger + calendar popover. Binds `value` to an ISO date
   // string ("YYYY-MM-DD"). Pure local-date math (no timezone surprises).
   let {
@@ -252,6 +253,7 @@
         role="dialog"
         aria-label="Choose date"
         use:placePanel
+        transition:motion.popover
         class="{PANEL_SURFACE} w-68"
       >
         <div class="overflow-y-auto overscroll-contain p-3" data-panel-list={PANEL_LIST_UNCAPPED}>
@@ -261,7 +263,7 @@
               type="button"
               aria-label="Previous month"
               onclick={prevMonth}
-              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
+              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
                 ><path
@@ -278,7 +280,7 @@
               type="button"
               aria-label="Next month"
               onclick={nextMonth}
-              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
+              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
                 ><path
@@ -312,7 +314,7 @@
                   onclick={() => pick(d)}
                   aria-current={iso === todayISO ? 'date' : undefined}
                   aria-label={iso}
-                  class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors duration-150
+                  class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors
                   disabled:opacity-30 disabled:cursor-not-allowed
                   {iso === value
                     ? 'bg-brand text-ink font-medium'

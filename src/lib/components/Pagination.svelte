@@ -180,7 +180,7 @@
   }
 
   const btnBase =
-    'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors duration-150';
+    'inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors';
 
   /**
    * A page control that is not the page you are on, in every state a pointer

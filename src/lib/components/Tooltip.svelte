@@ -125,18 +125,23 @@
   {onkeydown}
 >
   {@render children()}
-  <!-- Always rendered, hidden by the `hidden` attribute rather than removed:
+  <!-- Always rendered, and shut with visibility rather than removed:
        aria-describedby resolves the text of a hidden element, so the trigger
-       keeps a stable target. Left hoverable rather than pointer-events-none, so
-       moving onto it does not dismiss it, which SC 1.4.13 also requires. -->
+       keeps a stable target. Visibility is one of the properties Tailwind's
+       `transition` moves, discretely, so the hint fades and settles on the way
+       in and is invisible only once it has faded out. Left hoverable rather
+       than pointer-events-none, so moving onto it does not dismiss it, which
+       SC 1.4.13 also requires. -->
   <span
     {id}
     role={describe ? 'tooltip' : undefined}
     aria-hidden={describe ? undefined : 'true'}
-    hidden={!visible}
     style="top: {anchor.top}px; left: {anchor.left}px"
     class="fixed {pos[position]} z-tooltip w-max max-w-[min(16rem,calc(100vw-2rem))]
-      rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-xl"
+      rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-xl
+      transition {visible
+      ? 'duration-base ease-enter'
+      : 'invisible scale-[0.96] opacity-0 duration-fast ease-exit'}"
   >
     {text}
   </span>

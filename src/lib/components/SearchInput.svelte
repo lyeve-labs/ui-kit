@@ -85,7 +85,7 @@
         onclick={clear}
         aria-label="Clear search"
         class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint
-          transition-colors duration-150 hover:text-fg"
+          transition-colors hover:text-fg"
       >
         <svg
           width="14"

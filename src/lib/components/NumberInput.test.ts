@@ -76,7 +76,7 @@ describe('NumberInput', () => {
   it('states one duration for the colour transition it declares', () => {
     const { container, getByLabelText } = render(NumberInput, { props: { value: 1 } });
     for (const el of [field(container), getByLabelText('Decrease'), getByLabelText('Increase')]) {
-      expect(el.className).toMatch(/transition-colors duration-150/);
+      expect(el.className).toMatch(/transition-colors(?!\s+duration-)/);
     }
   });
 

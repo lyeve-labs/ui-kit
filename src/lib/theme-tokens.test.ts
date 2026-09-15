@@ -92,21 +92,24 @@ const RESERVED = ['--font-size-'];
  * because the entry turns off the only check that would notice the token is
  * invisible.
  *
- * The four durations. Tailwind has no `--duration-*` namespace: `duration-fast`
- * compiles to nothing, verified against tailwindcss 4.3.3, and the utility that
- * does work is `duration-[var(--duration-collapse)]`. They are read from the
- * `animate-[...]` utility of Modal, Drawer and Toaster and from the
- * `duration-[...]` of Accordion and Collapsible.
+ * The four durations and the two transition defaults. Tailwind has no
+ * `--duration-*` namespace: `duration-fast` compiles to nothing on its own,
+ * verified against tailwindcss 4.3.3, so theme.css declares the four utilities
+ * by hand with `@utility` and each reads its token through var(). The two
+ * `--default-transition-*` values are what every `transition-*` utility falls
+ * back to; Tailwind reads them, so nothing in the kit has to.
  *
  * The exemption is not free: `namesEveryVarOnlyToken` below fails a token
  * listed here that nothing actually reads, which is the check the listing turns
  * off, put back one layer up.
  */
 const VAR_ONLY: string[] = [
-  '--duration-modal-in',
-  '--duration-toast-in',
-  '--duration-drawer-in',
-  '--duration-collapse',
+  '--duration-fast',
+  '--duration-base',
+  '--duration-slow',
+  '--duration-progress',
+  '--default-transition-duration',
+  '--default-transition-timing-function',
 ];
 
 /** The body of the `@theme` block, with comments removed. */
@@ -252,49 +255,98 @@ describe('the elevation scale', () => {
 });
 
 describe('motion is declared where a designer can find it', () => {
-  const durations = [...themeBlock(css).matchAll(/--duration-([a-z-]+):\s*(\d+)ms/g)].map(
+  const block = themeBlock(css);
+  const durations = [...block.matchAll(/--duration-([a-z-]+):\s*(\d+)ms/g)].map(
     ([, name, value]) => ({ name, value: Number(value) }),
   );
+  const eases = [...block.matchAll(/--ease-([a-z-]+):\s*cubic-bezier\(([^)]+)\)/g)].map(
+    ([, name, points]) => ({ name, points: points.split(',').map(Number) }),
+  );
 
-  it('states every duration the kit animates at', () => {
-    expect(durations.map((d) => d.name).sort()).toEqual([
-      'collapse',
-      'drawer-in',
-      'modal-in',
-      'toast-in',
-    ]);
+  it('states the four rungs, each slower than the one before', () => {
+    // A ladder is only a ladder if it climbs. Two rungs at one value give a
+    // component two names for one speed and the reader no way to choose.
+    expect(durations.map((d) => d.name)).toEqual(['fast', 'base', 'slow', 'progress']);
+    for (let i = 1; i < durations.length; i += 1) {
+      expect(durations[i].value).toBeGreaterThan(durations[i - 1].value);
+    }
+  });
+
+  it('states the three curves, each shaped for its direction', () => {
+    const byName = Object.fromEntries(eases.map((e) => [e.name, e.points]));
+    expect(Object.keys(byName).sort()).toEqual(['enter', 'exit', 'move']);
+    // An entrance decelerates: the curve is already past halfway at a quarter
+    // of the time. An exit accelerates: at a quarter it has barely moved. A
+    // move is symmetric about the middle.
+    expect(sample(byName.enter, 0.25)).toBeGreaterThan(0.5);
+    expect(sample(byName.exit, 0.25)).toBeLessThan(0.15);
+    expect(sample(byName.move, 0.5)).toBeCloseTo(0.5, 1);
+  });
+
+  it('hands the transition utilities the fast rung and the move curve', () => {
+    // `transition-colors` on its own has to be complete, or every component
+    // goes back to stating a duration beside it.
+    expect(block).toMatch(/--default-transition-duration:\s*var\(--duration-fast\)/);
+    expect(block).toMatch(/--default-transition-timing-function:\s*var\(--ease-move\)/);
+  });
+
+  it.each(['fast', 'base', 'slow', 'progress'])('declares the duration-%s utility', (rung) => {
+    // The token alone is not a class. The utility is what a component writes,
+    // and it has to set the same custom property Tailwind's duration-* sets or
+    // a `transition-*` after it in the class list wins.
+    expect(css).toMatch(
+      new RegExp(
+        `@utility duration-${rung} \\{\\s*--tw-duration: var\\(--duration-${rung}\\);\\s*transition-duration: var\\(--duration-${rung}\\);`,
+      ),
+    );
   });
 
   it('keeps the reduced-motion block below them, where it overrides them', () => {
     // The block is the authority on whether any of these run at all. A token
     // declared after it would still be honoured, but a reader would have to
     // work that out; declared before, the file reads in the order it applies.
-    expect(css.indexOf('--duration-modal-in')).toBeLessThan(css.indexOf('prefers-reduced-motion'));
+    expect(css.indexOf('--duration-fast')).toBeLessThan(css.indexOf('prefers-reduced-motion'));
   });
 
   it('names every var-only token somewhere that reads it', () => {
     // The point of VAR_ONLY is to exempt a token from the utility check. A
     // token that nothing reads is exactly what that check exists to catch, so
-    // the exemption has to earn itself.
-    const sources = sourceFiles();
+    // the exemption has to earn itself. The two defaults are read by Tailwind's
+    // own transition utilities and by nothing in this tree.
+    const sources = [...sourceFiles(), css];
     const unread = VAR_ONLY.filter(
-      (token) => !sources.some((src) => src.includes(`var(${token})`)),
+      (token) =>
+        !token.startsWith('--default-') && !sources.some((src) => src.includes(`var(${token})`)),
     );
     expect(unread, 'exempted from the utility check and read by nothing').toEqual([]);
   });
 });
 
-describe('the entrance keyframes are global', () => {
-  const ANIMATIONS = ['modal-in', 'drawer-in-right', 'drawer-in-left', 'toast-in'];
+/** A cubic bezier's y at x, by bisection on t; enough precision for a shape check. */
+function sample([x1, y1, x2, y2]: number[], x: number): number {
+  const at = (p1: number, p2: number, t: number) =>
+    3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t;
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (at(x1, x2, mid) < x) lo = mid;
+    else hi = mid;
+  }
+  return at(y1, y2, (lo + hi) / 2);
+}
 
-  it.each(ANIMATIONS)('declares %s in the stylesheet every consumer imports', (name) => {
-    // Each one lived in the scoped `<style>` of the component that played it.
+describe('the one entrance that is a CSS animation', () => {
+  it('declares popover-in in the stylesheet every consumer imports', () => {
     // Svelte renames a scoped keyframe to `svelte-<hash>-<name>` and rewrites
-    // only the references inside that same block, so the Tailwind class asked
-    // for `modal-in` while the only rule declared was `svelte-ta60gp-modal-in`.
-    // An animation-name that resolves to nothing is not an error: the element
-    // just appears, and all four entrances were dead in every consumer.
-    expect(css).toMatch(new RegExp(`@keyframes\\s+${name}\\b`));
+    // only the references inside that same block, so a Tailwind class asking
+    // for `popover-in` in a component would find no rule. An animation-name
+    // that resolves to nothing is not an error: the element simply appears,
+    // which is how four entrances were once dead in every consumer.
+    expect(css).toMatch(/@keyframes\s+popover-in\b/);
+    expect(themeBlock(css)).toMatch(
+      /--animate-popover-in:\s*popover-in var\(--duration-base\) var\(--ease-enter\)/,
+    );
   });
 
   it('leaves no keyframe in a component, where the name would be rewritten', () => {
@@ -304,11 +356,14 @@ describe('the entrance keyframes are global', () => {
     expect(offenders, 'a keyframe named from a class attribute has to be global').toEqual([]);
   });
 
-  it.each(ANIMATIONS)('is played by a component that asks for %s by that name', (name) => {
-    // The other half. A keyframe declared here and referenced by nothing is
-    // the same dead weight in the other direction.
-    const sources = sourceFiles();
-    expect(sources.some((src) => src.includes(`animate-[${name}_`))).toBe(true);
+  it('is played by the one surface the browser shows and removes itself', () => {
+    // A panel inside <details> cannot leave through a Svelte transition, so it
+    // is the only component that may ask for the animation. A second one is a
+    // surface that belongs on the popover preset instead.
+    const players = componentPaths()
+      .filter((p) => readFileSync(p, 'utf8').includes('animate-popover-in'))
+      .map((p) => p.split('/').pop());
+    expect(players).toEqual(['AccountMenu.svelte']);
   });
 });
 
