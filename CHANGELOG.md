@@ -5,6 +5,20 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `PageShell` takes `back`, an `{ href, label }` pair rendered above the title
+  as an arrow and the parent page's name. A page two levels into a console had
+  only the sidebar and the browser to get back with; a third of the nested
+  pages in one app built a breadcrumb of their own, half of those drew an
+  arrow by hand, and the rest offered nothing. The link is a plain anchor in
+  the muted token, foreground on hover, with the kit's focus ring, and it
+  shares the breadcrumb's row when both are given, the back link first, so a
+  page with both does not stack two lines of navigation over its title.
+  `PageHeader` is unchanged.
+
 ## [0.23.3] - 2026-09-14
 
 ### Fixed

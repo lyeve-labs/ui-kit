@@ -15,6 +15,8 @@
    * matches for every assistive technology reading the page.
    */
   import type { Snippet } from 'svelte';
+  import { ArrowLeft } from '@lucide/svelte';
+  import { safeHref } from '../internal/href.js';
   import { PAGE_PAD, PAGE_STACK, PAGE_WIDTH, type PageWidth } from '../internal/layout.js';
   import PageHeader from './PageHeader.svelte';
 
@@ -41,7 +43,18 @@
      * asks for it.
      */
     compact?: boolean;
-    /** Rendered above the title at one fixed distance. */
+    /**
+     * A link back to the page this one sits under, rendered above the title
+     * with an arrow and the parent's label ("Flows", "Settings").
+     *
+     * A page two levels down had only the sidebar and the browser to get back
+     * with. A third of the nested pages in one app built a breadcrumb of their
+     * own, half of those drew an arrow by hand, and the rest offered nothing.
+     * The affordance lives in the shell so every page gets it the same way.
+     * It is a plain anchor, so the keyboard needs nothing extra.
+     */
+    back?: { href: string; label: string };
+    /** Rendered above the title at one fixed distance, after `back` when both are set. */
     breadcrumb?: Snippet;
     /** Right-aligned controls in the title row. */
     actions?: Snippet;
@@ -55,6 +68,7 @@
     width = 'default',
     fill = false,
     compact = false,
+    back = undefined,
     breadcrumb,
     actions,
     class: klass = '',
@@ -91,13 +105,36 @@
 
   /** The content stack. On a fill page it also takes the leftover height. */
   const content = $derived(fill ? `${PAGE_STACK} min-h-0 flex-1` : PAGE_STACK);
+
+  /**
+   * The same rest, hover and focus treatment as a Breadcrumb link, so the two
+   * read as one row. The ring replaces the global outline rather than adding
+   * to it, and the padding gives the ring a shape to sit on: on bare text the
+   * ring hugs the glyphs and clips the descenders.
+   */
+  const BACK =
+    '-ms-1 inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs text-muted ' +
+    'outline-none transition-colors duration-150 hover:text-fg ' +
+    'focus-visible:ring-2 focus-visible:ring-brand';
 </script>
 
 <div class="{frame} {klass}">
   <!-- The breadcrumb and the title are one group, so the distance between them
        is fixed here and does not change with whether a description is set. -->
   <div class="flex flex-col gap-2 {headerPad}">
-    {#if breadcrumb}{@render breadcrumb()}{/if}
+    <!-- The back link leads and the breadcrumb follows on one row, so a page
+         that has both does not stack two lines of navigation over its title. -->
+    {#if back || breadcrumb}
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        {#if back}
+          <a href={safeHref(back.href)} data-testid="page-back" class={BACK}>
+            <ArrowLeft size={14} aria-hidden="true" class="shrink-0 rtl:rotate-180" />
+            {back.label}
+          </a>
+        {/if}
+        {#if breadcrumb}{@render breadcrumb()}{/if}
+      </div>
+    {/if}
     <!-- flush: the shell's own section stack supplies the gap below the title,
          so the header must not add a second one. -->
     <PageHeader {title} {description} {actions} {compact} flush />
