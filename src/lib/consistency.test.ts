@@ -118,8 +118,11 @@ const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label'];
 /**
  * Portalled overlays own the whole viewport, so `class` has no unambiguous
  * target on them. Everything else is placed by the consumer and must accept one.
+ * AuthShell is the page itself, a main that fills the viewport, and is here
+ * for the same reason.
  */
 const PORTALLED = [
+  'AuthShell',
   'Drawer',
   'Modal',
   'Toaster',
