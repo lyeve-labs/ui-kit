@@ -5,6 +5,21 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `AuthShell`, the frame for a page the app shell does not wrap: sign in,
+  sign up, a password reset, an invitation, first-run setup. A full-height
+  main on the ink token, a centred column at `md` (a form) or `lg` (a
+  walkthrough), the lockup, one `h1` at one size, an optional description,
+  the children on a card, an optional `actions` row above (a theme toggle)
+  and an optional `footer` line under the card (the one link off the page).
+  Every console hand-wrote this frame and no two agreed: three heading
+  sizes, a lockup on some pages, a theme control on others, and one class
+  that named no token at all. `AppShell` states the signed-in frame once;
+  this states the signed-out one.
+
 ## [0.25.1] - 2026-09-15
 
 ### Fixed
