@@ -156,6 +156,24 @@ describe('AppShell', () => {
     expect(getByLabelText('Show sidebar').getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('puts the header away above md: when asked, and the page keeps the way back', () => {
+    const { container } = render(AppShell, {
+      props: { ...base, collapsible: true, collapsed: true, headerHidden: true },
+    });
+    expect(container.querySelector('header')).toBeNull();
+    expect(container.querySelector('aside')).toBeNull();
+    expect(container.querySelector('main')).toBeTruthy();
+  });
+
+  it('keeps the header below md: whatever headerHidden says, since it carries the hamburger', () => {
+    viewport(true);
+    const { container, getByLabelText } = render(AppShell, {
+      props: { ...base, headerHidden: true },
+    });
+    expect(container.querySelector('header')).toBeTruthy();
+    expect(getByLabelText('Open navigation')).toBeTruthy();
+  });
+
   it('ignores collapsed below md:, where the same aside is the drawer', () => {
     // Honouring it there leaves the hamburger opening nothing, and the drawer
     // is the only way to the nav at that width.

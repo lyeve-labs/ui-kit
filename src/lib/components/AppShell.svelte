@@ -47,6 +47,17 @@
      * decision. Nothing persists it for you.
      */
     collapsed?: boolean;
+    /**
+     * Whether the header bar is put away, above md: only. Below md: the header
+     * carries the hamburger, which is the only way into the drawer, so the bar
+     * stays whatever this says.
+     *
+     * For a page that owns the viewport and wants all of it: a canvas in a
+     * focus mode. The page asking for it must keep a way back on screen, since
+     * the shell's own controls go with the bar. Bindable for the same reason
+     * `collapsed` is: where it is remembered is the app's decision.
+     */
+    headerHidden?: boolean;
     /** The sidebar landmark's accessible name. */
     sidebarLabel?: string;
     /** The drawer's accessible name, below md: where the sidebar is a dialog. */
@@ -68,6 +79,7 @@
     navOpen = $bindable(false),
     collapsible = false,
     collapsed = $bindable(false),
+    headerHidden = $bindable(false),
     sidebarLabel = 'Sidebar',
     drawerLabel = 'Navigation',
     brand,
@@ -90,6 +102,8 @@
    * so honouring `collapsed` there would leave the hamburger opening nothing.
    */
   const railHidden = $derived(collapsible && collapsed && !isMobile);
+  /** Same rule for the header: a desktop gesture, and the drawer's button stays. */
+  const barHidden = $derived(headerHidden && !isMobile);
 
   $effect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -163,46 +177,48 @@
   {/if}
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <header data-print="hide" class={APP_HEADER}>
-      <div class="flex min-w-0 flex-1 items-center gap-2">
-        {#if isMobile}
-          <!-- 44px square, the smallest tap target SC 2.5.5 accepts. The -ms-2
+    {#if !barHidden}
+      <header data-print="hide" class={APP_HEADER}>
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          {#if isMobile}
+            <!-- 44px square, the smallest tap target SC 2.5.5 accepts. The -ms-2
                pulls it back to the header's own gutter so the row it starts
                still lines up with the page content below. -->
-          <button
-            type="button"
-            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-            aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
-            aria-expanded={navOpen}
-            onclick={() => (navOpen = !navOpen)}
-          >
-            <Menu size={20} />
-          </button>
-        {:else if collapsible}
-          <!-- Same square and the same gutter as the hamburger it replaces, so
+            <button
+              type="button"
+              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+              aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={navOpen}
+              onclick={() => (navOpen = !navOpen)}
+            >
+              <Menu size={20} />
+            </button>
+          {:else if collapsible}
+            <!-- Same square and the same gutter as the hamburger it replaces, so
                the header's first control sits in one place at every width. -->
-          <button
-            type="button"
-            data-testid="app-sidebar-toggle"
-            class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-            aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
-            aria-expanded={!collapsed}
-            onclick={() => (collapsed = !collapsed)}
-          >
-            {#if collapsed}<PanelLeft size={18} />{:else}<PanelLeftClose size={18} />{/if}
-          </button>
-        {/if}
-        {#if section}
-          <span data-testid="app-section" class="truncate text-sm font-semibold text-fg">
-            {section}
-          </span>
-        {/if}
-      </div>
+            <button
+              type="button"
+              data-testid="app-sidebar-toggle"
+              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+              aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+              aria-expanded={!collapsed}
+              onclick={() => (collapsed = !collapsed)}
+            >
+              {#if collapsed}<PanelLeft size={18} />{:else}<PanelLeftClose size={18} />{/if}
+            </button>
+          {/if}
+          {#if section}
+            <span data-testid="app-section" class="truncate text-sm font-semibold text-fg">
+              {section}
+            </span>
+          {/if}
+        </div>
 
-      {#if headerActions}
-        <div class="flex shrink-0 items-center gap-1">{@render headerActions()}</div>
-      {/if}
-    </header>
+        {#if headerActions}
+          <div class="flex shrink-0 items-center gap-1">{@render headerActions()}</div>
+        {/if}
+      </header>
+    {/if}
 
     <!-- tabindex -1 is what makes the skip link work. A fragment link scrolls
          to its target and moves focus to it only if the target can hold focus,
