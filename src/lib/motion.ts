@@ -1,9 +1,14 @@
 /**
  * The entrances and exits, as Svelte transitions that read the motion tokens.
  *
- *     <div in:motion.dialog out:motion.dialog>
- *     <div transition:motion.popover>
+ *     <div transition:motion.dialog|global>
+ *     <div transition:motion.popover|global>
  *     <li animate:motion.reorder>
+ *
+ * `|global` is not optional. A Svelte transition is local by default and
+ * plays only when its own block toggles; a page that wraps a Modal in its own
+ * `{#if}` to reset the form each time removes the whole component, and a
+ * local exit never runs. Global plays it on any ancestor change.
  *
  * A CSS animation plays an entrance and nothing else: the element it ran on
  * is gone the moment `{#if}` turns false, so a dialog that eased open snapped

@@ -400,6 +400,19 @@ describe('component consistency', () => {
       .map((f) => f.name);
     expect(offenders).toEqual([]);
   });
+
+  it('plays every exit even when a parent removes the component', () => {
+    // A Svelte transition is local by default: it plays only when its own
+    // block toggles. Every console wraps a Modal in a page-level {#if} so the
+    // form inside starts fresh each time, and on that page a local exit never
+    // ran, because the parent unmounted the whole component before the
+    // dialog's own block could close. |global plays the exit on any ancestor
+    // change, which is the only way the kit can promise one.
+    const offenders = files
+      .filter((f) => /transition:motion\.[a-z]+(?!\|global)\b/.test(f.src))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe('tone vocabulary', () => {

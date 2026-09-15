@@ -93,7 +93,7 @@
   <!-- Backdrop -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    transition:motion.scrim
+    transition:motion.scrim|global
     class="absolute inset-0 bg-black/60 backdrop-blur-sm"
     onclick={handleBackdropClick}
     onkeydown={(e: KeyboardEvent) => {
@@ -107,7 +107,7 @@
   <div
     bind:this={dialogEl}
     use:overlay
-    transition:motion.dialog
+    transition:motion.dialog|global
     class="relative w-full {sizeClass(entry.options.size ?? 'md')} mx-4
 			bg-surface border border-line rounded-xl shadow-2xl
 			transition-transform duration-slow

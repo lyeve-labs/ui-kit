@@ -60,12 +60,12 @@
       aria-hidden="true"
       class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
       onclick={close}
-      transition:motion.scrim
+      transition:motion.scrim|global
     ></button>
 
     <div
       use:overlay
-      transition:motion.dialog
+      transition:motion.dialog|global
       class="relative flex max-h-[calc(100dvh-2rem)] w-full {widths[size]} flex-col
              overflow-hidden rounded-xl border border-line bg-surface shadow-2xl"
       role="dialog"

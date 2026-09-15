@@ -254,7 +254,7 @@
     </div>
 
     {#if box.open}
-      <div use:placePanel transition:motion.popover class="{PANEL_SURFACE} w-full">
+      <div use:placePanel transition:motion.popover|global class="{PANEL_SURFACE} w-full">
         {#if searchable}
           <div class="border-b border-line p-2">
             <input
