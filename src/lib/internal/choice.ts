@@ -16,6 +16,7 @@
  */
 
 import { FIELD_HINT, FIELD_LABEL } from './field.js';
+import { HIT_AREA } from './touch.js';
 
 /** The scale of the painted box: sm 14px, md 16px, lg 20px. */
 export type ChoiceSize = 'sm' | 'md' | 'lg';
@@ -37,7 +38,13 @@ const CHOICE_SQUARE: Record<ChoiceSize, string> = {
   lg: 'h-5 w-5',
 };
 
-const WRAP_INLINE = 'inline-flex select-none items-start gap-2.5';
+/**
+ * The inline wrapper carries the hit box, not the box inside it. A click
+ * anywhere on the label reaches the input, so growing the label's hit area
+ * under a finger is what makes a 16px checkbox a 44px target without drawing
+ * it any larger. A card is its own surface and already clears the size.
+ */
+const WRAP_INLINE = `${HIT_AREA} inline-flex select-none items-start gap-2.5`;
 
 const WRAP_CARD = 'flex select-none items-start gap-2.5 rounded-lg border p-3 transition-colors';
 

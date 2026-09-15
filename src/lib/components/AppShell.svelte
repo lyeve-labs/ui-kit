@@ -1,3 +1,16 @@
+<script lang="ts" module>
+  /**
+   * What the sidebar snippets are told about their column. `rail` is true
+   * while the sidebar is the 56px icon rail, so a SidebarNav takes it as
+   * `collapsed`, a brand row renders its mark without the wordmark, and a
+   * footer band renders what fits. A snippet that ignores the argument still
+   * renders; it is simply drawn at 56px and clipped.
+   */
+  export interface SidebarState {
+    rail: boolean;
+  }
+</script>
+
 <script lang="ts">
   /**
    * The authed application frame: the sidebar, the header bar and the content
@@ -23,7 +36,14 @@
   import type { Snippet } from 'svelte';
   import { Menu, PanelLeft, PanelLeftClose } from '@lucide/svelte';
   import { overlay } from '../internal/overlay.js';
-  import { APP_BRAND, APP_HEADER, APP_SIDEBAR, APP_SIDEBAR_BAND } from '../internal/layout.js';
+  import {
+    APP_BRAND,
+    APP_HEADER,
+    APP_SIDEBAR,
+    APP_SIDEBAR_BAND,
+    APP_SIDEBAR_RAIL,
+    APP_SIDEBAR_WIDE,
+  } from '../internal/layout.js';
 
   interface Props {
     /** The current section, shown in the header. Not a heading: the page owns its h1. */
@@ -58,16 +78,30 @@
      * `collapsed` is: where it is remembered is the app's decision.
      */
     headerHidden?: boolean;
+    /**
+     * Narrows the sidebar to the icon rail at every width above md:.
+     *
+     * The rail is automatic between md: and lg:, where the 224px column left a
+     * 768px window 496px for the page. A page that owns the viewport - a
+     * canvas, a split pane - asks for it at every width with this; the labels
+     * still come back under a pointer or the keyboard. Below md: the sidebar
+     * is the drawer whatever this says.
+     */
+    rail?: boolean;
     /** The sidebar landmark's accessible name. */
     sidebarLabel?: string;
     /** The drawer's accessible name, below md: where the sidebar is a dialog. */
     drawerLabel?: string;
-    /** The product mark, in the sidebar's brand row. */
-    brand?: Snippet;
-    /** The navigation itself. A SidebarNav, given `class="min-h-0 flex-1"`. */
-    nav?: Snippet;
+    /** The product mark, in the sidebar's brand row. Told whether the column is the rail. */
+    brand?: Snippet<[SidebarState]>;
+    /**
+     * The navigation itself. A SidebarNav, given `class="min-h-0 flex-1"` and
+     * `collapsed={rail}` from the argument, so the rail shows icons and the
+     * labels return when the rail opens.
+     */
+    nav?: Snippet<[SidebarState]>;
     /** A status band at the foot of the sidebar. Not the account: that is header work. */
-    sidebarFooter?: Snippet;
+    sidebarFooter?: Snippet<[SidebarState]>;
     /** The right end of the header bar. The theme toggle and the account menu live here. */
     headerActions?: Snippet;
     class?: string;
@@ -80,6 +114,7 @@
     collapsible = false,
     collapsed = $bindable(false),
     headerHidden = $bindable(false),
+    rail = false,
     sidebarLabel = 'Sidebar',
     drawerLabel = 'Navigation',
     brand,
@@ -96,6 +131,8 @@
    * anyone whose JavaScript never arrives.
    */
   let isMobile = $state(false);
+  /** md: to lg:, where the expanded column costs the page more than it gives. */
+  let isNarrow = $state(false);
   const drawerOpen = $derived(isMobile && navOpen);
   /**
    * Collapsing is a desktop gesture. Below md: the same aside is the drawer,
@@ -105,16 +142,49 @@
   /** Same rule for the header: a desktop gesture, and the drawer's button stays. */
   const barHidden = $derived(headerHidden && !isMobile);
 
+  /**
+   * The rail: the icon column, and the labels on demand.
+   *
+   * While the sidebar is the rail it is 56px wide and the nav is told so. A
+   * pointer over it, or focus inside it, opens it to the full column over the
+   * page rather than beside it, so the page keeps its width and the reader
+   * still gets every label; it closes when the pointer or the focus leaves.
+   * State rather than a hover rule, because the nav snippet has to be told
+   * the labels are wanted, and a stylesheet cannot tell it.
+   */
+  const railMode = $derived(!isMobile && !railHidden && (rail || isNarrow));
+  let railOpen = $state(false);
+  const railIcons = $derived(railMode && !railOpen);
+
   $effect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
+    const mobile = window.matchMedia('(max-width: 767px)');
+    const narrow = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
     const sync = () => {
-      isMobile = mq.matches;
-      if (!mq.matches) navOpen = false;
+      isMobile = mobile.matches;
+      isNarrow = narrow.matches && !mobile.matches;
+      if (!mobile.matches) navOpen = false;
+      railOpen = false;
     };
     sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
+    mobile.addEventListener('change', sync);
+    narrow.addEventListener('change', sync);
+    return () => {
+      mobile.removeEventListener('change', sync);
+      narrow.removeEventListener('change', sync);
+    };
   });
+
+  /** Focus moving from one rail link to the next stays inside; only leaving the rail closes it. */
+  function onRailFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget;
+    if (
+      next instanceof Node &&
+      event.currentTarget instanceof Node &&
+      event.currentTarget.contains(next)
+    )
+      return;
+    railOpen = false;
+  }
 
   /** The backdrop is the pointer's way out of the drawer. A keyboard has none. */
   function onWindowKeydown(event: KeyboardEvent) {
@@ -168,11 +238,31 @@
       aria-label={drawerLabel}
       use:overlay
     >
-      {@render sidebar(false)}
+      {@render sidebar(false, false)}
+    </div>
+  {:else if railMode}
+    <!--
+      The column keeps the rail's width whatever the aside inside it does. The
+      aside is taken out of the column's flow so that, opened, it lies over
+      the page at the dropdown layer instead of pushing it 168px sideways and
+      back on every pass of the pointer.
+    -->
+    <div
+      data-testid="app-rail"
+      role="presentation"
+      class="relative hidden {APP_SIDEBAR_RAIL} shrink-0 md:block"
+      onpointerenter={() => (railOpen = true)}
+      onpointerleave={() => (railOpen = false)}
+      onfocusin={() => (railOpen = true)}
+      onfocusout={onRailFocusOut}
+    >
+      <div class="absolute inset-y-0 start-0 z-dropdown flex {railOpen ? 'shadow-2xl' : ''}">
+        {@render sidebar(isMobile, railIcons)}
+      </div>
     </div>
   {:else if !railHidden}
     <div class="hidden md:flex">
-      {@render sidebar(isMobile)}
+      {@render sidebar(isMobile, false)}
     </div>
   {/if}
 
@@ -238,22 +328,28 @@
   </div>
 </div>
 
-{#snippet sidebar(hidden: boolean)}
+{#snippet sidebar(hidden: boolean, rail: boolean)}
+  <!-- The bands clip on the rail: a brand row that ignores the argument still
+       holds its wordmark, and 56px of it is better than the wordmark running
+       out over the page. -->
   <aside
     aria-label={sidebarLabel}
     data-print="hide"
-    class="{APP_SIDEBAR} flex"
+    data-testid="app-sidebar"
+    class="{APP_SIDEBAR} {rail ? APP_SIDEBAR_RAIL : APP_SIDEBAR_WIDE} flex"
     inert={hidden}
     aria-hidden={hidden ? 'true' : undefined}
   >
     {#if brand}
-      <div class={APP_BRAND}>{@render brand()}</div>
+      <div class="{APP_BRAND} {rail ? 'overflow-hidden' : ''}">{@render brand({ rail })}</div>
     {/if}
     {#if nav}
-      {@render nav()}
+      {@render nav({ rail })}
     {/if}
     {#if sidebarFooter}
-      <div class={APP_SIDEBAR_BAND}>{@render sidebarFooter()}</div>
+      <div class="{APP_SIDEBAR_BAND} {rail ? 'overflow-hidden' : ''}">
+        {@render sidebarFooter({ rail })}
+      </div>
     {/if}
   </aside>
 {/snippet}

@@ -211,3 +211,148 @@ describe('AppShell header controls answer a finger', () => {
     expect(toggle.className).toMatch(/\bactive:/);
   });
 });
+
+/**
+ * The shell asks two questions of the browser: is this below md:, and is it
+ * between md: and lg:. This answers each by name, where `viewport` above
+ * answers both the same way.
+ */
+function width(kind: 'phone' | 'tablet' | 'desktop') {
+  window.matchMedia = ((query: string) => ({
+    matches: query.includes('max-width: 767px')
+      ? kind === 'phone'
+      : query.includes('max-width: 1023px')
+        ? kind === 'tablet'
+        : false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+}
+
+/**
+ * A nav that reports what the shell told it, the way a SidebarNav reads
+ * `collapsed`. A raw snippet renders once, so it reports the first answer;
+ * the aside's own width class is read for what the shell says afterwards,
+ * and both come from the same derived value.
+ */
+const tellingNav = createRawSnippet<[{ rail: boolean }]>((state) => ({
+  render: () => `<nav data-testid="nav" data-rail="${state().rail}"><a href="/a">A</a></nav>`,
+}));
+
+const railBase = { ...base, nav: tellingNav };
+const aside = (root: ParentNode) =>
+  root.querySelector('[data-testid="app-sidebar"]') as HTMLElement;
+const navRail = (root: ParentNode) =>
+  root.querySelector('[data-testid="nav"]')?.getAttribute('data-rail');
+const railBox = (root: ParentNode) => root.querySelector('[data-testid="app-rail"]') as HTMLElement;
+
+describe('AppShell between md: and lg:', () => {
+  it('narrows the sidebar to the icon rail and tells the nav so', () => {
+    // At 768px the 224px column left the page 496px, and a flow editor with
+    // two docked panes had no canvas at all. The theme had named the 56px
+    // rail and nothing used it.
+    width('tablet');
+    const { container } = render(AppShell, { props: railBase });
+    expect(aside(container).className).toContain('w-nav-rail');
+    expect(aside(container).className).not.toContain('w-sidebar');
+    expect(navRail(container)).toBe('true');
+    expect(railBox(container).className).toContain('w-nav-rail');
+  });
+
+  it('opens to the full column over the page under a pointer, and closes when it leaves', async () => {
+    width('tablet');
+    const { container } = render(AppShell, { props: railBase });
+    await fireEvent.pointerEnter(railBox(container));
+    expect(aside(container).className).toContain('w-sidebar');
+    // Over the page, not beside it: the column keeps the rail's width so the
+    // page does not move 168px on every pass of the pointer.
+    expect(railBox(container).className).toContain('w-nav-rail');
+    expect(aside(container).parentElement?.className).toContain('absolute');
+    expect(aside(container).parentElement?.className).toContain('z-dropdown');
+
+    await fireEvent.pointerLeave(railBox(container));
+    expect(aside(container).className).toContain('w-nav-rail');
+  });
+
+  it('opens for the keyboard and stays open while focus moves inside it', async () => {
+    width('tablet');
+    const { container } = render(AppShell, { props: railBase });
+    const link = container.querySelector('[data-testid="nav"] a') as HTMLElement;
+    await fireEvent.focusIn(railBox(container), { target: link });
+    expect(aside(container).className).toContain('w-sidebar');
+
+    await fireEvent.focusOut(railBox(container), { relatedTarget: link });
+    expect(aside(container).className).toContain('w-sidebar');
+
+    await fireEvent.focusOut(railBox(container), {
+      relatedTarget: container.querySelector('main'),
+    });
+    expect(aside(container).className).toContain('w-nav-rail');
+  });
+
+  it('keeps the full column above lg: and the drawer below md:', () => {
+    width('desktop');
+    const desktop = render(AppShell, { props: railBase });
+    expect(aside(desktop.container).className).toContain('w-sidebar');
+    expect(navRail(desktop.container)).toBe('false');
+    expect(railBox(desktop.container)).toBeNull();
+    desktop.unmount();
+
+    width('phone');
+    const phone = render(AppShell, { props: { ...railBase, navOpen: true } });
+    expect(phone.container.querySelector('[role="dialog"]')).toBeTruthy();
+    expect(aside(phone.container).className).toContain('w-sidebar');
+    expect(navRail(phone.container)).toBe('false');
+    expect(railBox(phone.container)).toBeNull();
+  });
+
+  it('lets a page ask for the rail at every width above md:', () => {
+    // The flow editor's focus mode wanted this and hid the sidebar instead.
+    width('desktop');
+    const { container } = render(AppShell, { props: { ...railBase, rail: true } });
+    expect(aside(container).className).toContain('w-nav-rail');
+    expect(navRail(container)).toBe('true');
+  });
+
+  it('ignores the rail request below md:, where the sidebar is the drawer', () => {
+    width('phone');
+    const { container } = render(AppShell, { props: { ...railBase, rail: true, navOpen: true } });
+    expect(aside(container).className).toContain('w-sidebar');
+    expect(navRail(container)).toBe('false');
+  });
+
+  it('still puts the sidebar away when a collapsible shell is collapsed', () => {
+    width('tablet');
+    const { container } = render(AppShell, {
+      props: { ...railBase, collapsible: true, collapsed: true },
+    });
+    expect(container.querySelector('aside')).toBeNull();
+    expect(railBox(container)).toBeNull();
+  });
+
+  it('tells the brand row and the footer band as well, and clips them on the rail', () => {
+    const telling = (name: string) =>
+      createRawSnippet<[{ rail: boolean }]>((state) => ({
+        render: () => `<span data-testid="${name}">${state().rail ? 'mark' : 'wordmark'}</span>`,
+      }));
+    width('tablet');
+    const { getByTestId } = render(AppShell, {
+      props: { ...railBase, brand: telling('brand'), sidebarFooter: telling('foot') },
+    });
+    expect(getByTestId('brand').textContent).toBe('mark');
+    expect(getByTestId('foot').textContent).toBe('mark');
+    expect(getByTestId('brand').parentElement?.className).toContain('overflow-hidden');
+    expect(getByTestId('foot').parentElement?.className).toContain('overflow-hidden');
+  });
+
+  it('renders a nav written for the old contract, which took no argument', () => {
+    width('tablet');
+    const { getByText } = render(AppShell, { props: base });
+    expect(getByText('Nav')).toBeTruthy();
+  });
+});

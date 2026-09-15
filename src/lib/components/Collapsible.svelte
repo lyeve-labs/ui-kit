@@ -13,6 +13,7 @@
    * items is open, and an item asks it; this decides nothing beyond itself.
    */
   import type { Component, Snippet } from 'svelte';
+  import { TOUCH_GROW } from '../internal/touch.js';
 
   interface Props {
     open?: boolean;
@@ -70,7 +71,7 @@
     aria-expanded={open}
     aria-controls={panelId}
     onclick={toggle}
-    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm font-medium
+    class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm font-medium
       text-fg transition-colors outline-none focus-visible:ring-2
       focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed
       disabled:opacity-50 {disabled ? '' : 'hover:bg-surface-2'}"

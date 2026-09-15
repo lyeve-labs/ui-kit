@@ -1,5 +1,6 @@
 <script lang="ts">
   import { toast } from '../stores/toast.svelte';
+  import { HIT_AREA } from '../internal/touch.js';
   import { TONE_GLYPH, statusTone, type StatusTone } from '../internal/tone.js';
   import * as motion from '../motion.js';
 
@@ -54,7 +55,7 @@
       <p class="flex-1 text-sm text-fg leading-snug">{t.message}</p>
       <button
         type="button"
-        class="shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
         aria-label="Dismiss"
         onclick={() => toast.dismiss(t.id)}
       >

@@ -18,6 +18,7 @@
   import { ArrowLeft } from '@lucide/svelte';
   import { safeHref } from '../internal/href.js';
   import { PAGE_PAD, PAGE_STACK, PAGE_WIDTH, type PageWidth } from '../internal/layout.js';
+  import { HIT_AREA } from '../internal/touch.js';
   import PageHeader from './PageHeader.svelte';
 
   interface Props {
@@ -126,7 +127,7 @@
    * ring hugs the glyphs and clips the descenders.
    */
   const BACK =
-    '-ms-1 inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs text-muted ' +
+    `${HIT_AREA} -ms-1 inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs text-muted ` +
     'outline-none transition-colors hover:text-fg ' +
     'focus-visible:ring-2 focus-visible:ring-brand';
 </script>
