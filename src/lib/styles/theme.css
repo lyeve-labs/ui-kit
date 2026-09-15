@@ -478,7 +478,7 @@ html[data-theme='light'] {
  * Print.
  *
  * The consuming applications had no `@media print` rule anywhere, and three surfaces print:
- * the portal prints an invoice, the ops console prints an audit log, the admin
+ * the portal prints an invoice, an operations console prints an audit log, the admin
  * prints a subject-access export. All three printed the sidebar, the theme
  * toggle and the nav, in a dark palette, and all three printed one screenful
  * and stopped, because the shell is `h-screen` with the content column set to
