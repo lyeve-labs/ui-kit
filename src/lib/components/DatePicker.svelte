@@ -8,6 +8,7 @@
     controlBorder,
     describedBy,
   } from '../internal/field.js';
+  import { PANEL_LIST_UNCAPPED, PANEL_SURFACE, placePanel } from '../internal/panel.js';
   // DatePicker: a text trigger + calendar popover. Binds `value` to an ISO date
   // string ("YYYY-MM-DD"). Pure local-date math (no timezone surprises).
   let {
@@ -237,80 +238,91 @@
         dialog with no name is announced as "dialog" and nothing else. The name
         is fixed rather than built from the field label, so a reader hears what
         the popup does instead of the label they just heard.
+
+        The surface is the shared panel, placed by placePanel: the calendar sat
+        under the trigger unconditionally, so inside a modal body it opened into
+        the part of the scroll region nobody could reach and was cut below the
+        weekday row. The width stays here, sized to seven columns. The region
+        inside is capped by the room and not by the list token, which is shorter
+        than six weeks of days, so a short modal scrolls the calendar rather
+        than cutting it.
       -->
       <div
         id={calendarId}
         role="dialog"
         aria-label="Choose date"
-        class="absolute z-dropdown mt-1 w-[17rem] rounded-xl border border-line bg-surface shadow-2xl p-3"
+        use:placePanel
+        class="{PANEL_SURFACE} w-68"
       >
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-2">
-          <button
-            type="button"
-            aria-label="Previous month"
-            onclick={prevMonth}
-            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
-          >
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
-              ><path
-                d="M7.5 2L4 6l3.5 4"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              /></svg
+        <div class="overflow-y-auto overscroll-contain p-3" data-panel-list={PANEL_LIST_UNCAPPED}>
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-2">
+            <button
+              type="button"
+              aria-label="Previous month"
+              onclick={prevMonth}
+              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
             >
-          </button>
-          <span class="text-sm font-medium text-fg">{MONTHS[viewMonth - 1]} {viewYear}</span>
-          <button
-            type="button"
-            aria-label="Next month"
-            onclick={nextMonth}
-            class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
-          >
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
-              ><path
-                d="M4.5 2L8 6l-3.5 4"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              /></svg
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
+                ><path
+                  d="M7.5 2L4 6l3.5 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                /></svg
+              >
+            </button>
+            <span class="text-sm font-medium text-fg">{MONTHS[viewMonth - 1]} {viewYear}</span>
+            <button
+              type="button"
+              aria-label="Next month"
+              onclick={nextMonth}
+              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors duration-150"
             >
-          </button>
-        </div>
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
+                ><path
+                  d="M4.5 2L8 6l-3.5 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                /></svg
+              >
+            </button>
+          </div>
 
-        <!-- Weekday labels -->
-        <div class="grid grid-cols-7 mb-1">
-          {#each WEEKDAYS as wd}
-            <span class="text-center text-[0.65rem] font-medium text-faint py-1">{wd}</span>
-          {/each}
-        </div>
+          <!-- Weekday labels -->
+          <div class="grid grid-cols-7 mb-1">
+            {#each WEEKDAYS as wd}
+              <span class="text-center text-[0.65rem] font-medium text-faint py-1">{wd}</span>
+            {/each}
+          </div>
 
-        <!-- Day grid -->
-        <div class="grid grid-cols-7 gap-0.5">
-          {#each cells as d}
-            {#if d === null}
-              <span></span>
-            {:else}
-              {@const iso = toISO(viewYear, viewMonth, d)}
-              <button
-                type="button"
-                disabled={isDisabled(d)}
-                onclick={() => pick(d)}
-                aria-current={iso === todayISO ? 'date' : undefined}
-                aria-label={iso}
-                class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors duration-150
+          <!-- Day grid -->
+          <div class="grid grid-cols-7 gap-0.5">
+            {#each cells as d}
+              {#if d === null}
+                <span></span>
+              {:else}
+                {@const iso = toISO(viewYear, viewMonth, d)}
+                <button
+                  type="button"
+                  disabled={isDisabled(d)}
+                  onclick={() => pick(d)}
+                  aria-current={iso === todayISO ? 'date' : undefined}
+                  aria-label={iso}
+                  class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors duration-150
                   disabled:opacity-30 disabled:cursor-not-allowed
                   {iso === value
-                  ? 'bg-brand text-ink font-medium'
-                  : iso === todayISO
-                    ? 'text-brand font-medium hover:bg-surface-2'
-                    : 'text-fg hover:bg-surface-2'}">{d}</button
-              >
-            {/if}
-          {/each}
+                    ? 'bg-brand text-ink font-medium'
+                    : iso === todayISO
+                      ? 'text-brand font-medium hover:bg-surface-2'
+                      : 'text-fg hover:bg-surface-2'}">{d}</button
+                >
+              {/if}
+            {/each}
+          </div>
         </div>
       </div>
     {/if}

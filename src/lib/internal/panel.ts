@@ -149,6 +149,16 @@ export function panelOption(state: {
 /** Marks the scrolling region inside a surface, so placePanel can find it. */
 export const PANEL_LIST_ATTR = 'data-panel-list';
 
+/**
+ * The attribute's value when the region is capped by the room alone.
+ *
+ * The token cap is sized for a list of rows, and a calendar is not one: six
+ * weeks of days stand taller than the token, so under it every month would
+ * scroll by a few rows. Such a region still takes the room as its cap, so
+ * inside a short modal it scrolls rather than being cut.
+ */
+export const PANEL_LIST_UNCAPPED = 'uncapped';
+
 /** The classes that put the surface under its anchor. */
 export const PANEL_BELOW = 'top-full mt-1';
 
@@ -202,7 +212,8 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  * under the modal's scroll edge that nobody can reach without scrolling
  * first. Whichever side wins, the list's max-height is the smaller of the
  * token cap and the room on that side, written as a CSS min so the token stays
- * the cap without this code knowing its value.
+ * the cap without this code knowing its value. A region marked uncapped takes
+ * the room alone.
  *
  * Measured on mount, on resize and on scroll of the clipping ancestor, since
  * each moves the anchor relative to the edge. Scroll does not bubble, so the
@@ -240,7 +251,8 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     // taken out of the room so the whole panel fits and not only its list.
     const chrome = Math.max(0, node.offsetHeight - list.offsetHeight);
     const room = Math.max(0, Math.round((flip ? above : below) - chrome));
-    list.style.maxHeight = `min(var(--spacing-panel-max), ${room}px)`;
+    const capped = list.getAttribute(PANEL_LIST_ATTR) !== PANEL_LIST_UNCAPPED;
+    list.style.maxHeight = capped ? `min(var(--spacing-panel-max), ${room}px)` : `${room}px`;
   }
 
   measure();
