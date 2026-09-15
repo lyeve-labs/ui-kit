@@ -12,7 +12,9 @@
    * and Escape and Tab both close and hand focus back to the trigger.
    */
   import type { Component, Snippet } from 'svelte';
+  import { TOUCH_GROW } from '../internal/touch.js';
   import { PANEL_LIST, PANEL_SURFACE, placePanel } from '../internal/panel.js';
+  import * as motion from '../motion.js';
 
   interface DropdownItem {
     label: string;
@@ -254,6 +256,7 @@
       bind:this={menuEl}
       role="menu"
       use:placePanel
+      transition:motion.popover
       class="{PANEL_SURFACE} min-w-36 {align === 'right' ? 'end-0' : 'start-0'}"
     >
       <div class={PANEL_LIST} data-panel-list>
@@ -264,8 +267,8 @@
             disabled={item.disabled}
             tabindex={index === active ? 0 : -1}
             onclick={() => handleItemClick(item)}
-            class="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors
-              duration-150 outline-none focus-visible:ring-2 focus-visible:ring-inset
+            class="{TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors
+              outline-none focus-visible:ring-2 focus-visible:ring-inset
               focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-40
               {item.variant === 'danger' ? 'text-danger hover:bg-danger/10' : 'hover:bg-surface-2'}"
           >

@@ -90,7 +90,9 @@ describe('Table', () => {
     // ring; the table uses the same one.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
-    expect(cls).toContain('[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]');
+    expect(cls).toContain(
+      '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
+    );
     expect(cls).toContain('[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_');
     expect(cls).toContain('[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_');
   });
@@ -102,10 +104,16 @@ describe('Table', () => {
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
     expect(cls).not.toMatch(/\[&_tbody_tr:hover\]:ring/);
-    expect(cls).toContain('[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]');
-    expect(cls).toContain('[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]');
+    expect(cls).toContain(
+      '[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]',
+    );
+    expect(cls).toContain(
+      '[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]',
+    );
     // A one-cell row is both ends and gets all four edges.
-    expect(cls).toContain('[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]');
+    expect(cls).toContain(
+      '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
+    );
   });
 
   it('separates its borders so the hover ring is painted at all', () => {
@@ -352,5 +360,46 @@ describe('Table keeps a clipped value reachable', () => {
     for (const id of ['clip', 'own', 'fits', 'free']) {
       expect(getByTestId(id).hasAttribute('data-cell-title')).toBe(false);
     }
+  });
+});
+
+describe('Table column alignment', () => {
+  it('aligns head cells to the start, over the browser default', () => {
+    // The table said `text-start` and the UA stylesheet's `th { text-align:
+    // center }` beat the inherited value, so every heading floated over a
+    // left-aligned column unless the page wrote `text-left` on each th.
+    const { container } = render(Table, { props: { children: body } });
+    expect(container.querySelector('table')?.className.split(/\s+/)).toContain(
+      '[&_thead_th]:text-start',
+    );
+  });
+
+  it('ranges a column marked numeric to the end, in tabular figures', () => {
+    const numeric = createRawSnippet(() => ({
+      render: () =>
+        '<thead><tr><th>Name</th><th data-col="numeric">Rows</th></tr></thead>' +
+        '<tbody><tr><td>a</td><td data-col="numeric">10,000</td></tr></tbody>',
+    }));
+    const { container } = render(Table, { props: { children: numeric } });
+    const list = container.querySelector('table')?.className.split(/\s+/) ?? [];
+    expect(list).toContain('[&_th[data-col=numeric]]:text-end');
+    expect(list).toContain('[&_td[data-col=numeric]]:text-end');
+    expect(list).toContain('[&_td[data-col=numeric]]:tabular-nums');
+  });
+});
+
+describe('Table head controls', () => {
+  it('reaches a sort button the page puts in a heading with a finger', () => {
+    // The button is the caller's and the head row is 40px. The hit box every
+    // small kit control grows under a coarse pointer is given to it through
+    // the table, so a sorted table needs nothing from the page to meet the
+    // finger; the box centres on a positioned element, hence both classes.
+    const head = createRawSnippet(() => ({
+      render: () => '<thead><tr><th><button type="button">Name</button></th></tr></thead>',
+    }));
+    const { container } = render(Table, { props: { children: head } });
+    const list = container.querySelector('table')?.className.split(/\s+/) ?? [];
+    expect(list).toContain('[&_thead_th_button]:hit-area');
+    expect(list).toContain('[&_thead_th_button]:relative');
   });
 });

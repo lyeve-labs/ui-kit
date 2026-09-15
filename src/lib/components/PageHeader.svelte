@@ -73,7 +73,19 @@
     </h1>
     {#if description && !compact}<p class="mt-1 text-sm text-muted">{description}</p>{/if}
   </div>
+  <!-- The slot wraps in two steps. It sits beside the title while both fit
+       and drops under it, at the end edge, when they do not; wider than the
+       row on its own, it wraps its controls inside itself, each line ending at
+       the end edge, in the order they were given. It used to be `shrink-0`,
+       which sizes a flex item to its content and so cannot wrap even when the
+       page puts a wrapping row inside it: four actions pushed the primary one
+       83px past a 400px screen. -->
   {#if actions}
-    <div class="flex shrink-0 items-center gap-2">{@render actions()}</div>
+    <div
+      data-testid="page-actions"
+      class="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-2"
+    >
+      {@render actions()}
+    </div>
   {/if}
 </header>

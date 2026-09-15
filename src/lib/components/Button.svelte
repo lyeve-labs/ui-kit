@@ -4,6 +4,7 @@
   import Spinner from './Spinner.svelte';
   import Tooltip from './Tooltip.svelte';
   import { safeHref } from '../internal/href.js';
+  import { TOUCH_GROW } from '../internal/touch.js';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
   type Size = 'sm' | 'md' | 'lg';
@@ -102,9 +103,21 @@
   };
 
   const spinnerSize = $derived(size === 'lg' ? 18 : 15);
+  /*
+   * whitespace-nowrap: a label never breaks inside itself. Under a Table's
+   * `overflow-wrap: anywhere` a two-word ghost button in a flex row rendered
+   * on two lines, and a status badge beside it as `dra ft`. A caller that
+   * caps the width wraps its label in a `truncate` span; the button cannot
+   * do that for it, because the label and any icon before it are flex items
+   * and text-overflow does not reach into one.
+   *
+   * TOUCH_GROW: under a coarse pointer the button takes the control height,
+   * which is 44px there, so a button and the input beside it grow together.
+   * A mouse sees 36px, 32px and 44px by size, as before.
+   */
   const cls = $derived(
-    `inline-flex items-center justify-center font-medium transition-colors duration-150 ` +
-      `disabled:opacity-50 disabled:cursor-not-allowed select-none ` +
+    `inline-flex items-center justify-center font-medium whitespace-nowrap transition-colors ` +
+      `disabled:opacity-50 disabled:cursor-not-allowed select-none ${TOUCH_GROW} ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );
 

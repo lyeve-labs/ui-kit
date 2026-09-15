@@ -73,3 +73,26 @@ describe('Badge', () => {
     expect(container.querySelector('.w-1\\.5')).toBeNull();
   });
 });
+
+describe('Badge in a narrow cell', () => {
+  it('never breaks its label inside itself', () => {
+    // Under a Table's default `overflow-wrap: anywhere` a status rendered as
+    // `dra ft` and a role as `sup er_a dmi n`; 156 admin cells opted out of
+    // wrapping to stop it, one cell at a time.
+    const { container } = render(Badge, { props: { children: text('draft') } });
+    const list = (container.firstElementChild as HTMLElement).className.split(/\s+/);
+    expect(list).toContain('whitespace-nowrap');
+    expect(list).toContain('max-w-full');
+  });
+
+  it('truncates rather than overflowing when the caller caps its width', () => {
+    // text-overflow does not reach into a flex item, so the label sits in a
+    // span of its own that can shrink and end in an ellipsis.
+    const { container, getByText } = render(Badge, {
+      props: { class: 'max-w-24', children: text('a-very-long-status-name') },
+    });
+    const label = getByText('a-very-long-status-name').parentElement as HTMLElement;
+    expect(label.className.split(/\s+/)).toEqual(expect.arrayContaining(['min-w-0', 'truncate']));
+    expect(container.firstElementChild?.contains(label)).toBe(true);
+  });
+});

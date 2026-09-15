@@ -13,6 +13,7 @@
    * items is open, and an item asks it; this decides nothing beyond itself.
    */
   import type { Component, Snippet } from 'svelte';
+  import { TOUCH_GROW } from '../internal/touch.js';
 
   interface Props {
     open?: boolean;
@@ -70,8 +71,8 @@
     aria-expanded={open}
     aria-controls={panelId}
     onclick={toggle}
-    class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm font-medium
-      text-fg transition-colors duration-150 outline-none focus-visible:ring-2
+    class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm font-medium
+      text-fg transition-colors outline-none focus-visible:ring-2
       focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed
       disabled:opacity-50 {disabled ? '' : 'hover:bg-surface-2'}"
   >
@@ -86,7 +87,7 @@
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="shrink-0 text-faint transition-transform duration-200 ease-out {open
+      class="shrink-0 text-faint transition-transform duration-base {open
         ? ''
         : '-rotate-90 rtl:rotate-90'}"
       aria-hidden="true"
@@ -116,7 +117,7 @@
     clipped rather than spilling while the row grows.
   -->
   <div
-    class="grid transition-[grid-template-rows] duration-[var(--duration-collapse)] ease-out {open
+    class="grid transition-[grid-template-rows] duration-base {open
       ? 'grid-rows-[1fr]'
       : 'grid-rows-[0fr]'}"
   >

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Eye, EyeOff } from '@lucide/svelte';
+  import { HIT_AREA_POSITIONED } from '../internal/touch.js';
   import {
     CONTROL_BASE,
     FIELD_ERROR,
@@ -120,7 +121,7 @@
         aria-pressed={revealed}
         aria-controls={fieldId}
         aria-label={revealed ? 'Hide password' : 'Show password'}
-        class="absolute top-1/2 end-1 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors duration-150 hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA_POSITIONED} absolute top-1/2 end-1 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
       >
         {#if revealed}
           <EyeOff size={15} aria-hidden="true" />

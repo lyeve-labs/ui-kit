@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { HIT_AREA } from '../internal/touch.js';
   import { overlay } from '../internal/overlay.js';
+  import * as motion from '../motion.js';
 
   type Size = 'sm' | 'md' | 'lg';
 
@@ -58,13 +60,14 @@
       aria-hidden="true"
       class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
       onclick={close}
+      transition:motion.scrim
     ></button>
 
     <div
       use:overlay
+      transition:motion.dialog
       class="relative flex max-h-[calc(100dvh-2rem)] w-full {widths[size]} flex-col
-             overflow-hidden rounded-xl border border-line bg-surface shadow-2xl
-             animate-[modal-in_var(--duration-modal-in)_ease-out]"
+             overflow-hidden rounded-xl border border-line bg-surface shadow-2xl"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? headingId : undefined}
@@ -82,7 +85,7 @@
           <button
             type="button"
             onclick={close}
-            class="shrink-0 rounded text-faint transition-colors duration-150 hover:text-fg
+            class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg
                    outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             aria-label="Close"
           >

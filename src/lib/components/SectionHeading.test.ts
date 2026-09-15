@@ -111,3 +111,24 @@ describe('SectionHeading eyebrow', () => {
     expect(cls).not.toMatch(/\btext-(xs|sm|base|lg|xl|\dxl)\b/);
   });
 });
+
+describe('SectionHeading actions on a narrow screen', () => {
+  it('lets the slot wrap as the page title row does', () => {
+    // Five filter chips in this slot ran 212px past a phone's edge while it
+    // was `shrink-0`.
+    const actions = createRawSnippet(() => ({ render: () => '<button>Filter</button>' }));
+    const { container } = render(SectionHeading, {
+      props: {
+        children: createRawSnippet(() => ({ render: () => '<span>Entries</span>' })),
+        actions,
+      },
+    });
+    const slot = container.querySelector('[data-testid="section-actions"]') as HTMLElement;
+    const list = slot.className.split(/\s+/);
+    expect(list).not.toContain('shrink-0');
+    expect(list).toContain('flex-wrap');
+    expect(list).toContain('min-w-0');
+    expect(list).toContain('ms-auto');
+    expect(list).toContain('justify-end');
+  });
+});

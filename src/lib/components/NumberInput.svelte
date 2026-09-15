@@ -72,7 +72,7 @@
   // the part a low-vision user could not find.
   const step_ =
     'flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted ' +
-    'transition-colors duration-150 hover:bg-line hover:text-fg ' +
+    'transition-colors hover:bg-line hover:text-fg ' +
     'disabled:opacity-50 disabled:cursor-not-allowed';
 </script>
 
@@ -119,7 +119,7 @@
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
       class="min-w-0 flex-1 border-y bg-surface-2 text-center text-sm text-fg
-        outline-none transition-colors duration-150
+        outline-none transition-colors
         disabled:cursor-not-allowed disabled:opacity-50
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none

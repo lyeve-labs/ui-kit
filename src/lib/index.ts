@@ -23,6 +23,7 @@ export { default as DescriptionList } from './components/DescriptionList.svelte'
 export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
 export type { CellFit } from './components/Table.svelte';
+export type { SidebarState } from './components/AppShell.svelte';
 export type { PageWidth, SectionVariant } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
 
@@ -142,7 +143,15 @@ export {
   type ThemePreference,
 } from './utils/theme.js';
 
+// ── Motion ─────────────────────────────────────────────────────────────────
+// The entrances and exits as Svelte transitions, for a surface a consumer
+// builds that the kit does not ship: `transition:motion.popover`,
+// `animate:motion.reorder`. They read the duration and easing tokens, so a
+// page that uses them cannot drift from the components beside it.
+export * as motion from './motion.js';
+export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
+
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line; the build and the test suite fail when the two disagree.
-export const VERSION = '0.24.0';
+export const VERSION = '0.25.0';
