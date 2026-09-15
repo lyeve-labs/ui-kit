@@ -235,7 +235,7 @@
     {/if}
 
     {#if box.open}
-      <div use:placePanel transition:motion.popover class="{PANEL_SURFACE} w-full">
+      <div use:placePanel transition:motion.popover|global class="{PANEL_SURFACE} w-full">
         <div class={PANEL_LIST} data-panel-list use:panel {...box.listAttrs}>
           {#each rows as option, index (option.value)}
             {@const isSelected = option.value === value}

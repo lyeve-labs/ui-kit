@@ -5,6 +5,19 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- An overlay's exit now plays when the page removes the component, not only
+  when the component closes itself. The presets were local Svelte
+  transitions, which play only when their own block toggles, and every
+  console wraps a `Modal` in a page-level `{#if}` so the form inside starts
+  fresh each time; on those pages the dialog still snapped shut. Every
+  preset directive in the kit is `|global` now, and the consistency suite
+  refuses one that is not. A page's own surface on a preset needs the same
+  modifier: `transition:motion.popover|global`.
+
 ## [0.25.0] - 2026-09-15
 
 ### Added

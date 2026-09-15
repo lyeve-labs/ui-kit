@@ -196,16 +196,17 @@ leaves through the same presets the kit's overlays use:
 </script>
 
 {#if open}
-  <div transition:motion.popover>...</div>
+  <div transition:motion.popover|global>...</div>
 {/if}
 
 {#each items as item (item.id)}
-  <li transition:motion.toast animate:motion.reorder>...</li>
+  <li transition:motion.toast|global animate:motion.reorder>...</li>
 {/each}
 ```
 
 `dialog`, `scrim`, `drawer`, `popover` and `toast` read the tokens at run
-time, so retuning a token retunes them, and every one of them plays nothing
+time; the `|global` modifier is what lets the exit play when a parent block
+removes the surface, so keep it. They so retuning a token retunes them, and every one of them plays nothing
 for a reader who has asked for reduced motion. Do not write `duration-150`,
 `ease-out` or `transition-all` beside a kit class: they are a fifth speed and
 a fourth curve, and the kit's own test suite refuses them.
