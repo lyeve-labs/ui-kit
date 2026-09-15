@@ -27,7 +27,7 @@
 >
   {#each toast.items as t (t.id)}
     <div
-      transition:motion.toast
+      transition:motion.toast|global
       animate:motion.reorder
       class="pointer-events-auto flex items-start gap-3 overflow-hidden rounded-lg border border-line
              bg-surface ps-0 pe-3 py-3 shadow-xl"

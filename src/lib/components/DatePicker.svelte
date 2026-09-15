@@ -254,7 +254,7 @@
         role="dialog"
         aria-label="Choose date"
         use:placePanel
-        transition:motion.popover
+        transition:motion.popover|global
         class="{PANEL_SURFACE} w-68"
       >
         <div class="overflow-y-auto overscroll-contain p-3" data-panel-list={PANEL_LIST_UNCAPPED}>
