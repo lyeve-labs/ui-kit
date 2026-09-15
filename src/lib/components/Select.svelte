@@ -84,6 +84,7 @@
     panelOption,
     placePanel,
   } from '../internal/panel.js';
+  import * as motion from '../motion.js';
 
   interface Props {
     /** The selected value. Bindable, so a listbox pick reaches the caller without a callback. */
@@ -283,7 +284,7 @@
       height="12"
       viewBox="0 0 12 12"
       fill="none"
-      class="transition-transform duration-150 {open ? 'rotate-180' : ''}"
+      class="transition-transform duration-base {open ? 'rotate-180' : ''}"
     >
       <path
         d="M2 4l4 4 4-4"
@@ -408,7 +409,7 @@
       <input type="hidden" {name} {disabled} value={value ?? ''} />
 
       {#if box.open}
-        <div use:placePanel class="{PANEL_SURFACE} w-full">
+        <div use:placePanel transition:motion.popover class="{PANEL_SURFACE} w-full">
           {#if searchable}
             <div class="border-b border-line p-2">
               <!--
@@ -432,7 +433,7 @@
                 aria-label={label ? `Search ${label}` : 'Search options'}
                 {...box.triggerAttrs}
                 class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
-                  text-sm text-fg outline-none transition-colors duration-150
+                  text-sm text-fg outline-none transition-colors
                   placeholder:text-faint focus:border-brand"
               />
             </div>

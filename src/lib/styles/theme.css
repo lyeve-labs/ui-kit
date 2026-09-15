@@ -115,24 +115,59 @@
   --z-index-toast: 600; /* transient status                   */
   --z-index-skip-link: 700; /* the first tab stop in the document */
 
-  /* -- Motion - how long a transition or an entrance runs -------- *
-   *  Four durations shipped as literals inside the animate-[...]
-   *  utility of the component that used them, so the only way to
-   *  read the kit's motion was to grep four components. They are
-   *  stated here at the values they already ran at.
+  /* -- Motion - four durations, three curves, one rule for exits -- *
+   *  Named for what they are used for, so the choice is made by
+   *  reading the name:
+   *
+   *    fast      a state change in place: colour, opacity, border,
+   *              shadow, focus
+   *    base      movement in place (a knob, a chevron, a collapse, a
+   *              tab indicator) and a small surface arriving (menu,
+   *              popover, tooltip, toast)
+   *    slow      a large surface arriving (dialog, drawer)
+   *    progress  a value moving (a progress bar's width)
+   *
+   *    enter     arriving: starts fast and settles
+   *    exit      leaving: starts slow and accelerates away
+   *    move      changing in place
+   *
+   *  An exit runs one rung faster than its entrance and on exit:
+   *  slow in, base out; base in, fast out. Entrances and exits move
+   *  only opacity and transform.
    *
    *  Tailwind builds no utility from a --duration-* token: there is
-   *  no such theme namespace, and `duration-collapse` compiles to
-   *  nothing at all. Each one is read through var() from an
-   *  arbitrary utility instead, which is why they are listed in
-   *  VAR_ONLY in theme-tokens.test.ts.
+   *  no such theme namespace, and `duration-fast` would compile to
+   *  nothing. The @utility rules after this block declare the four
+   *  by hand, which is why the tokens are listed in VAR_ONLY in
+   *  theme-tokens.test.ts. --ease-* is a real namespace and the
+   *  three curves become ease-enter, ease-exit and ease-move on
+   *  their own.
+   *
+   *  Every transition-* utility reads the two --default-* values, so
+   *  `transition-colors` alone is complete. Before this a component
+   *  wrote `duration-150` fifty times to say the same thing.
    *
    *  The reduced-motion block at the foot of this file overrides
-   *  every one of them and stays the authority on whether they run. */
-  --duration-modal-in: 120ms; /* Modal, the centred entrance   */
-  --duration-toast-in: 140ms; /* Toaster, one toast arriving   */
-  --duration-drawer-in: 150ms; /* Drawer, either edge           */
-  --duration-collapse: 200ms; /* Accordion and Collapsible     */
+   *  every one of them and stays the authority on whether they run;
+   *  the Svelte presets in motion.ts honour the same preference for
+   *  the entrances and exits that run outside CSS.                    */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --duration-progress: 500ms;
+
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --default-transition-duration: var(--duration-fast);
+  --default-transition-timing-function: var(--ease-move);
+
+  /* The one entrance that is a CSS animation. A panel inside <details> is
+   * shown and removed by the browser, so a Svelte transition never sees it
+   * leave; it plays this on the way in and nothing on the way out. Every
+   * other surface enters and leaves through the presets in motion.ts. */
+  --animate-popover-in: popover-in var(--duration-base) var(--ease-enter);
 
   /* ── Typography · families ───────────────────────────────────── */
   --font-sans:
@@ -290,61 +325,41 @@ html[data-theme='light'] {
 }
 
 /*
- * The entrance keyframes, declared here and not in the components that play
- * them.
- *
- * Modal, Drawer and Toaster each held their own `@keyframes` in a scoped
- * `<style>` block and started it from a Tailwind `animate-[...]` class. Svelte
- * renames a scoped keyframe to `svelte-<hash>-<name>` and rewrites only the
- * references inside that same style block, so the class asked the browser for
- * `modal-in` while the only rule declared was `svelte-ta60gp-modal-in`. An
- * animation-name that resolves to nothing is not an error: the element simply
- * appears, and all four entrances had been dead in every consumer.
- *
- * A keyframe named from a class has to be global, and the file every consumer
- * already imports is the one place it can be global from.
+ * The four durations as utilities. A --duration-* token generates nothing
+ * (see the motion section of the @theme block), so each is declared here the
+ * way Tailwind's own duration-* is: the custom property it sets is what the
+ * transition-* utilities read, and the longhand covers an element that
+ * writes `transition` by hand.
  */
-@keyframes modal-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+@utility duration-fast {
+  --tw-duration: var(--duration-fast);
+  transition-duration: var(--duration-fast);
+}
+@utility duration-base {
+  --tw-duration: var(--duration-base);
+  transition-duration: var(--duration-base);
+}
+@utility duration-slow {
+  --tw-duration: var(--duration-slow);
+  transition-duration: var(--duration-slow);
+}
+@utility duration-progress {
+  --tw-duration: var(--duration-progress);
+  transition-duration: var(--duration-progress);
 }
 
-@keyframes drawer-in-right {
+/*
+ * Declared here and not in the component that plays it. Svelte renames a
+ * scoped keyframe to `svelte-<hash>-<name>` and rewrites only the references
+ * inside that same style block, so a class asking for `popover-in` would find
+ * no rule and the element would simply appear. A keyframe named from a class
+ * has to be global, and the file every consumer imports is the one place it
+ * can be global from. It draws the same frame as the popover preset.
+ */
+@keyframes popover-in {
   from {
     opacity: 0;
-    transform: translateX(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes drawer-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateX(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+    transform: translateY(-4px) scale(0.96);
   }
 }
 

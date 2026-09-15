@@ -29,13 +29,13 @@
                 ? ''
                 : done || active
                   ? 'bg-brand'
-                  : 'bg-line'} h-px transition-colors duration-150"
+                  : 'bg-line'} h-px transition-colors"
             ></div>
 
             <!-- Step circle -->
             <div
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2
-                font-bold text-sm transition-all
+                font-bold text-sm transition-colors
                 {done
                 ? 'border-brand bg-brand text-ink'
                 : active
@@ -62,7 +62,7 @@
                 ? ''
                 : done
                   ? 'bg-brand'
-                  : 'bg-line'} h-px transition-colors duration-150"
+                  : 'bg-line'} h-px transition-colors"
             ></div>
           </div>
 
@@ -72,7 +72,7 @@
                 ? 'text-fg'
                 : done
                   ? 'text-muted'
-                  : 'text-faint'} transition-colors duration-150"
+                  : 'text-faint'} transition-colors"
             >
               {step.label}
             </p>
@@ -95,7 +95,7 @@
           <div class="flex flex-col items-center">
             <div
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2
-                font-bold text-sm transition-all
+                font-bold text-sm transition-colors
                 {done
                 ? 'border-brand bg-brand text-ink'
                 : active
@@ -117,9 +117,7 @@
             </div>
             {#if i < steps.length - 1}
               <div
-                class="my-1 w-px flex-1 {done
-                  ? 'bg-brand/40'
-                  : 'bg-line'} transition-colors duration-150"
+                class="my-1 w-px flex-1 {done ? 'bg-brand/40' : 'bg-line'} transition-colors"
               ></div>
             {/if}
           </div>
@@ -129,7 +127,7 @@
                 ? 'text-fg'
                 : done
                   ? 'text-muted'
-                  : 'text-faint'} transition-colors duration-150"
+                  : 'text-faint'} transition-colors"
             >
               {step.label}
             </p>

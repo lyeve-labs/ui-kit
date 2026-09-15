@@ -57,7 +57,7 @@
        half alpha reads as a weaker affordance for no reason a user can infer. -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
-      border-2 border-dashed px-4 py-8 text-center transition-colors duration-150
+      border-2 border-dashed px-4 py-8 text-center transition-colors
       {error
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver

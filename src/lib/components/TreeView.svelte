@@ -270,7 +270,7 @@
         scan, so no rule is generated and every row draws flush left.
       -->
       <div
-        class="flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors duration-150 {rowPaint(
+        class="flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors {rowPaint(
           selected === node.id,
           !!node.disabled,
         )}"
@@ -283,7 +283,7 @@
           >
             <ChevronRight
               size={14}
-              class="transition-transform duration-150 {open ? 'rotate-90' : 'rtl:rotate-180'}"
+              class="transition-transform duration-base {open ? 'rotate-90' : 'rtl:rotate-180'}"
             />
           </span>
         {:else}
