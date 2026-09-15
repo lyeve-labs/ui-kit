@@ -21,6 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   carrying the same name, with the shell's gap between them. A heading query
   and a screen reader still find exactly one h1; `back` renders nothing on
   such a page, so the page takes on the way back itself.
+- `SegmentedControl` takes `href` per option. When every option carries one,
+  each segment renders as a plain anchor with no click handler, the chosen
+  segment carries `aria-current="page"`, and the group is a `group` rather
+  than a `radiogroup`, so a page can keep its choice in the URL, survive a
+  reload and work before any script has loaded. The arrows still move
+  between segments, and the tab stop follows focus inside the group and
+  returns to the current segment when focus leaves it. A row that mixes
+  links and radios is refused with an error, since a radio beside two links
+  would report a choice the URL never learns about. The value mode is
+  unchanged.
 
 ### Fixed
 

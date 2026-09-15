@@ -9,11 +9,20 @@
     label: string;
     /** A lucide component. The control sizes it, so the caller does not guess. */
     icon?: Component<{ size?: number; class?: string }>;
+    /**
+     * Renders the segment as a link to this URL instead of a radio. Every
+     * option carries one or none does; the modes cannot be mixed in one
+     * control. The chosen segment is still the one whose value matches
+     * `value`, and it carries aria-current="page", so a page can keep its
+     * choice in the URL and the control works before any script has loaded.
+     */
+    href?: string;
   }
 </script>
 
 <script lang="ts" generics="T extends string">
   import { FIELD_LABEL, FIELD_WRAP } from '../internal/field.js';
+  import { safeHref } from '../internal/href.js';
 
   type Size = 'sm' | 'md';
 
@@ -34,6 +43,7 @@
     size?: Size;
     disabled?: boolean;
     class?: string;
+    /** Value mode only. A link segment reports nothing; the page it opens does. */
     onchange?: (value: T) => void;
   }
 
@@ -62,7 +72,31 @@
 
   let rootEl: HTMLDivElement | undefined = $state();
 
+  /*
+   * Link mode when every option carries an href. A row that mixes the two is
+   * refused outright rather than rendered as best it can: a radio beside two
+   * links would report a choice that the URL never learns about, and the
+   * caller has no way to see that from the screen.
+   */
+  const linked = $derived.by(() => {
+    const count = options.filter((o) => o.href !== undefined).length;
+    if (count !== 0 && count !== options.length) {
+      throw new Error(
+        `SegmentedControl: every option carries href or none does, ${count} of ${options.length} did`,
+      );
+    }
+    return count !== 0;
+  });
+
   const selectedIndex = $derived(options.findIndex((o) => o.value === value));
+
+  /*
+   * In link mode the arrows move focus without moving the choice, since the
+   * choice is the URL and only following a link changes it. The tab stop
+   * travels with focus while it is inside the group, and returns to the chosen
+   * segment when focus leaves, so Tab re-enters on the one that is current.
+   */
+  let roving: number | null = $state(null);
 
   /*
    * The group holds ONE tab stop, which is the whole reason this is not a row
@@ -72,10 +106,15 @@
    * drop the control out of the tab order entirely, so the first segment holds
    * the stop until something is chosen.
    */
-  const tabStop = $derived(selectedIndex === -1 ? 0 : selectedIndex);
+  const tabStop = $derived(roving ?? (selectedIndex === -1 ? 0 : selectedIndex));
 
   function segmentAt(index: number): HTMLElement | undefined {
-    return rootEl?.querySelectorAll<HTMLElement>('[role="radio"]')[index];
+    return rootEl?.querySelectorAll<HTMLElement>('[data-segment]')[index];
+  }
+
+  function onGroupFocusOut(e: FocusEvent) {
+    if (rootEl && e.relatedTarget instanceof Node && rootEl.contains(e.relatedTarget)) return;
+    roving = null;
   }
 
   function choose(index: number) {
@@ -123,7 +162,13 @@
     }
     // The arrows scroll the page, and Home and End jump it to the ends.
     e.preventDefault();
-    choose(next);
+    if (linked) {
+      if (disabled) return;
+      roving = next;
+      segmentAt(next)?.focus();
+    } else {
+      choose(next);
+    }
   }
 </script>
 
@@ -135,10 +180,14 @@
     <span class={FIELD_LABEL}>{label}</span>
   {/if}
 
+  <!-- A set of links is a group, not a radiogroup: a link is not a radio and
+       carries no aria-checked, and what marks the current one is aria-current,
+       the attribute a reader already knows from navigation. -->
   <div
     bind:this={rootEl}
-    role="radiogroup"
+    role={linked ? 'group' : 'radiogroup'}
     aria-label={label}
+    onfocusout={linked ? onGroupFocusOut : undefined}
     class="inline-flex items-stretch rounded-lg border border-line-strong bg-surface-2 p-0.5 {SIZES[
       size
     ].row} {disabled ? 'opacity-50' : ''}"
@@ -146,28 +195,13 @@
     {#each options as option, i (option.value)}
       {@const selected = option.value === value}
       {@const Icon = option.icon}
-      <!--
-        Each segment is a radio, and aria-checked is what a screen reader reads.
-        The theme picker this replaces was a row of plain buttons whose choice
-        was carried by a background colour alone, so a screen reader user was
-        told nothing and a colour-blind user saw nothing. The selected segment
-        also sits at a heavier weight, so the state survives a palette a reader
-        cannot separate.
-      -->
-      <button
-        type="button"
-        role="radio"
-        aria-checked={selected}
-        tabindex={i === tabStop ? 0 : -1}
-        {disabled}
-        onclick={() => choose(i)}
-        onkeydown={(e) => onSegmentKeydown(e, i)}
-        class="inline-flex items-center justify-center rounded-md outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed {SIZES[
-          size
-        ].segment} {selected
-          ? 'bg-surface text-fg shadow-sm'
-          : 'text-muted hover:text-fg active:bg-surface active:text-fg'}"
-      >
+      {@const segment =
+        'inline-flex items-center justify-center rounded-md outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ' +
+        SIZES[size].segment +
+        (selected
+          ? ' bg-surface text-fg shadow-sm'
+          : ' text-muted hover:text-fg active:bg-surface active:text-fg')}
+      {#snippet content()}
         {#if Icon}
           <Icon size={SIZES[size].icon} class="shrink-0" />
         {/if}
@@ -183,7 +217,47 @@
             >{option.label}</span
           >
         </span>
-      </button>
+      {/snippet}
+      {#if linked}
+        <!--
+          A plain anchor with no click handler, so the choice is a navigation
+          the browser performs on its own. A disabled row drops the hrefs: an
+          anchor with no href is not a link, and aria-disabled says why.
+        -->
+        <a
+          data-segment
+          href={disabled ? undefined : safeHref(option.href)}
+          aria-current={selected ? 'page' : undefined}
+          aria-disabled={disabled ? 'true' : undefined}
+          tabindex={disabled ? -1 : i === tabStop ? 0 : -1}
+          onkeydown={(e) => onSegmentKeydown(e, i)}
+          class="{segment} {disabled ? 'cursor-not-allowed' : ''}"
+        >
+          {@render content()}
+        </a>
+      {:else}
+        <!--
+          Each segment is a radio, and aria-checked is what a screen reader
+          reads. The theme picker this replaces was a row of plain buttons whose
+          choice was carried by a background colour alone, so a screen reader
+          user was told nothing and a colour-blind user saw nothing. The
+          selected segment also sits at a heavier weight, so the state survives
+          a palette a reader cannot separate.
+        -->
+        <button
+          data-segment
+          type="button"
+          role="radio"
+          aria-checked={selected}
+          tabindex={i === tabStop ? 0 : -1}
+          {disabled}
+          onclick={() => choose(i)}
+          onkeydown={(e) => onSegmentKeydown(e, i)}
+          class={segment}
+        >
+          {@render content()}
+        </button>
+      {/if}
     {/each}
   </div>
 
