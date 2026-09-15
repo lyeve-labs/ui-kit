@@ -1,5 +1,6 @@
 <script lang="ts">
   import { activeTrail, type NavNode, type NavTree } from '../internal/nav-tree.js';
+  import { TOUCH_GROW } from '../internal/touch.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
   import type { AccentTone } from '../internal/tone.js';
 
@@ -65,8 +66,8 @@
    * stray line or as nothing at all.
    */
   const ROW =
-    'flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 pe-2 text-sm text-start ' +
-    'transition-colors duration-150 outline-none ' +
+    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 pe-2 text-sm text-start ` +
+    'transition-colors outline-none ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
   /**
@@ -99,8 +100,8 @@
    * it wrong half the time.
    */
   const DISCLOSURE =
-    'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted ' +
-    'transition-colors duration-150 outline-none hover:bg-surface-2 hover:text-fg ' +
+    `${TOUCH_GROW} flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted ` +
+    'transition-colors outline-none hover:bg-surface-2 hover:text-fg ' +
     'active:bg-line active:text-fg ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
@@ -219,11 +220,13 @@
 
     {#if branch}
       <!--
-        Rendered whether or not it is open, and hidden with a display utility.
-        aria-controls has to name an element that exists; pointing it at markup
-        that appears only once the group is open leaves the reference dangling
-        in the one state where a reader needs it to tell them what the button
-        will reveal.
+        Rendered whether or not it is open, and shut by collapsing its grid row
+        to nothing, the same move AccordionItem makes. aria-controls has to name
+        an element that exists; pointing it at markup that appears only once the
+        group is open leaves the reference dangling in the one state where a
+        reader needs it to tell them what the button will reveal. inert keeps a
+        shut group out of the tab order and the accessibility tree, which is
+        what the display utility used to do.
 
         It keeps the implicit list role. role="group" here overrode it, and a
         listitem whose parent is not a list is an ARIA context error, so every
@@ -231,14 +234,20 @@
         semantics belong to a tree, where the parent is a treeitem; this is a
         nav of plain links and the disclosure already says what it controls.
       -->
-      <ul
-        id={listId(node.id)}
-        class="{open && !node.disabled ? 'flex' : 'hidden'} mt-0.5 flex-col gap-0.5"
+      {@const shown = open && !node.disabled}
+      <div
+        class="grid transition-[grid-template-rows] duration-base {shown
+          ? 'grid-rows-[1fr]'
+          : 'grid-rows-[0fr]'}"
       >
-        {#each children as child (child.id)}
-          {@render row(child, depth + 1)}
-        {/each}
-      </ul>
+        <div class="overflow-hidden">
+          <ul id={listId(node.id)} inert={!shown} class="mt-0.5 flex flex-col gap-0.5">
+            {#each children as child (child.id)}
+              {@render row(child, depth + 1)}
+            {/each}
+          </ul>
+        </div>
+      </div>
     {/if}
   </li>
 {/snippet}
@@ -272,7 +281,7 @@
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"
-    class="shrink-0 transition-transform duration-150 {open ? 'rotate-90' : 'rtl:rotate-180'}"
+    class="shrink-0 transition-transform duration-base {open ? 'rotate-90' : 'rtl:rotate-180'}"
   >
     <path d="M9 18l6-6-6-6" />
   </svg>

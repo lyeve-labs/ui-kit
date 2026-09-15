@@ -7,6 +7,7 @@ import {
   PANEL_EMPTY,
   PANEL_GROUP_LABEL,
   PANEL_LIST,
+  PANEL_LIST_UNCAPPED,
   PANEL_OPTION,
   PANEL_OPTION_ACTIVE,
   PANEL_OPTION_DISABLED,
@@ -69,16 +70,10 @@ describe('panel class strings', () => {
     );
   });
 
-  it.each(CONSTANTS)('%s states a duration beside every transition', (_name, cls) => {
-    // The shipped guard rejects a bare transition-colors, and a duration that
-    // is merely somewhere in the string lands on whatever it follows.
-    expect(cls).not.toMatch(/transition-colors(?!\s+duration-)/);
-    const parts = tokens(cls);
-    parts.forEach((t, i) => {
-      if (t.startsWith('transition-')) {
-        expect(parts[i + 1] ?? '', `${t} has no duration after it`).toMatch(/^duration-/);
-      }
-    });
+  it.each(CONSTANTS)('%s names no duration the theme does not', (_name, cls) => {
+    // The theme's defaults complete a bare transition-colors. A number beside
+    // it is a speed nobody chose.
+    expect(cls).not.toMatch(/duration-\d/);
   });
 });
 
@@ -312,6 +307,18 @@ describe('placePanel', () => {
     expect(hasAll(f.surface.className, PANEL_ABOVE)).toBe(true);
     // 400 - 100 - 8
     expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 292px)');
+    action.destroy();
+  });
+
+  it('caps an uncapped region by the room alone', () => {
+    // A calendar is a fixed grid taller than the token cap sized for a list of
+    // rows. Under the token every month would scroll; under the room alone it
+    // scrolls only inside a modal too short to hold it.
+    const f = mount({ anchor: [400, 440], clip: [100, 500], natural: 290 });
+    f.list.setAttribute('data-panel-list', PANEL_LIST_UNCAPPED);
+    const action = placePanel(f.surface);
+    expect(hasAll(f.surface.className, PANEL_ABOVE)).toBe(true);
+    expect(f.list.style.maxHeight).toBe('292px');
     action.destroy();
   });
 

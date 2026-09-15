@@ -258,8 +258,9 @@ describe('CopyButton presentation', () => {
     expect(source).not.toMatch(/[✓✔×]/);
   });
 
-  it('states the duration of its colour transition', () => {
-    expect(source).toContain('transition-colors duration-150');
+  it('transitions its colour on the theme clock, with no number of its own', () => {
+    expect(source).toContain('transition-colors');
+    expect(source).not.toMatch(/duration-\d/);
   });
 });
 

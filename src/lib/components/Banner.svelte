@@ -1,5 +1,6 @@
 <script lang="ts">
   import { statusTone, type StatusTone, type StatusToneInput } from '../internal/tone.js';
+  import { HIT_AREA } from '../internal/touch.js';
   import type { Snippet } from 'svelte';
 
   interface Props {
@@ -56,7 +57,7 @@
         type="button"
         onclick={dismiss}
         aria-label="Dismiss"
-        class="shrink-0 text-faint transition-colors duration-150 hover:text-fg"
+        class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
       >
         <svg
           width="16"

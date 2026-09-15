@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { HIT_AREA } from '../internal/touch.js';
   import { overlay } from '../internal/overlay.js';
+  import * as motion from '../motion.js';
 
   type Side = 'left' | 'right';
   type Size = 'sm' | 'md' | 'lg' | 'xl';
@@ -63,15 +65,14 @@
       aria-hidden="true"
       class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
       onclick={close}
+      transition:motion.scrim
     ></button>
 
     <div
       use:overlay
+      transition:motion.drawer={{ side }}
       class="relative flex h-full max-w-full flex-col {widths[size]} bg-surface shadow-2xl
-        {side === 'right' ? 'border-s' : 'border-e'} border-line
-        {side === 'right'
-        ? 'animate-[drawer-in-right_var(--duration-drawer-in)_ease-out]'
-        : 'animate-[drawer-in-left_var(--duration-drawer-in)_ease-out]'}"
+        {side === 'right' ? 'border-s' : 'border-e'} border-line"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? headingId : undefined}
@@ -89,7 +90,7 @@
           <button
             type="button"
             onclick={close}
-            class="-mt-0.5 text-xl leading-none text-faint transition-colors duration-150 hover:text-fg"
+            class="{HIT_AREA} -mt-0.5 text-xl leading-none text-faint transition-colors hover:text-fg"
             aria-label="Close"
           >
             <svg

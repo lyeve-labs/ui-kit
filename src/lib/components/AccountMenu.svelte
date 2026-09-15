@@ -17,6 +17,7 @@
    * to sign out.
    */
   import type { Snippet } from 'svelte';
+  import { TOUCH_GROW } from '../internal/touch.js';
   import { ChevronDown } from '@lucide/svelte';
   import type { AccentTone } from '../internal/tone.js';
 
@@ -98,7 +99,7 @@
 
 <details bind:this={root} class="group relative {klass}">
   <summary
-    class="flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors duration-150 hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
   >
     <span
       class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold {AVATAR_TONE[
@@ -111,7 +112,7 @@
     <span class="hidden min-w-0 max-w-[10rem] truncate text-sm text-fg sm:block">{name}</span>
     <ChevronDown
       size={14}
-      class="shrink-0 text-faint transition-transform duration-150 group-open:rotate-180"
+      class="shrink-0 text-faint transition-transform duration-base group-open:rotate-180"
     />
   </summary>
 
@@ -120,7 +121,7 @@
        rule are the card treatment, because lifted off the header it is a
        surface of its own. -->
   <div
-    class="absolute end-0 top-full z-dropdown mt-2 flex w-64 flex-col gap-1 rounded-xl border border-line bg-surface p-2 shadow-2xl"
+    class="absolute end-0 top-full z-dropdown mt-2 flex w-64 origin-top-right flex-col gap-1 rounded-xl border border-line bg-surface p-2 shadow-2xl animate-popover-in"
   >
     <div class="border-b border-line px-2 pb-2">
       <p class="truncate text-sm font-medium text-fg">{name}</p>

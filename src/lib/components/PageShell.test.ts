@@ -220,7 +220,7 @@ describe('PageShell', () => {
       expect(cls).toContain('outline-none');
       expect(cls).toContain('focus-visible:ring-2');
       expect(cls).toContain('focus-visible:ring-brand');
-      expect(cls).toMatch(/transition-colors duration-\d+/);
+      expect(cls).toMatch(/transition-colors(?!\s+duration-)/);
       expect(cls).not.toMatch(/#[0-9a-f]{3,6}/i);
     });
 
@@ -233,6 +233,34 @@ describe('PageShell', () => {
         },
       });
       expect((backOf(container) as HTMLAnchorElement).hasAttribute('href')).toBe(false);
+    });
+  });
+
+  describe('titleHidden', () => {
+    it('renders no title row and keeps the one h1 for assistive technology', () => {
+      const { container, getByTestId } = render(PageShell, {
+        props: {
+          title: 'Orders',
+          description: 'Every order',
+          titleHidden: true,
+          back: { href: '/orders', label: 'Orders' },
+          children: text('Body'),
+        },
+      });
+      const h1s = container.querySelectorAll('h1');
+      expect(h1s).toHaveLength(1);
+      expect(getByTestId('page-title').className).toContain('sr-only');
+      expect(getByTestId('page-title').textContent).toBe('Orders');
+      expect(container.querySelector('header')).toBeNull();
+      expect(container.querySelector('[data-testid="page-back"]')).toBeNull();
+      expect(container.textContent).not.toContain('Every order');
+    });
+
+    it('still renders the children in the content stack', () => {
+      const { getByText } = render(PageShell, {
+        props: { title: 'Orders', titleHidden: true, fill: true, children: text('Body') },
+      });
+      expect(getByText('Body')).toBeTruthy();
     });
   });
 

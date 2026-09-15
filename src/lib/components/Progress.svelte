@@ -62,7 +62,7 @@
     aria-label={label}
   >
     <div
-      class="h-full rounded-full transition-[width] duration-500
+      class="h-full rounded-full transition-[width] duration-progress
         {tones[tone]}
         {animated ? 'animate-pulse' : ''}"
       style="width: {pct}%"

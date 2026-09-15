@@ -27,3 +27,20 @@ describe('Breadcrumb', () => {
     expect(container.querySelector('nav[aria-label="Breadcrumb"]')).toBeTruthy();
   });
 });
+
+describe('Breadcrumb on a phone', () => {
+  it('truncates a long label inside the link rather than on it', () => {
+    // `truncate` clips overflow, and the hit box a finger gets is drawn
+    // outside the link's own edges; the link is a box around a truncating
+    // span so the two do not fight.
+    const { container } = render(Breadcrumb, {
+      props: { items: [{ label: 'A very long section name', href: '/a' }, { label: 'Here' }] },
+    });
+    const link = container.querySelector('a') as HTMLElement;
+    expect(link.className.split(/\s+/)).not.toContain('truncate');
+    expect(link.className.split(/\s+/)).toContain('min-w-0');
+    const label = link.firstElementChild as HTMLElement;
+    expect(label.className.split(/\s+/)).toEqual(expect.arrayContaining(['min-w-0', 'truncate']));
+    expect(label.textContent?.trim()).toBe('A very long section name');
+  });
+});

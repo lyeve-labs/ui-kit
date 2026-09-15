@@ -1,5 +1,6 @@
 <script lang="ts">
   import { FIELD_HINT } from '../internal/field.js';
+  import { HIT_AREA } from '../internal/touch.js';
   let {
     checked = $bindable(false),
     label,
@@ -79,14 +80,14 @@
     aria-label={label ?? 'Toggle'}
     {disabled}
     onclick={handleClick}
-    class="relative shrink-0 rounded-full border transition-colors duration-150 outline-none
+    class="{HIT_AREA} shrink-0 rounded-full border transition-colors outline-none
       focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1
       focus-visible:ring-offset-ink mt-0.5
       {track[size]}
       {checked ? trackPaint.on : trackPaint.off}"
   >
     <span
-      class="absolute rounded-full bg-fg shadow transition-transform
+      class="absolute rounded-full bg-fg shadow transition-transform duration-base
         {thumb[size]}
         {checked ? thumbOn[size] : 'translate-x-0'}"
     ></span>

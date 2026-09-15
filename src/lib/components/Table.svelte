@@ -11,6 +11,12 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import {
+    SCROLL_EDGE,
+    SCROLL_EDGE_END,
+    SCROLL_EDGE_START,
+    scrollEdges,
+  } from '../internal/scroll-edges.js';
 
   interface Props {
     striped?: boolean;
@@ -70,7 +76,7 @@
     '[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_var(--color-brand),inset_1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
-    '[&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150',
+    '[&_tbody_tr]:transition-colors',
   ].join(' ');
 
   let {
@@ -121,19 +127,9 @@
   function measure() {
     const el = scroller;
     if (!el) return;
-    const slack = el.scrollWidth - el.clientWidth;
-    // A sub-pixel layout leaves scrollLeft a fraction short of its own maximum
-    // at the far end, so an exact comparison never reports the end as reached.
-    if (slack <= 1) {
-      moreBefore = false;
-      moreAfter = false;
-      return;
-    }
-    // A right-to-left box reports the offset as a negative number, and the two
-    // edges are the same two edges either way round.
-    const travelled = Math.abs(el.scrollLeft);
-    moreBefore = travelled > 1;
-    moreAfter = travelled < slack - 1;
+    const edges = scrollEdges(el);
+    moreBefore = edges.before;
+    moreAfter = edges.after;
   }
 
   $effect(() => {
@@ -150,14 +146,6 @@
     if (el.firstElementChild) observer.observe(el.firstElementChild);
     return () => observer.disconnect();
   });
-
-  /*
-   * A dark fade rather than a palette colour. The box has no background of its
-   * own and sits on the page in one place and inside a card in another, so no
-   * surface token is the colour to fade to. The scrims use black at an alpha
-   * for the same reason and it reads in both themes.
-   */
-  const EDGE = 'pointer-events-none absolute inset-y-px w-6';
 
   /*
    * The table-wide treatment, applied only to cells that did not ask for their
@@ -184,6 +172,28 @@
     '[&_tbody_td[data-cell=nowrap]]:whitespace-nowrap ' +
     '[&_tbody_td[data-cell=truncate]]:max-w-[var(--cell-truncate)] ' +
     '[&_tbody_td[data-cell=truncate]]:truncate';
+
+  /*
+   * Column alignment. Head cells align start: the table already said
+   * `text-start`, and the browser's own `th { text-align: center }` beat the
+   * inherited value, so every heading floated over a left-aligned column
+   * until the page wrote `text-left` on each one. A numeric column is the one
+   * kind that reads better ranged right, and its digits line up only in a
+   * tabular figure, so a caller marks its cells `data-col="numeric"` and the
+   * heading and the cells take both together.
+   */
+  const COLUMN_ALIGN =
+    '[&_thead_th]:text-start ' +
+    '[&_th[data-col=numeric]]:text-end [&_td[data-col=numeric]]:text-end ' +
+    '[&_td[data-col=numeric]]:tabular-nums';
+
+  /*
+   * A sort control in a heading is the caller's button, and the head row is
+   * 40px. The hit box every small kit control grows under a finger is given
+   * to it here, so a table sorted from its headings needs nothing from the
+   * page to meet the finger.
+   */
+  const HEAD_CONTROLS = '[&_thead_th_button]:relative [&_thead_th_button]:hit-area';
 
   /** Marks a title this component put there, so it can take it back again. */
   const OWNED = 'data-cell-title';
@@ -230,7 +240,10 @@
 <!-- overflow-hidden on the frame, not only on the scroller: the hovered row's
      ring is square and the frame is not, and the last row's corners drew past
      the frame's rounded ones. -->
-<div data-testid="table-frame" class="relative w-full overflow-hidden rounded-xl border border-line {cls}">
+<div
+  data-testid="table-frame"
+  class="relative w-full overflow-hidden rounded-xl border border-line {cls}"
+>
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.
@@ -265,7 +278,7 @@
       style="--cell-truncate: {truncateAt}"
       class="w-full border-separate border-spacing-0 text-sm text-start
       {fixed ? 'table-fixed' : ''}
-      {CELL_FIT[cell]} {CELL_NAMED}
+      {CELL_FIT[cell]} {CELL_NAMED} {COLUMN_ALIGN} {HEAD_CONTROLS}
       [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-surface-2/40
       [&_thead_th]:px-4 [&_thead_th]:py-3 [&_thead_th]:text-xs
         [&_thead_th]:font-medium [&_thead_th]:text-faint
@@ -286,16 +299,13 @@
     the phone will not draw, it says nothing a screen reader has not already
     been told by the region, and a child of the box would scroll away with the
     content it is describing.
-
-    The gradient direction is logical: in a right-to-left locale the start edge
-    is the right one and the fade has to run the other way with it.
   -->
   {#if moreBefore}
     <div
       aria-hidden="true"
       data-print="hide"
       data-testid="table-more-before"
-      class="{EDGE} start-0 rounded-s-xl bg-linear-to-r rtl:bg-linear-to-l from-black/25 to-transparent"
+      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-xl"
     ></div>
   {/if}
   {#if moreAfter}
@@ -303,7 +313,7 @@
       aria-hidden="true"
       data-print="hide"
       data-testid="table-more-after"
-      class="{EDGE} end-0 rounded-e-xl bg-linear-to-l rtl:bg-linear-to-r from-black/25 to-transparent"
+      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-xl"
     ></div>
   {/if}
 </div>

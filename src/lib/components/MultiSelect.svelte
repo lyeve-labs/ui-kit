@@ -9,6 +9,7 @@
    * reason the factory reports a selection rather than closing on one.
    */
   import { applyFilter, type FilterInput } from '../internal/filter.js';
+  import { HIT_AREA } from '../internal/touch.js';
   import {
     FIELD_ERROR,
     FIELD_HINT,
@@ -25,6 +26,7 @@
     panelOption,
     placePanel,
   } from '../internal/panel.js';
+  import * as motion from '../motion.js';
   import type { ListOption } from './Autocomplete.svelte';
 
   interface Props {
@@ -187,7 +189,7 @@
       onkeydown={onTriggerKeydown}
       {...box.triggerAttrs}
       class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg
-        border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors duration-150
+        border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors
         outline-none {disabled ? 'cursor-not-allowed opacity-50' : ''} {controlBorder(!!error)}"
     >
       {#if selected.length === 0}
@@ -205,7 +207,7 @@
                 event.stopPropagation();
                 remove(option.value);
               }}
-              class="-m-1.5 p-1.5 transition-colors duration-150 hover:text-brand-light"
+              class="{HIT_AREA} -m-1.5 p-1.5 transition-colors hover:text-brand-light"
             >
               <!--
                 12px inside 6px of padding is a 24px target, which is the floor
@@ -238,7 +240,7 @@
           height="12"
           viewBox="0 0 12 12"
           fill="none"
-          class="transition-transform duration-150 {box.open ? 'rotate-180' : ''}"
+          class="transition-transform duration-base {box.open ? 'rotate-180' : ''}"
         >
           <path
             d="M2 4l4 4 4-4"
@@ -252,7 +254,7 @@
     </div>
 
     {#if box.open}
-      <div use:placePanel class="{PANEL_SURFACE} w-full">
+      <div use:placePanel transition:motion.popover class="{PANEL_SURFACE} w-full">
         {#if searchable}
           <div class="border-b border-line p-2">
             <input
@@ -268,7 +270,7 @@
               aria-label={label ? `Search ${label}` : 'Search options'}
               {...box.triggerAttrs}
               class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
-                text-sm text-fg outline-none transition-colors duration-150
+                text-sm text-fg outline-none transition-colors
                 placeholder:text-faint focus:border-brand"
             />
           </div>
@@ -310,7 +312,7 @@
             >
               <span
                 class="flex h-4 w-4 shrink-0 items-center justify-center rounded border
-                  transition-colors duration-150
+                  transition-colors
                   {isSelected
                   ? 'border-brand bg-brand text-ink'
                   : 'border-line-strong bg-surface-2'}"

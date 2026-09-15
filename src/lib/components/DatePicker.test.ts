@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import DatePicker from './DatePicker.svelte';
 
 describe('DatePicker', () => {
@@ -119,5 +119,79 @@ describe('DatePicker trigger wiring', () => {
     const calendar = getByRole('dialog', { name: 'Choose date' });
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(trigger.getAttribute('aria-controls')).toBe(calendar.id);
+  });
+});
+
+describe('DatePicker: calendar placement', () => {
+  const rect = (top: number, bottom: number): DOMRect =>
+    ({ top, bottom, left: 0, right: 0, width: 0, height: bottom - top, x: 0, y: top }) as DOMRect;
+
+  /**
+   * A scrolling container, the shape of a modal body, with the picker inside
+   * it. jsdom lays nothing out, so the container's rect, the anchor's rect and
+   * the calendar's natural height are stated here.
+   */
+  function mountIn(clipRect: [number, number], anchorRect: [number, number]) {
+    const clip = document.createElement('div');
+    clip.style.overflowY = 'auto';
+    clip.getBoundingClientRect = () => rect(clipRect[0], clipRect[1]);
+    document.body.append(clip);
+    const rendered = render(DatePicker, { target: clip, props: { value: '2024-06-15' } });
+    const trigger = rendered.getByRole('combobox') as HTMLButtonElement;
+    const anchor = trigger.parentElement as HTMLElement;
+    anchor.getBoundingClientRect = () => rect(anchorRect[0], anchorRect[1]);
+    return { ...rendered, clip, anchor, trigger };
+  }
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+  });
+
+  it('hands the open calendar to placePanel', async () => {
+    // The calendar sat under the trigger unconditionally, so inside a modal
+    // body it opened into the part of the scroll region nobody could reach.
+    const { getByRole, trigger } = mountIn([0, 800], [100, 140]);
+    await fireEvent.click(trigger);
+
+    const surface = getByRole('dialog', { name: 'Choose date' });
+    expect(surface.className).toMatch(/\btop-full\b|\bbottom-full\b/);
+    expect(surface.className).not.toMatch(/\btop-full\b.*\bbottom-full\b/);
+    const region = surface.querySelector('[data-panel-list]') as HTMLElement;
+    expect(region.style.maxHeight).toMatch(/^\d+px$/);
+  });
+
+  it('opens upward when the room below inside a scrolling container is short', async () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(290);
+    const { getByRole, trigger } = mountIn([100, 500], [400, 440]);
+    await fireEvent.click(trigger);
+
+    const surface = getByRole('dialog', { name: 'Choose date' });
+    expect(surface.className).toContain('bottom-full');
+    expect(surface.className).not.toContain('top-full');
+    // 400 - 100 - 8, the room alone: the list token is shorter than six weeks
+    // of days and would scroll every month.
+    const region = surface.querySelector('[data-panel-list]') as HTMLElement;
+    expect(region.style.maxHeight).toBe('292px');
+  });
+
+  it('re-measures when the container scrolls', async () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(290);
+    const { getByRole, trigger, anchor, clip } = mountIn([100, 500], [400, 440]);
+    await fireEvent.click(trigger);
+    const surface = getByRole('dialog', { name: 'Choose date' });
+    expect(surface.className).toContain('bottom-full');
+
+    anchor.getBoundingClientRect = () => rect(120, 160);
+    clip.dispatchEvent(new Event('scroll'));
+    expect(surface.className).toContain('top-full');
+    expect(surface.className).not.toContain('bottom-full');
+  });
+
+  it('sizes the calendar with a spacing step, not an arbitrary value', () => {
+    // w-[17rem] answered to no token. The width stays at the call site, sized
+    // to seven columns, but on the scale.
+    const src = readFileSync(join(__dirname, 'DatePicker.svelte'), 'utf8');
+    expect(src).not.toMatch(/w-\[[^\]]*\]/);
   });
 });
