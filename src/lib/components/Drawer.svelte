@@ -65,12 +65,12 @@
       aria-hidden="true"
       class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-default"
       onclick={close}
-      transition:motion.scrim
+      transition:motion.scrim|global
     ></button>
 
     <div
       use:overlay
-      transition:motion.drawer={{ side }}
+      transition:motion.drawer|global={{ side }}
       class="relative flex h-full max-w-full flex-col {widths[size]} bg-surface shadow-2xl
         {side === 'right' ? 'border-s' : 'border-e'} border-line"
       role="dialog"

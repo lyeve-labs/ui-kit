@@ -256,7 +256,7 @@
       bind:this={menuEl}
       role="menu"
       use:placePanel
-      transition:motion.popover
+      transition:motion.popover|global
       class="{PANEL_SURFACE} min-w-36 {align === 'right' ? 'end-0' : 'start-0'}"
     >
       <div class={PANEL_LIST} data-panel-list>
