@@ -236,6 +236,34 @@ describe('PageShell', () => {
     });
   });
 
+  describe('titleHidden', () => {
+    it('renders no title row and keeps the one h1 for assistive technology', () => {
+      const { container, getByTestId } = render(PageShell, {
+        props: {
+          title: 'Orders',
+          description: 'Every order',
+          titleHidden: true,
+          back: { href: '/orders', label: 'Orders' },
+          children: text('Body'),
+        },
+      });
+      const h1s = container.querySelectorAll('h1');
+      expect(h1s).toHaveLength(1);
+      expect(getByTestId('page-title').className).toContain('sr-only');
+      expect(getByTestId('page-title').textContent).toBe('Orders');
+      expect(container.querySelector('header')).toBeNull();
+      expect(container.querySelector('[data-testid="page-back"]')).toBeNull();
+      expect(container.textContent).not.toContain('Every order');
+    });
+
+    it('still renders the children in the content stack', () => {
+      const { getByText } = render(PageShell, {
+        props: { title: 'Orders', titleHidden: true, fill: true, children: text('Body') },
+      });
+      expect(getByText('Body')).toBeTruthy();
+    });
+  });
+
   it('wraps the children in the section stack', () => {
     // Adding a section is appending a child. The gap is the shell's, so a page
     // cannot set its own and no page has to remember to set one at all.
