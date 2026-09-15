@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { AccentTone } from '../internal/tone.js';
+  import { HIT_AREA } from '../internal/touch.js';
 
   interface Props {
     label: string;
@@ -37,7 +38,7 @@
       type="button"
       onclick={onremove}
       aria-label="Remove {label}"
-      class="ms-0.5 rounded transition-opacity hover:opacity-60 leading-none"
+      class="{HIT_AREA} ms-0.5 rounded transition-opacity hover:opacity-60 leading-none"
     >
       <svg
         width="10"

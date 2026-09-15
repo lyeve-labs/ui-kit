@@ -9,6 +9,7 @@
    * reason the factory reports a selection rather than closing on one.
    */
   import { applyFilter, type FilterInput } from '../internal/filter.js';
+  import { HIT_AREA } from '../internal/touch.js';
   import {
     FIELD_ERROR,
     FIELD_HINT,
@@ -206,7 +207,7 @@
                 event.stopPropagation();
                 remove(option.value);
               }}
-              class="-m-1.5 p-1.5 transition-colors hover:text-brand-light"
+              class="{HIT_AREA} -m-1.5 p-1.5 transition-colors hover:text-brand-light"
             >
               <!--
                 12px inside 6px of padding is a 24px target, which is the floor

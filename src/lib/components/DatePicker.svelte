@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { HIT_AREA } from '../internal/touch.js';
   import {
     CONTROL_BASE,
     FIELD_ERROR,
@@ -263,7 +264,7 @@
               type="button"
               aria-label="Previous month"
               onclick={prevMonth}
-              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
+              class="{HIT_AREA} p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
                 ><path
@@ -280,7 +281,7 @@
               type="button"
               aria-label="Next month"
               onclick={nextMonth}
-              class="p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
+              class="{HIT_AREA} p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
                 ><path
@@ -314,7 +315,7 @@
                   onclick={() => pick(d)}
                   aria-current={iso === todayISO ? 'date' : undefined}
                   aria-label={iso}
-                  class="h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors
+                  class="{HIT_AREA} h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors
                   disabled:opacity-30 disabled:cursor-not-allowed
                   {iso === value
                     ? 'bg-brand text-ink font-medium'

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { activeTrail, type NavNode, type NavTree } from '../internal/nav-tree.js';
+  import { TOUCH_GROW } from '../internal/touch.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
   import type { AccentTone } from '../internal/tone.js';
 
@@ -65,7 +66,7 @@
    * stray line or as nothing at all.
    */
   const ROW =
-    'flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 pe-2 text-sm text-start ' +
+    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 pe-2 text-sm text-start ` +
     'transition-colors outline-none ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
@@ -99,7 +100,7 @@
    * it wrong half the time.
    */
   const DISCLOSURE =
-    'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted ' +
+    `${TOUCH_GROW} flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted ` +
     'transition-colors outline-none hover:bg-surface-2 hover:text-fg ' +
     'active:bg-line active:text-fg ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
