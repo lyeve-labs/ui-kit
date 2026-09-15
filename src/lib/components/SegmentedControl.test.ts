@@ -350,3 +350,182 @@ describe('SegmentedControl under a finger', () => {
     expect(unselected.className).toMatch(/\bactive:/);
   });
 });
+
+describe('SegmentedControl href mode', () => {
+  const links = [
+    { value: '6h', label: '6h', href: '?window=6h' },
+    { value: '24h', label: '24h', href: '?window=24h' },
+    { value: '7d', label: '7d', href: '?window=7d' },
+  ];
+
+  function anchors(container: HTMLElement): HTMLAnchorElement[] {
+    return [...container.querySelectorAll<HTMLAnchorElement>('a')];
+  }
+
+  it('renders each segment as an anchor with its href and no radio role', () => {
+    // A window switch is a set of links on purpose: the choice survives a
+    // reload and the control works before any script has loaded.
+    const { container, getByRole, queryByRole } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '24h' },
+    });
+    expect(getByRole('group', { name: 'Window' })).toBeTruthy();
+    expect(queryByRole('radiogroup')).toBeNull();
+    expect(segments(container)).toHaveLength(0);
+    expect(anchors(container).map((a) => a.getAttribute('href'))).toEqual([
+      '?window=6h',
+      '?window=24h',
+      '?window=7d',
+    ]);
+    expect(container.querySelector('button')).toBeNull();
+  });
+
+  it('marks the chosen segment with aria-current="page" and nothing else', () => {
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '24h' },
+    });
+    expect(anchors(container).map((a) => a.getAttribute('aria-current'))).toEqual([
+      null,
+      'page',
+      null,
+    ]);
+    expect(anchors(container).some((a) => a.hasAttribute('aria-checked'))).toBe(false);
+  });
+
+  it('attaches no click handler, so the browser performs the navigation', async () => {
+    const onchange = vi.fn();
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '24h', onchange },
+    });
+    // Read at the document, after the segment's own handlers had their turn,
+    // then cancelled there so jsdom does not try to follow the link.
+    let prevented: boolean | undefined;
+    const seen = (e: Event) => {
+      prevented = e.defaultPrevented;
+      e.preventDefault();
+    };
+    document.addEventListener('click', seen);
+    await fireEvent.click(anchors(container)[2]);
+    document.removeEventListener('click', seen);
+    expect(prevented).toBe(false);
+    expect(onchange).not.toHaveBeenCalled();
+    // The choice is the URL. Nothing in the control moved it.
+    expect(anchors(container)[1].getAttribute('aria-current')).toBe('page');
+    expect(anchors(container)[2].hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('refuses an href a browser would run as script', () => {
+    const { container } = render(SegmentedControl, {
+      props: {
+        label: 'Window',
+        value: 'a',
+        options: [
+          { value: 'a', label: 'A', href: 'javascript:alert(1)' },
+          { value: 'b', label: 'B', href: '?b' },
+        ],
+      },
+    });
+    expect(anchors(container)[0].hasAttribute('href')).toBe(false);
+    expect(anchors(container)[1].getAttribute('href')).toBe('?b');
+  });
+
+  it('holds one tab stop, on the current segment', () => {
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '7d' },
+    });
+    expect(anchors(container).map((a) => a.getAttribute('tabindex'))).toEqual(['-1', '-1', '0']);
+  });
+
+  it('moves focus between segments with the arrows without moving the choice', async () => {
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '6h' },
+    });
+    const [a, b, c] = anchors(container);
+
+    await fireEvent.keyDown(a, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(b);
+    await fireEvent.keyDown(b, { key: 'End' });
+    expect(document.activeElement).toBe(c);
+    await fireEvent.keyDown(c, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(a);
+    await fireEvent.keyDown(a, { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(c);
+
+    // The tab stop followed focus inside the group; the current page did not.
+    expect(c.getAttribute('tabindex')).toBe('0');
+    expect(anchors(container).map((x) => x.getAttribute('aria-current'))).toEqual([
+      'page',
+      null,
+      null,
+    ]);
+  });
+
+  it('returns the tab stop to the current segment when focus leaves the group', async () => {
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '6h' },
+    });
+    const [a, b] = anchors(container);
+    await fireEvent.keyDown(a, { key: 'ArrowRight' });
+    expect(b.getAttribute('tabindex')).toBe('0');
+
+    const outside = document.createElement('button');
+    document.body.append(outside);
+    await fireEvent.focusOut(b, { relatedTarget: outside });
+    expect(a.getAttribute('tabindex')).toBe('0');
+    expect(b.getAttribute('tabindex')).toBe('-1');
+    outside.remove();
+  });
+
+  it('stops the arrows from scrolling the page in link mode too', () => {
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '6h' },
+    });
+    for (const key of ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End']) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      anchors(container)[0].dispatchEvent(event);
+      expect(event.defaultPrevented, key).toBe(true);
+    }
+  });
+
+  it('drops the hrefs when disabled and says so', async () => {
+    // An anchor cannot be disabled. One with no href is not a link, and
+    // aria-disabled tells a reader why the row does nothing.
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Window', options: links, value: '6h', disabled: true },
+    });
+    for (const a of anchors(container)) {
+      expect(a.hasAttribute('href')).toBe(false);
+      expect(a.getAttribute('aria-disabled')).toBe('true');
+      expect(a.getAttribute('tabindex')).toBe('-1');
+    }
+    await fireEvent.keyDown(anchors(container)[0], { key: 'ArrowRight' });
+    expect(document.activeElement).not.toBe(anchors(container)[1]);
+  });
+
+  it('keeps the value mode as it was', () => {
+    const { container, getByRole } = render(SegmentedControl, {
+      props: { label: 'Theme', options, value: 'light' },
+    });
+    expect(getByRole('radiogroup')).toBeTruthy();
+    expect(anchors(container)).toHaveLength(0);
+    expect(segments(container)).toHaveLength(3);
+  });
+
+  it('refuses a control that mixes links and radios', () => {
+    // A radio beside two links would report a choice the URL never learns
+    // about, and nothing on screen would show the caller which is which.
+    const mixed = [
+      { value: '6h', label: '6h', href: '?window=6h' },
+      { value: '24h', label: '24h' },
+      { value: '7d', label: '7d', href: '?window=7d' },
+    ];
+    expect(() =>
+      render(SegmentedControl, { props: { label: 'Window', options: mixed, value: '6h' } }),
+    ).toThrow(/every option carries href or none does, 2 of 3 did/);
+  });
+
+  it('documents that the modes cannot be mixed', () => {
+    expect(source.replace(/\n\s*\*\s?/g, ' ')).toContain(
+      'Every option carries one or none does; the modes cannot be mixed in one control.',
+    );
+  });
+});
