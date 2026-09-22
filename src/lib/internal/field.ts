@@ -13,6 +13,31 @@
 /** Vertical rhythm inside a labelled field: label, control, hint/error. */
 export const FIELD_WRAP = 'flex flex-col gap-1.5';
 
+/**
+ * The marker every labelled field carries on its outermost element, and the
+ * only way a surface can ask how much form it is holding.
+ *
+ * A class would not do: FIELD_WRAP is three utilities a caller may legitimately
+ * write by hand, so counting it would count any column with a 6px gap. The
+ * attribute says what the element is rather than how it looks, and a radio or
+ * checkbox group carries it on the fieldset, so a group of eight options is
+ * one field and not eight.
+ */
+export const FIELD_MARKER = '[data-field]';
+
+/**
+ * How many fields a subtree renders, counting a group as one.
+ *
+ * Only the outermost markers count. A group marks its fieldset and each option
+ * inside it marks its own wrapper, so a plain `querySelectorAll` length would
+ * read a five-option radio group as six fields and size a panel for a form
+ * that is not there.
+ */
+export function countFields(root: ParentNode): number {
+  const all = [...root.querySelectorAll(FIELD_MARKER)];
+  return all.filter((el) => !all.some((other) => other !== el && other.contains(el))).length;
+}
+
 /** The label above a control. */
 export const FIELD_LABEL = 'text-sm font-medium text-fg';
 

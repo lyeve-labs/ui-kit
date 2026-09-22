@@ -1,9 +1,16 @@
 import { fireEvent, render } from '@testing-library/svelte';
-import { createRawSnippet } from 'svelte';
+import { createRawSnippet, tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
+import { OVERLAY_WIDTH } from '../internal/layout.js';
 import Modal from './Modal.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+
+/** A body holding `n` labelled fields, the way a form snippet renders one. */
+const form = (n: number) =>
+  createRawSnippet(() => ({
+    render: () => `<div>${'<div data-field><input /></div>'.repeat(n)}</div>`,
+  }));
 
 describe('Modal', () => {
   it('renders nothing when closed', () => {
@@ -24,7 +31,17 @@ describe('Modal', () => {
     const { container } = render(Modal, {
       props: { open: true, size: 'lg', children: text('x') },
     });
-    expect(container.querySelector('[role="dialog"]')?.className).toContain('max-w-2xl');
+    expect(container.querySelector('[role="dialog"]')?.className).toContain(OVERLAY_WIDTH.lg);
+  });
+
+  it.each([
+    [2, 'md'],
+    [6, 'lg'],
+    [12, 'xl'],
+  ] as const)('takes the rung %i fields earn, as a Drawer does', async (fields, rung) => {
+    const { container } = render(Modal, { props: { open: true, children: form(fields) } });
+    await tick();
+    expect(container.querySelector('[role="dialog"]')?.className).toContain(OVERLAY_WIDTH[rung]);
   });
 
   it('renders a footer snippet', () => {

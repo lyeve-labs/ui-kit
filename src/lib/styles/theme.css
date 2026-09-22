@@ -291,6 +291,31 @@
   --spacing-sidebar: 14rem; /* 224px - the expanded sidebar */
   --spacing-stack: 1rem; /* 16px - default vertical stack gap */
   --spacing-inline: 0.5rem; /* 8px  - default inline gap         */
+
+  /* ── Widths · how much room a surface is allowed to take ───── *
+   *  Tailwind reads --container-*, so each name below is a max-w-*  *
+   *  and a w-* utility. Named for the surface rather than for a     *
+   *  t-shirt size, so the cap is chosen by role.                    *
+   *                                                                 *
+   *  Measured 2026-09-22 across three consuming applications: the   *
+   *  page cap was picked four different ways for the same kind of   *
+   *  screen (45 wide pages in one, 17 uncapped ones in another,     *
+   *  and two settings pages in a 768px column), and all 18 of their *
+   *  drawers asked for the widest rung there was, which is what a   *
+   *  ladder that stops too early looks like from the outside.      */
+  --container-page-narrow: 56rem; /* 896px  - one column: a form, a settings pane  */
+  --container-page-default: 72rem; /* 1152px - a page of stacked cards             */
+  --container-page-wide: 96rem; /* 1536px - a data page whose table needs the room */
+
+  /* One ladder for every surface lifted off the page, so a drawer and
+   * a modal opened from the same screen are the same size. Each rung
+   * is the one above 3:2 of the one below, which is wide enough that a
+   * two-column field grid gets real columns at every step. */
+  --container-overlay-sm: 28rem; /* 448px  - a confirmation, a short form     */
+  --container-overlay-md: 36rem; /* 576px  - up to four fields                */
+  --container-overlay-lg: 44rem; /* 704px  - a form with paired fields        */
+  --container-overlay-xl: 56rem; /* 896px  - a form beside a preview          */
+  --container-overlay-full: 68rem; /* 1088px - a table inside a dialog        */
 }
 
 /*
@@ -478,7 +503,7 @@ html[data-theme='light'] {
  * Print.
  *
  * The consuming applications had no `@media print` rule anywhere, and three surfaces print:
- * the portal prints an invoice, the ops console prints an audit log, the admin
+ * the portal prints an invoice, an operations console prints an audit log, the admin
  * prints a subject-access export. All three printed the sidebar, the theme
  * toggle and the nav, in a dark palette, and all three printed one screenful
  * and stopped, because the shell is `h-screen` with the content column set to

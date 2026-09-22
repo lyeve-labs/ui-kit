@@ -28,7 +28,7 @@ No config file, no theme provider, no setup ceremony.
 
 ## What's in the box
 
-- **67 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
+- **68 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
 - **Two themes:** Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
 - **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token; the rest is just Tailwind.
 - **Svelte 5 native:** built on runes and snippets, fully typed end-to-end.
@@ -37,10 +37,10 @@ No config file, no theme provider, no setup ceremony.
 ## Component list
 
 <details>
-<summary>67 components, organized by purpose</summary>
+<summary>68 components, organized by purpose</summary>
 
 **Layout and structure**
-Card, Panel, AppShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, Toolbar, TreeView
+Card, Panel, AppShell, AuthShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, Toolbar, TreeView
 
 **Forms and inputs**
 Button, ButtonGroup, Input, PasswordInput, Textarea, NumberInput, SearchInput, FileInput, Label, Field, FormMessage, SegmentedControl, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
@@ -205,11 +205,36 @@ leaves through the same presets the kit's overlays use:
 ```
 
 `dialog`, `scrim`, `drawer`, `popover` and `toast` read the tokens at run
-time; the `|global` modifier is what lets the exit play when a parent block
-removes the surface, so keep it. They so retuning a token retunes them, and every one of them plays nothing
-for a reader who has asked for reduced motion. Do not write `duration-150`,
-`ease-out` or `transition-all` beside a kit class: they are a fifth speed and
-a fourth curve, and the kit's own test suite refuses them.
+time, so retuning a token retunes them, and every one of them plays nothing
+for a reader who has asked for reduced motion. The `|global` modifier is what
+lets the exit play when a parent block removes the surface, so keep it. Do not
+write `duration-150`, `ease-out` or `transition-all` beside a kit class: they
+are a fifth speed and a fourth curve, and the kit's own test suite refuses
+them.
+
+## Sizing
+
+Two ladders, both declared as tokens and both read by name.
+
+A page picks a role and `PageShell` picks the cap:
+
+| `width`   | Cap    | For                                    |
+| --------- | ------ | -------------------------------------- |
+| `narrow`  | 896px  | one column: a form, a settings pane    |
+| `default` | 1152px | a page of stacked cards                |
+| `wide`    | 1536px | a data page whose table needs the room |
+| `full`    | none   | a canvas or a split pane               |
+
+A surface lifted off the page - `Modal`, `Drawer`, a dialog - takes a rung of
+one shared ladder, so the same form is the same size whichever of the three a
+page opens it in: `sm` 448px, `md` 576px, `lg` 704px, `xl` 896px, and `full`
+1088px for a dialog holding a table.
+
+`Modal` and `Drawer` default to `size="auto"` and take the rung their body
+earns: `md` up to four fields, `lg` past four, `xl` past eight. The count is
+the fields the panel actually rendered, re-read when the form reveals more, and
+a radio or checkbox group counts as the one question it asks. Name a rung and
+it is kept.
 
 ## Local development
 
@@ -228,7 +253,7 @@ This repo is a single-purpose component library. Nothing but `src/lib/`.
 ```
 src/
 └── lib/                 # → published as @lyeve-labs/ui-kit
-    ├── components/      # 67 .svelte files
+    ├── components/      # 68 .svelte files
     ├── stores/          # toast.svelte.ts
     ├── styles/          # theme.css (the one stylesheet)
     ├── utils/           # cn.ts, theme.ts

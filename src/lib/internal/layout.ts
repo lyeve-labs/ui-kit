@@ -44,11 +44,58 @@ export const PAGE_PAD = 'mx-auto w-full px-page-x py-page-y';
  * The names carry the decision, so a page picks a role rather than a number.
  */
 export const PAGE_WIDTH: Record<PageWidth, string> = {
-  narrow: 'max-w-3xl',
-  default: 'max-w-5xl',
-  wide: 'max-w-7xl',
+  narrow: 'max-w-page-narrow',
+  default: 'max-w-page-default',
+  wide: 'max-w-page-wide',
   full: 'max-w-full',
 };
+
+/** How wide a surface lifted off the page may get. */
+export type OverlaySize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
+/**
+ * One ladder for Modal, Drawer and the dialog stack.
+ *
+ * The three carried three ladders and none of them agreed: a modal's `lg` was
+ * 672px, a drawer's was 384px, and a dialog's was 512px, so the same form read
+ * as three different sizes depending on which surface a page happened to open
+ * it in. Every rung here is wider than the widest of the three it replaces.
+ *
+ * A component takes the slice of the ladder its role allows, which is why the
+ * names and not the numbers are its prop: a drawer stops at `xl` because a
+ * panel docked to an edge that covers the page is a modal with extra steps.
+ *
+ * Spelled out in full rather than composed from the rung name. Tailwind
+ * generates a utility only for a class it can read whole in the source, so
+ * `max-w-${rung}` would compile to nothing at all.
+ */
+export const OVERLAY_WIDTH: Record<OverlaySize, string> = {
+  sm: 'max-w-overlay-sm',
+  md: 'max-w-overlay-md',
+  lg: 'max-w-overlay-lg',
+  xl: 'max-w-overlay-xl',
+  full: 'max-w-overlay-full',
+};
+
+/**
+ * The rung a body of this many labelled fields needs.
+ *
+ * A panel is sized by its caller today, and the caller is guessing: all 18
+ * drawers measured across three consuming applications ask for the widest rung
+ * the ladder had, and that rung still puts a two-column field grid into two
+ * 170px columns. The content knows the answer, so it gives it: four fields fit
+ * a single column, more than four is where a form starts pairing them, and
+ * past eight it is a page that happens to be in a panel.
+ *
+ * Fields, not controls. A radio group is one field however many inputs it
+ * renders, and the marker the count reads sits on the field wrapper for
+ * exactly that reason.
+ */
+export function fitOverlay(fields: number): OverlaySize {
+  if (fields > 8) return 'xl';
+  if (fields > 4) return 'lg';
+  return 'md';
+}
 
 /**
  * The vertical rhythm between a page's top-level sections. A property of the

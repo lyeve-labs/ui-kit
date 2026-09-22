@@ -4,7 +4,7 @@
    * app header.
    *
    * Where it lives is the point. The admin and the customer portal both put it
-   * in the bottom left corner of the sidebar and the ops console put it in the
+   * in the bottom left corner of the sidebar and the third console put it in the
    * header, so the same account block was in two places depending on which of
    * our own products you were looking at. The sidebar is also the worst of the
    * two: it is already full height, so opening a menu in its last row pushes
