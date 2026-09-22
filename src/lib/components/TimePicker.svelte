@@ -395,7 +395,7 @@
   }
 </script>
 
-<div class="{FIELD_WRAP} {klass}">
+<div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
     <!-- `for` the hour so a click lands somewhere useful, while the group below
          takes its name from this same element. The hour keeps its own aria-label,

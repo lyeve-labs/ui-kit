@@ -118,8 +118,11 @@ const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label'];
 /**
  * Portalled overlays own the whole viewport, so `class` has no unambiguous
  * target on them. Everything else is placed by the consumer and must accept one.
+ * AuthShell is the page itself, a main that fills the viewport, and is here
+ * for the same reason.
  */
 const PORTALLED = [
+  'AuthShell',
   'Drawer',
   'Modal',
   'Toaster',
@@ -628,5 +631,35 @@ describe('the shell prints', () => {
     // is noise to a reader who is already inside that application.
     expect(printBlock).toMatch(/a\[href\^='http'\]/);
     expect(printBlock).toContain('attr(href)');
+  });
+});
+
+describe('a field says that it is one', () => {
+  /**
+   * The marker is what lets a surface size itself to the form it is holding,
+   * and it is invisible: a component that forgets it is not broken, it is one
+   * field lighter than it says, and the panel it sits in opens too narrow with
+   * nothing on screen to explain why.
+   */
+  const wrappers = files.filter(
+    (f) => /FIELD_WRAP/.test(code(f.src)) || /role="radiogroup"|CHOICE_GROUP/.test(code(f.src)),
+  );
+
+  it('finds the labelled controls to check', () => {
+    // A filter that matches nothing passes every assertion under it.
+    expect(wrappers.length).toBeGreaterThan(12);
+  });
+
+  it.each(wrappers.map((f) => f.name))('%s marks its outermost element', (name) => {
+    const src = code(files.find((f) => f.name === name)!.src);
+    expect(src).toMatch(/<(?:div|fieldset)\s+data-field\b/);
+  });
+
+  it('puts the marker on nothing that is not a field', () => {
+    const stray = files
+      .filter((f) => !wrappers.includes(f))
+      .filter((f) => /\sdata-field\b/.test(code(f.src)))
+      .map((f) => f.name);
+    expect(stray, 'data-field is counted as one form field wherever it appears').toEqual([]);
   });
 });

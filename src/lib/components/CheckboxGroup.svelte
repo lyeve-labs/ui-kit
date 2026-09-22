@@ -117,7 +117,12 @@
   asterisk stays decoration, and the hint, when the caller writes one, says what
   is required and reaches the reader through aria-describedby.
 -->
-<fieldset class="{CHOICE_GROUP} {cls}" {disabled} aria-describedby={describedBy(uid, error, hint)}>
+<fieldset
+  data-field
+  class="{CHOICE_GROUP} {cls}"
+  {disabled}
+  aria-describedby={describedBy(uid, error, hint)}
+>
   <!--
     The legend stays a legend when it is hidden. Swapping it for an aria-label
     on the fieldset would name the group and drop it out of the reading order,

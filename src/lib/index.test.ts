@@ -10,6 +10,7 @@ const COMPONENTS = [
   'Card',
   'Panel',
   'AppShell',
+  'AuthShell',
   'PageShell',
   'PageHeader',
   'SectionHeading',

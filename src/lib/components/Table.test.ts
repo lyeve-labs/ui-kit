@@ -202,7 +202,7 @@ describe('Table', () => {
 
   it('gives up its clipping on paper', () => {
     // overflow-x-auto is what hides the columns, and paper has no viewport to
-    // scroll. The ops console prints its audit log through this component.
+    // scroll. An operations console prints its audit log through this component.
     const { container } = render(Table, { props: { children: body } });
     expect(scroller(container).getAttribute('data-print')).toBe('unclip');
   });

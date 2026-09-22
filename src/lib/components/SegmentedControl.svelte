@@ -172,7 +172,7 @@
   }
 </script>
 
-<div class="{FIELD_WRAP} items-start {klass}">
+<div data-field class="{FIELD_WRAP} items-start {klass}">
   {#if !labelHidden}
     <!-- A caption, not a label element. The group is named by aria-label, and a
          label has nothing to point at here: role="radiogroup" is not a form

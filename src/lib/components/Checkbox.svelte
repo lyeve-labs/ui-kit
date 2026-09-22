@@ -167,7 +167,7 @@
   {/if}
 {/snippet}
 
-<div class="{rootClass} {cls}">
+<div data-field class="{rootClass} {cls}">
   {#if variant === 'card'}
     <!-- The input covers the whole card, so the card surface is the element the
          peer ring can reach and the box inside it is not. That is deliberate:
