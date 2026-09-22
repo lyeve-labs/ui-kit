@@ -81,7 +81,7 @@
   });
 </script>
 
-<div class="{FIELD_WRAP} {klass}">
+<div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
     <!--
       A hidden label stays a real label with a real `for`. Swapping it for an

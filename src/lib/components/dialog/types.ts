@@ -1,6 +1,8 @@
 import type { Snippet } from 'svelte';
+import { OVERLAY_WIDTH, type OverlaySize } from '../../internal/layout.js';
 
-export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+/** The shared overlay ladder, whole: a dialog is the one surface that may hold a table. */
+export type DialogSize = OverlaySize;
 
 export interface DialogOptions<T = void> {
   /** Unique id - auto-generated if omitted */
@@ -34,14 +36,6 @@ export interface DialogEntry<T = void> {
   meta?: Record<string, unknown>;
 }
 
-const SIZE_CLASSES: Record<DialogSize, string> = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  full: 'max-w-3xl',
-};
-
 export function sizeClass(size: DialogSize): string {
-  return SIZE_CLASSES[size];
+  return OVERLAY_WIDTH[size];
 }

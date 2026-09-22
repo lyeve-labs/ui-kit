@@ -275,7 +275,7 @@
   }
 </script>
 
-<div class="{FIELD_WRAP} {klass}">
+<div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
     <!-- `for` the date trigger. A button is labelable, so the field's own label
          names it and clicking that label opens the calendar. The group below

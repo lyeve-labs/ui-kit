@@ -633,3 +633,33 @@ describe('the shell prints', () => {
     expect(printBlock).toContain('attr(href)');
   });
 });
+
+describe('a field says that it is one', () => {
+  /**
+   * The marker is what lets a surface size itself to the form it is holding,
+   * and it is invisible: a component that forgets it is not broken, it is one
+   * field lighter than it says, and the panel it sits in opens too narrow with
+   * nothing on screen to explain why.
+   */
+  const wrappers = files.filter(
+    (f) => /FIELD_WRAP/.test(code(f.src)) || /role="radiogroup"|CHOICE_GROUP/.test(code(f.src)),
+  );
+
+  it('finds the labelled controls to check', () => {
+    // A filter that matches nothing passes every assertion under it.
+    expect(wrappers.length).toBeGreaterThan(12);
+  });
+
+  it.each(wrappers.map((f) => f.name))('%s marks its outermost element', (name) => {
+    const src = code(files.find((f) => f.name === name)!.src);
+    expect(src).toMatch(/<(?:div|fieldset)\s+data-field\b/);
+  });
+
+  it('puts the marker on nothing that is not a field', () => {
+    const stray = files
+      .filter((f) => !wrappers.includes(f))
+      .filter((f) => /\sdata-field\b/.test(code(f.src)))
+      .map((f) => f.name);
+    expect(stray, 'data-field is counted as one form field wherever it appears').toEqual([]);
+  });
+});

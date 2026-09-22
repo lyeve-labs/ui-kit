@@ -345,7 +345,7 @@
   </button>
 {/snippet}
 
-<div class="{FIELD_WRAP} {cls}">
+<div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
       {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}

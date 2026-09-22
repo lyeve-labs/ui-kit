@@ -176,7 +176,7 @@
   });
 </script>
 
-<div class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
+<div data-field class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
       {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
