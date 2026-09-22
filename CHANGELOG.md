@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- One width ladder for every surface lifted off the page, and a `size` that
+  measures instead of guessing. `Modal`, `Drawer` and the dialog stack kept
+  three ladders and none agreed, so the same form read at 672px, 384px or
+  512px depending on which surface a page opened it in. The five rungs are
+  `--container-overlay-sm|md|lg|xl|full` (448, 576, 704, 896, 1088), each
+  wider than the widest rung it replaces. `Modal` and `Drawer` default to
+  `size="auto"`, which takes `md` up to four fields, `lg` past four and `xl`
+  past eight; the count is read from the `data-field` marker every labelled
+  control now carries, so a radio group counts once and a form that reveals
+  fields while it is open is re-measured. A caller that names a rung keeps it.
+
 - `AuthShell`, the frame for a page the app shell does not wrap: sign in,
   sign up, a password reset, an invitation, first-run setup. A full-height
   main on the ink token, a centred column at `md` (a form) or `lg` (a
@@ -19,6 +30,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sizes, a lockup on some pages, a theme control on others, and one class
   that named no token at all. `AppShell` states the signed-in frame once;
   this states the signed-out one.
+
+### Changed
+
+- The page caps grew and became tokens: `--container-page-narrow` 896px,
+  `--container-page-default` 1152px and `--container-page-wide` 1536px, up
+  from Tailwind's 768, 1024 and 1280. `PageShell` reads them by name, so a
+  console retunes the cap for every page at once rather than per page.
 
 ## [0.25.1] - 2026-09-15
 

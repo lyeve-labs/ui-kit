@@ -1,16 +1,26 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { countFields } from '../internal/field.js';
+  import { fitOverlay, OVERLAY_WIDTH, type OverlaySize } from '../internal/layout.js';
   import { HIT_AREA } from '../internal/touch.js';
   import { overlay } from '../internal/overlay.js';
   import * as motion from '../motion.js';
 
-  type Size = 'sm' | 'md' | 'lg';
+  /** The shared overlay ladder, minus the rung the dialog stack keeps for a table. */
+  type Size = Exclude<OverlaySize, 'full'>;
 
   interface Props {
     open?: boolean;
     title?: string;
     description?: string;
-    size?: Size;
+    /**
+     * A rung of the shared overlay ladder, or `auto` to take the one the body
+     * needs: `md` up to four fields, `lg` past four, `xl` past eight.
+     *
+     * The same rule a Drawer follows, so an edit form reads the same size
+     * whichever of the two a page opens it in.
+     */
+    size?: Size | 'auto';
     onclose?: () => void;
     children: Snippet;
     footer?: Snippet;
@@ -20,17 +30,27 @@
     open = $bindable(false),
     title = undefined,
     description = undefined,
-    size = 'md',
+    size = 'auto',
     onclose = undefined,
     children,
     footer,
   }: Props = $props();
 
-  const widths: Record<Size, string> = {
-    sm: 'max-w-sm',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-  };
+  let body: HTMLElement | undefined = $state();
+  let fields = $state(0);
+
+  /* Measured, and kept measured: see Drawer, which sizes itself the same way. */
+  $effect(() => {
+    const el = body;
+    if (!open || !el) return;
+    const measure = () => (fields = countFields(el));
+    measure();
+    const observer = new MutationObserver(measure);
+    observer.observe(el, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  });
+
+  const rung = $derived(size === 'auto' ? fitOverlay(fields) : size);
 
   // aria-labelledby needs an id that is unique per instance, because two modals
   // can be mounted at once while one animates out.
@@ -66,7 +86,7 @@
     <div
       use:overlay
       transition:motion.dialog|global
-      class="relative flex max-h-[calc(100dvh-2rem)] w-full {widths[size]} flex-col
+      class="relative flex max-h-[calc(100dvh-2rem)] w-full {OVERLAY_WIDTH[rung]} flex-col
              overflow-hidden rounded-xl border border-line bg-surface shadow-2xl"
       role="dialog"
       aria-modal="true"
@@ -103,7 +123,7 @@
         </div>
       {/if}
 
-      <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div bind:this={body} class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
         {@render children()}
       </div>
 

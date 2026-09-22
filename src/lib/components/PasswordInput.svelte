@@ -83,7 +83,7 @@
   }
 </script>
 
-<div class="{FIELD_WRAP} {klass}">
+<div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
     <label for={fieldId} class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
       {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}

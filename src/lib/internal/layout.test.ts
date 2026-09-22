@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { PageWidth } from './layout.js';
+import type { OverlaySize, PageWidth } from './layout.js';
 import {
   CARD_EMPTY,
   CARD_FOOTER,
@@ -9,11 +9,13 @@ import {
   CARD_PAD,
   CARD_SURFACE,
   MODAL_PAD,
+  OVERLAY_WIDTH,
   PAGE_PAD,
   PAGE_STACK,
   PAGE_WIDTH,
   TABLE_CELL_BODY,
   TABLE_CELL_HEAD,
+  fitOverlay,
   sectionHeading,
 } from './layout.js';
 
@@ -37,19 +39,20 @@ const SPACING = new Map<string, number>(
   ]),
 );
 
-/** Tailwind's container scale, which is what `max-w-*` reads from. */
+/**
+ * Every `--container-*` step the theme declares, in rem, which is what a
+ * `max-w-*` class resolves through. Read out of the sheet rather than listed
+ * here: a cap that names a token nobody declared generates no rule at all, and
+ * the page would render against the window edge with nothing to show for it.
+ */
 const CONTAINER_REM: Record<string, number> = {
-  xs: 20,
-  sm: 24,
-  md: 28,
-  lg: 32,
-  xl: 36,
-  '2xl': 42,
-  '3xl': 48,
-  '4xl': 56,
-  '5xl': 64,
-  '6xl': 72,
-  '7xl': 80,
+  ...Object.fromEntries(
+    [...theme.matchAll(/--container-([a-z0-9-]+):\s*([0-9.]+)rem/g)].map((m): [string, number] => [
+      m[1],
+      Number(m[2]),
+    ]),
+  ),
+  /** `max-w-full` is Tailwind's own, and it is the absence of a cap. */
   full: Number.POSITIVE_INFINITY,
 };
 
@@ -65,6 +68,7 @@ const SURFACES: [string, string][] = [
   ['TABLE_CELL_BODY', TABLE_CELL_BODY],
   ['MODAL_PAD', MODAL_PAD],
   ...Object.entries(PAGE_WIDTH).map(([k, v]): [string, string] => [`PAGE_WIDTH.${k}`, v]),
+  ...Object.entries(OVERLAY_WIDTH).map(([k, v]): [string, string] => [`OVERLAY_WIDTH.${k}`, v]),
   ...Object.entries(CARD_PAD).map(([k, v]): [string, string] => [`CARD_PAD.${k}`, v]),
   ['sectionHeading(2)', sectionHeading(2)],
   ['sectionHeading(3)', sectionHeading(3)],
@@ -119,6 +123,72 @@ describe('every layout constant stays inside the token scale', () => {
   });
 });
 
+describe('the overlay ladder', () => {
+  const ORDER: OverlaySize[] = ['sm', 'md', 'lg', 'xl', 'full'];
+
+  it('offers exactly the five named rungs', () => {
+    expect(Object.keys(OVERLAY_WIDTH).sort()).toEqual([...ORDER].sort());
+  });
+
+  it.each(ORDER)('%s resolves to a container step the theme declares', (name) => {
+    const m = /^max-w-([a-z0-9-]+)$/.exec(OVERLAY_WIDTH[name]);
+    expect(m, `${name} is not a plain max-w class`).not.toBeNull();
+    expect(CONTAINER_REM[m ? m[1] : '']).toBeDefined();
+  });
+
+  it('climbs, so a rung never gives less room than the one below it', () => {
+    const rem = ORDER.map((k) => CONTAINER_REM[/^max-w-(.+)$/.exec(OVERLAY_WIDTH[k])![1]]);
+    for (let i = 1; i < rem.length; i++) {
+      expect(rem[i], `${ORDER[i]} is not wider than ${ORDER[i - 1]}`).toBeGreaterThan(rem[i - 1]);
+    }
+  });
+
+  it('starts wider than every ladder it replaced', () => {
+    // Modal 24rem, Drawer 18rem and the dialog stack 24rem were the three
+    // bottom rungs. A ladder that is only re-lettered fixes nothing.
+    const smallest = CONTAINER_REM[/^max-w-(.+)$/.exec(OVERLAY_WIDTH.sm)![1]];
+    expect(smallest).toBeGreaterThan(24);
+  });
+
+  it('leaves the widest overlay narrower than the widest page', () => {
+    // An overlay is something lifted off the page. One as wide as the page
+    // under it is a navigation the user cannot see they are inside of.
+    const widest = CONTAINER_REM[/^max-w-(.+)$/.exec(OVERLAY_WIDTH.full)![1]];
+    const page = CONTAINER_REM[/^max-w-(.+)$/.exec(PAGE_WIDTH.wide)![1]];
+    expect(widest).toBeLessThan(page);
+  });
+});
+
+describe('the width a form earns', () => {
+  it('keeps a short form in one column', () => {
+    for (const n of [0, 1, 4]) expect(fitOverlay(n)).toBe('md');
+  });
+
+  it('widens past four fields, which is where a form starts pairing them', () => {
+    for (const n of [5, 8]) expect(fitOverlay(n)).toBe('lg');
+  });
+
+  it('widens again past eight', () => {
+    for (const n of [9, 30]) expect(fitOverlay(n)).toBe('xl');
+  });
+
+  it('never chooses a rung a docked panel cannot take', () => {
+    // Drawer and Modal both exclude `full`, so a rule that returned it would
+    // be a type error in one place and a silent no-op in the other.
+    for (let n = 0; n <= 40; n++) expect(fitOverlay(n)).not.toBe('full');
+  });
+
+  it('never steps backwards as a form grows', () => {
+    const rung = Object.keys(OVERLAY_WIDTH) as OverlaySize[];
+    let last = -1;
+    for (let n = 0; n <= 40; n++) {
+      const at = rung.indexOf(fitOverlay(n));
+      expect(at).toBeGreaterThanOrEqual(last);
+      last = at;
+    }
+  });
+});
+
 describe('page frame', () => {
   const ORDER: PageWidth[] = ['narrow', 'default', 'wide', 'full'];
 
@@ -132,7 +202,7 @@ describe('page frame', () => {
   });
 
   it.each(ORDER)('%s resolves to a container step', (name) => {
-    const m = /^max-w-([a-z0-9]+)$/.exec(PAGE_WIDTH[name]);
+    const m = /^max-w-([a-z0-9-]+)$/.exec(PAGE_WIDTH[name]);
     expect(m, `${name} is not a plain max-w class`).not.toBeNull();
     expect(CONTAINER_REM[m ? m[1] : '']).toBeDefined();
   });
@@ -141,7 +211,7 @@ describe('page frame', () => {
     // A name that does not sort by width is worse than the raw class: a page
     // asking for wide and getting less room than default has no way to tell.
     const rem = ORDER.map((k) => {
-      const m = /^max-w-([a-z0-9]+)$/.exec(PAGE_WIDTH[k]);
+      const m = /^max-w-([a-z0-9-]+)$/.exec(PAGE_WIDTH[k]);
       return CONTAINER_REM[m ? m[1] : ''];
     });
     for (let i = 1; i < rem.length; i++) {
