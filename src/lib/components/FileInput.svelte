@@ -46,7 +46,7 @@
   }
 </script>
 
-<div class="{FIELD_WRAP} {cls}">
+<div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
     <label for={id} class={FIELD_LABEL}>{label}</label>
   {/if}
