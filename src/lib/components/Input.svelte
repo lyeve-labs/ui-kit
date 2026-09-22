@@ -51,7 +51,7 @@
   const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 </script>
 
-<div class="{FIELD_WRAP} {klass}">
+<div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
     <label for={fieldId} class={FIELD_LABEL}>
       {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}

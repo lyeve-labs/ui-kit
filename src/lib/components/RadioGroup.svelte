@@ -96,6 +96,7 @@
   reader to find the message paragraph on their own.
 -->
 <fieldset
+  data-field
   class="{CHOICE_GROUP} {cls}"
   role="radiogroup"
   {disabled}
