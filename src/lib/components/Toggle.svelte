@@ -67,7 +67,11 @@
   }
 </script>
 
+<!-- The marker is on the label because the label is the whole control: the
+     switch and its text are one field, and an overlay sizing itself to a form
+     counts what it can see. -->
 <label
+  data-field
   class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled
     ? 'opacity-50 cursor-not-allowed'
     : ''} {cls}"

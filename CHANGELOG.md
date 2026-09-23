@@ -5,6 +5,37 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0] - 2026-09-23
+
+### Added
+
+- `Alert` takes `autoDismiss`. A confirmation clears itself after five seconds
+  and carries a close button, so nobody has to wait for it. The timer holds
+  while the pointer is over the alert or focus is inside it. A warning and a
+  failure are unaffected: they stay until dismissed, because the reader has to
+  act on them.
+
+### Changed
+
+- `Alert` picks its live region from its tone. A failure and a warning take
+  `role="alert"` and interrupt; a confirmation, a neutral note and a brand note
+  take `role="status"` and wait for a pause. An assertive region that then
+  removes itself is the worst of both.
+- `AppShell` eases the sidebar between the rail and the expanded column, and
+  eases the rail's elevation with it. Both changed in a single frame before.
+
+### Fixed
+
+- An icon inside a `Badge` took a line of its own, so a pill carrying a count
+  and a glyph rendered two rows tall. Preflight makes every svg a block and the
+  badge's label is a block, which is what gives it its ellipsis; the icon is
+  inline again and sits on the text's optical centre.
+- `Toggle` carries the `data-field` marker. Without it the fit that sizes an
+  overlay to the form inside it could not see a toggle, and six drawers in the
+  consuming applications opened a rung too narrow. The suite that checks for
+  the marker now finds a control that is its own label, which is the shape it
+  was missing.
+
 ## [0.26.0] - 2026-09-22
 
 ### Added
