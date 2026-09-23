@@ -256,7 +256,11 @@
       onfocusin={() => (railOpen = true)}
       onfocusout={onRailFocusOut}
     >
-      <div class="absolute inset-y-0 start-0 z-dropdown flex {railOpen ? 'shadow-2xl' : ''}">
+      <div
+        class="absolute inset-y-0 start-0 z-dropdown flex transition-shadow {railOpen
+          ? 'shadow-2xl'
+          : ''}"
+      >
         {@render sidebar(isMobile, railIcons)}
       </div>
     </div>
