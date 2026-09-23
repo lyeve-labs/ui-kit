@@ -641,18 +641,36 @@ describe('a field says that it is one', () => {
    * field lighter than it says, and the panel it sits in opens too narrow with
    * nothing on screen to explain why.
    */
-  const wrappers = files.filter(
-    (f) => /FIELD_WRAP/.test(code(f.src)) || /role="radiogroup"|CHOICE_GROUP/.test(code(f.src)),
-  );
+  /**
+   * A control the reader can operate, which is what separates a field from a
+   * label-shaped thing such as Stat or Table's region name.
+   */
+  const CONTROL = /<input|<select|<textarea|role="switch"|role="combobox"|contenteditable/;
+
+  /**
+   * Three shapes, because a field takes three. Most wrap themselves in
+   * FIELD_WRAP; a choice group is a fieldset; and a control that is its own
+   * label wraps nothing, which is how Toggle went unchecked. Naming the last
+   * shape by hand would leave the next one unchecked too, so the filter asks
+   * what the file does: it takes a label and it renders something operable.
+   */
+  const wrappers = files.filter((f) => {
+    const src = code(f.src);
+    return (
+      /FIELD_WRAP/.test(src) ||
+      /role="radiogroup"|CHOICE_GROUP/.test(src) ||
+      (/label\?:/.test(src) && CONTROL.test(src))
+    );
+  });
 
   it('finds the labelled controls to check', () => {
     // A filter that matches nothing passes every assertion under it.
-    expect(wrappers.length).toBeGreaterThan(12);
+    expect(wrappers.length).toBeGreaterThan(15);
   });
 
   it.each(wrappers.map((f) => f.name))('%s marks its outermost element', (name) => {
     const src = code(files.find((f) => f.name === name)!.src);
-    expect(src).toMatch(/<(?:div|fieldset)\s+data-field\b/);
+    expect(src).toMatch(/<(?:div|fieldset|label)\s+data-field\b/);
   });
 
   it('puts the marker on nothing that is not a field', () => {
