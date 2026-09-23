@@ -229,7 +229,8 @@ export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'
  * `border-e` and not `border-r`: the shell is the one place a right-to-left
  * locale flips, and a physical border leaves the rule on the wrong edge.
  */
-export const APP_SIDEBAR = 'h-full shrink-0 flex-col border-e border-line bg-surface';
+export const APP_SIDEBAR =
+  'h-full shrink-0 flex-col border-e border-line bg-surface transition-[width] duration-base ease-move';
 
 /**
  * The sidebar's two widths. Expanded is the 224px column every authed screen
@@ -237,6 +238,12 @@ export const APP_SIDEBAR = 'h-full shrink-0 flex-col border-e border-line bg-sur
  * at 768px the expanded column left 496px for the page, and a flow editor with
  * two docked panes had no canvas at all. The shell picks between them; the
  * width is not part of APP_SIDEBAR so the aside cannot carry both.
+ *
+ * The travel between them is on APP_SIDEBAR, which is the one class both
+ * widths share. It is a disclosure opening sideways, which is the same thing
+ * an accordion does downwards, so it takes the accordion's rung and curve:
+ * base and move. It was the most frequent state change in the product and the
+ * only one that happened in a single frame.
  */
 export const APP_SIDEBAR_WIDE = 'w-sidebar';
 export const APP_SIDEBAR_RAIL = 'w-nav-rail';
