@@ -3,6 +3,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { OverlaySize, PageWidth } from './layout.js';
 import {
+  APP_SIDEBAR,
+  APP_SIDEBAR_RAIL,
+  APP_SIDEBAR_WIDE,
   CARD_EMPTY,
   CARD_FOOTER,
   CARD_HEADER,
@@ -407,5 +410,24 @@ describe('section heading', () => {
     // string comparison cannot tell 22px from 32px.
     expect(pxOf(sectionHeading(2))).toBeLessThan(32);
     expect(sectionHeading(2)).not.toContain('font-bold');
+  });
+});
+
+describe('the sidebar between its two widths', () => {
+  it('holds two widths and nothing that sets a third', () => {
+    expect(APP_SIDEBAR_WIDE).toBe('w-sidebar');
+    expect(APP_SIDEBAR_RAIL).toBe('w-nav-rail');
+    expect(APP_SIDEBAR).not.toMatch(/\bw-/);
+  });
+
+  it('travels between them on the vocabulary, not in one frame', () => {
+    // A disclosure opening sideways is the accordion's move, so it takes the
+    // accordion's rung and curve. This was the most frequent state change in
+    // the product and the only one that happened instantly.
+    expect(APP_SIDEBAR).toContain('transition-[width]');
+    expect(APP_SIDEBAR).toContain('duration-base');
+    expect(APP_SIDEBAR).toContain('ease-move');
+    // transition-all would animate the border and the background with it.
+    expect(APP_SIDEBAR).not.toContain('transition-all');
   });
 });
