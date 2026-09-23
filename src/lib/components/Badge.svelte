@@ -42,12 +42,19 @@
      Under a Table's default `overflow-wrap: anywhere` a status rendered as
      `dra ft` and a role as `sup er_a dmi n`. The label sits in a truncating
      span so a badge whose caller caps its width ends in an ellipsis instead of
-     painting past its own border; with no cap the span never shrinks. -->
+     painting past its own border; with no cap the span never shrinks.
+
+     The svg rules are what let a caller put an icon in the label. Preflight
+     makes every svg a block, and a block inside the label takes a line of its
+     own, so an icon and its text stacked and the badge rendered two rows tall
+     inside a pill. A flex row here would fix the stacking and lose the
+     ellipsis, which is the thing the span exists for, so the icon goes back to
+     being inline and sits on the text's optical centre. -->
 <span
   class="inline-flex max-w-full items-center font-medium whitespace-nowrap rounded-full border {tones[
     tone
   ]} {sizes[size]} {klass}"
 >
   {#if dot}<span class="w-1.5 h-1.5 shrink-0 rounded-full {dotColor[tone]}"></span>{/if}
-  <span class="min-w-0 truncate">{@render children()}</span>
+  <span class="min-w-0 truncate [&>svg]:inline [&>svg]:align-middle">{@render children()}</span>
 </span>
