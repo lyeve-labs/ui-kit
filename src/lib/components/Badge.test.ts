@@ -96,3 +96,25 @@ describe('Badge in a narrow cell', () => {
     expect(container.firstElementChild?.contains(label)).toBe(true);
   });
 });
+
+describe('an icon in the label', () => {
+  /**
+   * Preflight makes every svg a block, and a block inside the label takes a
+   * line of its own. A badge with an icon rendered two rows tall inside a
+   * pill, with the icon stacked above its own text.
+   */
+  it('sits on the line with its text rather than above it', () => {
+    const { container } = render(Badge, { props: { children: text('Stored') } });
+    const label = container.querySelector('span > span.truncate');
+    expect(label?.className).toContain('[&>svg]:inline');
+    expect(label?.className).toContain('[&>svg]:align-middle');
+  });
+
+  it('keeps the ellipsis the label span exists for', () => {
+    // A flex row would fix the stacking and lose this.
+    const { container } = render(Badge, { props: { children: text('Stored') } });
+    const label = container.querySelector('span > span.truncate');
+    expect(label?.className).toContain('truncate');
+    expect(label?.className).not.toContain('flex');
+  });
+});
