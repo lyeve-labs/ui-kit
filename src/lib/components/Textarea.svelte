@@ -26,6 +26,7 @@
     resize = true,
     error,
     hint,
+    mono = false,
     class: cls = '',
     oninput,
     onblur,
@@ -43,6 +44,12 @@
     resize?: boolean;
     error?: string;
     hint?: string;
+    /**
+     * Monospace for the control alone: code, JSON, a key. Passing `font-mono`
+     * as a class reached the wrapper, so the label and the hint turned
+     * monospace with it.
+     */
+    mono?: boolean;
     class?: string;
     oninput?: (e: TAE) => void;
     onblur?: (e: FocusEvent & { currentTarget: TA }) => void;
@@ -69,7 +76,7 @@
     {placeholder}
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={describedBy(fieldId, error, hint)}
-    class="{CONTROL_MULTILINE} {controlBorder(!!error)} {resize ? 'resize-y' : 'resize-none'}"
+    class="{CONTROL_MULTILINE} {controlBorder(!!error)} {resize ? 'resize-y' : 'resize-none'} {mono ? 'font-mono' : ''}"
     bind:value
     {oninput}
     {onblur}

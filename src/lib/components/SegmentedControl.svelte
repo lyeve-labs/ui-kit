@@ -199,7 +199,7 @@
         'inline-flex items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ' +
         SIZES[size].segment +
         (selected
-          ? ' bg-surface text-fg shadow-sm'
+          ? ' bg-surface text-brand shadow-sm ring-1 ring-inset ring-brand/40'
           : ' text-muted hover:text-fg active:bg-surface active:text-fg')}
       {#snippet content()}
         {#if Icon}
