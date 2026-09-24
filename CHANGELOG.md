@@ -5,6 +5,26 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.0] - 2026-09-24
+
+### Changed
+
+- `Logo` draws the brand book lockup: a bold wordmark with the E in the brand
+  accent, and the mark's faces in the brand book's colours for each theme, the
+  same lockup the documentation and marketing sites ship. The mark used to
+  borrow the text ramp, which darkens for contrast in the light theme and put
+  the top face darker than the front.
+- The mark paints from its own tokens: `--color-mark-ink`, `-foot`, `-step`,
+  `-top`, `-side`, `-face` and `-accent`. A host that overrides `--color-brand`
+  no longer recolours the mark; override the `--color-mark-*` tokens instead.
+- The wordmark is announced once as "LyEve" rather than in fragments.
+
+### Fixed
+
+- Under forced colors the mark's neutral faces take `CanvasText` and
+  `GrayText`, so the column no longer disappears on a high-contrast canvas.
+- Printing keeps the light-theme faces, so the column is not white on paper.
+
 ## [0.28.0] - 2026-09-23
 
 ### Added
