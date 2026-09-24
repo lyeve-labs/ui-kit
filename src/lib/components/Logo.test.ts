@@ -45,13 +45,21 @@ describe('Logo', () => {
    */
   it('paints every face from a token rather than hex', () => {
     const { container } = render(Logo);
-    expect(container.querySelector('.fill-current')).toBeTruthy();
-    expect(container.querySelector('.fill-brand')).toBeTruthy();
     const faces = [...container.querySelectorAll('polygon')];
     expect(faces.length).toBeGreaterThan(0);
     for (const face of faces) {
       expect(face.getAttribute('fill')).toBeNull();
       expect(face.getAttribute('style')).toBeNull();
+      // The brand ramp darkens for text contrast in the light theme and puts
+      // brand-light below brand, so a mark painted from it lit its top face
+      // darker than its front.
+      expect(face.getAttribute('class')).toMatch(/^fill-mark-/);
     }
+  });
+
+  it('accents the E and names the product once', () => {
+    const { container, getByText } = render(Logo);
+    expect(container.querySelector('.text-mark-accent')?.textContent).toBe('E');
+    expect(getByText('LyEve').className).toContain('sr-only');
   });
 });
