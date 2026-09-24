@@ -423,6 +423,20 @@ html[data-theme='light'] {
 }
 
 /*
+ * A forced-colors scheme repaints the page but not a fill named in hex, so the
+ * mark's white column vanished on a white high-contrast canvas. Its neutral
+ * faces take the system colours there; the cyan faces keep their shape.
+ */
+@media (forced-colors: active) {
+  :root,
+  html[data-theme='light'] {
+    --color-mark-ink: CanvasText;
+    --color-mark-foot: GrayText;
+    --color-mark-step: GrayText;
+  }
+}
+
+/*
  * The four durations as utilities. A --duration-* token generates nothing
  * (see the motion section of the @theme block), so each is declared here the
  * way Tailwind's own duration-* is: the custom property it sets is what the
