@@ -57,6 +57,19 @@
    * paints it on and the badge as well. */
   --color-violet: #9587f2;
 
+  /* The product mark's faces, at the brand book's values. They are their own
+   * tokens because the brand ramp above is tuned for text contrast: in the
+   * light theme it darkens to #005a77 and brand-light sits below brand, so a
+   * mark painted from it inverts its lighting. A logotype is exempt from the
+   * contrast floor, so these keep the published colours instead. */
+  --color-mark-ink: #ffffff;
+  --color-mark-foot: #9aa1ad;
+  --color-mark-step: #c5cad3;
+  --color-mark-top: #00d4ff;
+  --color-mark-side: #0099c4;
+  --color-mark-face: #00b4dd;
+  --color-mark-accent: #00d4ff;
+
   /* #15803d and #b45309 sit at ~3.7:1 on ink, below the 4.5:1 AA floor
    * for the text-size status labels that use them. */
   --color-success: #22c55e;
@@ -396,6 +409,13 @@ html[data-theme='light'] {
   --color-brand-light: #004f69;
   --color-brand-deep: #00455c;
   --color-violet: #5544da;
+  --color-mark-ink: #0a0e14;
+  --color-mark-foot: #9aa1ad;
+  --color-mark-step: #c5cad3;
+  --color-mark-top: #0099c4;
+  --color-mark-side: #006a8a;
+  --color-mark-face: #007ea6;
+  --color-mark-accent: #00d4ff;
 
   --color-success: #126c34;
   --color-warn: #904207;
@@ -552,6 +572,13 @@ html[data-theme='light'] {
     --color-brand-light: #000000;
     --color-brand-deep: #000000;
     --color-violet: #000000;
+    /* The mark keeps its light-theme faces: in black every face is one
+     * shape and the L is gone. Printing from the dark theme would otherwise
+     * put a white column on white paper. */
+    --color-mark-ink: #0a0e14;
+    --color-mark-top: #0099c4;
+    --color-mark-side: #006a8a;
+    --color-mark-face: #007ea6;
     --color-success: #000000;
     --color-warn: #000000;
     --color-danger: #000000;

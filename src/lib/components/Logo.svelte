@@ -11,9 +11,11 @@
    * drew a near-black column on a dark surface. There is no media query here
    * for that reason, and none belongs here.
    *
-   * The neutral faces come from currentColor and the lit faces from the brand
-   * ramp, so every face answers the same tokens as the rest of the page and a
-   * palette change reaches the mark with everything else.
+   * Every face and the wordmark paint from the mark-* tokens, which carry the
+   * brand book's colours per theme: the same lockup the documentation site
+   * ships as a static file. They are separate from the brand ramp because that
+   * ramp darkens for text contrast in the light theme and inverts the mark's
+   * lighting there.
    */
 
   type Size = 'sm' | 'md' | 'lg';
@@ -47,10 +49,7 @@
   const px = $derived(marks[size]);
 </script>
 
-<!-- text-fg is stated here rather than inherited. The mark is usually wrapped
-     in a link that carries no colour of its own, so currentColor would
-     otherwise be whatever that ancestor happened to hold. -->
-<span class="inline-flex items-center gap-2 text-fg {klass}">
+<span class="inline-flex items-center gap-2 {klass}">
   <span class="inline-flex shrink-0 items-center justify-center">
     <svg
       width={px}
@@ -60,18 +59,24 @@
       aria-hidden="true"
     >
       <g transform="translate(6 4)">
-        <polygon class="fill-current" points="0,14 14,7 14,40 0,47" />
-        <polygon class="fill-current opacity-50" points="0,47 14,40 14,54 0,61" />
-        <polygon class="fill-current opacity-75" points="14,40 28,33 28,47 14,54" />
-        <polygon class="fill-brand-light" points="14,54 28,47 56,33 42,40" />
-        <polygon class="fill-brand-deep" points="42,40 56,33 56,47 42,54" />
-        <polygon class="fill-brand" points="14,54 28,61 42,54 28,47" />
-        <polygon class="fill-brand" points="28,47 42,54 56,47 42,40" />
+        <polygon class="fill-mark-ink" points="0,14 14,7 14,40 0,47" />
+        <polygon class="fill-mark-foot" points="0,47 14,40 14,54 0,61" />
+        <polygon class="fill-mark-step" points="14,40 28,33 28,47 14,54" />
+        <polygon class="fill-mark-top" points="14,54 28,47 56,33 42,40" />
+        <polygon class="fill-mark-side" points="42,40 56,33 56,47 42,54" />
+        <polygon class="fill-mark-face" points="14,54 28,61 42,54 28,47" />
+        <polygon class="fill-mark-face" points="28,47 42,54 56,47 42,40" />
       </g>
     </svg>
   </span>
 
   {#if wordmark}
-    <span class="font-semibold tracking-tight {words[size]}">LyEve</span>
+    <!-- The accent splits the word across two elements, which some screen
+         readers announce letter group by letter group, so the painted word is
+         hidden and the name is given once as plain text. -->
+    <span class="font-bold tracking-tight text-mark-ink {words[size]}">
+      <span aria-hidden="true">Ly<span class="text-mark-accent">E</span>ve</span>
+      <span class="sr-only">LyEve</span>
+    </span>
   {/if}
 </span>
