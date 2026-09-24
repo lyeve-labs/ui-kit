@@ -59,4 +59,11 @@ describe('Textarea required marker', () => {
     expect(marker.getAttribute('aria-hidden')).toBe('true');
     expect(marker.hasAttribute('aria-label')).toBe(false);
   });
+
+  it('sets mono on the control alone, never on the label or the hint', () => {
+    const { container } = render(Textarea, { props: { label: 'Definition', hint: 'JSON', mono: true } });
+    expect(container.querySelector('textarea')?.className).toContain('font-mono');
+    expect(container.querySelector('[data-field]')?.className).not.toContain('font-mono');
+    expect(container.querySelector('label')?.className).not.toContain('font-mono');
+  });
 });
