@@ -5,6 +5,27 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2026-09-25
+
+### Added
+
+- `Input` and `Textarea` take `mono`, which sets the control alone in
+  monospace. A `font-mono` class reaches the field wrapper, so it turned the
+  label and the hint monospace as well.
+
+### Changed
+
+- `SegmentedControl` marks the chosen segment in the brand tone with an inset
+  ring. On the surface-2 track it read as a slightly lighter box, and in the
+  dark theme the bold label was the only visible difference.
+
+### Fixed
+
+- `Dropdown` sizes its panel to its longest item, capped at `max-w-xs`, and
+  items no longer wrap. The panel was positioned against the trigger's
+  wrapper and shrank to its width, so a label past nine characters broke onto
+  two lines.
+
 ## [0.29.0] - 2026-09-24
 
 ### Changed
