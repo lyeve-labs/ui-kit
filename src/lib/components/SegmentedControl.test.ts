@@ -528,4 +528,13 @@ describe('SegmentedControl href mode', () => {
       'Every option carries one or none does; the modes cannot be mixed in one control.',
     );
   });
+
+  it('marks the chosen segment in the brand tone, not by weight alone', () => {
+    // On a surface-2 track the chosen segment read as a slightly lighter box,
+    // and in the dark theme the only visible difference was the bold label.
+    const { container } = render(SegmentedControl, { props: { label: 'Theme', options, value: 'dark' } });
+    const chosen = segments(container).find((s) => s.getAttribute('aria-checked') === 'true') as HTMLElement;
+    expect(chosen.className).toContain('text-brand');
+    for (const s of segments(container).filter((x) => x !== chosen)) expect(s.className).not.toContain('text-brand');
+  });
 });
