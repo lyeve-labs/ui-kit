@@ -31,6 +31,12 @@
     required?: boolean;
     id?: string;
     name?: string;
+    /**
+     * Monospace for the control alone: a slug, a key, a locale tag. Passing
+     * `font-mono` as a class reached the wrapper, so the label and the hint
+     * turned monospace with it.
+     */
+    mono?: boolean;
     class?: string;
   }
 
@@ -44,6 +50,7 @@
     disabled = false,
     required = false,
     id = undefined,
+    mono = false,
     class: klass = '',
     ...rest
   }: Props = $props();
@@ -67,7 +74,7 @@
     bind:value
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={describedBy(fieldId, error, hint)}
-    class="{CONTROL_BASE} {controlBorder(!!error)}"
+    class="{CONTROL_BASE} {controlBorder(!!error)} {mono ? 'font-mono' : ''}"
     {...rest}
   />
 

@@ -257,7 +257,7 @@
       role="menu"
       use:placePanel
       transition:motion.popover|global
-      class="{PANEL_SURFACE} min-w-36 {align === 'right' ? 'end-0' : 'start-0'}"
+      class="{PANEL_SURFACE} w-max min-w-36 max-w-xs {align === 'right' ? 'end-0' : 'start-0'}"
     >
       <div class={PANEL_LIST} data-panel-list>
         {#each items as item, index}
@@ -267,7 +267,7 @@
             disabled={item.disabled}
             tabindex={index === active ? 0 : -1}
             onclick={() => handleItemClick(item)}
-            class="{TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors
+            class="{TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm whitespace-nowrap transition-colors
               outline-none focus-visible:ring-2 focus-visible:ring-inset
               focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-40
               {item.variant === 'danger' ? 'text-danger hover:bg-danger/10' : 'hover:bg-surface-2'}"

@@ -273,4 +273,15 @@ describe('Dropdown places its menu', () => {
     expect(list.style.maxHeight).toMatch(/^min\(var\(--spacing-panel-max\), \d+px\)$/);
     expect(menuItems(container).every((row) => list.contains(row))).toBe(true);
   });
+
+  it('sizes the panel to its longest item instead of its trigger', async () => {
+    // The panel is positioned against the trigger's inline-block wrapper, so
+    // without its own width it shrank to the trigger's and every label past
+    // nine characters wrapped onto a second line.
+    const { container } = render(Dropdown, { props: { items, trigger: liveTrigger } });
+    await openMenu(container);
+    const panel = container.querySelector('[role="menu"]') as HTMLElement;
+    expect(panel.className).toContain('w-max');
+    for (const item of menuItems(container)) expect(item.className).toContain('whitespace-nowrap');
+  });
 });
