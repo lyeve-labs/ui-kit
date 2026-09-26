@@ -10,11 +10,11 @@
  * Not exported from the package entry point - this is an implementation detail.
  */
 
-/** Vertical rhythm inside a labelled field: label, control, hint/error. */
+/** Vertical rhythm inside a labeled field: label, control, hint/error. */
 export const FIELD_WRAP = 'flex flex-col gap-1.5';
 
 /**
- * The marker every labelled field carries on its outermost element, and the
+ * The marker every labeled field carries on its outermost element, and the
  * only way a surface can ask how much form it is holding.
  *
  * A class would not do: FIELD_WRAP is three utilities a caller may legitimately
@@ -48,7 +48,7 @@ export const FIELD_HINT = 'text-xs text-faint';
 export const FIELD_ERROR = 'text-xs text-danger';
 
 /**
- * Everything a single-line control needs except its border colour.
+ * Everything a single-line control needs except its border color.
  *
  * `h-control` is a theme token (2.375rem / 38px), not a literal, so the height
  * is stated once. Controls that grow with their content - Textarea, the
@@ -58,9 +58,9 @@ export const FIELD_ERROR = 'text-xs text-danger';
 /**
  * outline-none must be paired with a replacement. It was not here: theme.css
  * declares a global :focus-visible outline of 2px solid brand, chosen for its
- * contrast, and a utility beats the base layer, so these two cancelled the
+ * contrast, and a utility beats the base layer, so these two canceled the
  * kit's own focus indicator for every text input, textarea, number and select.
- * Focus was left as a 1px border-colour change. SidebarNav's buttons and
+ * Focus was left as a 1px border-color change. SidebarNav's buttons and
  * CONTROL_SEGMENT already pair the two correctly; these did half of it.
  */
 export const CONTROL_BASE =
@@ -87,7 +87,7 @@ export const CONTROL_MULTILINE =
 export function controlBorder(error: boolean): string {
   // line-strong, not line: at 1.25:1 against the page the resting border was
   // the only thing marking the control and it failed SC 1.4.11. line stays the
-  // divider colour, where there is no control to identify.
+  // divider color, where there is no control to identify.
   return error ? 'border-danger focus:border-danger' : 'border-line-strong focus:border-brand';
 }
 

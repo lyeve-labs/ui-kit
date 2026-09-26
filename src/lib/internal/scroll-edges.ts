@@ -28,15 +28,15 @@ export function scrollEdges(el: ScrollMetrics): ScrollEdges {
   if (slack <= 1) return { before: false, after: false };
   // A right-to-left box reports the offset as a negative number, and the two
   // edges are the same two edges either way round.
-  const travelled = Math.abs(el.scrollLeft);
-  return { before: travelled > 1, after: travelled < slack - 1 };
+  const traveled = Math.abs(el.scrollLeft);
+  return { before: traveled > 1, after: traveled < slack - 1 };
 }
 
 /**
  * The fade itself: a dark gradient on the edge, outside the scroll box so it
  * does not scroll away with the content it describes. Dark rather than a
- * palette colour, because the box sits on the page in one place and inside
- * a card in another and no surface token is the colour to fade to; the
+ * palette color, because the box sits on the page in one place and inside
+ * a card in another and no surface token is the color to fade to; the
  * scrims use black at an alpha for the same reason and it reads in both
  * themes. The direction is logical, so a right-to-left page fades the other
  * way.

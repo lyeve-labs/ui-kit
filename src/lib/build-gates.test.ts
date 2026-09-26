@@ -198,7 +198,7 @@ describe('the dist check sees a broken relative import', () => {
 
   it('resolves a .js specifier to the .svelte sibling svelte-package emits', () => {
     // index.js imports './components/Card.svelte'; a component importing a
-    // neighbour writes the .js extension TypeScript would emit. Both ship.
+    // neighbor writes the .js extension TypeScript would emit. Both ship.
     const dir = fixture({
       'dist/index.js': "export { default } from './components/Card.js';",
       'dist/components/Card.svelte': '<div></div>',
@@ -310,7 +310,7 @@ describe('the package declares what it cannot run without', () => {
 /*
  * The README is part of the published tarball, so a count in it is a claim the
  * package makes about itself. This one said 48 in three places while the
- * library shipped 67, and the organisation's own rules had to carry a note telling
+ * library shipped 67, and the organization's own rules had to carry a note telling
  * readers not to trust it. A number nobody re-derives goes stale silently, so
  * derive it here instead.
  */
@@ -349,7 +349,7 @@ describe('README against the library', () => {
   });
 
   /*
-   * Unicode separators in published prose are forbidden by the organisation's standard,
+   * Unicode separators in published prose are forbidden by the organization's standard,
    * and this file had 48 of them in the component list alone.
    */
   it('uses ascii punctuation', () => {

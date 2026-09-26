@@ -22,7 +22,7 @@
   import type { AccentTone } from '../internal/tone.js';
 
   interface Props {
-    /** The line people recognise themselves by: a display name, or the email. */
+    /** The line people recognize themselves by: a display name, or the email. */
     name: string;
     /** Under it. The email when the name is a name, otherwise a role or a plan. */
     secondary?: string;

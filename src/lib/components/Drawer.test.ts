@@ -6,7 +6,7 @@ import Drawer from './Drawer.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
-/** A body holding `n` labelled fields, the way a form snippet renders one. */
+/** A body holding `n` labeled fields, the way a form snippet renders one. */
 const form = (n: number) =>
   createRawSnippet(() => ({
     render: () => `<div>${'<div data-field><input /></div>'.repeat(n)}</div>`,

@@ -64,7 +64,7 @@ This is a single-purpose component library. The docs site lives in
 ### Naming
 
 - Component files: `PascalCase.svelte`.
-- Variants live on a `variant` (visual style) or `tone` (colour role) prop.
+- Variants live on a `variant` (visual style) or `tone` (color role) prop.
   Pick one per component and stick with it.
 - Sizes are always `sm | md | lg` (or extend up to `xl`/`xs` only when
   genuinely useful).

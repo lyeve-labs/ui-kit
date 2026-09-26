@@ -81,7 +81,7 @@ describe('the theme declares the mechanism', () => {
     expect(theme).toMatch(/^\s*--spacing-control: 2\.375rem;/m);
   });
 
-  it('draws the hit box from the control token, centred, and only under a finger', () => {
+  it('draws the hit box from the control token, centered, and only under a finger', () => {
     const utility = theme.slice(theme.indexOf('@utility hit-area'));
     const body = utility.slice(0, utility.indexOf('\n}') + 2);
     expect(body).toContain('@media (pointer: coarse)');
@@ -240,7 +240,7 @@ describe('nothing changes with the pointer', () => {
 });
 
 describe('every hit box sits on a positioned element', () => {
-  // A pseudo-element centres on its nearest positioned ancestor. On a static
+  // A pseudo-element centers on its nearest positioned ancestor. On a static
   // element that is whatever the page happens to have positioned, and the
   // box lands somewhere else entirely.
   const dir = join(__dirname, 'components');

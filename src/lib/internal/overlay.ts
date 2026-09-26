@@ -1,11 +1,11 @@
 /**
- * The behaviour every modal surface owes a keyboard and screen reader user.
+ * The behavior every modal surface owes a keyboard and screen reader user.
  *
  * Dialog carried a correct implementation and Modal and Drawer carried none:
  * both declared `aria-modal="true"` while leaving focus behind them in the
  * page, so a screen reader user was told a modal had opened and then went on
  * reading the document underneath it, and a keyboard user tabbed straight out
- * of the panel with no way back. The behaviour lives here now so a fourth
+ * of the panel with no way back. The behavior lives here now so a fourth
  * overlay cannot ship without it.
  *
  * Not exported from the package entry point - this is an implementation detail.

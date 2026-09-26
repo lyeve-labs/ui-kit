@@ -82,7 +82,7 @@ export function toISOTime(p: TimeParts, seconds: boolean): string {
 }
 
 /**
- * Steps one segment without carrying into its neighbour. Stepping the minute
+ * Steps one segment without carrying into its neighbor. Stepping the minute
  * past 59 wraps to 0 and leaves the hour alone, because a spinner that changes
  * two fields at once is not what the arrow key promised.
  *

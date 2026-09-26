@@ -303,7 +303,7 @@ export function createListbox<T extends ListboxItem>(config: ListboxConfig<T>): 
     if (event.key === ' ' && typed === '') return false;
 
     // Date.now is a timestamp, not a timer: nothing is scheduled and nothing
-    // has to be cancelled when the control unmounts mid-run.
+    // has to be canceled when the control unmounts mid-run.
     const now = Date.now();
     typed = now - typedAt > TYPEAHEAD_WINDOW_MS ? event.key : typed + event.key;
     typedAt = now;

@@ -53,10 +53,10 @@ describe('SearchInput', () => {
     expect(glyph + 2 * 6).toBeGreaterThanOrEqual(24);
   });
 
-  it('keeps the grown target centred on the field', () => {
+  it('keeps the grown target centered on the field', () => {
     // The box is placed from its right edge, so the padding comes back off the
     // horizontal axis alone. A negative top margin would fight the translate
-    // that centres it and lift the glyph 6px.
+    // that centers it and lift the glyph 6px.
     const { getByLabelText } = render(SearchInput, { props: { value: 'x' } });
     const button = getByLabelText('Clear search');
     expect(button.className).toContain('-mx-1.5');

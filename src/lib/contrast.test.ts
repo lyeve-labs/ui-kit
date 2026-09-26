@@ -84,16 +84,16 @@ describe.each([
 ] as const)('%s palette', (scope, tokens) => {
   it('defines every token the other palette defines', () => {
     const other = scope === 'dark' ? light : dark;
-    // A colour whose only definition lives in one theme block keeps the other
-    // theme's value and reads as the wrong colour there.
+    // A color whose only definition lives in one theme block keeps the other
+    // theme's value and reads as the wrong color there.
     expect(Object.keys(tokens).sort()).toEqual(Object.keys(other).sort());
   });
 
   it.each(TEXT_TOKENS)('%s clears 4.5:1 as text on every ground', (name) => {
-    const colour = tokens[name];
-    expect(colour, `${name} missing from the ${scope} palette`).toBeTruthy();
+    const color = tokens[name];
+    expect(color, `${name} missing from the ${scope} palette`).toBeTruthy();
     for (const ground of GROUNDS) {
-      expect(ratio(colour, tokens[ground]), `${name} on ${ground}`).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(color, tokens[ground]), `${name} on ${ground}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 
@@ -102,9 +102,9 @@ describe.each([
     (name) => {
       // The bg-token/10 badge drags the background toward the text, so a value
       // that passes on the bare canvas can still fail inside its own chip.
-      const colour = tokens[name];
+      const color = tokens[name];
       expect(
-        ratio(colour, over(colour, tokens.surface, 0.1)),
+        ratio(color, over(color, tokens.surface, 0.1)),
         `${name} in its own tint`,
       ).toBeGreaterThanOrEqual(4.5);
     },
@@ -119,7 +119,7 @@ describe.each([
   });
 
   it('draws the focus ring at 3:1 or better', () => {
-    // SC 1.4.11. The ring is solid brand; a colour-mix down to 60 percent put
+    // SC 1.4.11. The ring is solid brand; a color-mix down to 60 percent put
     // it at 2.39:1 on the light palette.
     for (const ground of GROUNDS) {
       expect(ratio(tokens.brand, tokens[ground]), `focus ring on ${ground}`).toBeGreaterThanOrEqual(
@@ -129,7 +129,7 @@ describe.each([
   });
 
   it('draws an interactive border at 3:1 or better', () => {
-    // SC 1.4.11 again. `line` is 1.25:1 and stays the divider colour; a control
+    // SC 1.4.11 again. `line` is 1.25:1 and stays the divider color; a control
     // whose boundary is the only thing identifying it uses line-strong.
     for (const ground of ['surface', 'surface-2'] as const) {
       expect(

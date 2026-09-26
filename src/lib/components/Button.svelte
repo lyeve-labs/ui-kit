@@ -65,14 +65,14 @@
   );
 
   /**
-   * Colour per variant, in three states: at rest, under a pointer, and held.
+   * Color per variant, in three states: at rest, under a pointer, and held.
    *
    * The pressed step is the one a touch screen depends on. `hover:` compiles
    * inside `@media (hover: hover)`, which is false on a finger, so a tap ran
    * rest to rest with the action already fired and the control never
    * acknowledged the press. `active:` matches under a finger as well as under a
    * mouse, and Tailwind emits it after `hover:` at equal specificity, so the
-   * held colour wins on a device that has both.
+   * held color wins on a device that has both.
    *
    * primary and violet had a pressed state already and neither one showed:
    * `active:bg-brand` on a `bg-brand` button and `active:brightness-100` on an

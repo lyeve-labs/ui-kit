@@ -58,7 +58,7 @@ describe('NumberInput', () => {
     }
   });
 
-  it('rests on line-strong, never on the bare divider colour', () => {
+  it('rests on line-strong, never on the bare divider color', () => {
     // line reads 1.25:1 and fails SC 1.4.11 wherever the border is the only
     // thing identifying the control.
     const { container, getByLabelText } = render(NumberInput, { props: { value: 1 } });
@@ -73,7 +73,7 @@ describe('NumberInput', () => {
     expect(field(container).className).not.toMatch(/focus:border-[a-z-]+\//);
   });
 
-  it('states one duration for the colour transition it declares', () => {
+  it('states one duration for the color transition it declares', () => {
     const { container, getByLabelText } = render(NumberInput, { props: { value: 1 } });
     for (const el of [field(container), getByLabelText('Decrease'), getByLabelText('Increase')]) {
       expect(el.className).toMatch(/transition-colors(?!\s+duration-)/);

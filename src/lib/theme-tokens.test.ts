@@ -16,7 +16,7 @@ import { join } from 'node:path';
  * like from the outside: nobody reports it, they just write `text-4xl` instead
  * and the brand scale goes unused.
  *
- * `--font-size-*` is the trap worth naming. It nests inside the recognised
+ * `--font-size-*` is the trap worth naming. It nests inside the recognized
  * `--font-*` namespace, so a guard that only checked prefixes would have passed
  * the exact defect it was written to catch. Tailwind reserves the sub-namespace
  * and generates nothing at all for it, verified by compiling both spellings
@@ -53,7 +53,7 @@ function sourceFiles(): string[] {
  *
  * Deliberately narrower than everything Tailwind accepts. Tailwind also reads
  * `--opacity-*`, `--width-*`, `--border-color-*` and more, and none of them
- * belong in a design token file whose vocabulary is colour, space, type and
+ * belong in a design token file whose vocabulary is color, space, type and
  * elevation. A token outside this list fails here so a person decides whether
  * to widen the list or fix the token, rather than shipping a name that quietly
  * does nothing.
@@ -78,7 +78,7 @@ const RECOGNISED = [
 ];
 
 /**
- * Prefixes that sit inside a recognised namespace and still generate nothing.
+ * Prefixes that sit inside a recognized namespace and still generate nothing.
  *
  * These are the CSS property names an author reaches for by instinct. Each one
  * passes a plain prefix check and produces no utility, so each has to be
@@ -303,7 +303,7 @@ describe('motion is declared where a designer can find it', () => {
 
   it('keeps the reduced-motion block below them, where it overrides them', () => {
     // The block is the authority on whether any of these run at all. A token
-    // declared after it would still be honoured, but a reader would have to
+    // declared after it would still be honored, but a reader would have to
     // work that out; declared before, the file reads in the order it applies.
     expect(css.indexOf('--duration-fast')).toBeLessThan(css.indexOf('prefers-reduced-motion'));
   });

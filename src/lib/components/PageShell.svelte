@@ -1,13 +1,13 @@
 <script lang="ts">
   /**
-   * The page frame: the gutter, the content cap, the centring and the section
+   * The page frame: the gutter, the content cap, the centering and the section
    * rhythm, all owned by the shell so a page cannot pick its own.
    *
    * Nothing in the library owned the frame, so every page built one. Across one
    * app 31 of 35 pages restate the gutter in four spellings, five content caps
    * are in use with no rule for choosing between them, and one page renders
    * against the left edge of the window because it set a cap and forgot
-   * `mx-auto`. Centring and `w-full` come with the gutter here, in PAGE_PAD, so
+   * `mx-auto`. Centering and `w-full` come with the gutter here, in PAGE_PAD, so
    * there is no order of props that leaves them out.
    *
    * The shell renders no landmark of its own. An app shell already owns `main`,

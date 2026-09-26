@@ -159,7 +159,7 @@ function surface(rung: Rung, css: (t: number, u: number) => string) {
   };
 }
 
-/** A centred dialog: rises a little and settles to full size. */
+/** A centered dialog: rises a little and settles to full size. */
 export const dialog = surface(
   'slow',
   (t, u) => `opacity: ${t}; transform: translateY(${8 * u}px) scale(${0.96 + 0.04 * t})`,
