@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import CopyButton from './CopyButton.svelte';
 
 const source = readFileSync(join(__dirname, 'CopyButton.svelte'), 'utf8');
+const glyphSource = readFileSync(join(__dirname, '../internal/CopyGlyph.svelte'), 'utf8');
 
 /** Installs a clipboard whose writeText behaves the way the test needs. */
 function stubClipboard(writeText: (text: string) => Promise<void>): void {
@@ -38,6 +39,11 @@ function removeClipboard(): void {
 async function settle(): Promise<void> {
   for (let i = 0; i < 5; i += 1) await Promise.resolve();
   await tick();
+}
+
+/** Which icon the glyph is showing; both stay mounted and cross over in place. */
+function glyph(container: HTMLElement): string | null {
+  return container.querySelector('[data-copy-state]')?.getAttribute('data-copy-state') ?? null;
 }
 
 function live(container: HTMLElement): HTMLElement {
@@ -78,21 +84,20 @@ describe('CopyButton', () => {
     vi.useFakeTimers();
     stubClipboard(vi.fn().mockResolvedValue(undefined));
     const { container, getByRole } = render(CopyButton, { props: { value: 'x' } });
-    expect(container.querySelector('.lucide-copy')).toBeTruthy();
+    expect(glyph(container)).toBe('idle');
 
     await fireEvent.click(getByRole('button'));
     await settle();
-    expect(container.querySelector('.lucide-check')).toBeTruthy();
-    expect(container.querySelector('.lucide-copy')).toBeNull();
+    expect(glyph(container)).toBe('copied');
 
     vi.advanceTimersByTime(1499);
     await tick();
-    expect(container.querySelector('.lucide-check')).toBeTruthy();
+    expect(glyph(container)).toBe('copied');
 
     vi.advanceTimersByTime(1);
     await tick();
-    expect(container.querySelector('.lucide-copy')).toBeTruthy();
-    expect(container.querySelector('.lucide-check')).toBeNull();
+    expect(glyph(container)).toBe('idle');
+    expect(glyph(container)).toBe('idle');
   });
 
   it('restarts the window when it is pressed again', async () => {
@@ -165,7 +170,7 @@ describe('CopyButton when the clipboard is unavailable', () => {
     await settle();
 
     expect(live(container).textContent).toBe('Copy failed');
-    expect(container.querySelector('.lucide-check')).toBeNull();
+    expect(glyph(container)).toBe('idle');
     expect((button as HTMLButtonElement).disabled).toBe(false);
 
     // Still the same working control: a later press on a secure origin copies.
@@ -194,8 +199,8 @@ describe('CopyButton when the clipboard is unavailable', () => {
 
     expect(writeText).toHaveBeenCalled();
     expect(live(container).textContent).toBe('Copy failed');
-    expect(container.querySelector('.lucide-check')).toBeNull();
-    expect(container.querySelector('.lucide-copy')).toBeTruthy();
+    expect(glyph(container)).toBe('idle');
+    expect(glyph(container)).toBe('idle');
     expect((button as HTMLButtonElement).disabled).toBe(false);
   });
 
@@ -254,13 +259,19 @@ describe('CopyButton presentation', () => {
   it('draws its icons as SVG rather than as a Unicode character', () => {
     // A literal check mark renders at whatever weight the reader's font gives
     // it, which sat visibly lighter than every other icon in the library.
-    expect(source).toContain("from '@lucide/svelte'");
-    expect(source).not.toMatch(/[✓✔×]/);
+    expect(glyphSource).toContain("from '@lucide/svelte'");
+    expect(source + glyphSource).not.toMatch(/[✓✔×]/);
   });
 
   it('transitions its colour on the theme clock, with no number of its own', () => {
     expect(source).toContain('transition-colors');
     expect(source).not.toMatch(/duration-\d/);
+  });
+
+  it('crosses the icons over on the motion rungs, the exit one faster than the entrance', () => {
+    expect(glyphSource).toContain('duration-base ease-enter');
+    expect(glyphSource).toContain('duration-fast ease-exit');
+    expect(glyphSource).not.toMatch(/duration-\d/);
   });
 });
 

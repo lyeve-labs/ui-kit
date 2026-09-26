@@ -22,6 +22,7 @@
     nextThemePreference,
     setThemePreference,
     watchSystemTheme,
+    watchThemePreference,
     type ThemePreference,
   } from '../utils/theme.js';
 
@@ -50,6 +51,10 @@
   $effect(() => {
     preference = getThemePreference();
   });
+
+  // A pick in any other control, a settings picker on the same page or
+  // another tab, moves this one with it.
+  $effect(() => watchThemePreference((next) => (preference = next)));
 
   /**
    * A reader on `system` whose OS flips at dusk gets the new palette without

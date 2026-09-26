@@ -5,6 +5,37 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2026-09-26
+
+### Added
+
+- `CopyField`: a read-only value with its copy control inside the field's
+  end, for keys, secrets, hashes and addresses. `secret` masks the value and
+  adds a reveal beside the copy; `actions` puts the caller's own controls in
+  the same row. Focusing the field selects the whole value. It replaces a
+  read-only `Input` with a separate outlined button beside it, which read as
+  two controls of different heights.
+- `watchThemePreference(onChange)`: hears every preference any control on
+  the page sets, and one another tab stores, so a control showing the
+  preference can follow a change made elsewhere.
+
+### Fixed
+
+- `ThemeToggle` follows a preference set by another control. A settings
+  picker on the same page left the header toggle on its old value, and a
+  toggle still holding `system` repainted the page to the OS theme at dusk
+  over the reader's explicit choice. `setThemePreference` and `setTheme` now
+  announce the change and the toggle listens.
+
+### Changed
+
+- `CopyButton` turns its icon into a check in place, crossing the two over
+  on the motion rungs instead of swapping them in one frame, and shares its
+  clipboard handling and timing with `CopyField`.
+- Copying works on an insecure origin. Where the async clipboard is absent
+  or refuses, both controls fall back to the legacy copy command inside the
+  click, so a console reached over a LAN address without TLS still copies.
+
 ## [0.30.0] - 2026-09-25
 
 ### Added
