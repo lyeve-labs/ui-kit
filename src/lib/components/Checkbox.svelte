@@ -79,7 +79,7 @@
           : undefined,
   );
 
-  // A part-checked box is on, not a third colour, so it paints the filled box
+  // A part-checked box is on, not a third color, so it paints the filled box
   // and tints the card exactly as a checked one does.
   const on = $derived(checked || indeterminate);
 

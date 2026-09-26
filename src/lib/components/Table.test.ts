@@ -393,7 +393,7 @@ describe('Table head controls', () => {
     // The button is the caller's and the head row is 40px. The hit box every
     // small kit control grows under a coarse pointer is given to it through
     // the table, so a sorted table needs nothing from the page to meet the
-    // finger; the box centres on a positioned element, hence both classes.
+    // finger; the box centers on a positioned element, hence both classes.
     const head = createRawSnippet(() => ({
       render: () => '<thead><tr><th><button type="button">Name</button></th></tr></thead>',
     }));

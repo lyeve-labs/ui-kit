@@ -78,7 +78,7 @@ export const OVERLAY_WIDTH: Record<OverlaySize, string> = {
 };
 
 /**
- * The rung a body of this many labelled fields needs.
+ * The rung a body of this many labeled fields needs.
  *
  * A panel is sized by its caller today, and the caller is guessing: all 18
  * drawers measured across three consuming applications ask for the widest rung
@@ -146,7 +146,7 @@ export const CARD_HEADER = 'px-card py-card-sm border-b border-line';
 export const CARD_FOOTER = 'px-card py-card-sm border-t border-line bg-surface-2/40';
 
 /**
- * A placeholder inside a card, where three spellings of the same centred muted
+ * A placeholder inside a card, where three spellings of the same centered muted
  * line currently ship.
  *
  * An empty list is not an error, so it reads as muted body copy and not as a
@@ -168,7 +168,7 @@ export const CARD_EMPTY = 'py-section text-center text-sm text-muted';
 export const TABLE_CELL_HEAD =
   'px-card-sm py-input-y text-xs font-medium uppercase tracking-wider whitespace-nowrap text-faint';
 
-/** The body cell of a table. TABLE_CELL_HEAD's padding, at body weight and colour. */
+/** The body cell of a table. TABLE_CELL_HEAD's padding, at body weight and color. */
 export const TABLE_CELL_BODY = 'px-card-sm py-input-y text-fg align-middle';
 
 /**

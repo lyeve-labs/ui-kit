@@ -61,7 +61,7 @@
    * tokens because the brand ramp above is tuned for text contrast: in the
    * light theme it darkens to #005a77 and brand-light sits below brand, so a
    * mark painted from it inverts its lighting. A logotype is exempt from the
-   * contrast floor, so these keep the published colours instead. */
+   * contrast floor, so these keep the published colors instead. */
   --color-mark-ink: #ffffff;
   --color-mark-foot: #9aa1ad;
   --color-mark-step: #c5cad3;
@@ -123,7 +123,7 @@
   --z-index-dropdown: 100; /* a panel anchored to its trigger    */
   --z-index-overlay: 200; /* the scrim behind a drawer or modal */
   --z-index-drawer: 300; /* a panel docked to a viewport edge  */
-  --z-index-modal: 400; /* a centred dialog, and the stack    */
+  --z-index-modal: 400; /* a centered dialog, and the stack    */
   --z-index-tooltip: 500; /* a label attached to a control      */
   --z-index-toast: 600; /* transient status                   */
   --z-index-skip-link: 700; /* the first tab stop in the document */
@@ -132,7 +132,7 @@
    *  Named for what they are used for, so the choice is made by
    *  reading the name:
    *
-   *    fast      a state change in place: colour, opacity, border,
+   *    fast      a state change in place: color, opacity, border,
    *              shadow, focus
    *    base      movement in place (a knob, a chevron, a collapse, a
    *              tab indicator) and a small surface arriving (menu,
@@ -162,7 +162,7 @@
    *
    *  The reduced-motion block at the foot of this file overrides
    *  every one of them and stays the authority on whether they run;
-   *  the Svelte presets in motion.ts honour the same preference for
+   *  the Svelte presets in motion.ts honor the same preference for
    *  the entrances and exits that run outside CSS.                    */
   --duration-fast: 120ms;
   --duration-base: 200ms;
@@ -350,13 +350,13 @@
  *
  * `hit-area` does not move the visual. A switch, a checkbox, a breadcrumb, a
  * pager button, a close cross and an icon inside an input are drawn small on
- * purpose and grown to 44px would push their neighbours around; each one
- * draws an invisible box centred on itself that is never smaller than the
+ * purpose and grown to 44px would push their neighbors around; each one
+ * draws an invisible box centered on itself that is never smaller than the
  * control size, and a tap on the box lands on the control. The element must
  * be positioned (`relative`, or `absolute` where it already is) for the box
- * to centre on it; the utility does not set position itself, because a
+ * to center on it; the utility does not set position itself, because a
  * position it set would fight the `absolute` an input's clear button relies
- * on. Two neighbours' boxes may overlap; the later one in document order
+ * on. Two neighbors' boxes may overlap; the later one in document order
  * wins the overlap, which is the spacing exception SC 2.5.8 allows for.
  */
 @custom-variant coarse (@media (pointer: coarse));
@@ -392,7 +392,7 @@ html[data-theme='light'] {
   --color-line-strong: #767d8e;
   --color-fg: #111827;
   --color-muted: #525866;
-  /* Every value below is the lightest colour on its own hue that clears
+  /* Every value below is the lightest color on its own hue that clears
    * 4.5:1 against the worst background the kit actually paints it on. That
    * worst case is rarely the bare canvas: status text and brand chips sit
    * inside a tint of their own token (bg-warn/10 text-warn), and the tint
@@ -425,7 +425,7 @@ html[data-theme='light'] {
 /*
  * A forced-colors scheme repaints the page but not a fill named in hex, so the
  * mark's white column vanished on a white high-contrast canvas. Its neutral
- * faces take the system colours there; the cyan faces keep their shape.
+ * faces take the system colors there; the cyan faces keep their shape.
  */
 @media (forced-colors: active) {
   :root,
@@ -515,8 +515,8 @@ html[data-theme='light'] {
   /*
    * Every animation in the kit ran regardless of what the reader asked for:
    * the drawer slid, the toast flew in, the pulse and ping looped forever.
-   * Honouring the preference once here covers every component, including any
-   * added later, which is the only way it stays honoured.
+   * Honoring the preference once here covers every component, including any
+   * added later, which is the only way it stays honored.
    *
    * Durations are not zeroed. An animation that finishes in 1ms still fires its
    * animationend, so components that wait on one keep working.
@@ -569,8 +569,8 @@ html[data-theme='light'] {
    * the two agree either way.
    *
    * The status hues collapse to black rather than to a print-safe tint. A
-   * colour that carries meaning on screen carries none through a mono printer,
-   * and a legible black label beats an unreadable coloured one.
+   * color that carries meaning on screen carries none through a mono printer,
+   * and a legible black label beats an unreadable colored one.
    */
   html,
   html[data-theme='light'] {

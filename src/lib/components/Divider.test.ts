@@ -11,7 +11,7 @@ describe('Divider', () => {
     expect(container.querySelector('hr')).toBeTruthy();
   });
 
-  it('renders labelled content instead of an <hr> when given children', () => {
+  it('renders labeled content instead of an <hr> when given children', () => {
     const { container, getByText } = render(Divider, { props: { children: text('OR') } });
     expect(getByText('OR')).toBeTruthy();
     expect(container.querySelector('hr')).toBeNull();

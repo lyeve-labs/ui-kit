@@ -293,7 +293,7 @@ describe('SidebarNav indentation', () => {
     }
   });
 
-  it('states no duration beside a colour transition, which the theme already sets', () => {
+  it('states no duration beside a color transition, which the theme already sets', () => {
     expect(src).not.toMatch(/transition-colors\s+duration-/);
   });
 });

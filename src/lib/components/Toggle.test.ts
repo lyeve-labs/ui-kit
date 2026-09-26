@@ -28,7 +28,7 @@ describe('Toggle', () => {
   /*
    * Off, the track sat in surface-2 with no edge, the same shade as the panel
    * a form sits on, so only the knob showed. The resting border is the one
-   * every other control draws; on, the border takes the fill's colour.
+   * every other control draws; on, the border takes the fill's color.
    */
   it('draws the off track with the control border and the on track filled', () => {
     const off = render(Toggle, { props: { checked: false } });

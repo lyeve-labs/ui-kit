@@ -30,7 +30,7 @@ describe('Toolbar', () => {
     expect(getByRole('toolbar').hasAttribute('aria-label')).toBe(false);
   });
 
-  it('aligns its controls on their vertical centres', () => {
+  it('aligns its controls on their vertical centers', () => {
     // The defect it replaces: hand-rolled filter rows stretched or top-aligned
     // their children, so a search box, a select and a button sat off by a
     // couple of pixels from each other.

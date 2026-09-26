@@ -168,7 +168,7 @@ describe('PasswordInput', () => {
     expect(input(container).value).toBe('s3cret');
   });
 
-  it('marks the control with the stronger resting border, not the divider colour', () => {
+  it('marks the control with the stronger resting border, not the divider color', () => {
     // line is 1.25:1 against the page. The border is the only thing marking an
     // empty control, so at that contrast the field is invisible until it is used.
     const { container } = render(PasswordInput, { props: { label: 'Key' } });

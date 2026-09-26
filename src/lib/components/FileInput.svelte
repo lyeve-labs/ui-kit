@@ -53,7 +53,7 @@
 
   <!-- The dashed border is the only thing marking this region as a control, so
        it rests on line-strong: line reads 1.25:1 and failed SC 1.4.11. The
-       hover is full-strength brand, because a focus-adjacent colour dropped to
+       hover is full-strength brand, because a focus-adjacent color dropped to
        half alpha reads as a weaker affordance for no reason a user can infer. -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl

@@ -5,7 +5,7 @@ import AccordionItem from './AccordionItem.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
-// AccordionItem reads its open/toggle behaviour from the "accordion" context that
+// AccordionItem reads its open/toggle behavior from the "accordion" context that
 // its parent <Accordion> provides. We stub that context to test it in isolation.
 function ctx(open: boolean, toggle = vi.fn()) {
   return new Map([['accordion', { isOpen: () => open, toggle, flush: false }]]);

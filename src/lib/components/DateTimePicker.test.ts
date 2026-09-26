@@ -8,7 +8,7 @@ import DateTimePicker from './DateTimePicker.svelte';
 /**
  * Every block below is a way a datetime field built from two controls goes
  * wrong: a value that survives one direction only, a half that resets when its
- * neighbour changes, an empty field that claims to hold midnight, bounds
+ * neighbor changes, an empty field that claims to hold midnight, bounds
  * applied to each half instead of to the instant, a flag that stops at the
  * wrapper, three message rows under one field, and the timezone shift a single
  * `new Date(text)` puts into a date that never had a zone.

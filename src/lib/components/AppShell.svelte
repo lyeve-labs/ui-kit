@@ -136,7 +136,7 @@
   const drawerOpen = $derived(isMobile && navOpen);
   /**
    * Collapsing is a desktop gesture. Below md: the same aside is the drawer,
-   * so honouring `collapsed` there would leave the hamburger opening nothing.
+   * so honoring `collapsed` there would leave the hamburger opening nothing.
    */
   const railHidden = $derived(collapsible && collapsed && !isMobile);
   /** Same rule for the header: a desktop gesture, and the drawer's button stays. */

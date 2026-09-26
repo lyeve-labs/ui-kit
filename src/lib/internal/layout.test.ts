@@ -25,7 +25,7 @@ import {
 /**
  * These constants are only worth having if they are provably better than the
  * strings they replace. A page that reaches for an arbitrary value or a raw
- * palette colour gets the same drift back, one layer down, and a class built
+ * palette color gets the same drift back, one layer down, and a class built
  * from a runtime value generates no CSS rule at all while still reading as a
  * class in the source. The scale itself is read out of theme.css rather than
  * repeated here, so a token renamed or removed fails these tests instead of
@@ -84,7 +84,7 @@ describe('every layout constant stays inside the token scale', () => {
     expect(classes).not.toMatch(/\[[^\]]*\]/);
   });
 
-  it.each(SURFACES)('%s uses no raw palette colour', (_name, classes) => {
+  it.each(SURFACES)('%s uses no raw palette color', (_name, classes) => {
     // The palette is four surfaces, three text weights and five tones. A
     // zinc-800 or a hex reads correctly in one theme and wrong in the other.
     expect(classes).not.toMatch(/#[0-9a-fA-F]{3,8}/);

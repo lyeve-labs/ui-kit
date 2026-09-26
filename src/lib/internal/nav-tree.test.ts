@@ -86,12 +86,12 @@ describe('isActive', () => {
     expect(isActive({ id: 'x', label: 'X', href: '/settings/team/' }, '/settings/team')).toBe(true);
   });
 
-  it('honours an explicit match of prefix on a leaf', () => {
+  it('honors an explicit match of prefix on a leaf', () => {
     const leaf: NavNode = { id: 'x', label: 'X', href: '/settings', match: 'prefix' };
     expect(isActive(leaf, '/settings/team')).toBe(true);
   });
 
-  it('honours an explicit match of exact on a node with children', () => {
+  it('honors an explicit match of exact on a node with children', () => {
     const branch: NavNode = {
       id: 'x',
       label: 'X',
