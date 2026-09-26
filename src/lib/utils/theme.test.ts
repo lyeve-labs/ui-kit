@@ -11,6 +11,7 @@ import {
   themeBootScript,
   toggleTheme,
   watchSystemTheme,
+  watchThemePreference,
 } from './theme.js';
 
 const STORAGE_KEY = 'lyeve-theme';
@@ -265,5 +266,29 @@ describe('theme utils', () => {
       expect(toggleTheme()).toBe('dark');
       expect(getThemePreference()).toBe('dark');
     });
+  });
+});
+
+describe('watchThemePreference', () => {
+  afterEach(() => localStorage.clear());
+
+  it('hears every preference this page sets, until it unsubscribes', () => {
+    const seen: string[] = [];
+    const stop = watchThemePreference((p) => seen.push(p));
+    setThemePreference('light');
+    setTheme('dark');
+    stop();
+    setThemePreference('system');
+    expect(seen).toEqual(['light', 'dark']);
+  });
+
+  it('hears a preference another tab stores, and ignores other keys', () => {
+    const seen: string[] = [];
+    const stop = watchThemePreference((p) => seen.push(p));
+    localStorage.setItem(STORAGE_KEY, 'dark');
+    window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated' }));
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+    stop();
+    expect(seen).toEqual(['dark']);
   });
 });

@@ -138,6 +138,7 @@ export {
   setThemePreference,
   systemTheme,
   themeBootScript,
+  watchThemePreference,
   toggleTheme,
   watchSystemTheme,
   THEME_PREFERENCES,

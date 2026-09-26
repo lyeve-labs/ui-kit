@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the same row. Focusing the field selects the whole value. It replaces a
   read-only `Input` with a separate outlined button beside it, which read as
   two controls of different heights.
+- `watchThemePreference(onChange)`: hears every preference any control on
+  the page sets, and one another tab stores, so a control showing the
+  preference can follow a change made elsewhere.
+
+### Fixed
+
+- `ThemeToggle` follows a preference set by another control. A settings
+  picker on the same page left the header toggle on its old value, and a
+  toggle still holding `system` repainted the page to the OS theme at dusk
+  over the reader's explicit choice. `setThemePreference` and `setTheme` now
+  announce the change and the toggle listens.
 
 ### Changed
 
