@@ -11,7 +11,7 @@ import {
  * The filter under test replaced an expression duplicated in MultiSelect and
  * Autocomplete, so the cases that matter are the ones that expression got wrong
  * and the ones a caller now relies on: an untouched list comes back by
- * identity, a disabled filter is honoured at any query, an accent on either
+ * identity, a disabled filter is honored at any query, an accent on either
  * side of the comparison folds away, and the index a matcher is handed counts
  * the input rather than the results.
  *

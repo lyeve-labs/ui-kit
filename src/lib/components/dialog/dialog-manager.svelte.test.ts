@@ -14,7 +14,7 @@ import {
 // The dialog stack is module-level state shared across tests. Every test below
 // fully settles the dialogs it opens (resolve via closeDialog / reject via
 // dismiss), so the stack returns to empty between tests. This afterEach only
-// normalises the body scroll style as a belt-and-braces guard.
+// normalizes the body scroll style as a belt-and-braces guard.
 afterEach(() => {
   document.body.style.overflow = '';
 });
@@ -117,7 +117,7 @@ describe('dialog-manager', () => {
       expect(getDialogStack()).toHaveLength(0);
     });
 
-    it('honours the onClose guard', async () => {
+    it('honors the onClose guard', async () => {
       let allow = false;
       const p = openDialog({ id: 'gd', onClose: () => allow });
       p.catch(() => {});
@@ -179,7 +179,7 @@ describe('dialog-manager', () => {
     });
 
     it('resolves false when the user cancels', async () => {
-      // Cancelling dismisses, and dismissal rejects. Callers write
+      // Canceling dismisses, and dismissal rejects. Callers write
       // `if (await confirm(...))`, so rejecting on Cancel threw on the ordinary
       // path and every call site needed a try/catch to answer "no". Cancel is an
       // answer, not a failure.

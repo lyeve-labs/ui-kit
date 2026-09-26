@@ -239,8 +239,8 @@
         <!--
           Each segment is a radio, and aria-checked is what a screen reader
           reads. The theme picker this replaces was a row of plain buttons whose
-          choice was carried by a background colour alone, so a screen reader
-          user was told nothing and a colour-blind user saw nothing. The
+          choice was carried by a background color alone, so a screen reader
+          user was told nothing and a color-blind user saw nothing. The
           selected segment also sits at a heavier weight, so the state survives
           a palette a reader cannot separate.
         -->

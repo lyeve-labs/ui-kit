@@ -125,7 +125,7 @@ describe('Dialog', () => {
     // Asserted through the page rather than through a spy on the lock helper:
     // focus, the Tab trap and the scroll lock now come from the shared overlay
     // action, and a spy on one particular helper would pass just as happily if
-    // a future refactor moved the behaviour somewhere that did nothing.
+    // a future refactor moved the behavior somewhere that did nothing.
     const entry = makeEntry();
     const { unmount } = render(Dialog, { props: { entry } });
     expect(document.body.style.overflow).toBe('hidden');

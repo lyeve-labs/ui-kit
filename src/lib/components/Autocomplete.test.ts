@@ -308,10 +308,10 @@ describe('the clear button', () => {
     expect(glyph + 2 * 6).toBeGreaterThanOrEqual(24);
   });
 
-  it('stays centred on the field once the target grows', () => {
+  it('stays centered on the field once the target grows', () => {
     // The box is placed from its right edge, so the padding comes back off the
     // horizontal axis alone. A negative top margin would fight the translate
-    // that centres it and lift the glyph 6px.
+    // that centers it and lift the glyph 6px.
     const { getByLabelText } = render(Autocomplete, { props: { options, value: 'a' } });
     const button = getByLabelText('Clear');
     expect(button.className).toContain('-mx-1.5');

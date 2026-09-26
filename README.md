@@ -175,7 +175,7 @@ in `styles.css` beside the palette:
 
 | Token                 | Value                            | For                                                                                                            |
 | --------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `--duration-fast`     | 120ms                            | a state change in place: colour, opacity, border, shadow, focus                                                |
+| `--duration-fast`     | 120ms                            | a state change in place: color, opacity, border, shadow, focus                                                |
 | `--duration-base`     | 200ms                            | movement in place (a knob, a chevron, a collapse) and a small surface arriving (menu, popover, tooltip, toast) |
 | `--duration-slow`     | 320ms                            | a large surface arriving (dialog, drawer)                                                                      |
 | `--duration-progress` | 500ms                            | a value moving (a progress bar's width)                                                                        |

@@ -19,7 +19,7 @@ export const COPY_FAILED_MESSAGE = 'Copy failed';
  * self-hosted console reached over a LAN address without TLS runs, and
  * writeText rejects while the document is not focused. Either way the value
  * goes through a selected, off-screen textarea and the legacy copy command,
- * which the browser still honours inside the click. Only when that also
+ * which the browser still honors inside the click. Only when that also
  * refuses is it a failure the control reports; it never throws.
  */
 export async function writeClipboard(value: string): Promise<boolean> {

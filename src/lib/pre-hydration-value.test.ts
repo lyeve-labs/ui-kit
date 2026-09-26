@@ -76,7 +76,7 @@ describe('a field the visitor types into before hydration', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('recognises both ways a textarea can drop it', () => {
+  it('recognizes both ways a textarea can drop it', () => {
     const asContent = '<textarea>{value}</textarea>';
     const asNothing = '<textarea name="body"></textarea>';
     const bound = '<textarea name="body" bind:value></textarea>';

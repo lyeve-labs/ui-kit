@@ -54,7 +54,7 @@ describe('Panel', () => {
   });
 
   it('renders no heading element when heading is unset', () => {
-    // An unlabelled group must not put an empty entry in the page outline.
+    // An unlabeled group must not put an empty entry in the page outline.
     const { container, queryAllByRole } = render(Panel, { props: { children: text('Body') } });
     expect(container.querySelector('h1, h2, h3, h4, h5, h6')).toBeNull();
     expect(queryAllByRole('heading')).toHaveLength(0);

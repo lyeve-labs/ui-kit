@@ -49,7 +49,7 @@
      own, so an icon and its text stacked and the badge rendered two rows tall
      inside a pill. A flex row here would fix the stacking and lose the
      ellipsis, which is the thing the span exists for, so the icon goes back to
-     being inline and sits on the text's optical centre. -->
+     being inline and sits on the text's optical center. -->
 <span
   class="inline-flex max-w-full items-center font-medium whitespace-nowrap rounded-full border {tones[
     tone

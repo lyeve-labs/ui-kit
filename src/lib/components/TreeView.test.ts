@@ -6,7 +6,7 @@ import type { TreeNode } from '../internal/tree.js';
 
 /**
  * A tree is the one widget where the keyboard contract is the component. Every
- * test here holds a behaviour a user loses silently when it breaks: a row the
+ * test here holds a behavior a user loses silently when it breaks: a row the
  * arrows cannot reach, a hundred tab stops where there should be one, a branch
  * that reports a state its own click does not produce.
  */

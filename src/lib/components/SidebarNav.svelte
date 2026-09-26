@@ -52,11 +52,11 @@
   }
 
   /**
-   * The row, without the colours any one state paints.
+   * The row, without the colors any one state paints.
    *
    * The rail is a start border on every row, not one added when the branch is
    * active, so marking a branch cannot shift its rows two pixels sideways. Its
-   * colour is a ternary rather than a second border utility: two colour
+   * color is a ternary rather than a second border utility: two color
    * utilities on one element resolve in the order Tailwind emits them, not the
    * order they are written.
    *
@@ -71,7 +71,7 @@
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
   /**
-   * Exactly one border colour, one background and one text colour per state.
+   * Exactly one border color, one background and one text color per state.
    *
    * Every state answers the pointer, including the current one. It did not: the
    * current row was the only paint with no hover step, and the current row is

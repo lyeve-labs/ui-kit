@@ -244,7 +244,7 @@
       The focus ring is stated once, on the element that holds the role and the
       focus, and outside every selected and checked branch. A ring inside the
       selected ternary disappears in the state it was meant to mark, and a
-      selected row already carries a brand text colour that a border-only focus
+      selected row already carries a brand text color that a border-only focus
       state would have nothing to add to. Inset, because a tree of any size
       lives in a scrolling container that would crop an outset ring.
     -->

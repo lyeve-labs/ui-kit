@@ -8,7 +8,7 @@
  *
  * It reads the label and nothing else, so an option a user knows by its value,
  * its airport code or a synonym could not be found. It compares raw code
- * points, so a query of "cafe" missed an option labelled with an acute accent.
+ * points, so a query of "cafe" missed an option labeled with an acute accent.
  * It trims and lowercases the query once per option instead of once per
  * keystroke. And it is not a prop, so a consumer whose list arrives already
  * narrowed by a server query had no way to switch local filtering off or to say
