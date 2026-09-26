@@ -71,6 +71,7 @@ const COMPONENTS = [
   'Stat',
   'Kbd',
   'CopyButton',
+  'CopyField',
   // Media
   'Avatar',
   'AvatarGroup',
@@ -96,6 +97,7 @@ const FUNCTIONS = [
   'toggleTheme',
   'themeBootScript',
   'watchSystemTheme',
+  'watchThemePreference',
   'openDialog',
   'closeDialog',
   'dismissDialog',
