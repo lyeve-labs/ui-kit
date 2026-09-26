@@ -26,9 +26,10 @@
 
   const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 
+  // bind:value keeps what was typed before hydration; a one-way value
+  // cleared it. The binding has updated value by the time this runs.
   function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
-    value = e.currentTarget.value;
-    oninput?.(value);
+    oninput?.(e.currentTarget.value);
   }
 
   function clear() {
@@ -64,7 +65,7 @@
       {name}
       {placeholder}
       {disabled}
-      {value}
+      bind:value
       oninput={handleInput}
       class="{CONTROL_BASE} {controlBorder(false)} ps-9
         [&::-webkit-search-cancel-button]:appearance-none
