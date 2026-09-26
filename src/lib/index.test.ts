@@ -71,6 +71,7 @@ const COMPONENTS = [
   'Stat',
   'Kbd',
   'CopyButton',
+  'CopyField',
   // Media
   'Avatar',
   'AvatarGroup',
