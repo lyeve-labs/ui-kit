@@ -38,6 +38,21 @@ export type ThemePreference = Theme | 'system';
  */
 const STORAGE_KEY = 'lyeve-theme';
 
+/**
+ * The window event a preference change announces, so every control on the
+ * page shows the same choice. Two controls are routinely on screen at once
+ * (a header toggle and a settings picker), and each held its own copy: a
+ * pick in one left the other showing the old preference, and a toggle still
+ * holding `system` repainted the page to the OS theme at dusk over the
+ * reader's explicit choice.
+ */
+const CHANGE_EVENT = 'lyeve-theme-change';
+
+function announce(preference: ThemePreference): void {
+  if (typeof window === 'undefined' || typeof CustomEvent === 'undefined') return;
+  window.dispatchEvent(new CustomEvent<ThemePreference>(CHANGE_EVENT, { detail: preference }));
+}
+
 /** The order a control cycles through, and the order a picker lists. */
 export const THEME_PREFERENCES: readonly ThemePreference[] = ['light', 'dark', 'system'];
 
@@ -129,6 +144,7 @@ export function setThemePreference(preference: ThemePreference): Theme {
     // Storage may be disabled (private mode, quota); the attribute is applied
     // either way, so the session the reader is in still honours the choice.
   }
+  announce(preference);
   return theme;
 }
 
@@ -141,6 +157,7 @@ export function setTheme(theme: Theme): void {
   } catch {
     // Storage may be disabled (private mode, quota); fall through silently.
   }
+  announce(theme);
 }
 
 /**
@@ -180,4 +197,29 @@ export function watchSystemTheme(onChange: (theme: Theme) => void): () => void {
   const handler = () => onChange(query.matches ? 'light' : 'dark');
   query.addEventListener('change', handler);
   return () => query.removeEventListener('change', handler);
+}
+
+/**
+ * Call `onChange` with the new preference whenever any control on this page
+ * sets one, or another tab of the same origin stores one. Returns the
+ * unsubscribe function, and a no-op one on the server.
+ *
+ * A control that shows the preference subscribes, so it follows a change made
+ * anywhere else rather than keeping the value it read at mount.
+ */
+export function watchThemePreference(onChange: (preference: ThemePreference) => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const local = (e: Event) => {
+    const next = (e as CustomEvent<unknown>).detail;
+    if (isPreference(next)) onChange(next);
+  };
+  const other = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) onChange(getThemePreference());
+  };
+  window.addEventListener(CHANGE_EVENT, local);
+  window.addEventListener('storage', other);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, local);
+    window.removeEventListener('storage', other);
+  };
 }
