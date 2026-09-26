@@ -148,7 +148,7 @@ describe('Pagination', () => {
   });
 
   it('writes its range without an en dash', () => {
-    // The organisation's standard bans en and em dashes in copy, and this one rendered into the
+    // The organization's standard bans en and em dashes in copy, and this one rendered into the
     // DOM of every paginated list rather than sitting in a comment.
     const { container } = render(Pagination, {
       props: { page: 2, total: 100, perPage: 20, onchange: () => {} },

@@ -23,7 +23,7 @@
     /** `sm` for a dense row of figures, `md` for a card of its own. */
     size?: Size;
     /**
-     * The status the figure reports, which colours the value.
+     * The status the figure reports, which colors the value.
      *
      * Wins over `accent` when it is set. `accent` is the decorative vocabulary
      * and has no warn or danger, so a number that is over its quota could only

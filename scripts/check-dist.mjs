@@ -56,7 +56,7 @@ const missing = [];
 /**
  * Every on-disk path a specifier may legitimately resolve to in this layout.
  *
- * TypeScript writes the extension it would emit, so '.js' is how a neighbour
+ * TypeScript writes the extension it would emit, so '.js' is how a neighbor
  * names a component that ships as '.svelte'. A rune module is authored as
  * 'toast.svelte.ts', imported as './toast.svelte' with no extension at all, and
  * published as 'toast.svelte.js'. Taking the specifier literally and nothing

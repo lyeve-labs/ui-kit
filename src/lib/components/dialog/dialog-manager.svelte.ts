@@ -179,7 +179,7 @@ export interface ConfirmOptions {
 
 /**
  * Convenience: confirm dialog.
- * Returns `true` if user confirmed, `false` if cancelled.
+ * Returns `true` if user confirmed, `false` if canceled.
  *
  *   const ok = await confirm('Delete item?', 'This cannot be undone.');
  *   const ok = await confirm('Delete item?', 'This cannot be undone.', {
@@ -203,7 +203,7 @@ export function confirm(
     ...(options?.cancelLabel !== undefined ? { cancelLabel: options.cancelLabel } : {}),
     ...(options?.detail !== undefined ? { confirmDetail: options.detail } : {}),
   });
-  // Cancelling a dialog dismisses it, and dismissal rejects. Callers write
+  // Canceling a dialog dismisses it, and dismissal rejects. Callers write
   // `if (await confirm(...))`, so a rejection on Cancel is an unhandled
   // rejection on the ordinary path rather than an error anyone meant to
   // handle. Cancel is an answer, not a failure: it resolves false, which is

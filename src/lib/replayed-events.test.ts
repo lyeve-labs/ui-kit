@@ -101,7 +101,7 @@ describe('server-rendered markup', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('recognises each of the three shapes that trigger it', () => {
+  it('recognizes each of the three shapes that trigger it', () => {
     const spread = '<img {...rest} />';
     const directive = '<img src="a.png" use:track />';
     const handler = '<img src="a.png" onerror={fail} />';

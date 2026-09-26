@@ -92,9 +92,9 @@ describe('FormMessage', () => {
   it.each([
     { tone: 'danger' as const, expected: 'text-danger', rejected: 'text-success' },
     { tone: 'success' as const, expected: 'text-success', rejected: 'text-danger' },
-  ])('paints a $tone message from one stated colour', async ({ tone, expected, rejected }) => {
+  ])('paints a $tone message from one stated color', async ({ tone, expected, rejected }) => {
     // Eleven pages rendered this into a bare paragraph and each picked its own
-    // size and colour, so one failure read as three different things.
+    // size and color, so one failure read as three different things.
     const { container, findByText } = render(FormMessage, {
       props: { tone, children: text('Message') },
     });
@@ -119,8 +119,8 @@ describe('FormMessage', () => {
     expect(source).toContain("from '../internal/tone.js'");
   });
 
-  it('says with more than colour which outcome it is', async () => {
-    // Colour alone separating a failure from a confirmation fails SC 1.4.1.
+  it('says with more than color which outcome it is', async () => {
+    // Color alone separating a failure from a confirmation fails SC 1.4.1.
     const failed = render(FormMessage, { props: { children: text('Could not save') } });
     await failed.findByText('Could not save');
     const danger = failed.container.querySelector('path')?.getAttribute('d');

@@ -210,7 +210,7 @@
         the field. The padding is taken back off the horizontal axis only: the
         box is positioned from its right edge, so a negative right margin holds
         the glyph exactly where it was, while a negative top margin would fight
-        the translate that centres it and lift it 6px off the middle of the
+        the translate that centers it and lift it 6px off the middle of the
         field.
       -->
       <button

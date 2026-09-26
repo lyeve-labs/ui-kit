@@ -12,7 +12,7 @@
  *                    `data-theme` holds and what every palette rule keys off.
  *   ThemePreference  what the reader asked for. `dark`, `light`, or `system`,
  *                    which is a standing instruction to follow the operating
- *                    system rather than a colour.
+ *                    system rather than a color.
  *
  * The kit resolved a preference in exactly one place, the pre-paint script,
  * and nothing else could read it back. A control could therefore offer two
@@ -142,7 +142,7 @@ export function setThemePreference(preference: ThemePreference): Theme {
     localStorage.setItem(STORAGE_KEY, preference);
   } catch {
     // Storage may be disabled (private mode, quota); the attribute is applied
-    // either way, so the session the reader is in still honours the choice.
+    // either way, so the session the reader is in still honors the choice.
   }
   announce(preference);
   return theme;
@@ -188,7 +188,7 @@ export function toggleTheme(): Theme {
  * unsubscribe function, and a no-op one where there is no `matchMedia`.
  *
  * A page resolving `system` has to repaint when the OS flips at dusk. Without
- * this the preference is honoured once, at load, and reads as ignored for the
+ * this the preference is honored once, at load, and reads as ignored for the
  * rest of the session.
  */
 export function watchSystemTheme(onChange: (theme: Theme) => void): () => void {

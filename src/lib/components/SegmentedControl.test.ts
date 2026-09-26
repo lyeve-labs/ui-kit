@@ -111,9 +111,9 @@ describe('SegmentedControl aria state', () => {
     expect(checked(container)).toEqual(['false', 'false', 'true']);
   });
 
-  it('carries the selection in weight as well as in colour', () => {
-    // The theme picker this replaces marked its choice with a background colour
-    // and nothing else, so a colour-blind user could not see which option was
+  it('carries the selection in weight as well as in color', () => {
+    // The theme picker this replaces marked its choice with a background color
+    // and nothing else, so a color-blind user could not see which option was
     // active and a screen reader user was told nothing at all.
     const { container } = render(SegmentedControl, {
       props: { label: 'Theme', options, value: 'dark' },
@@ -397,7 +397,7 @@ describe('SegmentedControl href mode', () => {
       props: { label: 'Window', options: links, value: '24h', onchange },
     });
     // Read at the document, after the segment's own handlers had their turn,
-    // then cancelled there so jsdom does not try to follow the link.
+    // then canceled there so jsdom does not try to follow the link.
     let prevented: boolean | undefined;
     const seen = (e: Event) => {
       prevented = e.defaultPrevented;

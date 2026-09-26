@@ -75,7 +75,7 @@ describe('bezier', () => {
   });
 
   it("matches the browser for CSS's ease-in-out at its midpoint", () => {
-    // cubic-bezier(0.42, 0, 0.58, 1) is symmetric about the centre, so y at
+    // cubic-bezier(0.42, 0, 0.58, 1) is symmetric about the center, so y at
     // x=0.5 is exactly 0.5, which a solver that stops iterating early misses.
     expect(bezier(0.42, 0, 0.58, 1)(0.5)).toBeCloseTo(0.5, 3);
   });

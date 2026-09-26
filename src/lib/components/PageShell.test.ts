@@ -43,7 +43,7 @@ describe('PageShell', () => {
     expect(headers[0].querySelector('h1'), 'the one header is PageHeader own').toBeTruthy();
   });
 
-  it('caps each width differently and always centres a full-width column', () => {
+  it('caps each width differently and always centers a full-width column', () => {
     // Five raw caps were chosen per page with no rule, and one page rendered
     // against the left edge of the window because it set a cap and forgot
     // mx-auto. Both come with the gutter here.

@@ -178,7 +178,7 @@
 
   /**
    * An empty spinbutton has no aria-valuenow to give, so it says so in words.
-   * Omitting both leaves the segment announced as an unlabelled number.
+   * Omitting both leaves the segment announced as an unlabeled number.
    */
   function valueText(segment: DigitSegment): string {
     const text = shown(segment);
@@ -358,7 +358,7 @@
     }
 
     // Anything else printable would land in the input as free text. Tab,
-    // Escape and every shortcut keep their native behaviour.
+    // Escape and every shortcut keep their native behavior.
     if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault();
   }
 

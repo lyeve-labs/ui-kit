@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 /**
  * The library drifted because nothing measured it. Every component was correct
- * on its own terms and wrong beside its neighbour: three focus treatments, two
+ * on its own terms and wrong beside its neighbor: three focus treatments, two
  * wrapper gaps, two error-border opacities, two control heights, and icons
  * drawn as Unicode characters in some components and stroked SVG in others.
  *
@@ -234,7 +234,7 @@ describe('component consistency', () => {
   it("does not let a container clip its own buttons' focus ring", () => {
     // The global :focus-visible outline sits 2px OUTSIDE the element, so a
     // container with overflow-hidden crops it. On the accordion that showed as
-    // a stray coloured line under the open header - three edges clipped, one
+    // a stray colored line under the open header - three edges clipped, one
     // left. A component that clips must draw its focus ring inset instead.
     const offenders = files
       .filter((f) => f.src.includes('overflow-hidden') && f.src.includes('<button'))
@@ -257,7 +257,7 @@ describe('component consistency', () => {
     // Fifteen components spelled the marker `aria-label="required"`. Accessible
     // name computation walks into the label and concatenates what it finds, and
     // an aria-label on a descendant replaces that descendant's text rather than
-    // being skipped, so a field labelled Email announced as "Email required".
+    // being skipped, so a field labeled Email announced as "Email required".
     // A name is what a voice-control user speaks at the control, and nobody
     // says "Email required". The marker is paint; the state belongs on the
     // control.
@@ -451,7 +451,7 @@ describe('the kit carries its own styles', () => {
     expect(theme).toMatch(/@source\s+['"]\.\.\/\.\.\/\.\.\/dist['"]/);
   });
 
-  it('honours a reader who asked for less motion', () => {
+  it('honors a reader who asked for less motion', () => {
     // Every animation in the kit ran regardless: the drawer slid, the toast flew
     // in, the ping looped forever. Handled once here so it covers components
     // added later too.
@@ -475,11 +475,11 @@ describe('the kit carries its own styles', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('gives every aria-modal surface the focus behaviour it advertises', () => {
+  it('gives every aria-modal surface the focus behavior it advertises', () => {
     // `aria-modal="true"` tells a screen reader the rest of the page is gone.
     // Modal and Drawer both said it while leaving focus in the document behind
     // them, so the user was told a dialog had opened and then carried on
-    // reading the page underneath. The behaviour lives in internal/overlay.ts;
+    // reading the page underneath. The behavior lives in internal/overlay.ts;
     // a component that claims the role has to use it.
     const offenders = files
       .filter((f) => f.src.includes('aria-modal'))
@@ -663,7 +663,7 @@ describe('a field says that it is one', () => {
     );
   });
 
-  it('finds the labelled controls to check', () => {
+  it('finds the labeled controls to check', () => {
     // A filter that matches nothing passes every assertion under it.
     expect(wrappers.length).toBeGreaterThan(15);
   });

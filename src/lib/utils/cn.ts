@@ -7,7 +7,7 @@
  *     cn('btn', isPrimary && 'btn-primary', { 'is-disabled': disabled })
  *
  * Object entries are treated as `{ className: boolean }` maps, matching the
- * behaviour of `clsx` so existing muscle memory carries over.
+ * behavior of `clsx` so existing muscle memory carries over.
  */
 export type ClassValue =
   | string

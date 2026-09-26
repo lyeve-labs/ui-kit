@@ -9,7 +9,7 @@ import {
 } from './tree.js';
 
 /**
- * A checkable branch summarises its subtree and writes it, and the two have to
+ * A checkable branch summarizes its subtree and writes it, and the two have to
  * agree. These tests hold the cases where they come apart: a branch with
  * nothing it may write, a partly checked one, and a subtree with a row that is
  * counted but must never be written. They use plain nodes rather than a

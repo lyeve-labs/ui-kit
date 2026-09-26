@@ -89,7 +89,7 @@ describe('Stat', () => {
     ['success', 'text-success'],
     ['warn', 'text-warn'],
     ['danger', 'text-danger'],
-  ] as const)('colours the value for the %s tone', (tone, expected) => {
+  ] as const)('colors the value for the %s tone', (tone, expected) => {
     const { getByText } = render(Stat, { props: { label: 'Quota', value: 9, tone } });
     expect(getByText('9').className).toContain(expected);
   });
@@ -111,7 +111,7 @@ describe('Stat', () => {
 
   it('holds a ticking value on one advance with the mono family and tabular figures', () => {
     // A proportional 1 is narrower than a proportional 0, so a counter shoves
-    // its neighbours sideways on nearly every update. Both utilities are needed:
+    // its neighbors sideways on nearly every update. Both utilities are needed:
     // the family alone still leaves the digits proportional in some faces.
     const { getByText } = render(Stat, { props: { label: 'Requests', value: 1011, mono: true } });
     expect(getByText('1011').className).toContain('font-mono');

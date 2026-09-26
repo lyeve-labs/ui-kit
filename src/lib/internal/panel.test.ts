@@ -63,7 +63,7 @@ describe('panel class strings', () => {
     expect(cls).not.toMatch(/[{}$]/);
   });
 
-  it.each(CONSTANTS)('%s names no colour the palette does not own', (_name, cls) => {
+  it.each(CONSTANTS)('%s names no color the palette does not own', (_name, cls) => {
     expect(cls).not.toMatch(/#[0-9a-fA-F]{3,8}/);
     expect(cls).not.toMatch(
       /\b(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/,
@@ -106,7 +106,7 @@ describe('the surface', () => {
     expect(bare(PANEL_SURFACE).filter((t) => /^(?:w|min-w|max-w)-/.test(t))).toEqual([]);
   });
 
-  it('carries the resting text colour so a row overrides it once', () => {
+  it('carries the resting text color so a row overrides it once', () => {
     expect(hasAll(PANEL_SURFACE, 'text-fg')).toBe(true);
     expect(bare(PANEL_OPTION).filter((t) => /^text-(?:fg|brand|faint|muted)$/.test(t))).toEqual([]);
   });
