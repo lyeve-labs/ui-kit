@@ -77,8 +77,11 @@
   // A disabled field hands over nothing, including a look at what it holds.
   const showToggle = $derived(revealable && !disabled);
 
+  // bind:value rather than a one-way value: on hydration it adopts what the
+  // field already holds, so a password typed or autofilled before the page
+  // took over is kept. A one-way value set the field back to empty, and the
+  // form then refused to submit with the password still shown as required.
   function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
-    value = e.currentTarget.value;
     oninput?.(e);
   }
 </script>
@@ -103,7 +106,7 @@
       {disabled}
       {readonly}
       {autocomplete}
-      {value}
+      bind:value
       oninput={handleInput}
       {onchange}
       aria-invalid={error ? 'true' : undefined}
