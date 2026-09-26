@@ -93,6 +93,7 @@ export { default as EmptyState } from './components/EmptyState.svelte';
 export { default as Stat } from './components/Stat.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
 export { default as CopyButton } from './components/CopyButton.svelte';
+export { default as CopyField } from './components/CopyField.svelte';
 
 // ── Media ──────────────────────────────────────────────────────────────────
 export { default as Avatar } from './components/Avatar.svelte';

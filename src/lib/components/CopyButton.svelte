@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Check, Copy } from '@lucide/svelte';
   import { HIT_AREA } from '../internal/touch.js';
+  import CopyGlyph from '../internal/CopyGlyph.svelte';
+  import { COPY_FAILED_MESSAGE, CopyState } from '../internal/copy.svelte.js';
 
   interface Props {
     /** The text written to the clipboard. */
@@ -22,68 +23,15 @@
     class: klass = '',
   }: Props = $props();
 
-  type Status = 'idle' | 'copied' | 'failed';
-
-  /**
-   * How long the check stays up before the button returns to its resting icon.
-   *
-   * Stated once. The copy affordance this replaces was hand-rolled per page, and
-   * the pages that reverted at all reverted at three different speeds.
-   */
-  const REVERT_MS = 1500;
-
-  /**
-   * What the page says when the write did not happen.
-   *
-   * Every one of those hand-rolled copies reported nothing on failure: the user
-   * pressed the button, the icon did not move, and the value was still only on
-   * screen with no way to tell whether it had been taken.
-   */
-  const FAILED_MESSAGE = 'Copy failed';
-
-  let status = $state<Status>('idle');
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  const copier = new CopyState();
 
   const message = $derived.by(() => {
-    if (status === 'copied') return copiedLabel;
-    if (status === 'failed') return FAILED_MESSAGE;
+    if (copier.status === 'copied') return copiedLabel;
+    if (copier.status === 'failed') return COPY_FAILED_MESSAGE;
     return '';
   });
 
-  /** Writes the value, and reports whether it landed. */
-  async function write(): Promise<boolean> {
-    /*
-     * The clipboard has to be read into a binding and tested. It is undefined
-     * on an insecure origin, and `navigator.clipboard?.writeText(value)`
-     * resolves to undefined there rather than throwing, so awaiting it succeeds
-     * and the button reports a copy that never happened.
-     */
-    const clipboard = navigator.clipboard;
-    if (!clipboard) return false;
-    try {
-      // writeText rejects while the document is not focused, which is what a
-      // press from a background window or an inspector pane produces.
-      await clipboard.writeText(value);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async function copy() {
-    // A second press restarts the window. Without this the first press's timer
-    // reverts the second copy part way through its own.
-    clearTimeout(timer);
-    status = (await write()) ? 'copied' : 'failed';
-    timer = setTimeout(() => (status = 'idle'), REVERT_MS);
-  }
-
-  /*
-   * The revert timer outlives the component without this. A table that swaps
-   * its rows while a check is up leaves the callback assigning to a destroyed
-   * instance.
-   */
-  $effect(() => () => clearTimeout(timer));
+  $effect(() => () => copier.dispose());
 </script>
 
 <!--
@@ -97,7 +45,7 @@
 -->
 <span class="inline-flex items-center {message ? 'gap-1.5' : ''} {klass}">
   <!--
-    The accessible name stays `label` through the copied state. The live region
+    The accessible name stays `label` through the copied copier. The live region
     below is what reports the result, and renaming the button as well would
     announce the same word twice and then leave a control called "Copied" that
     copies.
@@ -105,23 +53,16 @@
   <button
     type="button"
     aria-label={label}
-    onclick={copy}
-    class="{HIT_AREA} inline-flex items-center justify-center rounded-md p-1 outline-none transition-colors active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand {status ===
-    'copied'
-      ? 'text-success'
-      : 'text-faint hover:text-fg'}"
+    onclick={() => copier.copy(value)}
+    class="{HIT_AREA} inline-flex items-center justify-center rounded-md p-1 text-faint outline-none transition-colors hover:text-fg active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
   >
-    {#if status === 'copied'}
-      <Check {size} aria-hidden="true" />
-    {:else}
-      <Copy {size} aria-hidden="true" />
-    {/if}
+    <CopyGlyph copied={copier.status === 'copied'} {size} />
   </button>
 
   <span
     role="status"
     aria-live="polite"
     aria-atomic="true"
-    class="text-xs {status === 'failed' ? 'text-danger' : 'text-success'}">{message}</span
+    class="text-xs {copier.status === 'failed' ? 'text-danger' : 'text-success'}">{message}</span
   >
 </span>
