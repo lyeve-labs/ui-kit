@@ -97,6 +97,7 @@ const FUNCTIONS = [
   'toggleTheme',
   'themeBootScript',
   'watchSystemTheme',
+  'watchThemePreference',
   'openDialog',
   'closeDialog',
   'dismissDialog',

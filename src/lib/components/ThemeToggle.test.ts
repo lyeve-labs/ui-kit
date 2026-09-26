@@ -1,6 +1,8 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { tick } from 'svelte';
 import ThemeToggle from './ThemeToggle.svelte';
+import { setThemePreference } from '../utils/theme.js';
 
 const STORAGE_KEY = 'lyeve-theme';
 
@@ -44,6 +46,29 @@ describe('ThemeToggle', () => {
     document.documentElement.removeAttribute('data-theme');
     localStorage.clear();
     vi.unstubAllGlobals();
+  });
+
+  it('follows a preference another control sets, and stops following the OS after it', async () => {
+    // A settings picker and this toggle are on screen together. A pick in the
+    // picker left the toggle on its old value, and a toggle still on system
+    // repainted the page to the OS theme over the reader's explicit dark.
+    const system = stubSystem(false);
+    const { getByRole } = render(ThemeToggle);
+    setThemePreference('dark');
+    await tick();
+    expect(getByRole('button').getAttribute('data-theme-preference')).toBe('dark');
+    expect(getByRole('button').getAttribute('aria-label')).toBe('Theme: dark. Switch to system.');
+    system.flip(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('follows a preference stored by another tab', async () => {
+    stubSystem(false);
+    const { getByRole } = render(ThemeToggle);
+    localStorage.setItem(STORAGE_KEY, 'light');
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+    await tick();
+    expect(getByRole('button').getAttribute('data-theme-preference')).toBe('light');
   });
 
   it('starts on system when nothing has been chosen', () => {
