@@ -20,7 +20,7 @@ export const COPY_FAILED_MESSAGE = 'Copy failed';
  * writeText rejects while the document is not focused. Either way the value
  * goes through a selected, off-screen textarea and the legacy copy command,
  * which the browser still honors inside the click. Only when that also
- * refuses is it a failure the control reports; it never throws.
+ * refuses is it a failure the control reports. It never throws.
  */
 export async function writeClipboard(value: string): Promise<boolean> {
   const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;

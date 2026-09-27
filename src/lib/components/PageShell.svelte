@@ -30,7 +30,7 @@
     /**
      * A full-height page that manages its own scrolling, for instance a split
      * pane or a canvas. The content loses the gutter and the cap so the pane
-     * can reach the edges; the title row keeps both.
+     * can reach the edges. The title row keeps both.
      */
     fill?: boolean;
     /**
@@ -63,7 +63,7 @@
      * spent two rows before its canvas, the title row and then its own toolbar
      * carrying the same name, with the shell's gap between them. The page
      * still has exactly one h1, so a heading query and a screen reader see
-     * what every other page gives them; it is `sr-only`, not absent. A page
+     * what every other page gives them. It is `sr-only`, not absent. A page
      * that hides the row takes on the way back: `back` renders nothing here.
      */
     titleHidden?: boolean;

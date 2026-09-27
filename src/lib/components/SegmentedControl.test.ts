@@ -450,7 +450,7 @@ describe('SegmentedControl href mode', () => {
     await fireEvent.keyDown(a, { key: 'ArrowLeft' });
     expect(document.activeElement).toBe(c);
 
-    // The tab stop followed focus inside the group; the current page did not.
+    // The tab stop followed focus inside the group. The current page did not.
     expect(c.getAttribute('tabindex')).toBe('0');
     expect(anchors(container).map((x) => x.getAttribute('aria-current'))).toEqual([
       'page',
@@ -525,7 +525,7 @@ describe('SegmentedControl href mode', () => {
 
   it('documents that the modes cannot be mixed', () => {
     expect(source.replace(/\n\s*\*\s?/g, ' ')).toContain(
-      'Every option carries one or none does; the modes cannot be mixed in one control.',
+      'Every option carries one or none does. The modes cannot be mixed in one control.',
     );
   });
 

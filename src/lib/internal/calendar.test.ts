@@ -22,7 +22,7 @@ import type { CalendarDate } from './calendar.js';
  * in, the zone a parsed string is read in, and the row a short month drops.
  *
  * Where a Date is a correct independent oracle it is used as one. A test may
- * call Date; the module may not, and the last suite reads the module's own
+ * call Date. The module may not, and the last suite reads the module's own
  * source to keep it that way.
  */
 

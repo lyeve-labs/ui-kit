@@ -74,7 +74,7 @@
   /**
    * A `details` closes on its own summary and on nothing else, so without this
    * the panel stays open behind whatever the reader does next. Escape and an
-   * outside click are both what a menu owes; they are enhancement, and the
+   * outside click are both what a menu owes. They are enhancement, and the
    * disclosure still works without either.
    */
   $effect(() => {

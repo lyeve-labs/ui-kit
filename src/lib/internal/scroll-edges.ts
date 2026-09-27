@@ -14,7 +14,7 @@ export interface ScrollEdges {
   after: boolean;
 }
 
-/** The three metrics the answer is read from; an element has all of them. */
+/** The three metrics the answer is read from. An element has all of them. */
 export interface ScrollMetrics {
   scrollWidth: number;
   clientWidth: number;
@@ -36,7 +36,7 @@ export function scrollEdges(el: ScrollMetrics): ScrollEdges {
  * The fade itself: a dark gradient on the edge, outside the scroll box so it
  * does not scroll away with the content it describes. Dark rather than a
  * palette color, because the box sits on the page in one place and inside
- * a card in another and no surface token is the color to fade to; the
+ * a card in another and no surface token is the color to fade to. The
  * scrims use black at an alpha for the same reason and it reads in both
  * themes. The direction is logical, so a right-to-left page fades the other
  * way.

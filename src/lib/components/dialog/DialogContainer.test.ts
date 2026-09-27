@@ -28,13 +28,13 @@ describe('DialogContainer', () => {
   });
 
   it('renders multiple stacked dialogs', () => {
-    // openDialog rejects with an AbortError when the dialog is dismissed;
-    // swallow those expected rejections so they don't surface as unhandled.
+    // openDialog rejects with an AbortError when the dialog is dismissed.
+    // Swallow those expected rejections so they don't surface as unhandled.
     openDialog({ id: 'bottom', title: 'Bottom' }).catch(() => {});
     openDialog({ id: 'top', title: 'Top' }).catch(() => {});
     const { container } = render(DialogContainer);
     const dialogs = container.querySelectorAll('[role="dialog"]');
-    // Both should be present; the topmost renders last
+    // Both should be present. The topmost renders last
     expect(dialogs.length).toBe(2);
     dismissAllDialogs();
   });

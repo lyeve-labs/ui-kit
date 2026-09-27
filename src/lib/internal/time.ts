@@ -174,7 +174,7 @@ export function to12Hour(h: number): { hour: number; meridiem: 'AM' | 'PM' } {
 }
 
 /**
- * 12-hour back to 24. 12 AM is hour 0 and 12 PM is hour 12; every other hour is
+ * 12-hour back to 24. 12 AM is hour 0 and 12 PM is hour 12. Every other hour is
  * itself in the morning and itself plus twelve in the afternoon.
  */
 export function from12Hour(hour: number, meridiem: 'AM' | 'PM'): number {

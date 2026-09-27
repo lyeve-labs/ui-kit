@@ -85,7 +85,7 @@ describe('Drawer', () => {
   });
 
   it('follows a body that grows while it is open', async () => {
-    // A period set to custom reveals two date fields; a section behind a
+    // A period set to custom reveals two date fields. A section behind a
     // toggle appears whole. A measurement taken once at mount would size the
     // panel for a form the reader is no longer filling in.
     const { container } = render(Drawer, { props: { open: true, children: form(3) } });

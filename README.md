@@ -30,7 +30,7 @@ No config file, no theme provider, no setup ceremony.
 
 - **69 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
 - **Two themes:** Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
-- **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token; the rest is just Tailwind.
+- **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token. The rest is just Tailwind.
 - **Svelte 5 native:** built on runes and snippets, fully typed end-to-end.
 - **No surprises:** a `<Button />` is a `<button>`, an `<Input />` is an `<input>`. Markup matches the preview.
 
@@ -185,7 +185,7 @@ in `styles.css` beside the palette:
 
 An exit runs one rung faster than its entrance, on the exit curve. The
 `transition-*` utilities default to the fast rung and the move curve, so
-`transition-colors` on its own is complete; `duration-base`, `duration-slow`,
+`transition-colors` on its own is complete. `duration-base`, `duration-slow`,
 `duration-progress`, `ease-enter`, `ease-exit` and `ease-move` are utilities
 for the rest. A surface of your own that mounts and unmounts enters and
 leaves through the same presets the kit's overlays use:
@@ -263,7 +263,7 @@ src/
 ## Versioning
 
 `@lyeve-labs/ui-kit` follows [SemVer](https://semver.org). While under `1.0`,
-breaking changes bump the **minor** version; additive changes bump the **patch**.
+breaking changes bump the **minor** version. Additive changes bump the **patch**.
 Every release is logged in [`CHANGELOG.md`](CHANGELOG.md) and on the docs site.
 
 Maintainers: the release workflow is [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).

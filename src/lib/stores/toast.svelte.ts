@@ -2,7 +2,7 @@ import type { StatusToneInput } from '../internal/tone.js';
 
 /**
  * A toast carries the same tone vocabulary as Alert and Banner. `brand` is the
- * canonical name; `info` is kept because `toast.info(...)` already ships.
+ * canonical name. `info` is kept because `toast.info(...)` already ships.
  */
 export type ToastTone = StatusToneInput;
 

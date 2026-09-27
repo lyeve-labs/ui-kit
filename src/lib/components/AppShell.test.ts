@@ -236,8 +236,8 @@ function width(kind: 'phone' | 'tablet' | 'desktop') {
 
 /**
  * A nav that reports what the shell told it, the way a SidebarNav reads
- * `collapsed`. A raw snippet renders once, so it reports the first answer;
- * the aside's own width class is read for what the shell says afterwards,
+ * `collapsed`. A raw snippet renders once, so it reports the first answer.
+ * The aside's own width class is read for what the shell says afterwards,
  * and both come from the same derived value.
  */
 const tellingNav = createRawSnippet<[{ rail: boolean }]>((state) => ({

@@ -62,7 +62,7 @@ export type { SelectOption, SelectChangeEvent } from './components/Select.svelte
 // Autocomplete does, so a consumer types it once.
 export type { ListOption } from './components/Autocomplete.svelte';
 // A caller supplying its own matcher needs the shape the kit hands it. The
-// module stays internal; only the types a consumer must spell are public.
+// module stays internal. Only the types a consumer must spell are public.
 export type { FilterFn, FilterInput, FilterContext } from './internal/filter.js';
 
 // ── Navigation ─────────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ export { default as Avatar } from './components/Avatar.svelte';
 export { default as AvatarGroup } from './components/AvatarGroup.svelte';
 // The product mark. Two applications carried their own copy of the same lockup
 // and the two had drifted apart in size, in weight and in how they answered the
-// theme; the kit owns it now.
+// theme. The kit owns it now.
 export { default as Logo } from './components/Logo.svelte';
 
 // ── Theming & toasts ───────────────────────────────────────────────────────
@@ -156,5 +156,5 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
-// this line; the build and the test suite fail when the two disagree.
+// this line. The build and the test suite fail when the two disagree.
 export const VERSION = '0.31.1';

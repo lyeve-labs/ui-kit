@@ -67,7 +67,7 @@
    * and bottom on every cell, the start edge on the first, the end edge on
    * the last, so the four lines meet as one rectangle and the two outer
    * cells of the last row carry it round the frame's corner. The shadow
-   * offsets are physical, which is what a shadow is; the first cell is the
+   * offsets are physical, which is what a shadow is. The first cell is the
    * start cell in either direction and the two agree in left-to-right text.
    */
   const HOVER_RING = [
@@ -110,7 +110,7 @@
    * Reachable is not the same as discoverable.
    *
    * Making the box a tab stop answered SC 2.1.1 and told nobody the columns
-   * were there. A desktop has a scrollbar to give it away; a phone has an
+   * were there. A desktop has a scrollbar to give it away. A phone has an
    * overlay scrollbar that is painted while a finger is moving and is invisible
    * the rest of the time. On the admin's plugin list at 390px the column that
    * falls off the edge is ACTIONS, which is the only thing on the page a reader
@@ -263,7 +263,7 @@
 
       The last row's outer cells are rounded to the frame's inner radius. A
       row takes no radius, so a ring drawn on it was a square inset in a
-      rounded frame and the frame's bottom arcs sat outside it; the ring is
+      rounded frame and the frame's bottom arcs sat outside it. The ring is
       drawn on the cells now (see HOVER_RING) and follows the corner.
 
       The hovered row draws a ring, and a ring is a box-shadow: a browser paints
@@ -271,7 +271,7 @@
       same row treatment the panels use would have rendered nothing at all here.
       The separate model paints it. Borders on a row are ignored in that model,
       which is why the lines moved down to the cells they were already drawn
-      between; with border-spacing at zero the result is the same line in the
+      between. With border-spacing at zero the result is the same line in the
       same place.
     -->
     <table

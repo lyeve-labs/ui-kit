@@ -18,7 +18,7 @@
      *
      * A confirmation clears itself. A warning and a failure stay until
      * dismissed, so this is off by default. Pass it wherever the banner
-     * reports the outcome of a submit; leave it off where it states a standing
+     * reports the outcome of a submit. Leave it off where it states a standing
      * condition, which does not stop being true after five seconds.
      */
     autoDismiss?: number | boolean;

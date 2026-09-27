@@ -74,7 +74,7 @@
     {#if description && !compact}<p class="mt-1 text-sm text-muted">{description}</p>{/if}
   </div>
   <!-- The slot wraps in two steps. It sits beside the title while both fit
-       and drops under it, at the end edge, when they do not; wider than the
+       and drops under it, at the end edge, when they do not. Wider than the
        row on its own, it wraps its controls inside itself, each line ending at
        the end edge, in the order they were given. It used to be `shrink-0`,
        which sizes a flex item to its content and so cannot wrap even when the

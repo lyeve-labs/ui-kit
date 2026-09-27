@@ -397,7 +397,7 @@ describe('DateTimePicker required marker', () => {
 describe('DateTimePicker calendar placement', () => {
   it('places its date half through placePanel', async () => {
     // The field composes DatePicker, so the calendar it opens takes the same
-    // flip and cap; this pins that the composition did not bypass it.
+    // flip and cap. This pins that the composition did not bypass it.
     const r = render(DateTimePicker, { props: { label: 'Expires', value: '2024-06-15T09:30' } });
     await fireEvent.click(dateTrigger(r));
     const surface = r.container.querySelector('[role="dialog"]') as HTMLElement;

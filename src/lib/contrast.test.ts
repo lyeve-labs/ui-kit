@@ -6,9 +6,9 @@ import { join } from 'node:path';
  * The palette is the one place a defect reaches every surface at once, and it
  * is the one place nothing was measuring. Five tokens shipped below the AA
  * floor: danger read 2.85:1 on the default ground, so every form error in the
- * library was unreadable; the light focus ring read 2.39:1, so the one
+ * library was unreadable. The light focus ring read 2.39:1, so the one
  * affordance a keyboard user has for locating themselves was the element that
- * failed; and `line` read 1.25:1 on every input border. lyeve-admin had grown a
+ * failed, and `line` read 1.25:1 on every input border. lyeve-admin had grown a
  * block of corrections on top of the kit, which the other two apps did not
  * carry, so the same component was accessible in one app and not in another.
  *
@@ -119,7 +119,7 @@ describe.each([
   });
 
   it('draws the focus ring at 3:1 or better', () => {
-    // SC 1.4.11. The ring is solid brand; a color-mix down to 60 percent put
+    // SC 1.4.11. The ring is solid brand. A color-mix down to 60 percent put
     // it at 2.39:1 on the light palette.
     for (const ground of GROUNDS) {
       expect(ratio(tokens.brand, tokens[ground]), `focus ring on ${ground}`).toBeGreaterThanOrEqual(
@@ -129,7 +129,7 @@ describe.each([
   });
 
   it('draws an interactive border at 3:1 or better', () => {
-    // SC 1.4.11 again. `line` is 1.25:1 and stays the divider color; a control
+    // SC 1.4.11 again. `line` is 1.25:1 and stays the divider color. A control
     // whose boundary is the only thing identifying it uses line-strong.
     for (const ground of ['surface', 'surface-2'] as const) {
       expect(

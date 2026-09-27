@@ -43,7 +43,7 @@ describe('ConfirmDialog', () => {
   it('falls back to "Confirm" as title text when no title in meta', () => {
     const entry = makeEntry();
     const { container } = render(ConfirmDialog, { props: { entry } });
-    // The title <p> uses a specific class; check it directly
+    // The title <p> uses a specific class. Check it directly
     const titleEl = container.querySelector('p.text-sm.text-fg');
     expect(titleEl).toBeTruthy();
     expect(titleEl?.textContent).toBe('Confirm');
@@ -58,7 +58,7 @@ describe('ConfirmDialog', () => {
   it('does not add a message paragraph when confirmMessage is empty', () => {
     const entry = makeEntry({ meta: { confirmTitle: 'T', confirmMessage: '' } });
     const { container } = render(ConfirmDialog, { props: { entry } });
-    // Only the title <p> should exist; no message <p>
+    // Only the title <p> should exist. No message <p>
     const paragraphs = container.querySelectorAll('p');
     expect(paragraphs.length).toBe(1);
   });

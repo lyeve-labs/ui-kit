@@ -4,7 +4,7 @@
    * while the sidebar is the 56px icon rail, so a SidebarNav takes it as
    * `collapsed`, a brand row renders its mark without the wordmark, and a
    * footer band renders what fits. A snippet that ignores the argument still
-   * renders; it is simply drawn at 56px and clipped.
+   * renders. It is simply drawn at 56px and clipped.
    */
   export interface SidebarState {
     rail: boolean;
@@ -83,7 +83,7 @@
      *
      * The rail is automatic between md: and lg:, where the 224px column left a
      * 768px window 496px for the page. A page that owns the viewport - a
-     * canvas, a split pane - asks for it at every width with this; the labels
+     * canvas, a split pane - asks for it at every width with this. The labels
      * still come back under a pointer or the keyboard. Below md: the sidebar
      * is the drawer whatever this says.
      */
@@ -148,7 +148,7 @@
    * While the sidebar is the rail it is 56px wide and the nav is told so. A
    * pointer over it, or focus inside it, opens it to the full column over the
    * page rather than beside it, so the page keeps its width and the reader
-   * still gets every label; it closes when the pointer or the focus leaves.
+   * still gets every label. It closes when the pointer or the focus leaves.
    * State rather than a hover rule, because the nav snippet has to be told
    * the labels are wanted, and a stylesheet cannot tell it.
    */
@@ -174,7 +174,7 @@
     };
   });
 
-  /** Focus moving from one rail link to the next stays inside; only leaving the rail closes it. */
+  /** Focus moving from one rail link to the next stays inside. Only leaving the rail closes it. */
   function onRailFocusOut(event: FocusEvent) {
     const next = event.relatedTarget;
     if (
@@ -218,7 +218,7 @@
   {/if}
 
   <!--
-    One aside at every width. Below md: it sits inside a positioned dialog; above
+    One aside at every width. Below md: it sits inside a positioned dialog. Above
     it, that wrapper is the column it has always been. Rendering a second copy
     for the drawer would put every nav link in the page twice, which is what a
     strict-mode locator trips on and what a screen reader reads out.

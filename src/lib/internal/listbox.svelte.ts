@@ -357,7 +357,7 @@ export function createListbox<T extends ListboxItem>(config: ListboxConfig<T>): 
 
       case 'Escape':
         // Only an open list consumes Escape. Unstopped, one press closed both
-        // a listbox and the Modal holding it; consumed while closed, Escape
+        // a listbox and the Modal holding it. Consumed while closed, Escape
         // never reached the Modal at all.
         if (!open) return false;
         event.preventDefault();
