@@ -93,7 +93,7 @@ const BOX_BASE = 'pointer-events-none flex shrink-0 items-center justify-center 
  * at 14px.
  *
  * `mixed` paints exactly what `checked` paints. A part-selected parent is on,
- * not a third state with a color of its own; only the mark it holds differs.
+ * not a third state with a color of its own. Only the mark it holds differs.
  */
 export function choiceBox(
   kind: 'checkbox' | 'radio',
@@ -171,7 +171,7 @@ export function choiceIcon(size: ChoiceSize): string {
  * guess.
  *
  * A lucide icon takes a number, not a class, so the slot above cannot size it.
- * These are the same 14, 16 and 20 the slot reserves; an icon rendered at any
+ * These are the same 14, 16 and 20 the slot reserves. An icon rendered at any
  * other size overflows the slot or floats inside it.
  */
 export const CHOICE_ICON_PX: Record<ChoiceSize, number> = {

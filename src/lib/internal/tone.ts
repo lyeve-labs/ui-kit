@@ -5,7 +5,7 @@
  * `info`, while Badge, Tag, Indicator and Progress named the same brand-cyan
  * tone `brand`. A consumer building a status row had to remember which
  * component wanted which word for the same color. `brand` is canonical because
- * it names the token the tone actually resolves to; `info` still works and maps
+ * it names the token the tone actually resolves to. `info` still works and maps
  * onto it, so nothing that already ships has to change.
  */
 

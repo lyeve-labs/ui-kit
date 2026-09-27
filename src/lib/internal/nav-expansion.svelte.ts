@@ -40,7 +40,7 @@ export interface NavExpansion {
 /**
  * localStorage is absent on the server and throws on access in a private
  * window and wherever the reader has blocked site data, so it is reached for
- * behind both a typeof guard and a catch. Expansion is a convenience; nothing
+ * behind both a typeof guard and a catch. Expansion is a convenience. Nothing
  * here may be the reason a sidebar fails to render.
  */
 function storage(): Storage | undefined {

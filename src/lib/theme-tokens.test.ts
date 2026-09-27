@@ -97,7 +97,7 @@ const RESERVED = ['--font-size-'];
  * verified against tailwindcss 4.3.3, so theme.css declares the four utilities
  * by hand with `@utility` and each reads its token through var(). The two
  * `--default-transition-*` values are what every `transition-*` utility falls
- * back to; Tailwind reads them, so nothing in the kit has to.
+ * back to. Tailwind reads them, so nothing in the kit has to.
  *
  * The exemption is not free: `namesEveryVarOnlyToken` below fails a token
  * listed here that nothing actually reads, which is the check the listing turns
@@ -304,7 +304,7 @@ describe('motion is declared where a designer can find it', () => {
   it('keeps the reduced-motion block below them, where it overrides them', () => {
     // The block is the authority on whether any of these run at all. A token
     // declared after it would still be honored, but a reader would have to
-    // work that out; declared before, the file reads in the order it applies.
+    // work that out. Declared before, the file reads in the order it applies.
     expect(css.indexOf('--duration-fast')).toBeLessThan(css.indexOf('prefers-reduced-motion'));
   });
 
@@ -322,7 +322,7 @@ describe('motion is declared where a designer can find it', () => {
   });
 });
 
-/** A cubic bezier's y at x, by bisection on t; enough precision for a shape check. */
+/** A cubic bezier's y at x, by bisection on t. Enough precision for a shape check. */
 function sample([x1, y1, x2, y2]: number[], x: number): number {
   const at = (p1: number, p2: number, t: number) =>
     3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t;
@@ -460,7 +460,7 @@ describe('console type scale', () => {
   });
 
   it('renders no size the theme file leaves undeclared', () => {
-    // The class is what a component asks for; the token is what answers. A
+    // The class is what a component asks for. The token is what answers. A
     // component reaching for text-3xl or text-[15px] is a size nobody chose
     // and nobody can find from this file.
     const declared = [...Object.keys(CONSOLE), ...RAMP];

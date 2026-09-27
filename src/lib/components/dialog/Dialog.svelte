@@ -82,7 +82,7 @@
 
      The base is the modal layer rather than the literal 50 it used to be. 50
      was the number every floating surface in the kit happened to hold, so a
-     dialog neither sat above a drawer nor below a tooltip on purpose; it sat
+     dialog neither sat above a drawer nor below a tooltip on purpose. It sat
      wherever the document put it. The offset climbs from there, and the layer
      above is 100 clear of this one. -->
 <div

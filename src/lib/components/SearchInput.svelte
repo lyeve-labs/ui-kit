@@ -26,7 +26,7 @@
 
   const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 
-  // bind:value keeps what was typed before hydration; a one-way value
+  // bind:value keeps what was typed before hydration. A one-way value
   // cleared it. The binding has updated value by the time this runs.
   function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
     oninput?.(e.currentTarget.value);

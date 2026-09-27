@@ -215,7 +215,7 @@
                 exception, and this one sits inside the trigger. The padding is
                 taken straight back off as margin, so the chip is laid out
                 exactly as it was and only the reachable area grew. The glyph
-                is the same 12px cross Autocomplete clears its value with; it
+                is the same 12px cross Autocomplete clears its value with. It
                 was drawn a pixel smaller here for no reason anyone recorded.
               -->
               <svg

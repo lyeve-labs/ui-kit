@@ -314,7 +314,7 @@ describe('CheckboxGroup', () => {
   });
 
   it('says what is required through the hint the caller supplies', () => {
-    // The name says that something is required; the hint says what. It reaches
+    // The name says that something is required. The hint says what. It reaches
     // a reader through aria-describedby, which group does support.
     const { container, getByRole } = render(CheckboxGroup, {
       props: { label: 'Permissions', options, required: true, hint: 'Pick at least one' },

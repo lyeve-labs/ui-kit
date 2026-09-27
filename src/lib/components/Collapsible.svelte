@@ -10,7 +10,7 @@
    * share one value.
    *
    * Accordion is the component for a set of these. It decides which of its
-   * items is open, and an item asks it; this decides nothing beyond itself.
+   * items is open, and an item asks it. This decides nothing beyond itself.
    */
   import type { Component, Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';

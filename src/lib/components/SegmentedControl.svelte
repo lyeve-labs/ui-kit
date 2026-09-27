@@ -11,7 +11,7 @@
     icon?: Component<{ size?: number; class?: string }>;
     /**
      * Renders the segment as a link to this URL instead of a radio. Every
-     * option carries one or none does; the modes cannot be mixed in one
+     * option carries one or none does. The modes cannot be mixed in one
      * control. The chosen segment is still the one whose value matches
      * `value`, and it carries aria-current="page", so a page can keep its
      * choice in the URL and the control works before any script has loaded.
@@ -43,7 +43,7 @@
     size?: Size;
     disabled?: boolean;
     class?: string;
-    /** Value mode only. A link segment reports nothing; the page it opens does. */
+    /** Value mode only. A link segment reports nothing. The page it opens does. */
     onchange?: (value: T) => void;
   }
 

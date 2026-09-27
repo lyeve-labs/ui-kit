@@ -222,7 +222,7 @@
       <!--
         Rendered whether or not it is open, and shut by collapsing its grid row
         to nothing, the same move AccordionItem makes. aria-controls has to name
-        an element that exists; pointing it at markup that appears only once the
+        an element that exists. Pointing it at markup that appears only once the
         group is open leaves the reference dangling in the one state where a
         reader needs it to tell them what the button will reveal. inert keeps a
         shut group out of the tab order and the accessibility tree, which is
@@ -231,7 +231,7 @@
         It keeps the implicit list role. role="group" here overrode it, and a
         listitem whose parent is not a list is an ARIA context error, so every
         row of an open section came back as a serious axe violation. Grouping
-        semantics belong to a tree, where the parent is a treeitem; this is a
+        semantics belong to a tree, where the parent is a treeitem. This is a
         nav of plain links and the disclosure already says what it controls.
       -->
       {@const shown = open && !node.disabled}

@@ -48,7 +48,7 @@ describe('Collapsible', () => {
     expect(container.querySelector('.grid')?.className).toContain('grid-rows-[0fr]');
     expect(getByText('Reset cache')).toBeTruthy();
     // Svelte sets inert as a DOM property. jsdom reflects the property and does
-    // not enforce it, so the property is what this asserts; in a browser it is
+    // not enforce it, so the property is what this asserts. In a browser it is
     // the property that removes the subtree from the tab order.
     expect(region.inert).toBe(true);
   });
