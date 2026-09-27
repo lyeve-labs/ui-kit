@@ -58,7 +58,7 @@ function sourceFiles(): string[] {
  * to widen the list or fix the token, rather than shipping a name that quietly
  * does nothing.
  */
-const RECOGNISED = [
+const RECOGNIZED = [
   '--color-',
   '--spacing-',
   '--text-',
@@ -156,10 +156,10 @@ describe('theme token namespaces', () => {
   it('puts every token in a namespace Tailwind turns into a utility', () => {
     const stray = tokens
       .filter((t) => !VAR_ONLY.includes(t))
-      .filter((t) => !RECOGNISED.some((prefix) => t.startsWith(prefix)));
+      .filter((t) => !RECOGNIZED.some((prefix) => t.startsWith(prefix)));
     expect(
       stray,
-      `these tokens generate no utility class. Rename them into one of ${RECOGNISED.join(' ')} ` +
+      `these tokens generate no utility class. Rename them into one of ${RECOGNIZED.join(' ')} ` +
         'or add them to VAR_ONLY with the rule that reads them.',
     ).toEqual([]);
   });
