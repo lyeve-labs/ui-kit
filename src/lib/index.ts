@@ -1,9 +1,9 @@
 /**
- * @lyeve-labs/ui-kit - public API.
+ * @lyeve-labs/ui-kit: public API.
  *
  * Every component, utility, and store the library exposes is re-exported
  * from this single entry point. Consumers should import from
- * `'@lyeve-labs/ui-kit'` and never reach into deep paths - the directory layout
+ * `'@lyeve-labs/ui-kit'` and never reach into deep paths: the directory layout
  * is an implementation detail.
  */
 

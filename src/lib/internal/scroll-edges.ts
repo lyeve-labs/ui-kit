@@ -6,7 +6,7 @@
  * the tab past the edge is otherwise unannounced. The arithmetic is the same
  * in both and lives here so a third scroller cannot get it subtly different.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 export interface ScrollEdges {

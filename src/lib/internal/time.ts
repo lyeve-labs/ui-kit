@@ -16,7 +16,7 @@
  * rewrites a legal time, and a modulo that turns midnight into hour zero of a
  * clock with no hour zero.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** One time, already range checked. `mi` rather than `m` so it cannot read as months. */

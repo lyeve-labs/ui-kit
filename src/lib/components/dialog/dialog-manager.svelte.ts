@@ -1,5 +1,5 @@
 /**
- * Dialog Manager - module-level Svelte 5 reactive state.
+ * Dialog Manager: module-level Svelte 5 reactive state.
  *
  * Manages a stack of dialogs. Dialogs render in last-to-first order (newest on top).
  * Each dialog returns a Promise that resolves/rejects when closed.
@@ -24,11 +24,11 @@ import { lockBodyScroll, unlockBodyScroll } from '../../internal/overlay.js';
 
 let idCounter = 0;
 
-/** Reactive stack - topmost dialog = last element */
+/** Reactive stack: topmost dialog = last element */
 let stack = $state<DialogEntry<any>[]>([]);
 
 // ──────────────────────────────────────────────────────────
-// Body scroll lock (counter-based - handles stacked dialogs)
+// Body scroll lock (counter-based: handles stacked dialogs)
 // ──────────────────────────────────────────────────────────
 
 /*
@@ -108,7 +108,7 @@ export function closeDialog<T = void>(value: T, id?: string): void {
 }
 
 /**
- * Dismiss (cancel) a dialog - rejects the promise.
+ * Dismiss (cancel) a dialog: rejects the promise.
  * Called when user clicks backdrop or presses ESC on a non-persistent dialog.
  */
 export function dismissDialog(id?: string): void {
@@ -132,7 +132,7 @@ export function dismissDialog(id?: string): void {
 
   stack = stack.filter((e) => e.id !== targetId);
 
-  // Reject the promise - caller can .catch() or let it be
+  // Reject the promise: caller can .catch() or let it be
   entry.reject(new DOMException('Dialog dismissed', 'AbortError'));
 
   for (let i = 0; i < stack.length; i++) {

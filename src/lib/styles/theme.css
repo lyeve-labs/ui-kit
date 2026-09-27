@@ -1,8 +1,8 @@
 /*
- * @lyeve-labs/ui-kit - theme tokens
+ * @lyeve-labs/ui-kit: theme tokens
  *
  * A single CSS file imported once at the top of your app's root stylesheet.
- * Declares two palettes - Soft Dark (default) and Soft Light - built from
+ * Declares two palettes, Soft Dark (default) and Soft Light, built from
  * the LyEve brand guideline (Ink #0B1422 + Cyan #00D4FF) and exposes them
  * as Tailwind v4 `@theme` tokens.
  *
@@ -92,7 +92,7 @@
   --radius-xl: 16px;
   --radius-2xl: 24px;
 
-  /* -- Elevation - the stacking order of everything that floats --- *
+  /* -- Elevation: the stacking order of everything that floats --- *
    *  Every floating surface in the kit carried a bare z-50, so which
    *  one won was decided by document order: a Dropdown opened after a
    *  Modal painted over it, and the same two in the other order did
@@ -128,7 +128,7 @@
   --z-index-toast: 600; /* transient status                   */
   --z-index-skip-link: 700; /* the first tab stop in the document */
 
-  /* -- Motion - four durations, three curves, one rule for exits -- *
+  /* -- Motion: four durations, three curves, one rule for exits -- *
    *  Named for what they are used for, so the choice is made by
    *  reading the name:
    *
@@ -223,7 +223,7 @@
   --tracking-h2: -0.02em;
   --tracking-h3: -0.015em;
 
-  /* -- Typography - console type scale --------------------------- *
+  /* -- Typography: console type scale --------------------------- *
    *  Token       Size   Line   Where it renders                    *
    *  text-xs     12px   16px   labels, table heads, metadata, hints*
    *  text-sm     14px   20px   body copy and every control         *
@@ -277,32 +277,32 @@
   /* ── Spacing grid · 4px base (semantic shortcuts) ────────────── *
    *  Tailwind's default 0.25rem (4px) grid is unchanged.          *
    *  These tokens add named slots for common component spacing.   */
-  --spacing-page-x: 1.5rem; /* 24px - page horizontal gutter     */
-  --spacing-page-y: 1.5rem; /* 24px - page vertical gutter. Equal to page-x because no page
+  --spacing-page-x: 1.5rem; /* 24px: page horizontal gutter     */
+  --spacing-page-y: 1.5rem; /* 24px: page vertical gutter. Equal to page-x because no page
                              * measured renders an asymmetric gutter. The two names stay
                              * separate so one axis can move without dragging the other. */
-  --spacing-card: 1.25rem; /* 20px - card inner padding. 24px matched none of the card
+  --spacing-card: 1.25rem; /* 20px: card inner padding. 24px matched none of the card
                             * surfaces in use. 20px is their measured mode and Card's own md. */
-  --spacing-card-sm: 1rem; /* 16px - compact card padding       */
-  --spacing-section: 2rem; /* 32px - section gap. 48px matched nothing anywhere. 32px is the
+  --spacing-card-sm: 1rem; /* 16px: compact card padding       */
+  --spacing-section: 2rem; /* 32px: section gap. 48px matched nothing anywhere. 32px is the
                             * gap the pages that set one already use, and PageHeader's own. */
-  --spacing-input-x: 0.75rem; /* 12px - input horizontal padding   */
+  --spacing-input-x: 0.75rem; /* 12px: input horizontal padding   */
   --spacing-input-y: 0.5rem; /* 8px  - input vertical padding     */
-  /* 38px - the height of every single-line control. Stated once so an Input,
+  /* 38px: the height of every single-line control. Stated once so an Input,
    * a Select and a NumberInput sitting in the same row line up. Derived from
    * the 13px/1.25 control text plus input-y padding and a 1px border. Under a
    * coarse pointer it is 44px. See the touch-target block below the palette. */
   --spacing-control: 2.375rem;
-  --spacing-panel-max: 15rem; /* 240px - the scroll cap on a floating option list */
-  /* 56px - the app header bar, and the sidebar's brand row above the nav.
+  --spacing-panel-max: 15rem; /* 240px: the scroll cap on a floating option list */
+  /* 56px: the app header bar, and the sidebar's brand row above the nav.
    * One token, because the two sit side by side across the top of every
    * authed screen and a 4px disagreement between them reads as a broken
    * seam. Three apps each picked their own height before this existed. */
   --spacing-header: 3.5rem;
-  --spacing-nav-indent: 0.875rem; /* 14px - one level of sidebar nesting */
-  --spacing-nav-rail: 3.5rem; /* 56px - the collapsed icon rail */
-  --spacing-sidebar: 14rem; /* 224px - the expanded sidebar */
-  --spacing-stack: 1rem; /* 16px - default vertical stack gap */
+  --spacing-nav-indent: 0.875rem; /* 14px: one level of sidebar nesting */
+  --spacing-nav-rail: 3.5rem; /* 56px: the collapsed icon rail */
+  --spacing-sidebar: 14rem; /* 224px: the expanded sidebar */
+  --spacing-stack: 1rem; /* 16px: default vertical stack gap */
   --spacing-inline: 0.5rem; /* 8px  - default inline gap         */
 
   /* ── Widths · how much room a surface is allowed to take ───── *
@@ -317,8 +317,8 @@
    *  drawers asked for the widest rung there was, which is what a   *
    *  ladder that stops too early looks like from the outside.      */
   --container-page-narrow: 56rem; /* 896px  - one column: a form, a settings pane  */
-  --container-page-default: 72rem; /* 1152px - a page of stacked cards             */
-  --container-page-wide: 96rem; /* 1536px - a data page whose table needs the room */
+  --container-page-default: 72rem; /* 1152px: a page of stacked cards             */
+  --container-page-wide: 96rem; /* 1536px: a data page whose table needs the room */
 
   /* One ladder for every surface lifted off the page, so a drawer and
    * a modal opened from the same screen are the same size. Each rung
@@ -328,7 +328,7 @@
   --container-overlay-md: 36rem; /* 576px  - up to four fields                */
   --container-overlay-lg: 44rem; /* 704px  - a form with paired fields        */
   --container-overlay-xl: 56rem; /* 896px  - a form beside a preview          */
-  --container-overlay-full: 68rem; /* 1088px - a table inside a dialog        */
+  --container-overlay-full: 68rem; /* 1088px: a table inside a dialog        */
 }
 
 /*

@@ -20,7 +20,7 @@
  * "you are here". Either default is overridable per node, and 'none' opts a
  * node out of path matching entirely.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import type { Component } from 'svelte';

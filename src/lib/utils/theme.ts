@@ -1,5 +1,5 @@
 /**
- * Theme utilities - small, framework-agnostic helpers for managing the
+ * Theme utilities: small, framework-agnostic helpers for managing the
  * `data-theme` attribute on `<html>` and persisting the user's choice.
  *
  * The `<ThemeToggle />` component uses these under the hood. You can also

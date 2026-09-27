@@ -5,7 +5,7 @@ import { OVERLAY_WIDTH, type OverlaySize } from '../../internal/layout.js';
 export type DialogSize = OverlaySize;
 
 export interface DialogOptions<T = void> {
-  /** Unique id - auto-generated if omitted */
+  /** Unique id: auto-generated if omitted */
   id?: string;
   /** Dialog heading */
   title?: string | Snippet;
@@ -19,9 +19,9 @@ export interface DialogOptions<T = void> {
   persistent?: boolean;
   /** Called when dialog is about to close. Return false to prevent. */
   onClose?: () => boolean | void;
-  /** Resolve payload - passed to closeDialog */
+  /** Resolve payload: passed to closeDialog */
   resolve?: (value: T) => void;
-  /** Reject payload - passed to closeDialog */
+  /** Reject payload: passed to closeDialog */
   reject?: (reason?: unknown) => void;
 }
 

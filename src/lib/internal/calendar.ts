@@ -24,7 +24,7 @@
  * file is the no argument one inside todayLocal, which is the only place a real
  * clock is needed.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** A calendar date with no zone and no time. m is 1-12, the month a human says, not the 0-11 the Date constructor takes. */

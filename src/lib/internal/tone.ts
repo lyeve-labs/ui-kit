@@ -27,7 +27,7 @@ export function statusTone(tone: StatusToneInput): StatusTone {
  * The glyph each status tone draws, as SVG path data on a 24x24 grid.
  *
  * Alert and Toaster drew these as the literal characters ℹ ✓ ! ×, which pick up
- * whatever the user's font does with them - the check and the cross landed at
+ * whatever the user's font does with them: the check and the cross landed at
  * different optical weights from every other icon in the library, all of which
  * are stroked SVG.
  */
