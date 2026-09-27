@@ -66,7 +66,7 @@ describe('PageHeader', () => {
   it('sizes the page title from the brand ramp', () => {
     // The title rendered at 24px, which is not a step the ramp holds at all,
     // while every one of the ramp's size tokens went unreferenced. text-h2 is
-    // 32px; text-h1 is 44px and belongs to a marketing page rather than to a
+    // 32px, while text-h1 is 44px and belongs to a marketing page rather than to a
     // console whose table under this heading sets at 14px.
     const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
     const cls = (container.querySelector('h1') as HTMLElement).className;
@@ -97,7 +97,7 @@ describe('PageHeader actions on a narrow screen', () => {
     expect(list).not.toContain('shrink-0');
     expect(list).toContain('flex-wrap');
     expect(list).toContain('min-w-0');
-    // ms-auto is what puts a dropped slot at the end edge; justify-end is
+    // ms-auto is what puts a dropped slot at the end edge, and justify-end is
     // what keeps every line of a wrapped slot there, in the order given.
     expect(list).toContain('ms-auto');
     expect(list).toContain('justify-end');

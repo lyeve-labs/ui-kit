@@ -340,7 +340,7 @@ describe('modal surface', () => {
 /**
  * The rendered size of whichever font-size class a string carries, in pixels.
  *
- * Tailwind's own steps are its published defaults; the brand steps are read
+ * Tailwind's own steps are its published defaults. The brand steps are read
  * out of theme.css, so a token whose value moves moves this test with it
  * rather than against a number copied into the assertion.
  */

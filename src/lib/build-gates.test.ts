@@ -197,7 +197,7 @@ describe('the dist check sees a broken relative import', () => {
   });
 
   it('resolves a .js specifier to the .svelte sibling svelte-package emits', () => {
-    // index.js imports './components/Card.svelte'; a component importing a
+    // index.js imports './components/Card.svelte'. A component importing a
     // neighbor writes the .js extension TypeScript would emit. Both ship.
     const dir = fixture({
       'dist/index.js': "export { default } from './components/Card.js';",

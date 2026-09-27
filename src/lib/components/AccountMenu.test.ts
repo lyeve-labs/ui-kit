@@ -27,7 +27,7 @@ describe('AccountMenu', () => {
 
   it('derives readable initials from an email', () => {
     // An account with no display name shows its email here. Splitting on the
-    // separators an address uses gives "KL"; splitting on spaces alone gives
+    // separators an address uses gives "KL". Splitting on spaces alone gives
     // "K", and taking the first two characters gives "ka".
     const { container } = render(AccountMenu, {
       props: { name: 'karo.lailatul@example.com', children: items },

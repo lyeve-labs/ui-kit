@@ -42,7 +42,7 @@
      Under a Table's default `overflow-wrap: anywhere` a status rendered as
      `dra ft` and a role as `sup er_a dmi n`. The label sits in a truncating
      span so a badge whose caller caps its width ends in an ellipsis instead of
-     painting past its own border; with no cap the span never shrinks.
+     painting past its own border. With no cap the span never shrinks.
 
      The svg rules are what let a caller put an icon in the label. Preflight
      makes every svg a block, and a block inside the label takes a line of its

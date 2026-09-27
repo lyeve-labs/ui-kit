@@ -193,7 +193,7 @@ describe('dialog-manager', () => {
       const p = confirm('Delete item?');
       const entry = getDialogStack()[getDialogStack().length - 1];
       // Rejecting the entry directly bypasses the manager, so the stack still
-      // holds it; close it too or the next test inherits a stray dialog.
+      // holds it. Close it too or the next test inherits a stray dialog.
       entry.reject(new Error('boom'));
       await expect(p).rejects.toThrow('boom');
       closeDialog(false, entry.id);

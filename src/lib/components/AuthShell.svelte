@@ -11,7 +11,7 @@
     description?: string;
     /** Where the lockup links. Left unset, it is a mark and not a link. */
     href?: string;
-    /** `md` is a form; `lg` is a walkthrough with more than one column. */
+    /** `md` is a form. `lg` is a walkthrough with more than one column. */
     width?: Width;
     /** Controls at the top end of the column: a theme toggle, a language switch. */
     actions?: Snippet;

@@ -29,7 +29,7 @@ describe('Checkbox', () => {
   it('shows a required marker and keeps it out of the accessible name', () => {
     // The marker carried aria-label="required". The label span is what
     // aria-labelledby points at, so name computation walked into it and the
-    // control announced as "Agree required". The asterisk is paint; the input's
+    // control announced as "Agree required". The asterisk is paint. The input's
     // own required attribute is what reports the state.
     const { container, getByRole } = render(Checkbox, {
       props: { label: 'Agree', required: true },

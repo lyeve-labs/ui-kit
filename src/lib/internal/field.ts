@@ -61,7 +61,7 @@ export const FIELD_ERROR = 'text-xs text-danger';
  * contrast, and a utility beats the base layer, so these two canceled the
  * kit's own focus indicator for every text input, textarea, number and select.
  * Focus was left as a 1px border-color change. SidebarNav's buttons and
- * CONTROL_SEGMENT already pair the two correctly; these did half of it.
+ * CONTROL_SEGMENT already pair the two correctly. These did half of it.
  */
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +
@@ -96,7 +96,7 @@ export function controlBorder(error: boolean): string {
  *
  * Returns undefined when neither is present, so the attribute is omitted rather
  * than pointing at an element that was never rendered. Only Input carried
- * `aria-invalid` before this; nothing carried `aria-describedby`, so a screen
+ * `aria-invalid` before this. Nothing carried `aria-describedby`, so a screen
  * reader announced the control and never the reason it was rejected.
  */
 export function describedBy(
@@ -140,7 +140,7 @@ export function segmentedBorder(error: boolean): string {
  *
  * It carries no width. A two-digit segment needs a fixed one so the control
  * does not resize as the user types, and an AM/PM select needs to size to its
- * own text; stating a width here would mean one of the two overriding it, and
+ * own text. Stating a width here would mean one of the two overriding it, and
  * two width utilities on one element resolve by the order Tailwind emits them
  * rather than the order they were written.
  *
