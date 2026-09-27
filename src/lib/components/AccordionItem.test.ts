@@ -31,7 +31,7 @@ describe('AccordionItem', () => {
     expect(container.querySelector('button')?.getAttribute('aria-expanded')).toBe('false');
     const panel = container.querySelector('[role="region"]');
     expect(panel).not.toBeNull();
-    // Svelte sets inert as a DOM property; it is the property, not a reflected
+    // Svelte sets inert as a DOM property. It is the property, not a reflected
     // attribute, that takes the subtree out of the tab order.
     expect((panel as HTMLElement).inert).toBe(true);
     expect(getByText('hidden body')).toBeTruthy();

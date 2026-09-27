@@ -91,7 +91,7 @@ for (const name of isDom ? (['localStorage', 'sessionStorage'] as const) : []) {
 
 // jsdom implements none of the Web Animations API. The presets in motion.ts
 // return a zero duration wherever `Element.animate` is missing, so nothing
-// here ever animates; but Svelte's `animate:` directive reads
+// here ever animates, but Svelte's `animate:` directive reads
 // `getAnimations()` on an element about to leave a keyed each before it asks
 // the preset anything, and throws where the method does not exist. An empty
 // list is the truthful answer in an environment that cannot animate.

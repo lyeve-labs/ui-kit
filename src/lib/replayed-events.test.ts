@@ -30,7 +30,7 @@ const REPLAYED = new Set([
 
 /**
  * The three shapes that trigger it. A spread and a `use:` directive each add
- * both attributes because the compiler cannot see what they contain; an
+ * both attributes because the compiler cannot see what they contain. An
  * `onload` or `onerror` handler adds the one it names. Any other event
  * handler, `onclick` included, is left alone.
  */

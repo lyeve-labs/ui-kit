@@ -52,7 +52,7 @@
    *
    * The native element is the default and stays the default. Most call sites
    * sit inside a form and pass `name`, and a custom listbox is a button, which
-   * serializes nothing; one call site submits its form from the change event's
+   * serializes nothing. One call site submits its form from the change event's
    * `currentTarget.form`, which only a form-associated element carries. So the
    * mode is never inferred, not from `options` and not from `searchable`: a
    * page inside a form opts in to the listbox deliberately or keeps a real
@@ -97,7 +97,7 @@
     disabled?: boolean;
     error?: string;
     class?: string;
-    /** Native mode only. Its signature is frozen; see SelectChangeEvent. */
+    /** Native mode only. Its signature is frozen. See SelectChangeEvent. */
     onchange?: (e: SelectChangeEvent) => void;
     /** Option elements, written by hand. Native mode only. */
     children?: Snippet;

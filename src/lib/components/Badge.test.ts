@@ -77,7 +77,7 @@ describe('Badge', () => {
 describe('Badge in a narrow cell', () => {
   it('never breaks its label inside itself', () => {
     // Under a Table's default `overflow-wrap: anywhere` a status rendered as
-    // `dra ft` and a role as `sup er_a dmi n`; 156 admin cells opted out of
+    // `dra ft` and a role as `sup er_a dmi n`. 156 admin cells opted out of
     // wrapping to stop it, one cell at a time.
     const { container } = render(Badge, { props: { children: text('draft') } });
     const list = (container.firstElementChild as HTMLElement).className.split(/\s+/);

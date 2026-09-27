@@ -28,7 +28,7 @@
    * underline runs along. A tab never breaks inside its own label.
    *
    * The scrollbar is not drawn. A strip of tabs with a bar under it reads as
-   * a second rule under the real one; the fades carry the same message, the
+   * a second rule under the real one. The fades carry the same message, the
    * tabs are buttons so the keyboard reaches every one, and the active tab
    * is scrolled into view when it changes.
    */
@@ -57,7 +57,7 @@
   /*
    * The tab for the active id is brought into view when the id changes, so a
    * page that opens on its fifth tab does not open on a strip that hides it.
-   * `nearest` on both axes moves the strip and nothing else; a test DOM has
+   * `nearest` on both axes moves the strip and nothing else. A test DOM has
    * no layout and no scrollIntoView, and neither is an error here.
    */
   $effect(() => {

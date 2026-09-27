@@ -59,7 +59,7 @@ export function normalize(value: string): string {
 /**
  * The default matcher: case- and accent-insensitive substring over the label,
  * plus any keywords the option carries. Label-only matching is what ships
- * today; keywords are additive and absent on every existing option, so adopting
+ * today. Keywords are additive and absent on every existing option, so adopting
  * this changes no current list.
  *
  * An empty needle keeps every option. applyFilter answers an empty query before

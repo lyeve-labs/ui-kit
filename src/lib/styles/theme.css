@@ -44,7 +44,7 @@
   --color-line-strong: #616d80;
   --color-fg: #e6e8ee;
   --color-muted: #9aa1ad;
-  /* #525866 failed WCAG AA against surface/ink (~2.5:1); every caption and
+  /* #525866 failed WCAG AA against surface/ink (~2.5:1). Every caption and
    * metadata label uses faint, so one token fix clears the systemic
    * violation. #8b94a7 sits at ~5.6:1 on surface and ~5.9:1 on ink. */
   --color-faint: #8b94a7;
@@ -79,7 +79,7 @@
    * cannot work as a foreground on a dark surface.
    *
    * One token serves both roles because it inverts with `ink`. As text on a
-   * dark surface #f87171 reads 6.30:1; as the fill behind a `text-ink` label
+   * dark surface #f87171 reads 6.30:1. As the fill behind a `text-ink` label
    * on a filled destructive button it reads 6.67:1. The light palette does
    * the same in reverse with a dark red and a near-white ink. */
   --color-danger: #f87171;
@@ -145,7 +145,7 @@
    *    move      changing in place
    *
    *  An exit runs one rung faster than its entrance and on exit:
-   *  slow in, base out; base in, fast out. Entrances and exits move
+   *  slow in, base out. Base in, fast out. Entrances and exits move
    *  only opacity and transform.
    *
    *  Tailwind builds no utility from a --duration-* token: there is
@@ -161,8 +161,8 @@
    *  wrote `duration-150` fifty times to say the same thing.
    *
    *  The reduced-motion block at the foot of this file overrides
-   *  every one of them and stays the authority on whether they run;
-   *  the Svelte presets in motion.ts honor the same preference for
+   *  every one of them and stays the authority on whether they run.
+   *  The Svelte presets in motion.ts honor the same preference for
    *  the entrances and exits that run outside CSS.                    */
   --duration-fast: 120ms;
   --duration-base: 200ms;
@@ -178,7 +178,7 @@
 
   /* The one entrance that is a CSS animation. A panel inside <details> is
    * shown and removed by the browser, so a Svelte transition never sees it
-   * leave; it plays this on the way in and nothing on the way out. Every
+   * leave. It plays this on the way in and nothing on the way out. Every
    * other surface enters and leaves through the presets in motion.ts. */
   --animate-popover-in: popover-in var(--duration-base) var(--ease-enter);
 
@@ -259,7 +259,7 @@
    *
    *  A step is declared with its leading, because a --text-* token
    *  sets font-size and nothing else. Only the six steps the kit
-   *  actually renders are declared; the larger ones a marketing
+   *  actually renders are declared. The larger ones a marketing
    *  page reaches for stay as Tailwind ships them.               */
   --text-xs: 0.75rem; /* 12px */
   --text-xs--line-height: calc(1 / 0.75); /* 16px */
@@ -279,19 +279,19 @@
    *  These tokens add named slots for common component spacing.   */
   --spacing-page-x: 1.5rem; /* 24px - page horizontal gutter     */
   --spacing-page-y: 1.5rem; /* 24px - page vertical gutter. Equal to page-x because no page
-                             * measured renders an asymmetric gutter; the two names stay
+                             * measured renders an asymmetric gutter. The two names stay
                              * separate so one axis can move without dragging the other. */
   --spacing-card: 1.25rem; /* 20px - card inner padding. 24px matched none of the card
-                            * surfaces in use; 20px is their measured mode and Card's own md. */
+                            * surfaces in use. 20px is their measured mode and Card's own md. */
   --spacing-card-sm: 1rem; /* 16px - compact card padding       */
-  --spacing-section: 2rem; /* 32px - section gap. 48px matched nothing anywhere; 32px is the
+  --spacing-section: 2rem; /* 32px - section gap. 48px matched nothing anywhere. 32px is the
                             * gap the pages that set one already use, and PageHeader's own. */
   --spacing-input-x: 0.75rem; /* 12px - input horizontal padding   */
   --spacing-input-y: 0.5rem; /* 8px  - input vertical padding     */
   /* 38px - the height of every single-line control. Stated once so an Input,
    * a Select and a NumberInput sitting in the same row line up. Derived from
    * the 13px/1.25 control text plus input-y padding and a 1px border. Under a
-   * coarse pointer it is 44px; see the touch-target block below the palette. */
+   * coarse pointer it is 44px. See the touch-target block below the palette. */
   --spacing-control: 2.375rem;
   --spacing-panel-max: 15rem; /* 240px - the scroll cap on a floating option list */
   /* 56px - the app header bar, and the sidebar's brand row above the nav.
@@ -350,13 +350,13 @@
  *
  * `hit-area` does not move the visual. A switch, a checkbox, a breadcrumb, a
  * pager button, a close cross and an icon inside an input are drawn small on
- * purpose and grown to 44px would push their neighbors around; each one
+ * purpose and grown to 44px would push their neighbors around. Each one
  * draws an invisible box centered on itself that is never smaller than the
  * control size, and a tap on the box lands on the control. The element must
  * be positioned (`relative`, or `absolute` where it already is) for the box
- * to center on it; the utility does not set position itself, because a
+ * to center on it. The utility does not set position itself, because a
  * position it set would fight the `absolute` an input's clear button relies
- * on. Two neighbors' boxes may overlap; the later one in document order
+ * on. Two neighbors' boxes may overlap. The later one in document order
  * wins the overlap, which is the spacing exception SC 2.5.8 allows for.
  */
 @custom-variant coarse (@media (pointer: coarse));
@@ -425,7 +425,7 @@ html[data-theme='light'] {
 /*
  * A forced-colors scheme repaints the page but not a fill named in hex, so the
  * mark's white column vanished on a white high-contrast canvas. Its neutral
- * faces take the system colors there; the cyan faces keep their shape.
+ * faces take the system colors there. The cyan faces keep their shape.
  */
 @media (forced-colors: active) {
   :root,
@@ -565,7 +565,7 @@ html[data-theme='light'] {
    * Every kit component paints from these tokens, so redefining them here
    * turns the whole library monochrome without a single component knowing
    * about paper. Browsers drop backgrounds when printing by default, which
-   * left light text on the white the printer supplies; naming white here means
+   * left light text on the white the printer supplies. Naming white here means
    * the two agree either way.
    *
    * The status hues collapse to black rather than to a print-safe tint. A

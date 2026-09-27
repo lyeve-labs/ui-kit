@@ -75,7 +75,7 @@ describe('Toolbar', () => {
   });
 
   it('accepts a consumer class without competing with a built-in utility', () => {
-    // A margin is safe here because the toolbar states none; two utilities for
+    // A margin is safe here because the toolbar states none. Two utilities for
     // one property resolve by the order Tailwind emits them.
     const { getByRole } = render(Toolbar, {
       props: { class: 'mb-4', children: text('Filters') },

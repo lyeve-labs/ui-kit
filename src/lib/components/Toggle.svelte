@@ -40,7 +40,7 @@
   /*
    * The travel is mirrored by hand. `start-0.5` moves the resting knob to the
    * right-hand end of the track in a right-to-left page, and a positive
-   * translate from there would carry it straight off the track; there is no
+   * translate from there would carry it straight off the track. There is no
    * logical translate utility, so the sign is flipped instead.
    */
   const thumbOn: Record<'sm' | 'md', string> = {

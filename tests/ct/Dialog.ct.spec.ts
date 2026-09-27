@@ -46,7 +46,7 @@ test.describe('Dialog', () => {
     await mount(Dialog, { props: { entry } });
     await expect(page.locator('[role="dialog"]')).toBeVisible();
     await page.keyboard.press('Escape');
-    // Dialog handles Escape internally via handleKeydown; dialog-manager
+    // Dialog handles Escape internally via handleKeydown, and dialog-manager
     // may attempt to dismiss the entry. The key assertion is no crash.
     await expect(page.locator('[role="dialog"]')).toBeAttached();
   });

@@ -222,7 +222,7 @@ export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'
  *
  * Three apps hand rolled this and none of the three agreed. The sidebar was
  * `w-56` in the admin and `w-60` in the other two, `bg-surface` in two and
- * `bg-surface/30` in the third; the header existed in one and not in the other
+ * `bg-surface/30` in the third. The header existed in one and not in the other
  * two. None of that was visible from inside any one app, which is why it went
  * on being three shells for as long as it did.
  *
@@ -236,7 +236,7 @@ export const APP_SIDEBAR =
  * The sidebar's two widths. Expanded is the 224px column every authed screen
  * had. The rail is the 56px icon column the theme had named and nothing used:
  * at 768px the expanded column left 496px for the page, and a flow editor with
- * two docked panes had no canvas at all. The shell picks between them; the
+ * two docked panes had no canvas at all. The shell picks between them. The
  * width is not part of APP_SIDEBAR so the aside cannot carry both.
  *
  * The travel between them is on APP_SIDEBAR, which is the one class both

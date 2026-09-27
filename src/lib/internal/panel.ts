@@ -204,7 +204,7 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  *       <div class={PANEL_LIST} data-panel-list>
  *
  * The anchor is the surface's offset parent, the relative wrapper every
- * control puts around its trigger; a DOM without layout has no offset parent,
+ * control puts around its trigger. A DOM without layout has no offset parent,
  * so the parent element stands in. Below is the default, because a list under
  * its field is where a native select puts one. The panel goes above only when
  * its natural height does not fit below and there is more room above, so a
