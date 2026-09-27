@@ -380,8 +380,8 @@ describe('section heading', () => {
 
   it('sets level 2 above level 3', () => {
     // Measured in pixels rather than ranked by class name. The two levels are
-    // no longer drawn from one vocabulary - level 2 sizes from the brand ramp
-    // and level 3 from a Tailwind step - and a list of class names has no way
+    // no longer drawn from one vocabulary (level 2 sizes from the brand ramp
+    // and level 3 from a Tailwind step), and a list of class names has no way
     // to compare across the two. It also silently ranked an unlisted class at
     // -1, which is below every real size, so a heading that stopped naming a
     // size at all would have passed as the smaller of the pair.

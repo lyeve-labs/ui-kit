@@ -14,7 +14,7 @@
  * the tree and the path underneath them. A reader decision always wins, and
  * until there is one the group follows the page.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import { activeTrail, flattenNav, type NavTree } from './nav-tree.js';

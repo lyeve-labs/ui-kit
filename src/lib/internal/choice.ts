@@ -12,7 +12,7 @@
  * your place entirely. Composing from here means a fourth choice control cannot
  * reintroduce any of it.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import { FIELD_HINT, FIELD_LABEL } from './field.js';

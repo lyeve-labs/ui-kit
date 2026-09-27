@@ -91,8 +91,8 @@
   function handleChange(e: Event & { currentTarget: HTMLInputElement }) {
     // Disabled is enforced here as well as on the input. The native attribute
     // is what stops a real click, and it is the only thing that does, so a
-    // change arriving any other way - a synthetic event, a script driving the
-    // node - would still move the bound value with nothing on screen to say so.
+    // change arriving any other way (a synthetic event, a script driving the
+    // node) would still move the bound value with nothing on screen to say so.
     if (disabled) return;
     // The DOM clears indeterminate on the first click. Leaving the prop set
     // would repaint the mixed bar over a box the user has just ticked.
