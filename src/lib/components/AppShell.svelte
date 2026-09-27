@@ -226,7 +226,7 @@
     The dialog role is on the wrapper and not on the aside: an aside is a
     complementary landmark, and the a11y gate rejects a non-interactive element
     taking an interactive role. use:overlay is what makes aria-modal true rather
-    than merely claimed - it moves focus in, keeps Tab inside, and hands focus
+    than merely claimed. It moves focus in, keeps Tab inside, and hands focus
     back to the hamburger on close.
   -->
   {#if drawerOpen}

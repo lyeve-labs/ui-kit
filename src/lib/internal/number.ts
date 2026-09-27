@@ -14,7 +14,7 @@
  * and an English sentence carrying a German separator is the worse of the two
  * inconsistencies.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /**

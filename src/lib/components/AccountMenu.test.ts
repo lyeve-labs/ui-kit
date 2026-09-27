@@ -58,7 +58,7 @@ describe('AccountMenu', () => {
 
   it('hangs the panel from the trailing edge, below the trigger', () => {
     // The sidebar foot was the other candidate and it cannot work: the column
-    // is already full height, so the last entry - Sign out, every time - opens
+    // is already full height, so the last entry (Sign out, every time) opens
     // past the bottom of the window.
     const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
     const panel = container.querySelector('details > div')!;

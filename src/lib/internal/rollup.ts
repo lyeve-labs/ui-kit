@@ -9,7 +9,7 @@
  * than by fold, and separating what may be written from what is counted, is the
  * whole reason this module exists.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** What a parent control shows: nothing granted, part granted, all granted. */

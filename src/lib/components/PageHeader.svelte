@@ -49,7 +49,7 @@
       one of them, while this rendered at 24px, a size the ramp does not
       contain.
 
-      text-h2 and not text-h1. The brand ramp is a marketing ramp - it runs
+      text-h2 and not text-h1. The brand ramp is a marketing ramp: it runs
       64 / 44 / 32 / 22 / 16 and holds nothing between 16 and 22, which is
       where a console's own type lives. A 44px page title over a 14px table on
       a 390px screen is the ramp applied rather than adopted. 32px is the step

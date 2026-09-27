@@ -59,7 +59,7 @@
   <!--
     A panel opens to the height of its own content, which no fixed value knows.
     Animating grid-template-rows from 0fr to 1fr resolves to that height in CSS
-    alone - no measuring, no reflow on every frame, and nothing to get wrong when
+    alone: no measuring, no reflow on every frame, and nothing to get wrong when
     the content changes. The inner element carries the overflow so the text is
     clipped rather than spilling while the row grows.
   -->

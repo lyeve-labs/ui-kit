@@ -15,7 +15,7 @@
  * theme declares, `--spacing-control` was the one with any uses, and it had
  * them because the field contract composes from it.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** The treatment a section heading takes, independent of its level. */
@@ -195,7 +195,7 @@ export const MODAL_PAD = 'px-card py-card-sm';
  * element is a decision about document structure and the treatment is not: an
  * eyebrow appears at both levels. It went unnamed here while thirty of them
  * shipped hand rolled across two apps in four different bottom margins, and a
- * margin is exactly what this function must not carry - the stack around the
+ * margin is exactly what this function must not carry: the stack around the
  * heading owns the distance to what follows.
  */
 export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'): string {
