@@ -9,7 +9,7 @@ import { join } from 'node:path';
  * drawn as Unicode characters in some components and stroked SVG in others.
  *
  * These tests read the source rather than the rendered output, because the
- * defect is not what any single component does - it is the disagreement between
+ * defect is not what any single component does: it is the disagreement between
  * them. A rendering test would have to be written once per component and would
  * pass just as happily on the state that shipped.
  */
@@ -234,7 +234,7 @@ describe('component consistency', () => {
   it("does not let a container clip its own buttons' focus ring", () => {
     // The global :focus-visible outline sits 2px OUTSIDE the element, so a
     // container with overflow-hidden crops it. On the accordion that showed as
-    // a stray colored line under the open header - three edges clipped, one
+    // a stray colored line under the open header: three edges clipped, one
     // left. A component that clips must draw its focus ring inset instead.
     const offenders = files
       .filter((f) => f.src.includes('overflow-hidden') && f.src.includes('<button'))

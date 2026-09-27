@@ -12,7 +12,7 @@
  * here. That module already holds the case a fold gets wrong, and a second
  * implementation of it would be a second chance to get it wrong.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import type { Component } from 'svelte';

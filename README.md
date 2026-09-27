@@ -225,7 +225,7 @@ A page picks a role and `PageShell` picks the cap:
 | `wide`    | 1536px | a data page whose table needs the room |
 | `full`    | none   | a canvas or a split pane               |
 
-A surface lifted off the page - `Modal`, `Drawer`, a dialog - takes a rung of
+A surface lifted off the page (`Modal`, `Drawer`, a dialog) takes a rung of
 one shared ladder, so the same form is the same size whichever of the three a
 page opens it in: `sm` 448px, `md` 576px, `lg` 704px, `xl` 896px, and `full`
 1088px for a dialog holding a table.

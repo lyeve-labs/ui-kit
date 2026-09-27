@@ -7,7 +7,7 @@
  * from a caller supplied function, and a rule kept in two places is a rule that
  * gets fixed in one of them.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /**

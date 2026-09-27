@@ -22,7 +22,7 @@ describe('AccordionItem', () => {
 
   it('takes its closed body out of reach without removing it', () => {
     // The body stays in the DOM so the panel can animate to its own height.
-    // Closed, it must be collapsed to nothing and inert - a screen reader and
+    // Closed, it must be collapsed to nothing and inert: a screen reader and
     // the tab order have to agree with what the eye sees.
     const { container, getByText } = render(AccordionItem, {
       props: { id: 'a', title: 'A', children: text('hidden body') },
