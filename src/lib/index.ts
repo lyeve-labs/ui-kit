@@ -90,6 +90,21 @@ export { default as Progress } from './components/Progress.svelte';
 export { default as Spinner } from './components/Spinner.svelte';
 export { default as Skeleton } from './components/Skeleton.svelte';
 export { default as EmptyState } from './components/EmptyState.svelte';
+export { default as PluginCart } from './components/PluginCart.svelte';
+export type { QuickPick } from './components/PluginCart.svelte';
+export {
+  billedCount,
+  formatCents,
+  ladderRows,
+  ladderState,
+  type BillingPeriod,
+  type CartCatalog,
+  type CartPlugin,
+  type CartQuote,
+  type CartQuoteItem,
+  type DiscountBracket,
+  type LadderState,
+} from './internal/pricing.js';
 export { default as Stat } from './components/Stat.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
 export { default as CopyButton } from './components/CopyButton.svelte';
@@ -157,4 +172,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.31.1';
+export const VERSION = '0.32.0';

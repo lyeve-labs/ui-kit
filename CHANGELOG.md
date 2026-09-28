@@ -5,6 +5,20 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.0] - 2026-09-28
+
+### Added
+
+- `PluginCart`, the capability picker and its running summary, so the public
+  price page and the customer portal stop shipping two carts. It renders a
+  quote and never computes one: the total, the volume discount and the annual
+  figure all arrive from the server, and a quote that no longer describes what
+  is selected is withheld rather than shown. Its checkboxes carry a name and a
+  value, so a host that wraps it in a form still posts the selection with no
+  JavaScript running.
+- `ladderState`, `ladderRows`, `billedCount` and `formatCents`, the volume
+  ladder as a reader sees it. Presentation over the brackets, never pricing.
+
 ## [0.31.1] - 2026-09-26
 
 ### Fixed
