@@ -90,6 +90,7 @@ export { default as Progress } from './components/Progress.svelte';
 export { default as Spinner } from './components/Spinner.svelte';
 export { default as Skeleton } from './components/Skeleton.svelte';
 export { default as EmptyState } from './components/EmptyState.svelte';
+export { default as CheckoutSteps } from './components/CheckoutSteps.svelte';
 export { default as PluginCart } from './components/PluginCart.svelte';
 export type { QuickPick } from './components/PluginCart.svelte';
 export {

@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   JavaScript running.
 - `ladderState`, `ladderRows`, `billedCount` and `formatCents`, the volume
   ladder as a reader sees it. Presentation over the brackets, never pricing.
+- `CheckoutSteps`, the same four labels on both of the sites a purchase
+  crosses, so the hop between them stops reading as arriving somewhere else.
 
 ## [0.31.1] - 2026-09-26
 
