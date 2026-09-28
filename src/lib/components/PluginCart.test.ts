@@ -56,6 +56,7 @@ describe('PluginCart', () => {
     expect((getByRole('checkbox', { name: /Audit/ }) as HTMLInputElement).checked).toBe(true);
   });
 
+
   it('shows a held capability as owned and refuses to sell it twice', async () => {
     const onchange = vi.fn();
     const { getByRole } = render(PluginCart, {
