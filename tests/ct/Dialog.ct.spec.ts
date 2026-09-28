@@ -1,5 +1,5 @@
 /**
- * Dialog component test - browser-rendered interaction + accessibility.
+ * Dialog component test: browser-rendered interaction + accessibility.
  *
  * Playwright Component Testing exercises real browser behavior that jsdom cannot:
  * focus management, keyboard navigation, ARIA attribute correctness, and
@@ -46,7 +46,7 @@ test.describe('Dialog', () => {
     await mount(Dialog, { props: { entry } });
     await expect(page.locator('[role="dialog"]')).toBeVisible();
     await page.keyboard.press('Escape');
-    // Dialog handles Escape internally via handleKeydown; dialog-manager
+    // Dialog handles Escape internally via handleKeydown, and dialog-manager
     // may attempt to dismiss the entry. The key assertion is no crash.
     await expect(page.locator('[role="dialog"]')).toBeAttached();
   });

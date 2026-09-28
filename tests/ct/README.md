@@ -1,6 +1,6 @@
 # Playwright component tests
 
-These exercise real browser behaviour that jsdom cannot: focus management,
+These exercise real browser behavior that jsdom cannot: focus management,
 keyboard navigation, ARIA correctness, and visual rendering.
 
 **They do not run yet.** `@playwright/experimental-ct-svelte` is not in the

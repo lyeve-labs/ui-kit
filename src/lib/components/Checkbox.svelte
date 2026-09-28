@@ -79,7 +79,7 @@
           : undefined,
   );
 
-  // A part-checked box is on, not a third colour, so it paints the filled box
+  // A part-checked box is on, not a third color, so it paints the filled box
   // and tints the card exactly as a checked one does.
   const on = $derived(checked || indeterminate);
 
@@ -91,8 +91,8 @@
   function handleChange(e: Event & { currentTarget: HTMLInputElement }) {
     // Disabled is enforced here as well as on the input. The native attribute
     // is what stops a real click, and it is the only thing that does, so a
-    // change arriving any other way - a synthetic event, a script driving the
-    // node - would still move the bound value with nothing on screen to say so.
+    // change arriving any other way (a synthetic event, a script driving the
+    // node) would still move the bound value with nothing on screen to say so.
     if (disabled) return;
     // The DOM clears indeterminate on the first click. Leaving the prop set
     // would repaint the mixed bar over a box the user has just ticked.

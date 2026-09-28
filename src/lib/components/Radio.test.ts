@@ -80,7 +80,7 @@ describe('Radio', () => {
     expect(ring.className).toContain('peer-focus-visible:outline-offset-2');
   });
 
-  it('marks its ring with the stronger border, not the divider colour', () => {
+  it('marks its ring with the stronger border, not the divider color', () => {
     // `line` is 1.25:1 against the surface, and the ring is the only thing
     // identifying an unselected radio as a control.
     const { container } = render(Radio, { props: { value: 'a', group: 'b', label: 'x' } });

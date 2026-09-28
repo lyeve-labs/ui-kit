@@ -110,7 +110,7 @@ describe('DescriptionList', () => {
   });
 
   it('accepts a consumer class without competing with a built-in utility', () => {
-    // A margin is safe here because the list states none of its own; two
+    // A margin is safe here because the list states none of its own. Two
     // utilities for one property resolve by the order Tailwind emits them and
     // not by the order they were written.
     const { container } = render(DescriptionList, { props: { items, class: 'mt-2' } });

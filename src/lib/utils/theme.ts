@@ -1,8 +1,8 @@
 /**
- * Theme utilities - small, framework-agnostic helpers for managing the
+ * Theme utilities: small, framework-agnostic helpers for managing the
  * `data-theme` attribute on `<html>` and persisting the user's choice.
  *
- * The `<ThemeToggle />` component uses these under the hood; you can also
+ * The `<ThemeToggle />` component uses these under the hood. You can also
  * call them directly when you need to set the theme from a layout, route
  * loader, or an inline `<script>` that runs before paint.
  *
@@ -12,7 +12,7 @@
  *                    `data-theme` holds and what every palette rule keys off.
  *   ThemePreference  what the reader asked for. `dark`, `light`, or `system`,
  *                    which is a standing instruction to follow the operating
- *                    system rather than a colour.
+ *                    system rather than a color.
  *
  * The kit resolved a preference in exactly one place, the pre-paint script,
  * and nothing else could read it back. A control could therefore offer two
@@ -32,7 +32,7 @@ export type ThemePreference = Theme | 'system';
  * The one key every surface of every consuming application reads and writes.
  *
  * Not exported. A surface that needs the name has `getThemePreference` and
- * `setThemePreference`; a surface that spells the key itself is how two of
+ * `setThemePreference`. A surface that spells the key itself is how two of
  * them ended up on different keys, with the control writing one and the
  * pre-paint script reading the other.
  */
@@ -118,7 +118,7 @@ export function getThemePreference(): ThemePreference {
   }
 }
 
-/** Read the current theme. SSR-safe; returns `'dark'` on the server. */
+/** Read the current theme. SSR-safe. Returns `'dark'` on the server. */
 export function getTheme(): Theme {
   if (typeof document === 'undefined') return 'dark';
   return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
@@ -130,7 +130,7 @@ export function getTheme(): Theme {
  * `system` is stored under its own name rather than by clearing the key. The
  * two are indistinguishable on the next read otherwise, and they are not the
  * same thing: one reader chose to follow the OS and the other has not chosen
- * anything yet. Both resolve identically today; only one of them is a decision
+ * anything yet. Both resolve identically today. Only one of them is a decision
  * a later default may not override.
  */
 export function setThemePreference(preference: ThemePreference): Theme {
@@ -141,8 +141,8 @@ export function setThemePreference(preference: ThemePreference): Theme {
   try {
     localStorage.setItem(STORAGE_KEY, preference);
   } catch {
-    // Storage may be disabled (private mode, quota); the attribute is applied
-    // either way, so the session the reader is in still honours the choice.
+    // Storage may be disabled (private mode, quota). The attribute is applied
+    // either way, so the session the reader is in still honors the choice.
   }
   announce(preference);
   return theme;
@@ -155,7 +155,7 @@ export function setTheme(theme: Theme): void {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {
-    // Storage may be disabled (private mode, quota); fall through silently.
+    // Storage may be disabled (private mode, quota). Fall through silently.
   }
   announce(theme);
 }
@@ -188,7 +188,7 @@ export function toggleTheme(): Theme {
  * unsubscribe function, and a no-op one where there is no `matchMedia`.
  *
  * A page resolving `system` has to repaint when the OS flips at dusk. Without
- * this the preference is honoured once, at load, and reads as ignored for the
+ * this the preference is honored once, at load, and reads as ignored for the
  * rest of the session.
  */
 export function watchSystemTheme(onChange: (theme: Theme) => void): () => void {

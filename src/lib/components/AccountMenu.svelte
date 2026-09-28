@@ -22,7 +22,7 @@
   import type { AccentTone } from '../internal/tone.js';
 
   interface Props {
-    /** The line people recognise themselves by: a display name, or the email. */
+    /** The line people recognize themselves by: a display name, or the email. */
     name: string;
     /** Under it. The email when the name is a name, otherwise a role or a plan. */
     secondary?: string;
@@ -74,7 +74,7 @@
   /**
    * A `details` closes on its own summary and on nothing else, so without this
    * the panel stays open behind whatever the reader does next. Escape and an
-   * outside click are both what a menu owes; they are enhancement, and the
+   * outside click are both what a menu owes. They are enhancement, and the
    * disclosure still works without either.
    */
   $effect(() => {

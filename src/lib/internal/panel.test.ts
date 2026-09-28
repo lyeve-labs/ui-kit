@@ -20,7 +20,7 @@ import {
 /**
  * These assertions are the guards the panel classes have to pass, restated
  * against the constants themselves. The consistency suite reads the .svelte
- * files, so a class string that moved into a .ts module leaves its scope; a
+ * files, so a class string that moved into a .ts module leaves its scope. A
  * regression here would ship with the whole suite green.
  */
 
@@ -63,7 +63,7 @@ describe('panel class strings', () => {
     expect(cls).not.toMatch(/[{}$]/);
   });
 
-  it.each(CONSTANTS)('%s names no colour the palette does not own', (_name, cls) => {
+  it.each(CONSTANTS)('%s names no color the palette does not own', (_name, cls) => {
     expect(cls).not.toMatch(/#[0-9a-fA-F]{3,8}/);
     expect(cls).not.toMatch(
       /\b(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/,
@@ -86,7 +86,7 @@ describe('the surface', () => {
   });
 
   it('clips its rows to its rounded shape', () => {
-    // A backstop for a caller's stray full-width child; the rows themselves
+    // A backstop for a caller's stray full-width child. The rows themselves
     // stay inside the frame by construction, see below.
     expect(hasAll(PANEL_SURFACE, 'overflow-hidden')).toBe(true);
     expect(hasAll(PANEL_SURFACE, 'rounded-xl')).toBe(true);
@@ -106,7 +106,7 @@ describe('the surface', () => {
     expect(bare(PANEL_SURFACE).filter((t) => /^(?:w|min-w|max-w)-/.test(t))).toEqual([]);
   });
 
-  it('carries the resting text colour so a row overrides it once', () => {
+  it('carries the resting text color so a row overrides it once', () => {
     expect(hasAll(PANEL_SURFACE, 'text-fg')).toBe(true);
     expect(bare(PANEL_OPTION).filter((t) => /^text-(?:fg|brand|faint|muted)$/.test(t))).toEqual([]);
   });
@@ -148,7 +148,7 @@ describe('the scrolling region', () => {
     // Autocomplete scrolled the surface and MultiSelect an inner region. On the
     // surface the sticky search field scrolls away with the options.
     expect(hasAll(PANEL_LIST, 'overflow-y-auto')).toBe(true);
-    // The surface clips; it never scrolls.
+    // The surface clips. It never scrolls.
     expect(PANEL_SURFACE).not.toMatch(/overflow(?:-[xy])?-(?:auto|scroll)/);
   });
 });
@@ -300,7 +300,7 @@ describe('placePanel', () => {
   });
 
   it('measures against a scrolling ancestor rather than the viewport', () => {
-    // A modal body clips what floats past it. The window had room; the body
+    // A modal body clips what floats past it. The window had room. The body
     // did not, and the panel opened into the part of it nobody could reach.
     const f = mount({ anchor: [400, 440], clip: [100, 500], natural: 200 });
     const action = placePanel(f.surface);
@@ -312,7 +312,7 @@ describe('placePanel', () => {
 
   it('caps an uncapped region by the room alone', () => {
     // A calendar is a fixed grid taller than the token cap sized for a list of
-    // rows. Under the token every month would scroll; under the room alone it
+    // rows. Under the token every month would scroll. Under the room alone it
     // scrolls only inside a modal too short to hold it.
     const f = mount({ anchor: [400, 440], clip: [100, 500], natural: 290 });
     f.list.setAttribute('data-panel-list', PANEL_LIST_UNCAPPED);

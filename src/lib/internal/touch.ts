@@ -7,7 +7,7 @@
  * value of `--spacing-control` and the `hit-area` utility all live beside the
  * palette so a consumer's build emits them.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /**

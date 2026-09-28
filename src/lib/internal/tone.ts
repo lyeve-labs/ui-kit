@@ -4,8 +4,8 @@
  * Alert, Banner and the toast store each named their neutral-informational tone
  * `info`, while Badge, Tag, Indicator and Progress named the same brand-cyan
  * tone `brand`. A consumer building a status row had to remember which
- * component wanted which word for the same colour. `brand` is canonical because
- * it names the token the tone actually resolves to; `info` still works and maps
+ * component wanted which word for the same color. `brand` is canonical because
+ * it names the token the tone actually resolves to. `info` still works and maps
  * onto it, so nothing that already ships has to change.
  */
 
@@ -27,7 +27,7 @@ export function statusTone(tone: StatusToneInput): StatusTone {
  * The glyph each status tone draws, as SVG path data on a 24x24 grid.
  *
  * Alert and Toaster drew these as the literal characters ℹ ✓ ! ×, which pick up
- * whatever the user's font does with them - the check and the cross landed at
+ * whatever the user's font does with them: the check and the cross landed at
  * different optical weights from every other icon in the library, all of which
  * are stroked SVG.
  */

@@ -29,7 +29,7 @@ describe('Checkbox', () => {
   it('shows a required marker and keeps it out of the accessible name', () => {
     // The marker carried aria-label="required". The label span is what
     // aria-labelledby points at, so name computation walked into it and the
-    // control announced as "Agree required". The asterisk is paint; the input's
+    // control announced as "Agree required". The asterisk is paint. The input's
     // own required attribute is what reports the state.
     const { container, getByRole } = render(Checkbox, {
       props: { label: 'Agree', required: true },
@@ -83,7 +83,7 @@ describe('Checkbox', () => {
     }
   });
 
-  it('marks its box with the stronger border, not the divider colour', () => {
+  it('marks its box with the stronger border, not the divider color', () => {
     // `line` is 1.25:1 against the surface. A control whose border is the only
     // thing identifying it needs line-strong to clear SC 1.4.11.
     const { container } = render(Checkbox, { props: { checked: false, label: 'x' } });
@@ -128,7 +128,7 @@ describe('Checkbox', () => {
   });
 
   it('paints a mixed box exactly as it paints a checked one', () => {
-    // Mixed is a state of being partly on, not a third colour. Only the mark
+    // Mixed is a state of being partly on, not a third color. Only the mark
     // inside the box differs.
     const mixed = render(Checkbox, { props: { indeterminate: true, label: 'x' } });
     const mixedBox = mixed.container.querySelector('input + span') as HTMLElement;

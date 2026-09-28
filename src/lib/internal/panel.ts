@@ -27,7 +27,7 @@
  * sized to seven columns are different requirements. Everything else is here.
  *
  * Two rules hold these together. No row carries two utilities for the same
- * property. Colour and background sit on the surface, and a row states only
+ * property. Color and background sit on the surface, and a row states only
  * the override its state earns, because two utilities for one property resolve
  * in the order Tailwind emits them and not in the order they were written.
  * And a row is inset and rounded, never square and full width: the surface is
@@ -36,7 +36,7 @@
  * rounded-lg, so what a row paints stays inside the frame with corners of its
  * own.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /**
@@ -44,7 +44,7 @@
  *
  * border-line-strong, not border-line: a panel floating over arbitrary content
  * needs a boundary that clears 3:1, which line does not. It carries the
- * resting text colour so a row can override it with a single utility.
+ * resting text color so a row can override it with a single utility.
  *
  * overflow-hidden is a backstop, not the shape: the rows sit inset with
  * corners of their own, so nothing they paint reaches the rounded frame. It
@@ -71,7 +71,7 @@ export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain px
 /**
  * One row at rest.
  *
- * No background and no text colour of its own: it inherits both from the
+ * No background and no text color of its own: it inherits both from the
  * surface, which leaves each state below a single utility to override.
  * rounded-lg, one step inside the surface's rounded-xl, so the hover tint and
  * the active ring follow the row's own corners.
@@ -204,7 +204,7 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  *       <div class={PANEL_LIST} data-panel-list>
  *
  * The anchor is the surface's offset parent, the relative wrapper every
- * control puts around its trigger; a DOM without layout has no offset parent,
+ * control puts around its trigger. A DOM without layout has no offset parent,
  * so the parent element stands in. Below is the default, because a list under
  * its field is where a native select puts one. The panel goes above only when
  * its natural height does not fit below and there is more room above, so a

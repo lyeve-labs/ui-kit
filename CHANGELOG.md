@@ -5,6 +5,22 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.0] - 2026-09-28
+
+### Added
+
+- `PluginCart`, the capability picker and its running summary, so the public
+  price page and the customer portal stop shipping two carts. It renders a
+  quote and never computes one: the total, the volume discount and the annual
+  figure all arrive from the server, and a quote that no longer describes what
+  is selected is withheld rather than shown. Its checkboxes carry a name and a
+  value, so a host that wraps it in a form still posts the selection with no
+  JavaScript running.
+- `ladderState`, `ladderRows`, `billedCount` and `formatCents`, the volume
+  ladder as a reader sees it. Presentation over the brackets, never pricing.
+- `CheckoutSteps`, the same four labels on both of the sites a purchase
+  crosses, so the hop between them stops reading as arriving somewhere else.
+
 ## [0.31.1] - 2026-09-26
 
 ### Fixed
@@ -71,13 +87,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `Logo` draws the brand book lockup: a bold wordmark with the E in the brand
-  accent, and the mark's faces in the brand book's colours for each theme, the
+  accent, and the mark's faces in the brand book's colors for each theme, the
   same lockup the documentation and marketing sites ship. The mark used to
   borrow the text ramp, which darkens for contrast in the light theme and put
   the top face darker than the front.
 - The mark paints from its own tokens: `--color-mark-ink`, `-foot`, `-step`,
   `-top`, `-side`, `-face` and `-accent`. A host that overrides `--color-brand`
-  no longer recolours the mark; override the `--color-mark-*` tokens instead.
+  no longer recolors the mark; override the `--color-mark-*` tokens instead.
 - The wordmark is announced once as "LyEve" rather than in fragments.
 
 ### Fixed
@@ -120,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An icon inside a `Badge` took a line of its own, so a pill carrying a count
   and a glyph rendered two rows tall. Preflight makes every svg a block and the
   badge's label is a block, which is what gives it its ellipsis; the icon is
-  inline again and sits on the text's optical centre.
+  inline again and sits on the text's optical center.
 - `Toggle` carries the `data-field` marker. Without it the fit that sizes an
   overlay to the form inside it could not see a toggle, and six drawers in the
   consuming applications opened a rung too narrow. The suite that checks for
@@ -138,13 +154,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--container-overlay-sm|md|lg|xl|full` (448, 576, 704, 896, 1088), each
   wider than the widest rung it replaces. `Modal` and `Drawer` default to
   `size="auto"`, which takes `md` up to four fields, `lg` past four and `xl`
-  past eight; the count is read from the `data-field` marker every labelled
+  past eight; the count is read from the `data-field` marker every labeled
   control now carries, so a radio group counts once and a form that reveals
   fields while it is open is re-measured. A caller that names a rung keeps it.
 
 - `AuthShell`, the frame for a page the app shell does not wrap: sign in,
   sign up, a password reset, an invitation, first-run setup. A full-height
-  main on the ink token, a centred column at `md` (a form) or `lg` (a
+  main on the ink token, a centered column at `md` (a form) or `lg` (a
   walkthrough), the lockup, one `h1` at one size, an optional description,
   the children on a card, an optional `actions` row above (a theme toggle)
   and an optional `footer` line under the card (the one link off the page).
@@ -241,7 +257,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Collapsible`, `Dropdown` items) state `coarse:min-h-control`, so a
   button and the input beside it grow together and stay level. The
   controls that are small on purpose keep their visual and grow an
-  invisible hit box centred on themselves through the new `hit-area`
+  invisible hit box centered on themselves through the new `hit-area`
   utility: `Toggle`, `Checkbox` and `Radio` (on the label, which reaches
   the input), `Breadcrumb` links, `PageShell`'s back link, `Pagination`,
   `CopyButton`, the close and dismiss crosses of `Modal`, `Drawer`,
@@ -342,7 +358,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on only the knob showed, as a lone dot beside its label. The track now
   carries the same resting border every other control draws, which clears
   3:1 against both surface levels in both themes; on, the border takes the
-  fill's colour, so the on state, the disabled state and the focus ring look
+  fill's color, so the on state, the disabled state and the focus ring look
   as they did, and the knob's travel is unchanged.
 
 ## [0.23.3] - 2026-09-14
@@ -432,7 +448,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The overlay honours `data-initial-focus` before falling back to the first
+- The overlay honors `data-initial-focus` before falling back to the first
   focusable element, so a panel can name where focus lands.
 
 - `confirm()` takes a `detail` option, rendered on its own monospace line
@@ -657,7 +673,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   those products makes for itself, and nothing here persists the state: where
   it is remembered is the app's decision, and the server cannot know, so the
   first paint is always the expanded one. Below md: the flag is ignored, since
-  the same aside is the drawer there and honouring it would leave the hamburger
+  the same aside is the drawer there and honoring it would leave the hamburger
   opening nothing.
 
 ## [0.16.0] - 2026-09-06
@@ -729,8 +745,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Controls keep a focus indicator. `CONTROL_BASE` and `CONTROL_MULTILINE` ended
   in `outline-none` and named no replacement, and a utility beats the base
-  layer, so they cancelled the global `:focus-visible` outline this theme
-  declares for its contrast. Focus was left as a 1px border-colour change on
+  layer, so they canceled the global `:focus-visible` outline this theme
+  declares for its contrast. Focus was left as a 1px border-color change on
   every text input, textarea, number and select in the kit. Both now pair the
   silenced outline with `focus-visible:ring-2`, which is what `CONTROL_SEGMENT`
   and `SidebarNav`'s buttons already did.
@@ -772,12 +788,12 @@ apart again.
 - `PageShell` and `SectionHeading`. Nothing owned the page gutter, so pages
   re-declared it in four spellings, five content widths were in play with no
   rule behind the choice, and fourteen class strings served as a section
-  heading. The gutter, the content cap, the centring and the section rhythm
+  heading. The gutter, the content cap, the centering and the section rhythm
   are now properties of the shell.
 - `Checkbox` and `Radio` take an icon, a size, a description, a card variant
   and a screen-reader-only label, spelled identically on both. `Checkbox` also
   takes `indeterminate`, which is bindable because the browser clears the DOM
-  property on click and a one-way prop would silently desynchronise.
+  property on click and a one-way prop would silently desynchronize.
 - A richer `Select`. `mode="listbox"` opts into a custom panel with a search
   field, per-option icons and a custom trigger; `mode="native"` stays the
   default and is never inferred from passing `options`, because 28 of the 34
@@ -795,7 +811,7 @@ apart again.
 - `CopyButton`, `SegmentedControl`, `Panel`, `DescriptionList`, `Toolbar` and
   `Collapsible`, each replacing something the consuming applications had hand-rolled: a copy
   affordance with its own timing per page, a radio group drawn as buttons with
-  the selection carried by colour alone and no aria state, a lighter grouping
+  the selection carried by color alone and no aria state, a lighter grouping
   that did not want to be a `Card`, key and value pairs laid out as div grids
   that convey no relationship, a filter row whose controls sat visibly
   misaligned, and a disclosure that owns only itself.
@@ -911,14 +927,14 @@ either, so the same component was accessible in one app and not in another.
 - `Modal` and `Drawer` declared `aria-modal="true"` while leaving focus in the
   page behind them, with no focus trap, no initial focus, no focus restore and
   no scroll lock. A screen reader user was told a dialog had opened and then
-  carried on reading the document underneath it. The behaviour `Dialog` already
+  carried on reading the document underneath it. The behavior `Dialog` already
   had is now one shared action that all three use.
 - `Modal` had no accessible name and no height bound, so a dialog was announced
   as just "dialog" and content taller than the viewport could not be reached.
 - Dialog stacking generated no CSS. The z-index was written as `z-[{zIndex}]`,
   and Tailwind matches complete class names in source text, so no rule was ever
   emitted and every stacked dialog rendered at `z-index: auto`.
-- `confirm()` rejected when the user cancelled while documenting that it
+- `confirm()` rejected when the user canceled while documenting that it
   resolves `false`, so `if (await confirm(...))` threw on the ordinary path.
 - A clickable `Card` took `role="button"` and `tabindex` from its `onclick` and
   then ignored Enter and Space.
@@ -994,13 +1010,13 @@ from 0.11.0 to here and no consumer ever received it.
 ### Fixed
 
 - The accordion panel snapped open and its text landed against the header. It now grows to the height of its own content over 200ms, and the body has room to breathe. The height comes from animating `grid-template-rows` between `0fr` and `1fr`, which resolves to the content's own height in CSS alone - nothing measures, nothing reflows per frame, and content of any size works.
-- A stray coloured line under an open accordion header. It was the focus ring: the global `:focus-visible` outline sits two pixels *outside* the element, and the accordion clips its children, so three of its four edges were cropped and the fourth read as a rule. The accordion, the multi-select options and the toast dismiss button now draw an inset ring, which nothing can clip. Every component that clips and contains a button is checked for this.
+- A stray colored line under an open accordion header. It was the focus ring: the global `:focus-visible` outline sits two pixels *outside* the element, and the accordion clips its children, so three of its four edges were cropped and the fourth read as a rule. The accordion, the multi-select options and the toast dismiss button now draw an inset ring, which nothing can clip. Every component that clips and contains a button is checked for this.
 - The table's row transition had no duration and the table itself had a pointless one. `[&_tbody_tr]:transition-colors duration-150` reads as one thought and is not: the bare duration lands on the element carrying the class. Both halves are scoped to the rows now.
 - The table header read as another body row. It has its own ground.
 
 ### Added
 
-- The kit honours `prefers-reduced-motion`. Every animation ran regardless of what the reader asked for - the drawer slid, the toast flew in, the indicator's ping looped forever. Handled once in `theme.css`, so it covers components added later too. Durations are reduced rather than zeroed, so anything waiting on an `animationend` still fires.
+- The kit honors `prefers-reduced-motion`. Every animation ran regardless of what the reader asked for - the drawer slid, the toast flew in, the indicator's ping looped forever. Handled once in `theme.css`, so it covers components added later too. Durations are reduced rather than zeroed, so anything waiting on an `animationend` still fires.
 - The accordion wires its header to its panel: `aria-controls`, `role="region"`, `aria-labelledby`, and `inert` on a closed panel so the tab order and a screen reader agree with what the eye sees.
 
 ### Changed
@@ -1064,16 +1080,16 @@ fails when they drift apart again.
   their close, check, warning and step icons as the literal characters
   `x`, `v`, `!` and `-`, which take whatever weight the reader's font gives
   them. All icons are stroked SVG on one grid.
-- every colour transition names its duration rather than inheriting one.
+- every color transition names its duration rather than inheriting one.
 
 ### Changed
 
 - `brand` is the canonical name for the cyan tone. Alert, Banner and the toast
   store called it `info`; Badge, Tag, Indicator and Progress called the same
-  colour `brand`. `info` still resolves to `brand`, so `toast.info(...)` and
+  color `brand`. `info` still resolves to `brand`, so `toast.info(...)` and
   `tone="info"` keep working - but `toast.info` now records the tone as
   `brand`, which is visible to anything reading `toast.items[].tone`.
-- Button transitions its colours rather than every animatable property.
+- Button transitions its colors rather than every animatable property.
 
 
 ## [0.9.4] - 2026-08-25

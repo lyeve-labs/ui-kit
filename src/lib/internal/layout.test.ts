@@ -25,7 +25,7 @@ import {
 /**
  * These constants are only worth having if they are provably better than the
  * strings they replace. A page that reaches for an arbitrary value or a raw
- * palette colour gets the same drift back, one layer down, and a class built
+ * palette color gets the same drift back, one layer down, and a class built
  * from a runtime value generates no CSS rule at all while still reading as a
  * class in the source. The scale itself is read out of theme.css rather than
  * repeated here, so a token renamed or removed fails these tests instead of
@@ -84,7 +84,7 @@ describe('every layout constant stays inside the token scale', () => {
     expect(classes).not.toMatch(/\[[^\]]*\]/);
   });
 
-  it.each(SURFACES)('%s uses no raw palette colour', (_name, classes) => {
+  it.each(SURFACES)('%s uses no raw palette color', (_name, classes) => {
     // The palette is four surfaces, three text weights and five tones. A
     // zinc-800 or a hex reads correctly in one theme and wrong in the other.
     expect(classes).not.toMatch(/#[0-9a-fA-F]{3,8}/);
@@ -340,7 +340,7 @@ describe('modal surface', () => {
 /**
  * The rendered size of whichever font-size class a string carries, in pixels.
  *
- * Tailwind's own steps are its published defaults; the brand steps are read
+ * Tailwind's own steps are its published defaults. The brand steps are read
  * out of theme.css, so a token whose value moves moves this test with it
  * rather than against a number copied into the assertion.
  */
@@ -380,8 +380,8 @@ describe('section heading', () => {
 
   it('sets level 2 above level 3', () => {
     // Measured in pixels rather than ranked by class name. The two levels are
-    // no longer drawn from one vocabulary - level 2 sizes from the brand ramp
-    // and level 3 from a Tailwind step - and a list of class names has no way
+    // no longer drawn from one vocabulary (level 2 sizes from the brand ramp
+    // and level 3 from a Tailwind step), and a list of class names has no way
     // to compare across the two. It also silently ranked an unlisted class at
     // -1, which is below every real size, so a heading that stopped naming a
     // size at all would have passed as the smaller of the pair.

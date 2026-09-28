@@ -1,13 +1,13 @@
 <script lang="ts">
   /**
-   * The page frame: the gutter, the content cap, the centring and the section
+   * The page frame: the gutter, the content cap, the centering and the section
    * rhythm, all owned by the shell so a page cannot pick its own.
    *
    * Nothing in the library owned the frame, so every page built one. Across one
    * app 31 of 35 pages restate the gutter in four spellings, five content caps
    * are in use with no rule for choosing between them, and one page renders
    * against the left edge of the window because it set a cap and forgot
-   * `mx-auto`. Centring and `w-full` come with the gutter here, in PAGE_PAD, so
+   * `mx-auto`. Centering and `w-full` come with the gutter here, in PAGE_PAD, so
    * there is no order of props that leaves them out.
    *
    * The shell renders no landmark of its own. An app shell already owns `main`,
@@ -30,7 +30,7 @@
     /**
      * A full-height page that manages its own scrolling, for instance a split
      * pane or a canvas. The content loses the gutter and the cap so the pane
-     * can reach the edges; the title row keeps both.
+     * can reach the edges. The title row keeps both.
      */
     fill?: boolean;
     /**
@@ -63,7 +63,7 @@
      * spent two rows before its canvas, the title row and then its own toolbar
      * carrying the same name, with the shell's gap between them. The page
      * still has exactly one h1, so a heading query and a screen reader see
-     * what every other page gives them; it is `sr-only`, not absent. A page
+     * what every other page gives them. It is `sr-only`, not absent. A page
      * that hides the row takes on the way back: `back` renders nothing here.
      */
     titleHidden?: boolean;

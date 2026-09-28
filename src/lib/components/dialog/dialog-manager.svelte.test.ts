@@ -14,7 +14,7 @@ import {
 // The dialog stack is module-level state shared across tests. Every test below
 // fully settles the dialogs it opens (resolve via closeDialog / reject via
 // dismiss), so the stack returns to empty between tests. This afterEach only
-// normalises the body scroll style as a belt-and-braces guard.
+// normalizes the body scroll style as a belt-and-braces guard.
 afterEach(() => {
   document.body.style.overflow = '';
 });
@@ -109,7 +109,7 @@ describe('dialog-manager', () => {
 
     it('does not dismiss a persistent dialog via backdrop (no id)', () => {
       const p = openDialog({ id: 'persist', persistent: true });
-      p.catch(() => {}); // handled - we reject it explicitly during cleanup
+      p.catch(() => {}); // handled: we reject it explicitly during cleanup
       dismissDialog();
       expect(getDialogStack()).toHaveLength(1);
       // An explicit id bypasses the persistent guard.
@@ -117,7 +117,7 @@ describe('dialog-manager', () => {
       expect(getDialogStack()).toHaveLength(0);
     });
 
-    it('honours the onClose guard', async () => {
+    it('honors the onClose guard', async () => {
       let allow = false;
       const p = openDialog({ id: 'gd', onClose: () => allow });
       p.catch(() => {});
@@ -179,7 +179,7 @@ describe('dialog-manager', () => {
     });
 
     it('resolves false when the user cancels', async () => {
-      // Cancelling dismisses, and dismissal rejects. Callers write
+      // Canceling dismisses, and dismissal rejects. Callers write
       // `if (await confirm(...))`, so rejecting on Cancel threw on the ordinary
       // path and every call site needed a try/catch to answer "no". Cancel is an
       // answer, not a failure.
@@ -193,7 +193,7 @@ describe('dialog-manager', () => {
       const p = confirm('Delete item?');
       const entry = getDialogStack()[getDialogStack().length - 1];
       // Rejecting the entry directly bypasses the manager, so the stack still
-      // holds it; close it too or the next test inherits a stray dialog.
+      // holds it. Close it too or the next test inherits a stray dialog.
       entry.reject(new Error('boom'));
       await expect(p).rejects.toThrow('boom');
       closeDialog(false, entry.id);

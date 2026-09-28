@@ -24,7 +24,7 @@
  * it. A single-value control calls close('select') from its own onSelect, which
  * is why that reason exists.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import { normalize } from './filter.js';
@@ -303,7 +303,7 @@ export function createListbox<T extends ListboxItem>(config: ListboxConfig<T>): 
     if (event.key === ' ' && typed === '') return false;
 
     // Date.now is a timestamp, not a timer: nothing is scheduled and nothing
-    // has to be cancelled when the control unmounts mid-run.
+    // has to be canceled when the control unmounts mid-run.
     const now = Date.now();
     typed = now - typedAt > TYPEAHEAD_WINDOW_MS ? event.key : typed + event.key;
     typedAt = now;
@@ -357,7 +357,7 @@ export function createListbox<T extends ListboxItem>(config: ListboxConfig<T>): 
 
       case 'Escape':
         // Only an open list consumes Escape. Unstopped, one press closed both
-        // a listbox and the Modal holding it; consumed while closed, Escape
+        // a listbox and the Modal holding it. Consumed while closed, Escape
         // never reached the Modal at all.
         if (!open) return false;
         event.preventDefault();

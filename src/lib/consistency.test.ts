@@ -4,12 +4,12 @@ import { join } from 'node:path';
 
 /**
  * The library drifted because nothing measured it. Every component was correct
- * on its own terms and wrong beside its neighbour: three focus treatments, two
+ * on its own terms and wrong beside its neighbor: three focus treatments, two
  * wrapper gaps, two error-border opacities, two control heights, and icons
  * drawn as Unicode characters in some components and stroked SVG in others.
  *
  * These tests read the source rather than the rendered output, because the
- * defect is not what any single component does - it is the disagreement between
+ * defect is not what any single component does: it is the disagreement between
  * them. A rendering test would have to be written once per component and would
  * pass just as happily on the state that shipped.
  */
@@ -109,7 +109,7 @@ const REQUIRED_MARKER = /\{#if required\}\s*<span/;
 
 /**
  * The two components that draw the marker for a control they do not own. Field
- * hands its wiring to a snippet the caller fills; Label sits beside whatever the
+ * hands its wiring to a snippet the caller fills. Label sits beside whatever the
  * caller wrote. Neither can set the attribute, so both say so in the prop doc
  * and the caller sets it.
  */
@@ -217,7 +217,7 @@ describe('component consistency', () => {
   });
 
   it('spells the label, hint and error classes in exactly one place', () => {
-    // Six components repeated these literals. They agreed today; nothing made
+    // Six components repeated these literals. They agreed today. Nothing made
     // them agree tomorrow, and the label class had already drifted once.
     // Scoped to labels and message rows. DatePicker's calendar heading uses the
     // same three utilities and is not a field label, so it is not in scope.
@@ -234,7 +234,7 @@ describe('component consistency', () => {
   it("does not let a container clip its own buttons' focus ring", () => {
     // The global :focus-visible outline sits 2px OUTSIDE the element, so a
     // container with overflow-hidden crops it. On the accordion that showed as
-    // a stray coloured line under the open header - three edges clipped, one
+    // a stray colored line under the open header: three edges clipped, one
     // left. A component that clips must draw its focus ring inset instead.
     const offenders = files
       .filter((f) => f.src.includes('overflow-hidden') && f.src.includes('<button'))
@@ -257,9 +257,9 @@ describe('component consistency', () => {
     // Fifteen components spelled the marker `aria-label="required"`. Accessible
     // name computation walks into the label and concatenates what it finds, and
     // an aria-label on a descendant replaces that descendant's text rather than
-    // being skipped, so a field labelled Email announced as "Email required".
+    // being skipped, so a field labeled Email announced as "Email required".
     // A name is what a voice-control user speaks at the control, and nobody
-    // says "Email required". The marker is paint; the state belongs on the
+    // says "Email required". The marker is paint. The state belongs on the
     // control.
     const offenders = files
       .filter((f) => f.src.includes('aria-label="required"'))
@@ -312,7 +312,7 @@ describe('component consistency', () => {
   it('states the requirement on the control of every component that draws a marker', () => {
     // The marker is decorative, so a component that draws one and stops has
     // told a screen reader nothing at all. A native input, select or textarea
-    // takes `required`; a control whose role supports it takes aria-required; a
+    // takes `required`. A control whose role supports it takes aria-required. A
     // group takes it into its own name, because a group is named by its legend
     // and "Permissions (required)" describes the set rather than putting a word
     // into what a voice user speaks at a control. DateTimePicker owns no
@@ -451,7 +451,7 @@ describe('the kit carries its own styles', () => {
     expect(theme).toMatch(/@source\s+['"]\.\.\/\.\.\/\.\.\/dist['"]/);
   });
 
-  it('honours a reader who asked for less motion', () => {
+  it('honors a reader who asked for less motion', () => {
     // Every animation in the kit ran regardless: the drawer slid, the toast flew
     // in, the ping looped forever. Handled once here so it covers components
     // added later too.
@@ -466,7 +466,7 @@ describe('the kit carries its own styles', () => {
     // Tailwind matches complete class names in source text. A class assembled
     // from a variable matches no candidate, so no rule is generated and the
     // class silently does nothing. Dialog shipped `z-[{zIndex}]` and every
-    // stacked dialog rendered at `z-index: auto`; its own test asserted the
+    // stacked dialog rendered at `z-index: auto`. Its own test asserted the
     // class string was present, which it was, and passed the whole time.
     // Runtime values belong in a `style` attribute.
     const dynamic =
@@ -475,12 +475,12 @@ describe('the kit carries its own styles', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('gives every aria-modal surface the focus behaviour it advertises', () => {
+  it('gives every aria-modal surface the focus behavior it advertises', () => {
     // `aria-modal="true"` tells a screen reader the rest of the page is gone.
     // Modal and Drawer both said it while leaving focus in the document behind
     // them, so the user was told a dialog had opened and then carried on
-    // reading the page underneath. The behaviour lives in internal/overlay.ts;
-    // a component that claims the role has to use it.
+    // reading the page underneath. The behavior lives in internal/overlay.ts.
+    // A component that claims the role has to use it.
     const offenders = files
       .filter((f) => f.src.includes('aria-modal'))
       .filter((f) => !f.src.includes('use:overlay') && !f.src.includes('overlay.js'))
@@ -526,7 +526,7 @@ describe('one stacking order', () => {
     // route and with no z-index in the file to find it by.
     // Anchored so it reads class names and not CSS. `z-index` inside Dialog's
     // inline style is the property, and `--z-index-modal` inside it is the
-    // token that style resolves against; a bare word scan counted both as a
+    // token that style resolves against. A bare word scan counted both as a
     // layer called `index` that the theme does not declare.
     const used = new Set<string>();
     for (const f of sources) {
@@ -649,7 +649,7 @@ describe('a field says that it is one', () => {
 
   /**
    * Three shapes, because a field takes three. Most wrap themselves in
-   * FIELD_WRAP; a choice group is a fieldset; and a control that is its own
+   * FIELD_WRAP. A choice group is a fieldset, and a control that is its own
    * label wraps nothing, which is how Toggle went unchecked. Naming the last
    * shape by hand would leave the next one unchecked too, so the filter asks
    * what the file does: it takes a label and it renders something operable.
@@ -663,7 +663,7 @@ describe('a field says that it is one', () => {
     );
   });
 
-  it('finds the labelled controls to check', () => {
+  it('finds the labeled controls to check', () => {
     // A filter that matches nothing passes every assertion under it.
     expect(wrappers.length).toBeGreaterThan(15);
   });

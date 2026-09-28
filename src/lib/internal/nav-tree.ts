@@ -14,13 +14,13 @@
  * they are siblings and only one of them can be open.
  *
  * The fix is that prefix matching is a property of a node that owns a section,
- * not of every node. A leaf answers for its own path and nothing below it; a
+ * not of every node. A leaf answers for its own path and nothing below it. A
  * node with children answers for its whole subtree, because that is what makes
  * an ancestor able to say "you are somewhere in here" while its child says
  * "you are here". Either default is overridable per node, and 'none' opts a
  * node out of path matching entirely.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import type { Component } from 'svelte';
@@ -69,7 +69,7 @@ function matchMode(node: NavNode): 'exact' | 'prefix' | 'none' {
 /**
  * True when this node is the current page.
  *
- * Path only. A disabled node still reports the truth about its href; whether
+ * Path only. A disabled node still reports the truth about its href. Whether
  * it is rendered as a link is a separate decision the component makes.
  */
 export function isActive(node: NavNode, activePath: string): boolean {

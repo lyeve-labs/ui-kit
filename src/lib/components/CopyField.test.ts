@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 describe('CopyField', () => {
-  it('shows the value read-only, labelled, with the copy control inside the field', () => {
+  it('shows the value read-only, labeled, with the copy control inside the field', () => {
     const { getByLabelText, getByRole, container } = render(CopyField, {
       props: { value: 'EKAREBBX4XUY', label: 'Manual entry secret' },
     });

@@ -28,16 +28,16 @@ No config file, no theme provider, no setup ceremony.
 
 ## What's in the box
 
-- **69 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
+- **71 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
 - **Two themes:** Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
-- **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token; the rest is just Tailwind.
+- **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token. The rest is just Tailwind.
 - **Svelte 5 native:** built on runes and snippets, fully typed end-to-end.
 - **No surprises:** a `<Button />` is a `<button>`, an `<Input />` is an `<input>`. Markup matches the preview.
 
 ## Component list
 
 <details>
-<summary>69 components, organized by purpose</summary>
+<summary>71 components, organized by purpose</summary>
 
 **Layout and structure**
 Card, Panel, AppShell, AuthShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, Toolbar, TreeView
@@ -55,7 +55,7 @@ Modal, Drawer, Tooltip
 Dialog, DialogContainer, ConfirmDialog (plus the `openDialog` and `confirm` services)
 
 **Feedback and status**
-Alert, Banner, Badge, Tag, Indicator, Progress, Spinner, Skeleton, EmptyState, Stat, Kbd, CopyButton
+Alert, Banner, Badge, Tag, Indicator, Progress, Spinner, Skeleton, CheckoutSteps, EmptyState, PluginCart, Stat, Kbd, CopyButton
 
 **Media**
 Avatar, AvatarGroup, Logo
@@ -175,7 +175,7 @@ in `styles.css` beside the palette:
 
 | Token                 | Value                            | For                                                                                                            |
 | --------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `--duration-fast`     | 120ms                            | a state change in place: colour, opacity, border, shadow, focus                                                |
+| `--duration-fast`     | 120ms                            | a state change in place: color, opacity, border, shadow, focus                                                |
 | `--duration-base`     | 200ms                            | movement in place (a knob, a chevron, a collapse) and a small surface arriving (menu, popover, tooltip, toast) |
 | `--duration-slow`     | 320ms                            | a large surface arriving (dialog, drawer)                                                                      |
 | `--duration-progress` | 500ms                            | a value moving (a progress bar's width)                                                                        |
@@ -185,7 +185,7 @@ in `styles.css` beside the palette:
 
 An exit runs one rung faster than its entrance, on the exit curve. The
 `transition-*` utilities default to the fast rung and the move curve, so
-`transition-colors` on its own is complete; `duration-base`, `duration-slow`,
+`transition-colors` on its own is complete. `duration-base`, `duration-slow`,
 `duration-progress`, `ease-enter`, `ease-exit` and `ease-move` are utilities
 for the rest. A surface of your own that mounts and unmounts enters and
 leaves through the same presets the kit's overlays use:
@@ -225,7 +225,7 @@ A page picks a role and `PageShell` picks the cap:
 | `wide`    | 1536px | a data page whose table needs the room |
 | `full`    | none   | a canvas or a split pane               |
 
-A surface lifted off the page - `Modal`, `Drawer`, a dialog - takes a rung of
+A surface lifted off the page (`Modal`, `Drawer`, a dialog) takes a rung of
 one shared ladder, so the same form is the same size whichever of the three a
 page opens it in: `sm` 448px, `md` 576px, `lg` 704px, `xl` 896px, and `full`
 1088px for a dialog holding a table.
@@ -253,7 +253,7 @@ This repo is a single-purpose component library. Nothing but `src/lib/`.
 ```
 src/
 └── lib/                 # → published as @lyeve-labs/ui-kit
-    ├── components/      # 69 .svelte files
+    ├── components/      # 71 .svelte files
     ├── stores/          # toast.svelte.ts
     ├── styles/          # theme.css (the one stylesheet)
     ├── utils/           # cn.ts, theme.ts
@@ -263,7 +263,7 @@ src/
 ## Versioning
 
 `@lyeve-labs/ui-kit` follows [SemVer](https://semver.org). While under `1.0`,
-breaking changes bump the **minor** version; additive changes bump the **patch**.
+breaking changes bump the **minor** version. Additive changes bump the **patch**.
 Every release is logged in [`CHANGELOG.md`](CHANGELOG.md) and on the docs site.
 
 Maintainers: the release workflow is [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).

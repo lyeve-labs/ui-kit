@@ -11,7 +11,7 @@
     icon?: Component<{ size?: number; class?: string }>;
     /**
      * Renders the segment as a link to this URL instead of a radio. Every
-     * option carries one or none does; the modes cannot be mixed in one
+     * option carries one or none does. The modes cannot be mixed in one
      * control. The chosen segment is still the one whose value matches
      * `value`, and it carries aria-current="page", so a page can keep its
      * choice in the URL and the control works before any script has loaded.
@@ -43,7 +43,7 @@
     size?: Size;
     disabled?: boolean;
     class?: string;
-    /** Value mode only. A link segment reports nothing; the page it opens does. */
+    /** Value mode only. A link segment reports nothing. The page it opens does. */
     onchange?: (value: T) => void;
   }
 
@@ -239,8 +239,8 @@
         <!--
           Each segment is a radio, and aria-checked is what a screen reader
           reads. The theme picker this replaces was a row of plain buttons whose
-          choice was carried by a background colour alone, so a screen reader
-          user was told nothing and a colour-blind user saw nothing. The
+          choice was carried by a background color alone, so a screen reader
+          user was told nothing and a color-blind user saw nothing. The
           selected segment also sits at a heavier weight, so the state survives
           a palette a reader cannot separate.
         -->

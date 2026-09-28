@@ -53,7 +53,7 @@ describe('Table', () => {
   });
 
   it('clips the rows to its rounded frame', () => {
-    // The hovered row's ring is square and the frame is not; on the last row
+    // The hovered row's ring is square and the frame is not. On the last row
     // the corners drew past the frame.
     const { getByTestId } = render(Table, { props: { children: body } });
     const frame = getByTestId('table-frame');
@@ -70,7 +70,7 @@ describe('Table', () => {
 
   it('takes no region role while it has no name', () => {
     // A region is a landmark, and an unnamed one is announced as "region" with
-    // nothing after it. The tab stop is what SC 2.1.1 needs; the role is what
+    // nothing after it. The tab stop is what SC 2.1.1 needs. The role is what
     // a name earns.
     const { container } = render(Table, { props: { children: body } });
     expect(scroller(container).getAttribute('role')).toBeNull();
@@ -87,7 +87,7 @@ describe('Table', () => {
   it('marks the hovered row with a ring and not with a tint alone', () => {
     // The hover tint reads 1.017:1 against a striped row on the dark palette,
     // which is not a state anyone can see. The panels answer this with a brand
-    // ring; the table uses the same one.
+    // ring. The table uses the same one.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
     expect(cls).toContain(
@@ -393,7 +393,7 @@ describe('Table head controls', () => {
     // The button is the caller's and the head row is 40px. The hit box every
     // small kit control grows under a coarse pointer is given to it through
     // the table, so a sorted table needs nothing from the page to meet the
-    // finger; the box centres on a positioned element, hence both classes.
+    // finger. The box centers on a positioned element, hence both classes.
     const head = createRawSnippet(() => ({
       render: () => '<thead><tr><th><button type="button">Name</button></th></tr></thead>',
     }));

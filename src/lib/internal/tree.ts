@@ -2,7 +2,7 @@
  * The shape of a data tree and the arithmetic a checkable one needs.
  *
  * A data tree is not a navigation menu. A menu shows where you can go and one
- * item is current; a tree shows a structure, and a branch in it summarises
+ * item is current. A tree shows a structure, and a branch in it summarizes
  * everything beneath it while a click on that branch writes every one of them.
  * Those two jobs are the reason this module exists: the summary and the write
  * have to be computed from the same list, or a branch reports a state its own
@@ -12,7 +12,7 @@
  * here. That module already holds the case a fold gets wrong, and a second
  * implementation of it would be a second chance to get it wrong.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import type { Component } from 'svelte';

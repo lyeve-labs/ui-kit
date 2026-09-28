@@ -20,7 +20,7 @@ const AIRPORTS: ListOption[] = [
 
 const source = readFileSync(join(__dirname, 'MultiSelect.svelte'), 'utf8');
 
-/** The trigger and the panel's search box are both comboboxes; this is the trigger. */
+/** The trigger and the panel's search box are both comboboxes. This is the trigger. */
 function trigger(container: HTMLElement): HTMLElement {
   return container.querySelector('div[role="combobox"]') as HTMLElement;
 }

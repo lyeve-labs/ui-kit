@@ -58,7 +58,7 @@
    * you pressed one. It took `role="button"` and `tabindex="0"` from `onclick`
    * alone, so it entered the tab order and then ignored Enter and Space unless
    * the page happened to pass its own `onkeydown`. Native button semantics are
-   * the contract here, so the component honours them itself and still forwards
+   * the contract here, so the component honors them itself and still forwards
    * whatever the consumer supplied.
    */
   function activate(e: KeyboardEvent) {
@@ -79,7 +79,7 @@
 </script>
 
 <!-- tabindex is only set alongside role="button" (when onclick is provided),
-     so the element is interactive; the compiler can't narrow the dynamic role. -->
+     so the element is interactive. The compiler can't narrow the dynamic role. -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   data-print="keep"

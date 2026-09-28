@@ -5,7 +5,7 @@
    *
    * An audit counted 63 hand-rolled card surfaces across 31 files in nine
    * paddings while Card itself was used zero times. Many of them did not want
-   * a Card. They wanted a labelled group inside a page, and reaching for a
+   * a Card. They wanted a labeled group inside a page, and reaching for a
    * card meant a box on a box, so each one was written out by hand and each
    * one picked its own padding. Panel is that group: it takes Card's surface
    * and Card's padding scale from the shared layout contract, so a panel and a

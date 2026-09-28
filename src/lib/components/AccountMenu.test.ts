@@ -27,7 +27,7 @@ describe('AccountMenu', () => {
 
   it('derives readable initials from an email', () => {
     // An account with no display name shows its email here. Splitting on the
-    // separators an address uses gives "KL"; splitting on spaces alone gives
+    // separators an address uses gives "KL". Splitting on spaces alone gives
     // "K", and taking the first two characters gives "ka".
     const { container } = render(AccountMenu, {
       props: { name: 'karo.lailatul@example.com', children: items },
@@ -58,7 +58,7 @@ describe('AccountMenu', () => {
 
   it('hangs the panel from the trailing edge, below the trigger', () => {
     // The sidebar foot was the other candidate and it cannot work: the column
-    // is already full height, so the last entry - Sign out, every time - opens
+    // is already full height, so the last entry (Sign out, every time) opens
     // past the bottom of the window.
     const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
     const panel = container.querySelector('details > div')!;

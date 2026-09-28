@@ -12,7 +12,7 @@
  * your place entirely. Composing from here means a fourth choice control cannot
  * reintroduce any of it.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import { FIELD_HINT, FIELD_LABEL } from './field.js';
@@ -93,7 +93,7 @@ const BOX_BASE = 'pointer-events-none flex shrink-0 items-center justify-center 
  * at 14px.
  *
  * `mixed` paints exactly what `checked` paints. A part-selected parent is on,
- * not a third state with a colour of its own; only the mark it holds differs.
+ * not a third state with a color of its own. Only the mark it holds differs.
  */
 export function choiceBox(
   kind: 'checkbox' | 'radio',
@@ -116,7 +116,7 @@ export function choiceBox(
  *
  * The ring lived inside the checked ternary in three components, so choosing an
  * option removed the only indicator a keyboard user had. It is a ring and not a
- * border colour because a selected box already carries a brand border, which
+ * border color because a selected box already carries a brand border, which
  * leaves a border-only focus state with nothing to say.
  */
 export const CHOICE_FOCUS =
@@ -159,7 +159,7 @@ export const CHOICE_DESCRIPTION = FIELD_HINT;
  * The icon slot ahead of the label.
  *
  * Fixed to the box size so the label starts at the same x in every row of a
- * list, and given no colour of its own so it inherits the label and dims with
+ * list, and given no color of its own so it inherits the label and dims with
  * the wrapper when the option is disabled.
  */
 export function choiceIcon(size: ChoiceSize): string {
@@ -171,7 +171,7 @@ export function choiceIcon(size: ChoiceSize): string {
  * guess.
  *
  * A lucide icon takes a number, not a class, so the slot above cannot size it.
- * These are the same 14, 16 and 20 the slot reserves; an icon rendered at any
+ * These are the same 14, 16 and 20 the slot reserves. An icon rendered at any
  * other size overflows the slot or floats inside it.
  */
 export const CHOICE_ICON_PX: Record<ChoiceSize, number> = {
@@ -218,7 +218,7 @@ export function choiceGroupList(orientation: ChoiceOrientation): string {
  *
  * Drawn as paths because the consistency suite rejects a Unicode check outright,
  * and because a font glyph lands at a different optical weight from every other
- * icon in the library. Both sit in a 10 by 8 viewBox centred in the box, at
+ * icon in the library. Both sit in a 10 by 8 viewBox centered in the box, at
  * stroke width 1.5 with round caps, so the two marks swap without the box
  * shifting. The mixed bar stops short of the edges so its round caps do not
  * touch the border.

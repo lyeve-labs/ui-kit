@@ -111,9 +111,9 @@ describe('SegmentedControl aria state', () => {
     expect(checked(container)).toEqual(['false', 'false', 'true']);
   });
 
-  it('carries the selection in weight as well as in colour', () => {
-    // The theme picker this replaces marked its choice with a background colour
-    // and nothing else, so a colour-blind user could not see which option was
+  it('carries the selection in weight as well as in color', () => {
+    // The theme picker this replaces marked its choice with a background color
+    // and nothing else, so a color-blind user could not see which option was
     // active and a screen reader user was told nothing at all.
     const { container } = render(SegmentedControl, {
       props: { label: 'Theme', options, value: 'dark' },
@@ -397,7 +397,7 @@ describe('SegmentedControl href mode', () => {
       props: { label: 'Window', options: links, value: '24h', onchange },
     });
     // Read at the document, after the segment's own handlers had their turn,
-    // then cancelled there so jsdom does not try to follow the link.
+    // then canceled there so jsdom does not try to follow the link.
     let prevented: boolean | undefined;
     const seen = (e: Event) => {
       prevented = e.defaultPrevented;
@@ -450,7 +450,7 @@ describe('SegmentedControl href mode', () => {
     await fireEvent.keyDown(a, { key: 'ArrowLeft' });
     expect(document.activeElement).toBe(c);
 
-    // The tab stop followed focus inside the group; the current page did not.
+    // The tab stop followed focus inside the group. The current page did not.
     expect(c.getAttribute('tabindex')).toBe('0');
     expect(anchors(container).map((x) => x.getAttribute('aria-current'))).toEqual([
       'page',
@@ -525,7 +525,7 @@ describe('SegmentedControl href mode', () => {
 
   it('documents that the modes cannot be mixed', () => {
     expect(source.replace(/\n\s*\*\s?/g, ' ')).toContain(
-      'Every option carries one or none does; the modes cannot be mixed in one control.',
+      'Every option carries one or none does. The modes cannot be mixed in one control.',
     );
   });
 

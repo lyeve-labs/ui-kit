@@ -8,7 +8,7 @@ import DateTimePicker from './DateTimePicker.svelte';
 /**
  * Every block below is a way a datetime field built from two controls goes
  * wrong: a value that survives one direction only, a half that resets when its
- * neighbour changes, an empty field that claims to hold midnight, bounds
+ * neighbor changes, an empty field that claims to hold midnight, bounds
  * applied to each half instead of to the instant, a flag that stops at the
  * wrapper, three message rows under one field, and the timezone shift a single
  * `new Date(text)` puts into a date that never had a zone.
@@ -397,7 +397,7 @@ describe('DateTimePicker required marker', () => {
 describe('DateTimePicker calendar placement', () => {
   it('places its date half through placePanel', async () => {
     // The field composes DatePicker, so the calendar it opens takes the same
-    // flip and cap; this pins that the composition did not bypass it.
+    // flip and cap. This pins that the composition did not bypass it.
     const r = render(DateTimePicker, { props: { label: 'Expires', value: '2024-06-15T09:30' } });
     await fireEvent.click(dateTrigger(r));
     const surface = r.container.querySelector('[role="dialog"]') as HTMLElement;

@@ -450,7 +450,7 @@ describe('TimePicker required marker', () => {
   it('states the requirement on the segments, not in the group name', () => {
     // The marker carried aria-label="required" inside the label the group names
     // itself from, so the field announced as "At required". Each segment
-    // already carried aria-required; only the marker was wrong.
+    // already carried aria-required. Only the marker was wrong.
     const { container, getByRole, getByLabelText } = render(TimePicker, {
       props: { label: 'At', required: true },
     });

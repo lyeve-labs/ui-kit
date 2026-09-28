@@ -59,7 +59,7 @@ describe('choiceBox', () => {
   it.each(BOX_CASES)(
     'never spells the resting border as border-line on a $kind that is $size, checked=$checked, mixed=$mixed',
     ({ kind, size, checked, mixed }) => {
-      // border-line reads 1.25:1 against the page. It is the divider colour,
+      // border-line reads 1.25:1 against the page. It is the divider color,
       // and an empty box has nothing else identifying it as a control.
       expect(classes(choiceBox(kind, size, checked, mixed))).not.toContain('border-line');
     },
@@ -73,7 +73,7 @@ describe('choiceBox', () => {
   );
 
   it.each(SIZES)('paints a mixed %s checkbox exactly as a checked one', (size) => {
-    // Mixed is a parent that is partly on, not a third colour. Only the mark
+    // Mixed is a parent that is partly on, not a third color. Only the mark
     // inside the box changes.
     expect(choiceBox('checkbox', size, false, true)).toBe(choiceBox('checkbox', size, true, false));
     expect(classes(choiceBox('checkbox', size, false, true))).toContain('bg-brand');
@@ -185,7 +185,7 @@ describe('label and icon', () => {
     }
   });
 
-  it.each(SIZES)('gives a %s icon no colour of its own', (size) => {
+  it.each(SIZES)('gives a %s icon no color of its own', (size) => {
     // The icon inherits the label, so a disabled option dims it through the
     // wrapper opacity rather than through a second rule.
     expect(classes(choiceIcon(size)).filter((c) => c.startsWith('text-'))).toEqual([]);
@@ -256,7 +256,7 @@ describe('every class this module hands out', () => {
     expect(value).not.toMatch(/[[\]]/);
   });
 
-  it.each(emitted)('%s uses no raw palette colour', (value) => {
+  it.each(emitted)('%s uses no raw palette color', (value) => {
     expect(value).not.toMatch(PALETTE);
     expect(value).not.toMatch(/#[0-9a-fA-F]{3}/);
   });

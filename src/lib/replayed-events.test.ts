@@ -30,7 +30,7 @@ const REPLAYED = new Set([
 
 /**
  * The three shapes that trigger it. A spread and a `use:` directive each add
- * both attributes because the compiler cannot see what they contain; an
+ * both attributes because the compiler cannot see what they contain. An
  * `onload` or `onerror` handler adds the one it names. Any other event
  * handler, `onclick` included, is left alone.
  */
@@ -101,7 +101,7 @@ describe('server-rendered markup', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('recognises each of the three shapes that trigger it', () => {
+  it('recognizes each of the three shapes that trigger it', () => {
     const spread = '<img {...rest} />';
     const directive = '<img src="a.png" use:track />';
     const handler = '<img src="a.png" onerror={fail} />';

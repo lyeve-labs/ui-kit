@@ -52,11 +52,11 @@
   }
 
   /**
-   * The row, without the colours any one state paints.
+   * The row, without the colors any one state paints.
    *
    * The rail is a start border on every row, not one added when the branch is
    * active, so marking a branch cannot shift its rows two pixels sideways. Its
-   * colour is a ternary rather than a second border utility: two colour
+   * color is a ternary rather than a second border utility: two color
    * utilities on one element resolve in the order Tailwind emits them, not the
    * order they are written.
    *
@@ -71,7 +71,7 @@
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
   /**
-   * Exactly one border colour, one background and one text colour per state.
+   * Exactly one border color, one background and one text color per state.
    *
    * Every state answers the pointer, including the current one. It did not: the
    * current row was the only paint with no hover step, and the current row is
@@ -222,7 +222,7 @@
       <!--
         Rendered whether or not it is open, and shut by collapsing its grid row
         to nothing, the same move AccordionItem makes. aria-controls has to name
-        an element that exists; pointing it at markup that appears only once the
+        an element that exists. Pointing it at markup that appears only once the
         group is open leaves the reference dangling in the one state where a
         reader needs it to tell them what the button will reveal. inert keeps a
         shut group out of the tab order and the accessibility tree, which is
@@ -231,7 +231,7 @@
         It keeps the implicit list role. role="group" here overrode it, and a
         listitem whose parent is not a list is an ARIA context error, so every
         row of an open section came back as a serious axe violation. Grouping
-        semantics belong to a tree, where the parent is a treeitem; this is a
+        semantics belong to a tree, where the parent is a treeitem. This is a
         nav of plain links and the disclosure already says what it controls.
       -->
       {@const shown = open && !node.disabled}

@@ -28,7 +28,7 @@
      *
      * A confirmation clears itself. A warning and a failure stay until
      * dismissed, so this is off by default and a danger alert never takes it.
-     * Pass it wherever the alert reports the outcome of a submit; leave it off
+     * Pass it wherever the alert reports the outcome of a submit. Leave it off
      * where a success tone states a standing condition, which does not stop
      * being true after five seconds.
      */
@@ -60,7 +60,7 @@
 
   /**
    * A failure and a warning interrupt, because the reader has to act. Anything
-   * else waits for a pause. FormMessage already splits them this way; Alert
+   * else waits for a pause. FormMessage already splits them this way. Alert
    * announced every tone assertively, so a green confirmation cut across
    * whatever was being read. An alert that also clears itself must not be
    * assertive: it would interrupt to say something and then take it away.

@@ -1,8 +1,8 @@
 /*
- * @lyeve-labs/ui-kit - theme tokens
+ * @lyeve-labs/ui-kit: theme tokens
  *
  * A single CSS file imported once at the top of your app's root stylesheet.
- * Declares two palettes - Soft Dark (default) and Soft Light - built from
+ * Declares two palettes, Soft Dark (default) and Soft Light, built from
  * the LyEve brand guideline (Ink #0B1422 + Cyan #00D4FF) and exposes them
  * as Tailwind v4 `@theme` tokens.
  *
@@ -44,7 +44,7 @@
   --color-line-strong: #616d80;
   --color-fg: #e6e8ee;
   --color-muted: #9aa1ad;
-  /* #525866 failed WCAG AA against surface/ink (~2.5:1); every caption and
+  /* #525866 failed WCAG AA against surface/ink (~2.5:1). Every caption and
    * metadata label uses faint, so one token fix clears the systemic
    * violation. #8b94a7 sits at ~5.6:1 on surface and ~5.9:1 on ink. */
   --color-faint: #8b94a7;
@@ -61,7 +61,7 @@
    * tokens because the brand ramp above is tuned for text contrast: in the
    * light theme it darkens to #005a77 and brand-light sits below brand, so a
    * mark painted from it inverts its lighting. A logotype is exempt from the
-   * contrast floor, so these keep the published colours instead. */
+   * contrast floor, so these keep the published colors instead. */
   --color-mark-ink: #ffffff;
   --color-mark-foot: #9aa1ad;
   --color-mark-step: #c5cad3;
@@ -79,7 +79,7 @@
    * cannot work as a foreground on a dark surface.
    *
    * One token serves both roles because it inverts with `ink`. As text on a
-   * dark surface #f87171 reads 6.30:1; as the fill behind a `text-ink` label
+   * dark surface #f87171 reads 6.30:1. As the fill behind a `text-ink` label
    * on a filled destructive button it reads 6.67:1. The light palette does
    * the same in reverse with a dark red and a near-white ink. */
   --color-danger: #f87171;
@@ -92,7 +92,7 @@
   --radius-xl: 16px;
   --radius-2xl: 24px;
 
-  /* -- Elevation - the stacking order of everything that floats --- *
+  /* -- Elevation: the stacking order of everything that floats --- *
    *  Every floating surface in the kit carried a bare z-50, so which
    *  one won was decided by document order: a Dropdown opened after a
    *  Modal painted over it, and the same two in the other order did
@@ -123,16 +123,16 @@
   --z-index-dropdown: 100; /* a panel anchored to its trigger    */
   --z-index-overlay: 200; /* the scrim behind a drawer or modal */
   --z-index-drawer: 300; /* a panel docked to a viewport edge  */
-  --z-index-modal: 400; /* a centred dialog, and the stack    */
+  --z-index-modal: 400; /* a centered dialog, and the stack    */
   --z-index-tooltip: 500; /* a label attached to a control      */
   --z-index-toast: 600; /* transient status                   */
   --z-index-skip-link: 700; /* the first tab stop in the document */
 
-  /* -- Motion - four durations, three curves, one rule for exits -- *
+  /* -- Motion: four durations, three curves, one rule for exits -- *
    *  Named for what they are used for, so the choice is made by
    *  reading the name:
    *
-   *    fast      a state change in place: colour, opacity, border,
+   *    fast      a state change in place: color, opacity, border,
    *              shadow, focus
    *    base      movement in place (a knob, a chevron, a collapse, a
    *              tab indicator) and a small surface arriving (menu,
@@ -145,7 +145,7 @@
    *    move      changing in place
    *
    *  An exit runs one rung faster than its entrance and on exit:
-   *  slow in, base out; base in, fast out. Entrances and exits move
+   *  slow in, base out. Base in, fast out. Entrances and exits move
    *  only opacity and transform.
    *
    *  Tailwind builds no utility from a --duration-* token: there is
@@ -161,8 +161,8 @@
    *  wrote `duration-150` fifty times to say the same thing.
    *
    *  The reduced-motion block at the foot of this file overrides
-   *  every one of them and stays the authority on whether they run;
-   *  the Svelte presets in motion.ts honour the same preference for
+   *  every one of them and stays the authority on whether they run.
+   *  The Svelte presets in motion.ts honor the same preference for
    *  the entrances and exits that run outside CSS.                    */
   --duration-fast: 120ms;
   --duration-base: 200ms;
@@ -178,7 +178,7 @@
 
   /* The one entrance that is a CSS animation. A panel inside <details> is
    * shown and removed by the browser, so a Svelte transition never sees it
-   * leave; it plays this on the way in and nothing on the way out. Every
+   * leave. It plays this on the way in and nothing on the way out. Every
    * other surface enters and leaves through the presets in motion.ts. */
   --animate-popover-in: popover-in var(--duration-base) var(--ease-enter);
 
@@ -223,7 +223,7 @@
   --tracking-h2: -0.02em;
   --tracking-h3: -0.015em;
 
-  /* -- Typography - console type scale --------------------------- *
+  /* -- Typography: console type scale --------------------------- *
    *  Token       Size   Line   Where it renders                    *
    *  text-xs     12px   16px   labels, table heads, metadata, hints*
    *  text-sm     14px   20px   body copy and every control         *
@@ -259,7 +259,7 @@
    *
    *  A step is declared with its leading, because a --text-* token
    *  sets font-size and nothing else. Only the six steps the kit
-   *  actually renders are declared; the larger ones a marketing
+   *  actually renders are declared. The larger ones a marketing
    *  page reaches for stay as Tailwind ships them.               */
   --text-xs: 0.75rem; /* 12px */
   --text-xs--line-height: calc(1 / 0.75); /* 16px */
@@ -277,32 +277,32 @@
   /* ── Spacing grid · 4px base (semantic shortcuts) ────────────── *
    *  Tailwind's default 0.25rem (4px) grid is unchanged.          *
    *  These tokens add named slots for common component spacing.   */
-  --spacing-page-x: 1.5rem; /* 24px - page horizontal gutter     */
-  --spacing-page-y: 1.5rem; /* 24px - page vertical gutter. Equal to page-x because no page
-                             * measured renders an asymmetric gutter; the two names stay
+  --spacing-page-x: 1.5rem; /* 24px: page horizontal gutter     */
+  --spacing-page-y: 1.5rem; /* 24px: page vertical gutter. Equal to page-x because no page
+                             * measured renders an asymmetric gutter. The two names stay
                              * separate so one axis can move without dragging the other. */
-  --spacing-card: 1.25rem; /* 20px - card inner padding. 24px matched none of the card
-                            * surfaces in use; 20px is their measured mode and Card's own md. */
-  --spacing-card-sm: 1rem; /* 16px - compact card padding       */
-  --spacing-section: 2rem; /* 32px - section gap. 48px matched nothing anywhere; 32px is the
+  --spacing-card: 1.25rem; /* 20px: card inner padding. 24px matched none of the card
+                            * surfaces in use. 20px is their measured mode and Card's own md. */
+  --spacing-card-sm: 1rem; /* 16px: compact card padding       */
+  --spacing-section: 2rem; /* 32px: section gap. 48px matched nothing anywhere. 32px is the
                             * gap the pages that set one already use, and PageHeader's own. */
-  --spacing-input-x: 0.75rem; /* 12px - input horizontal padding   */
+  --spacing-input-x: 0.75rem; /* 12px: input horizontal padding   */
   --spacing-input-y: 0.5rem; /* 8px  - input vertical padding     */
-  /* 38px - the height of every single-line control. Stated once so an Input,
+  /* 38px: the height of every single-line control. Stated once so an Input,
    * a Select and a NumberInput sitting in the same row line up. Derived from
    * the 13px/1.25 control text plus input-y padding and a 1px border. Under a
-   * coarse pointer it is 44px; see the touch-target block below the palette. */
+   * coarse pointer it is 44px. See the touch-target block below the palette. */
   --spacing-control: 2.375rem;
-  --spacing-panel-max: 15rem; /* 240px - the scroll cap on a floating option list */
-  /* 56px - the app header bar, and the sidebar's brand row above the nav.
+  --spacing-panel-max: 15rem; /* 240px: the scroll cap on a floating option list */
+  /* 56px: the app header bar, and the sidebar's brand row above the nav.
    * One token, because the two sit side by side across the top of every
    * authed screen and a 4px disagreement between them reads as a broken
    * seam. Three apps each picked their own height before this existed. */
   --spacing-header: 3.5rem;
-  --spacing-nav-indent: 0.875rem; /* 14px - one level of sidebar nesting */
-  --spacing-nav-rail: 3.5rem; /* 56px - the collapsed icon rail */
-  --spacing-sidebar: 14rem; /* 224px - the expanded sidebar */
-  --spacing-stack: 1rem; /* 16px - default vertical stack gap */
+  --spacing-nav-indent: 0.875rem; /* 14px: one level of sidebar nesting */
+  --spacing-nav-rail: 3.5rem; /* 56px: the collapsed icon rail */
+  --spacing-sidebar: 14rem; /* 224px: the expanded sidebar */
+  --spacing-stack: 1rem; /* 16px: default vertical stack gap */
   --spacing-inline: 0.5rem; /* 8px  - default inline gap         */
 
   /* ── Widths · how much room a surface is allowed to take ───── *
@@ -317,8 +317,8 @@
    *  drawers asked for the widest rung there was, which is what a   *
    *  ladder that stops too early looks like from the outside.      */
   --container-page-narrow: 56rem; /* 896px  - one column: a form, a settings pane  */
-  --container-page-default: 72rem; /* 1152px - a page of stacked cards             */
-  --container-page-wide: 96rem; /* 1536px - a data page whose table needs the room */
+  --container-page-default: 72rem; /* 1152px: a page of stacked cards             */
+  --container-page-wide: 96rem; /* 1536px: a data page whose table needs the room */
 
   /* One ladder for every surface lifted off the page, so a drawer and
    * a modal opened from the same screen are the same size. Each rung
@@ -328,7 +328,7 @@
   --container-overlay-md: 36rem; /* 576px  - up to four fields                */
   --container-overlay-lg: 44rem; /* 704px  - a form with paired fields        */
   --container-overlay-xl: 56rem; /* 896px  - a form beside a preview          */
-  --container-overlay-full: 68rem; /* 1088px - a table inside a dialog        */
+  --container-overlay-full: 68rem; /* 1088px: a table inside a dialog        */
 }
 
 /*
@@ -350,13 +350,13 @@
  *
  * `hit-area` does not move the visual. A switch, a checkbox, a breadcrumb, a
  * pager button, a close cross and an icon inside an input are drawn small on
- * purpose and grown to 44px would push their neighbours around; each one
- * draws an invisible box centred on itself that is never smaller than the
+ * purpose and grown to 44px would push their neighbors around. Each one
+ * draws an invisible box centered on itself that is never smaller than the
  * control size, and a tap on the box lands on the control. The element must
  * be positioned (`relative`, or `absolute` where it already is) for the box
- * to centre on it; the utility does not set position itself, because a
+ * to center on it. The utility does not set position itself, because a
  * position it set would fight the `absolute` an input's clear button relies
- * on. Two neighbours' boxes may overlap; the later one in document order
+ * on. Two neighbors' boxes may overlap. The later one in document order
  * wins the overlap, which is the spacing exception SC 2.5.8 allows for.
  */
 @custom-variant coarse (@media (pointer: coarse));
@@ -392,7 +392,7 @@ html[data-theme='light'] {
   --color-line-strong: #767d8e;
   --color-fg: #111827;
   --color-muted: #525866;
-  /* Every value below is the lightest colour on its own hue that clears
+  /* Every value below is the lightest color on its own hue that clears
    * 4.5:1 against the worst background the kit actually paints it on. That
    * worst case is rarely the bare canvas: status text and brand chips sit
    * inside a tint of their own token (bg-warn/10 text-warn), and the tint
@@ -425,7 +425,7 @@ html[data-theme='light'] {
 /*
  * A forced-colors scheme repaints the page but not a fill named in hex, so the
  * mark's white column vanished on a white high-contrast canvas. Its neutral
- * faces take the system colours there; the cyan faces keep their shape.
+ * faces take the system colors there. The cyan faces keep their shape.
  */
 @media (forced-colors: active) {
   :root,
@@ -515,8 +515,8 @@ html[data-theme='light'] {
   /*
    * Every animation in the kit ran regardless of what the reader asked for:
    * the drawer slid, the toast flew in, the pulse and ping looped forever.
-   * Honouring the preference once here covers every component, including any
-   * added later, which is the only way it stays honoured.
+   * Honoring the preference once here covers every component, including any
+   * added later, which is the only way it stays honored.
    *
    * Durations are not zeroed. An animation that finishes in 1ms still fires its
    * animationend, so components that wait on one keep working.
@@ -565,12 +565,12 @@ html[data-theme='light'] {
    * Every kit component paints from these tokens, so redefining them here
    * turns the whole library monochrome without a single component knowing
    * about paper. Browsers drop backgrounds when printing by default, which
-   * left light text on the white the printer supplies; naming white here means
+   * left light text on the white the printer supplies. Naming white here means
    * the two agree either way.
    *
    * The status hues collapse to black rather than to a print-safe tint. A
-   * colour that carries meaning on screen carries none through a mono printer,
-   * and a legible black label beats an unreadable coloured one.
+   * color that carries meaning on screen carries none through a mono printer,
+   * and a legible black label beats an unreadable colored one.
    */
   html,
   html[data-theme='light'] {

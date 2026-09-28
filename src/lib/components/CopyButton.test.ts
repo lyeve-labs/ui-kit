@@ -41,7 +41,7 @@ async function settle(): Promise<void> {
   await tick();
 }
 
-/** Which icon the glyph is showing; both stay mounted and cross over in place. */
+/** Which icon the glyph is showing. Both stay mounted and cross over in place. */
 function glyph(container: HTMLElement): string | null {
   return container.querySelector('[data-copy-state]')?.getAttribute('data-copy-state') ?? null;
 }
@@ -263,7 +263,7 @@ describe('CopyButton presentation', () => {
     expect(source + glyphSource).not.toMatch(/[✓✔×]/);
   });
 
-  it('transitions its colour on the theme clock, with no number of its own', () => {
+  it('transitions its color on the theme clock, with no number of its own', () => {
     expect(source).toContain('transition-colors');
     expect(source).not.toMatch(/duration-\d/);
   });
