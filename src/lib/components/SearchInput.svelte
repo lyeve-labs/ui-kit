@@ -26,7 +26,7 @@
 
   const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
 
-  // bind:value keeps what was typed before hydration; a one-way value
+  // bind:value keeps what was typed before hydration. A one-way value
   // cleared it. The binding has updated value by the time this runs.
   function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
     oninput?.(e.currentTarget.value);
@@ -79,7 +79,7 @@
         sits inside the field. The padding is taken back off the horizontal axis
         only: the box is positioned from its right edge, so a negative right
         margin holds the glyph exactly where it was, while a negative top margin
-        would fight the translate that centres it and lift it 6px off the middle
+        would fight the translate that centers it and lift it 6px off the middle
         of the field.
       -->
       <button

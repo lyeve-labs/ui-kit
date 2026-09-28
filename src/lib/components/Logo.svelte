@@ -12,7 +12,7 @@
    * for that reason, and none belongs here.
    *
    * Every face and the wordmark paint from the mark-* tokens, which carry the
-   * brand book's colours per theme: the same lockup the documentation site
+   * brand book's colors per theme: the same lockup the documentation site
    * ships as a static file. They are separate from the brand ramp because that
    * ramp darkens for text contrast in the light theme and inverts the mark's
    * lighting there.

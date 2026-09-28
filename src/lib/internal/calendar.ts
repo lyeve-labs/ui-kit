@@ -24,7 +24,7 @@
  * file is the no argument one inside todayLocal, which is the only place a real
  * clock is needed.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** A calendar date with no zone and no time. m is 1-12, the month a human says, not the 0-11 the Date constructor takes. */
@@ -45,7 +45,7 @@ const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
  *
  * A century is a common year unless it divides by 400. Dropping that clause
  * makes 2000 a common year and puts 29 February 2000 out of reach of the
- * control; keeping only the century clause makes 1900 a leap year and invents a
+ * control. Keeping only the century clause makes 1900 a leap year and invents a
  * day nobody lived through.
  */
 function isLeapYear(y: number): boolean {

@@ -7,14 +7,14 @@
  * an Input and a NumberInput placed side by side did not line up. Changing a
  * control's appearance now means changing one of these constants.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
-/** Vertical rhythm inside a labelled field: label, control, hint/error. */
+/** Vertical rhythm inside a labeled field: label, control, hint/error. */
 export const FIELD_WRAP = 'flex flex-col gap-1.5';
 
 /**
- * The marker every labelled field carries on its outermost element, and the
+ * The marker every labeled field carries on its outermost element, and the
  * only way a surface can ask how much form it is holding.
  *
  * A class would not do: FIELD_WRAP is three utilities a caller may legitimately
@@ -48,20 +48,20 @@ export const FIELD_HINT = 'text-xs text-faint';
 export const FIELD_ERROR = 'text-xs text-danger';
 
 /**
- * Everything a single-line control needs except its border colour.
+ * Everything a single-line control needs except its border color.
  *
  * `h-control` is a theme token (2.375rem / 38px), not a literal, so the height
- * is stated once. Controls that grow with their content - Textarea, the
- * MultiSelect chip well - use `CONTROL_MULTILINE` instead and keep the token as
+ * is stated once. Controls that grow with their content: Textarea, the
+ * MultiSelect chip well: use `CONTROL_MULTILINE` instead and keep the token as
  * a minimum.
  */
 /**
  * outline-none must be paired with a replacement. It was not here: theme.css
  * declares a global :focus-visible outline of 2px solid brand, chosen for its
- * contrast, and a utility beats the base layer, so these two cancelled the
+ * contrast, and a utility beats the base layer, so these two canceled the
  * kit's own focus indicator for every text input, textarea, number and select.
- * Focus was left as a 1px border-colour change. SidebarNav's buttons and
- * CONTROL_SEGMENT already pair the two correctly; these did half of it.
+ * Focus was left as a 1px border-color change. SidebarNav's buttons and
+ * CONTROL_SEGMENT already pair the two correctly. These did half of it.
  */
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +
@@ -87,7 +87,7 @@ export const CONTROL_MULTILINE =
 export function controlBorder(error: boolean): string {
   // line-strong, not line: at 1.25:1 against the page the resting border was
   // the only thing marking the control and it failed SC 1.4.11. line stays the
-  // divider colour, where there is no control to identify.
+  // divider color, where there is no control to identify.
   return error ? 'border-danger focus:border-danger' : 'border-line-strong focus:border-brand';
 }
 
@@ -96,7 +96,7 @@ export function controlBorder(error: boolean): string {
  *
  * Returns undefined when neither is present, so the attribute is omitted rather
  * than pointing at an element that was never rendered. Only Input carried
- * `aria-invalid` before this; nothing carried `aria-describedby`, so a screen
+ * `aria-invalid` before this. Nothing carried `aria-describedby`, so a screen
  * reader announced the control and never the reason it was rejected.
  */
 export function describedBy(
@@ -140,7 +140,7 @@ export function segmentedBorder(error: boolean): string {
  *
  * It carries no width. A two-digit segment needs a fixed one so the control
  * does not resize as the user types, and an AM/PM select needs to size to its
- * own text; stating a width here would mean one of the two overriding it, and
+ * own text. Stating a width here would mean one of the two overriding it, and
  * two width utilities on one element resolve by the order Tailwind emits them
  * rather than the order they were written.
  *

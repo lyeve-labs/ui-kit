@@ -8,7 +8,7 @@ const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}<
 /**
  * jsdom answers every media query with `matches: false`, so the shell believes
  * it is on a desktop unless a test says otherwise. That is also the server's
- * belief, which is the behaviour worth pinning: an inert sidebar in the
+ * belief, which is the behavior worth pinning: an inert sidebar in the
  * server-rendered page is unreachable to a reader whose JavaScript never runs.
  */
 function viewport(mobile: boolean) {
@@ -175,7 +175,7 @@ describe('AppShell', () => {
   });
 
   it('ignores collapsed below md:, where the same aside is the drawer', () => {
-    // Honouring it there leaves the hamburger opening nothing, and the drawer
+    // Honoring it there leaves the hamburger opening nothing, and the drawer
     // is the only way to the nav at that width.
     viewport(true);
     const { getByLabelText, queryByTestId } = render(AppShell, {
@@ -236,8 +236,8 @@ function width(kind: 'phone' | 'tablet' | 'desktop') {
 
 /**
  * A nav that reports what the shell told it, the way a SidebarNav reads
- * `collapsed`. A raw snippet renders once, so it reports the first answer;
- * the aside's own width class is read for what the shell says afterwards,
+ * `collapsed`. A raw snippet renders once, so it reports the first answer.
+ * The aside's own width class is read for what the shell says afterwards,
  * and both come from the same derived value.
  */
 const tellingNav = createRawSnippet<[{ rail: boolean }]>((state) => ({

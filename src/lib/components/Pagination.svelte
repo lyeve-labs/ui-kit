@@ -182,7 +182,7 @@
 
   /**
    * 28px drawn, 44px under a finger. The steps sit 2px apart, so growing the
-   * visual would put a seven-page pager past a phone's width; the hit box
+   * visual would put a seven-page pager past a phone's width. The hit box
    * grows instead and the pager keeps its shape.
    */
   const btnBase = `${HIT_AREA} inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors`;
@@ -208,7 +208,7 @@
    *
    * An anchor has no `disabled`, and `disabled:` never matches one, so the two
    * states have to be painted rather than declared. Dropping the href is what
-   * takes it out of the tab order and stops activation; the class is only the
+   * takes it out of the tab order and stops activation. The class is only the
    * part a reader can see, at the same 30% the disabled buttons use.
    */
   const linkInert = 'pointer-events-none opacity-30';

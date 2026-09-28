@@ -77,7 +77,7 @@ describe('Field', () => {
     // Accessible-name computation walks into the label, so a marker carrying
     // aria-label="required" appends the word to the name and the field
     // announces as "Email required". The control's own required attribute is
-    // what reports the state; the asterisk is paint.
+    // what reports the state. The asterisk is paint.
     const { container, getByRole } = mount({ label: 'Email', required: true });
     expect(getByRole('textbox', { name: 'Email' })).toBeTruthy();
     const marker = container.querySelector('label span') as HTMLElement;

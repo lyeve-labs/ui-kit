@@ -58,7 +58,7 @@
 
   /**
    * A reader on `system` whose OS flips at dusk gets the new palette without
-   * touching anything. Without this the preference is honoured once, at load,
+   * touching anything. Without this the preference is honored once, at load,
    * and reads as ignored for the rest of the session.
    */
   $effect(() =>

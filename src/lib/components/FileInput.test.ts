@@ -87,7 +87,7 @@ describe('FileInput', () => {
     expect(classAfter).toContain('border-line-strong');
   });
 
-  it('rests the dropzone on line-strong, never on the bare divider colour', () => {
+  it('rests the dropzone on line-strong, never on the bare divider color', () => {
     // The dashed border is the only thing identifying this region as a control,
     // and line reads 1.25:1, so at rest it failed SC 1.4.11.
     const { container } = render(FileInput, { props: {} });
@@ -95,7 +95,7 @@ describe('FileInput', () => {
     expect(dropzone(container).className).not.toMatch(WEAK_BORDER);
   });
 
-  it('hovers to full-strength brand, never a focus colour at reduced alpha', () => {
+  it('hovers to full-strength brand, never a focus color at reduced alpha', () => {
     // border-brand/50 read as a weaker affordance for no reason a user could
     // infer, and half-alpha brand does not clear the 3:1 boundary floor.
     const { container } = render(FileInput, { props: {} });
@@ -105,7 +105,7 @@ describe('FileInput', () => {
   });
 
   it('keeps the dropzone border stated once per state', () => {
-    // Error, drag-over and rest are one ternary, so no two border colours can
+    // Error, drag-over and rest are one ternary, so no two border colors can
     // land on the element at once and resolve by emitted order.
     const { container } = render(FileInput, { props: { error: 'Too big' } });
     const cls = dropzone(container).className;
@@ -123,7 +123,7 @@ describe('FileInput', () => {
     expect(input(withHint.container).getAttribute('aria-invalid')).toBeNull();
   });
 
-  it('names one duration for the colour transition it declares', () => {
+  it('names one duration for the color transition it declares', () => {
     const { container } = render(FileInput, { props: {} });
     expect(dropzone(container).className).toMatch(/transition-colors(?!\s+duration-)/);
   });

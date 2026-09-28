@@ -68,6 +68,8 @@ const COMPONENTS = [
   'Spinner',
   'Skeleton',
   'EmptyState',
+  'CheckoutSteps',
+  'PluginCart',
   'Stat',
   'Kbd',
   'CopyButton',
@@ -105,6 +107,10 @@ const FUNCTIONS = [
   'confirm',
   'setDialogMeta',
   'getDialogStack',
+  'billedCount',
+  'formatCents',
+  'ladderRows',
+  'ladderState',
 ] as const;
 
 /**

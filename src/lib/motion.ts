@@ -6,7 +6,7 @@
  *     <li animate:motion.reorder>
  *
  * `|global` is not optional. A Svelte transition is local by default and
- * plays only when its own block toggles; a page that wraps a Modal in its own
+ * plays only when its own block toggles. A page that wraps a Modal in its own
  * `{#if}` to reset the form each time removes the whole component, and a
  * local exit never runs. Global plays it on any ancestor change.
  *
@@ -22,7 +22,7 @@
  * and a test holds them equal to the tokens.
  *
  * Two cases return no duration at all. A reader who asked for reduced motion
- * gets the state change and none of the travel; the reduced-motion block in
+ * gets the state change and none of the travel. The reduced-motion block in
  * theme.css cannot reach these, because Svelte drives them through the Web
  * Animations API and not through a stylesheet. And a document with no
  * `Element.animate`, which is every jsdom test, mounts and unmounts at once,
@@ -59,7 +59,7 @@ const EXIT_RUNG: Record<Rung, Rung> = {
 
 /**
  * What a preset hands Svelte. The function form is resolved once the element
- * is in the DOM, with the direction the animation is really playing in; under
+ * is in the DOM, with the direction the animation is really playing in. Under
  * `transition:` the directive itself only ever says `both`, so this is the
  * one way a single directive can tune its exit apart from its entrance.
  */
@@ -159,7 +159,7 @@ function surface(rung: Rung, css: (t: number, u: number) => string) {
   };
 }
 
-/** A centred dialog: rises a little and settles to full size. */
+/** A centered dialog: rises a little and settles to full size. */
 export const dialog = surface(
   'slow',
   (t, u) => `opacity: ${t}; transform: translateY(${8 * u}px) scale(${0.96 + 0.04 * t})`,
@@ -191,7 +191,7 @@ export const toast = surface(
 
 /**
  * Siblings closing the gap a removed item leaves, for `animate:`. Svelte's
- * flip measures the move; the kit supplies the clock.
+ * flip measures the move. The kit supplies the clock.
  */
 export function reorder(
   node: Element,

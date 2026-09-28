@@ -6,7 +6,7 @@ import Drawer from './Drawer.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
-/** A body holding `n` labelled fields, the way a form snippet renders one. */
+/** A body holding `n` labeled fields, the way a form snippet renders one. */
 const form = (n: number) =>
   createRawSnippet(() => ({
     render: () => `<div>${'<div data-field><input /></div>'.repeat(n)}</div>`,
@@ -85,7 +85,7 @@ describe('Drawer', () => {
   });
 
   it('follows a body that grows while it is open', async () => {
-    // A period set to custom reveals two date fields; a section behind a
+    // A period set to custom reveals two date fields. A section behind a
     // toggle appears whole. A measurement taken once at mount would size the
     // panel for a form the reader is no longer filling in.
     const { container } = render(Drawer, { props: { open: true, children: form(3) } });

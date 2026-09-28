@@ -30,7 +30,7 @@
     /**
      * The words shown on hover and focus. Defaults to the button's own
      * aria-label, so an icon-only button names itself to a sighted reader the
-     * way it already does to a screen reader; a string replaces those words,
+     * way it already does to a screen reader. A string replaces those words,
      * and `false` keeps the button silent.
      *
      * Thirty-five icon-only actions across one console had a name and no
@@ -65,14 +65,14 @@
   );
 
   /**
-   * Colour per variant, in three states: at rest, under a pointer, and held.
+   * Color per variant, in three states: at rest, under a pointer, and held.
    *
    * The pressed step is the one a touch screen depends on. `hover:` compiles
    * inside `@media (hover: hover)`, which is false on a finger, so a tap ran
    * rest to rest with the action already fired and the control never
    * acknowledged the press. `active:` matches under a finger as well as under a
    * mouse, and Tailwind emits it after `hover:` at equal specificity, so the
-   * held colour wins on a device that has both.
+   * held color wins on a device that has both.
    *
    * primary and violet had a pressed state already and neither one showed:
    * `active:bg-brand` on a `bg-brand` button and `active:brightness-100` on an
@@ -107,7 +107,7 @@
    * whitespace-nowrap: a label never breaks inside itself. Under a Table's
    * `overflow-wrap: anywhere` a two-word ghost button in a flex row rendered
    * on two lines, and a status badge beside it as `dra ft`. A caller that
-   * caps the width wraps its label in a `truncate` span; the button cannot
+   * caps the width wraps its label in a `truncate` span. The button cannot
    * do that for it, because the label and any icon before it are flex items
    * and text-overflow does not reach into one.
    *
@@ -164,7 +164,7 @@
 {/snippet}
 
 <!-- The hint repeats the name, so it does not describe the control a second
-     time; the aria-label already announces it. The wrapper takes the full
+     time. The aria-label already announces it. The wrapper takes the full
      width along with the button, or a full button would shrink to its text. -->
 {#if hintText}
   <Tooltip text={hintText} describe={false} class={full ? 'w-full' : ''}>

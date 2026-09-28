@@ -1,5 +1,5 @@
 /**
- * Dialog Manager - module-level Svelte 5 reactive state.
+ * Dialog Manager: module-level Svelte 5 reactive state.
  *
  * Manages a stack of dialogs. Dialogs render in last-to-first order (newest on top).
  * Each dialog returns a Promise that resolves/rejects when closed.
@@ -24,11 +24,11 @@ import { lockBodyScroll, unlockBodyScroll } from '../../internal/overlay.js';
 
 let idCounter = 0;
 
-/** Reactive stack - topmost dialog = last element */
+/** Reactive stack: topmost dialog = last element */
 let stack = $state<DialogEntry<any>[]>([]);
 
 // ──────────────────────────────────────────────────────────
-// Body scroll lock (counter-based - handles stacked dialogs)
+// Body scroll lock (counter-based: handles stacked dialogs)
 // ──────────────────────────────────────────────────────────
 
 /*
@@ -108,7 +108,7 @@ export function closeDialog<T = void>(value: T, id?: string): void {
 }
 
 /**
- * Dismiss (cancel) a dialog - rejects the promise.
+ * Dismiss (cancel) a dialog: rejects the promise.
  * Called when user clicks backdrop or presses ESC on a non-persistent dialog.
  */
 export function dismissDialog(id?: string): void {
@@ -132,7 +132,7 @@ export function dismissDialog(id?: string): void {
 
   stack = stack.filter((e) => e.id !== targetId);
 
-  // Reject the promise - caller can .catch() or let it be
+  // Reject the promise: caller can .catch() or let it be
   entry.reject(new DOMException('Dialog dismissed', 'AbortError'));
 
   for (let i = 0; i < stack.length; i++) {
@@ -179,7 +179,7 @@ export interface ConfirmOptions {
 
 /**
  * Convenience: confirm dialog.
- * Returns `true` if user confirmed, `false` if cancelled.
+ * Returns `true` if user confirmed, `false` if canceled.
  *
  *   const ok = await confirm('Delete item?', 'This cannot be undone.');
  *   const ok = await confirm('Delete item?', 'This cannot be undone.', {
@@ -203,7 +203,7 @@ export function confirm(
     ...(options?.cancelLabel !== undefined ? { cancelLabel: options.cancelLabel } : {}),
     ...(options?.detail !== undefined ? { confirmDetail: options.detail } : {}),
   });
-  // Cancelling a dialog dismisses it, and dismissal rejects. Callers write
+  // Canceling a dialog dismisses it, and dismissal rejects. Callers write
   // `if (await confirm(...))`, so a rejection on Cancel is an unhandled
   // rejection on the ordinary path rather than an error anyone meant to
   // handle. Cancel is an answer, not a failure: it resolves false, which is

@@ -5,7 +5,7 @@ import AccordionItem from './AccordionItem.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
-// AccordionItem reads its open/toggle behaviour from the "accordion" context that
+// AccordionItem reads its open/toggle behavior from the "accordion" context that
 // its parent <Accordion> provides. We stub that context to test it in isolation.
 function ctx(open: boolean, toggle = vi.fn()) {
   return new Map([['accordion', { isOpen: () => open, toggle, flush: false }]]);
@@ -22,7 +22,7 @@ describe('AccordionItem', () => {
 
   it('takes its closed body out of reach without removing it', () => {
     // The body stays in the DOM so the panel can animate to its own height.
-    // Closed, it must be collapsed to nothing and inert - a screen reader and
+    // Closed, it must be collapsed to nothing and inert: a screen reader and
     // the tab order have to agree with what the eye sees.
     const { container, getByText } = render(AccordionItem, {
       props: { id: 'a', title: 'A', children: text('hidden body') },
@@ -31,7 +31,7 @@ describe('AccordionItem', () => {
     expect(container.querySelector('button')?.getAttribute('aria-expanded')).toBe('false');
     const panel = container.querySelector('[role="region"]');
     expect(panel).not.toBeNull();
-    // Svelte sets inert as a DOM property; it is the property, not a reflected
+    // Svelte sets inert as a DOM property. It is the property, not a reflected
     // attribute, that takes the subtree out of the tab order.
     expect((panel as HTMLElement).inert).toBe(true);
     expect(getByText('hidden body')).toBeTruthy();

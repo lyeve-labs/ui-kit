@@ -90,7 +90,7 @@ describe('CheckboxGroup', () => {
   });
 
   it('rests an unticked box on line-strong and never on line', () => {
-    // line reads 1.25:1 against the page. It is the divider colour, and an
+    // line reads 1.25:1 against the page. It is the divider color, and an
     // empty box has nothing but its border identifying it as a control.
     const { container } = render(CheckboxGroup, {
       props: { label: 'Permissions', options, value: [] },
@@ -314,7 +314,7 @@ describe('CheckboxGroup', () => {
   });
 
   it('says what is required through the hint the caller supplies', () => {
-    // The name says that something is required; the hint says what. It reaches
+    // The name says that something is required. The hint says what. It reaches
     // a reader through aria-describedby, which group does support.
     const { container, getByRole } = render(CheckboxGroup, {
       props: { label: 'Permissions', options, required: true, hint: 'Pick at least one' },

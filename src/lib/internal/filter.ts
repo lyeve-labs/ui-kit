@@ -8,14 +8,14 @@
  *
  * It reads the label and nothing else, so an option a user knows by its value,
  * its airport code or a synonym could not be found. It compares raw code
- * points, so a query of "cafe" missed an option labelled with an acute accent.
+ * points, so a query of "cafe" missed an option labeled with an acute accent.
  * It trims and lowercases the query once per option instead of once per
  * keystroke. And it is not a prop, so a consumer whose list arrives already
  * narrowed by a server query had no way to switch local filtering off or to say
  * what a match means for their data. Both controls now call applyFilter, which
  * takes a matcher the call site can replace or disable.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** What a matcher is told about the query, computed once per keystroke rather than per option. */
@@ -59,7 +59,7 @@ export function normalize(value: string): string {
 /**
  * The default matcher: case- and accent-insensitive substring over the label,
  * plus any keywords the option carries. Label-only matching is what ships
- * today; keywords are additive and absent on every existing option, so adopting
+ * today. Keywords are additive and absent on every existing option, so adopting
  * this changes no current list.
  *
  * An empty needle keeps every option. applyFilter answers an empty query before

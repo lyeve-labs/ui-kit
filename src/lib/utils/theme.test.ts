@@ -121,7 +121,7 @@ describe('theme utils', () => {
   describe('the preference, which is not the theme', () => {
     /**
      * jsdom answers every media query with `matches: false`. That is a valid
-     * answer - it means the OS is not asking for light - but it is the only
+     * answer (it means the OS is not asking for light), but it is the only
      * answer it gives, so the light half of every branch below goes untested
      * without a stub.
      */

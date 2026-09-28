@@ -109,7 +109,7 @@ describe('ThemeToggle', () => {
   });
 
   it('persists the preference and not the theme it resolved to', async () => {
-    // Storing the resolved colour loses the instruction. On the next load the
+    // Storing the resolved color loses the instruction. On the next load the
     // reader is pinned to whatever the OS happened to be asking for when they
     // chose to follow it.
     stubSystem(true);
@@ -121,7 +121,7 @@ describe('ThemeToggle', () => {
   });
 
   it('follows the operating system while the preference is system', async () => {
-    // The OS flips at dusk. Honouring the preference once, at load, reads as
+    // The OS flips at dusk. Honoring the preference once, at load, reads as
     // ignoring it for the rest of the session.
     const os = stubSystem(false);
     localStorage.setItem(STORAGE_KEY, 'system');
@@ -131,7 +131,7 @@ describe('ThemeToggle', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
-  it('leaves the theme alone on an OS change once a colour was chosen', async () => {
+  it('leaves the theme alone on an OS change once a color was chosen', async () => {
     const os = stubSystem(false);
     localStorage.setItem(STORAGE_KEY, 'dark');
     const { getByRole } = render(ThemeToggle);

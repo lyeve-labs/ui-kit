@@ -5,7 +5,7 @@
    * Mount once near the app root (in +layout.svelte).
    * Reads from the module-level $state store - no props needed.
    *
-   * Dialogs stack bottom-to-top; newest renders on top.
+   * Dialogs stack bottom-to-top. Newest renders on top.
    * Each dialog gets its own focus trap, ESC handler, and backdrop.
    */
   import { getDialogStack } from './dialog-manager.svelte';

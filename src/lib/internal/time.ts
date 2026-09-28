@@ -16,7 +16,7 @@
  * rewrites a legal time, and a modulo that turns midnight into hour zero of a
  * clock with no hour zero.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** One time, already range checked. `mi` rather than `m` so it cannot read as months. */
@@ -82,7 +82,7 @@ export function toISOTime(p: TimeParts, seconds: boolean): string {
 }
 
 /**
- * Steps one segment without carrying into its neighbour. Stepping the minute
+ * Steps one segment without carrying into its neighbor. Stepping the minute
  * past 59 wraps to 0 and leaves the hour alone, because a spinner that changes
  * two fields at once is not what the arrow key promised.
  *
@@ -174,7 +174,7 @@ export function to12Hour(h: number): { hour: number; meridiem: 'AM' | 'PM' } {
 }
 
 /**
- * 12-hour back to 24. 12 AM is hour 0 and 12 PM is hour 12; every other hour is
+ * 12-hour back to 24. 12 AM is hour 0 and 12 PM is hour 12. Every other hour is
  * itself in the morning and itself plus twelve in the afternoon.
  */
 export function from12Hour(hour: number, meridiem: 'AM' | 'PM'): number {

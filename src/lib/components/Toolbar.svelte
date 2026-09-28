@@ -6,7 +6,7 @@
    * how their controls sit: some stretched their children to the tallest one,
    * some aligned on the top edge, so a search box, a select and a button in one
    * row sat visibly off by a couple of pixels. The alignment is stated once
-   * here, on their vertical centres, which is the only arrangement that holds
+   * here, on their vertical centers, which is the only arrangement that holds
    * when one control is taller than the rest.
    *
    * The row wraps. A filter row that overflows takes a horizontal scrollbar the

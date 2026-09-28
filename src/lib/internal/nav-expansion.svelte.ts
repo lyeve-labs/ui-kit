@@ -14,7 +14,7 @@
  * the tree and the path underneath them. A reader decision always wins, and
  * until there is one the group follows the page.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 import { activeTrail, flattenNav, type NavTree } from './nav-tree.js';
@@ -40,7 +40,7 @@ export interface NavExpansion {
 /**
  * localStorage is absent on the server and throws on access in a private
  * window and wherever the reader has blocked site data, so it is reached for
- * behind both a typeof guard and a catch. Expansion is a convenience; nothing
+ * behind both a typeof guard and a catch. Expansion is a convenience. Nothing
  * here may be the reason a sidebar fails to render.
  */
 function storage(): Storage | undefined {

@@ -14,10 +14,10 @@
   let { tone = 'danger', class: klass = '', children }: Props = $props();
 
   /**
-   * The message colour, stated once.
+   * The message color, stated once.
    *
    * Eleven pages rendered a submit outcome into a bare paragraph and picked
-   * their own size and colour for it, so the same failure read as three
+   * their own size and color for it, so the same failure read as three
    * different things depending on which settings page the user was on.
    */
   const tones: Record<Tone, string> = {
@@ -50,7 +50,7 @@
 </script>
 
 <!--
-  The tones differ in more than colour. A failure takes role="alert", which
+  The tones differ in more than color. A failure takes role="alert", which
   interrupts whatever the reader is doing, because the submit did not go
   through and the user has to act on it. A confirmation takes aria-live
   "polite" and waits for a pause, because the work is done and nothing is being
@@ -64,7 +64,7 @@
   {#if filled}
     <!-- Stroked SVG, not a literal cross or tick: a font glyph lands at
          whatever weight the reader's font gives it, which sat visibly lighter
-         than every other icon in the library. Colour alone would also be the
+         than every other icon in the library. Color alone would also be the
          only thing telling a failure from a confirmation. -->
     <svg
       class="mt-0.5 shrink-0"

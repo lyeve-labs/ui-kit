@@ -87,7 +87,7 @@
        inside it, so the caller's actions, the reveal and the copy all fit
        without the value running under them and without measuring anything.
        The frame takes the focus ring and the brand border from the input
-       inside it; a focused button draws its own ring and not the frame's. -->
+       inside it. A focused button draws its own ring and not the frame's. -->
   <div
     class="flex h-control w-full items-center gap-0.5 rounded-lg border bg-surface-2 pe-1 transition-colors border-line-strong has-[input:focus]:border-brand has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-inset has-[input:focus-visible]:ring-brand"
   >
@@ -130,7 +130,7 @@
 
   <!-- Mounted empty for the life of the field, so a copy is a change a screen
        reader announces rather than a region that arrives already full. The
-       check is the sighted confirmation; only a failure is shown in words. -->
+       check is the sighted confirmation. Only a failure is shown in words. -->
   <p
     role="status"
     aria-live="polite"

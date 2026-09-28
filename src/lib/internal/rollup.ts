@@ -1,15 +1,15 @@
 /**
  * The tri-state contract behind a permissions matrix and a checkable tree.
  *
- * A parent control does two jobs at once: it summarises the rows beneath it,
+ * A parent control does two jobs at once: it summarizes the rows beneath it,
  * and a click on it writes every one of them. Both surfaces folded that summary
  * with `rows.every(has)`, which is true over an empty array, so a group whose
  * rows were all filtered away or all disabled drew as fully granted and the
- * click that followed meant clear rather than fill. Summarising by count rather
+ * click that followed meant clear rather than fill. Summarizing by count rather
  * than by fold, and separating what may be written from what is counted, is the
  * whole reason this module exists.
  *
- * Not exported from the package entry point - this is an implementation detail.
+ * Not exported from the package entry point: this is an implementation detail.
  */
 
 /** What a parent control shows: nothing granted, part granted, all granted. */

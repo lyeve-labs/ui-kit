@@ -35,7 +35,7 @@
      */
     keywords?: string[];
     /**
-     * Groups rows under a heading. A group is a run of neighbouring rows that
+     * Groups rows under a heading. A group is a run of neighboring rows that
      * name it, in both modes, because optgroup nests and cannot describe an
      * interleaved list either. A caller who interleaves two groups gets the
      * heading twice, which is what the array says.
@@ -52,13 +52,13 @@
    *
    * The native element is the default and stays the default. Most call sites
    * sit inside a form and pass `name`, and a custom listbox is a button, which
-   * serializes nothing; one call site submits its form from the change event's
+   * serializes nothing. One call site submits its form from the change event's
    * `currentTarget.form`, which only a form-associated element carries. So the
    * mode is never inferred, not from `options` and not from `searchable`: a
    * page inside a form opts in to the listbox deliberately or keeps a real
    * select.
    *
-   * Listbox mode owns nothing of its own behaviour. The open state, the active
+   * Listbox mode owns nothing of its own behavior. The open state, the active
    * row, the keyboard model and the dismissal come from internal/listbox, the
    * matching from internal/filter and every class in the panel from
    * internal/panel, so this control cannot drift away from the other lists in
@@ -97,7 +97,7 @@
     disabled?: boolean;
     error?: string;
     class?: string;
-    /** Native mode only. Its signature is frozen; see SelectChangeEvent. */
+    /** Native mode only. Its signature is frozen. See SelectChangeEvent. */
     onchange?: (e: SelectChangeEvent) => void;
     /** Option elements, written by hand. Native mode only. */
     children?: Snippet;
@@ -152,7 +152,7 @@
    * The label-derived id stays for a control that has a label, because call
    * sites point their own markup at it. The fallback used to be undefined,
    * which left an error message with no id and the control with no
-   * aria-describedby, so an unlabelled field announced its value and never the
+   * aria-describedby, so an unlabeled field announced its value and never the
    * reason it was rejected.
    */
   const uid = $props.id();

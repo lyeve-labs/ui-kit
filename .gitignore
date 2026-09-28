@@ -38,3 +38,7 @@ NOTES.md
 
 # agent scratch
 .scratch/
+
+# A pack is a build artifact. One was committed by accident, which put a
+# 226 KB binary in the history of a package whose whole job is to be small.
+*.tgz

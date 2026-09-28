@@ -99,8 +99,8 @@
   function handleChange() {
     // Disabled is enforced here as well as on the input. The native attribute
     // is what stops a real click, and it is the only thing that does, so a
-    // change arriving any other way - a synthetic event, a script driving the
-    // node - would still move the bound value with nothing on screen to say so.
+    // change arriving any other way (a synthetic event, a script driving the
+    // node) would still move the bound value with nothing on screen to say so.
     if (disabled) return;
     group = value;
     onchange?.(value);

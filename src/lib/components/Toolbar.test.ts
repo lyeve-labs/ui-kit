@@ -30,7 +30,7 @@ describe('Toolbar', () => {
     expect(getByRole('toolbar').hasAttribute('aria-label')).toBe(false);
   });
 
-  it('aligns its controls on their vertical centres', () => {
+  it('aligns its controls on their vertical centers', () => {
     // The defect it replaces: hand-rolled filter rows stretched or top-aligned
     // their children, so a search box, a select and a button sat off by a
     // couple of pixels from each other.
@@ -75,7 +75,7 @@ describe('Toolbar', () => {
   });
 
   it('accepts a consumer class without competing with a built-in utility', () => {
-    // A margin is safe here because the toolbar states none; two utilities for
+    // A margin is safe here because the toolbar states none. Two utilities for
     // one property resolve by the order Tailwind emits them.
     const { getByRole } = render(Toolbar, {
       props: { class: 'mb-4', children: text('Filters') },
