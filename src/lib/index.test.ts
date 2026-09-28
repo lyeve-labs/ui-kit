@@ -68,6 +68,7 @@ const COMPONENTS = [
   'Spinner',
   'Skeleton',
   'EmptyState',
+  'CheckoutSteps',
   'PluginCart',
   'Stat',
   'Kbd',
