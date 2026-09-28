@@ -12,7 +12,6 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { untrack } from 'svelte';
   import { X } from '@lucide/svelte';
   import Badge from './Badge.svelte';
   import Button from './Button.svelte';
@@ -70,12 +69,27 @@
     class?: string;
   }
 
+  /**
+   * What a reader brought from another surface, minus anything the catalog no
+   * longer sells or they already pay for.
+   *
+   * Called in the destructuring default rather than an effect, because an
+   * effect runs only in the browser. The server render is the whole page for a
+   * reader with no JavaScript, and seeding there showed an empty cart to
+   * somebody who had just filled one.
+   */
+  function seed(all: CartPlugin[], owned: string[], brought: string[]): Set<string> {
+    const sells = new Set(all.map((p) => p.sku));
+    const has = new Set(owned);
+    return new Set(brought.filter((s) => sells.has(s) && !has.has(s)));
+  }
+
   let {
     plugins,
     brackets = [],
-    selected = $bindable(new Set<string>()),
     initial = [],
     held = [],
+    selected = $bindable(seed(plugins, held, initial)),
     quote = null,
     quotePeriod = null,
     period = 'monthly',
@@ -93,17 +107,6 @@
 
   const heldSet = $derived(new Set(held));
   const known = $derived(new Set(plugins.map((p) => p.sku)));
-
-  // Seeded synchronously rather than in an effect. An effect runs only in the
-  // browser, so a server render, which is the whole page for a reader with no
-  // JavaScript, showed an empty cart to someone who had just filled one.
-  let seeded = false;
-  $effect.pre(() => {
-    if (seeded || initial.length === 0) return;
-    seeded = true;
-    const from = untrack(() => new Set(initial.filter((s) => known.has(s) && !heldSet.has(s))));
-    if (from.size > 0) selected = from;
-  });
 
   let query = $state('');
   let category = $state('all');
