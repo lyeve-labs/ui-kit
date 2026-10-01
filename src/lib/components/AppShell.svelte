@@ -320,12 +320,17 @@
          the next Tab started again at the top of the document: the sidebar the
          reader had just skipped. No outline on it: the region is a landing, not
          a control, and the browser's default drew a box around the whole page
-         body the moment the link was used. -->
+         body the moment the link was used.
+         relative because the region scrolls and overflow clips only what it
+         contains. An absolute descendant with no positioned ancestor (every
+         sr-only label) otherwise took the viewport as its containing block, and
+         one low on a long page stretched the document past the h-screen shell,
+         so the window scrolled the whole frame up and off. -->
     <main
       id="content"
       tabindex="-1"
       data-print="unclip"
-      class="min-w-0 flex-1 overflow-auto bg-ink outline-none"
+      class="relative min-w-0 flex-1 overflow-auto bg-ink outline-none"
     >
       {@render children()}
     </main>
