@@ -125,6 +125,16 @@ describe('AppShell', () => {
     expect(document.activeElement).toBe(main);
   });
 
+  it('contains its absolute descendants inside the scrolling region', () => {
+    // overflow clips only what the region contains. Unpositioned, an sr-only
+    // label low on a long page took the viewport as its containing block and
+    // stretched the document past the shell, so the window scrolled too.
+    const { container } = render(AppShell, { props: base });
+    const main = container.querySelector('#content') as HTMLElement;
+    expect(main.classList).toContain('relative');
+    expect(main.classList).toContain('overflow-auto');
+  });
+
   it('omits the header actions row and the sidebar bands when nothing fills them', () => {
     const { container } = render(AppShell, { props: { children: text('Body') } });
     const header = container.querySelector('header')!;
