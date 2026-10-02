@@ -5,6 +5,28 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0] - 2026-10-02
+
+### Added
+
+- `PluginCart` takes `stickyTop`, how far below the top of the window the
+  summary sticks, so a page with a sticky header keeps it in sight.
+- `CartPlugin.maturity`, the catalog's maturity. A card shows a Beta badge
+  when it is "beta". Until a catalog sends it, `betaOf` reads a "Beta."
+  sentence or a "Beta:" caveat from the blurb.
+
+### Changed
+
+- `PluginCart` cards put the price beside the name, the category and a Beta
+  badge on a row of their own and the description alone below, and every
+  card in a row matches the tallest. A screen reader hears the price, the
+  description and the badges with each card.
+- Categories are wrapping chips with their counts, in place of a segmented
+  control that scrolled sideways and hid the last categories.
+- Quick picks are labeled "Start from" and drawn as buttons. The summary
+  draws the volume ladder as a meter, and on a narrow screen a bar under the
+  cards keeps the count and the total in view and links to the summary.
+
 ## [0.32.1] - 2026-10-01
 
 ### Fixed
