@@ -138,8 +138,8 @@ describe('PluginCart', () => {
     const { getByRole, queryByLabelText } = render(PluginCart, { props: { plugins: PLUGINS } });
     const chips = getByRole('group', { name: 'Category' });
     // The announced-only plugin is not for sale, so it is not counted.
-    expect(within(chips).getByRole('button', { name: /All\s*2/ }).getAttribute('aria-pressed')).toBe('true');
-    await fireEvent.click(within(chips).getByRole('button', { name: /Compliance\s*1/ }));
+    expect(within(chips).getByRole('button', { name: 'All 2 on sale' }).getAttribute('aria-pressed')).toBe('true');
+    await fireEvent.click(within(chips).getByRole('button', { name: 'Compliance 1 on sale' }));
     expect(queryByLabelText(/GraphQL/)).toBeNull();
     expect(queryByLabelText(/Audit/)).toBeTruthy();
   });
@@ -148,8 +148,13 @@ describe('PluginCart', () => {
     const plugins = [{ ...PLUGINS[0], blurb: 'A typed API. Beta.' }];
     const { getByRole, getByText } = render(PluginCart, { props: { plugins } });
     const box = getByRole('checkbox', { name: 'GraphQL' });
-    const described = document.getElementById(box.getAttribute('aria-describedby') ?? '');
-    expect(described?.textContent?.trim()).toBe('A typed API.');
+    // The price is part of what a screen reader hears for the box, as it was
+    // when the price sat in the description.
+    const described = (box.getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .map((id) => document.getElementById(id)?.textContent?.replace(/\s+/g, ' ').trim())
+      .join(' | ');
+    expect(described).toBe('$8.00/mo | A typed API. | API Beta');
     expect(getByText('Beta')).toBeTruthy();
     expect(getByText('$8.00')).toBeTruthy();
   });
