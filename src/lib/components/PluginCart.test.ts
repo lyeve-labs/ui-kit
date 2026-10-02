@@ -70,7 +70,7 @@ describe('PluginCart', () => {
   });
 
   it('shows the server total and never computes one', () => {
-    const { getByText } = render(PluginCart, {
+    const { getByRole, getAllByText } = render(PluginCart, {
       props: {
         plugins: PLUGINS,
         selected: new Set(['plugin-graphql']),
@@ -78,8 +78,10 @@ describe('PluginCart', () => {
         quotePeriod: 'monthly',
       },
     });
-    // 777, not the 800 the catalog lists. The server decides.
-    expect(getByText(/\$7\.77/)).toBeTruthy();
+    // 777, not the 800 the catalog lists. The server decides, in the summary
+    // and in the bar that carries it on a narrow screen.
+    expect(within(getByRole('complementary', { name: 'Your selection' })).getByText(/\$7\.77/)).toBeTruthy();
+    expect(getAllByText(/\$7\.77/)).toHaveLength(2);
   });
 
   it('withholds a total that was priced for a different selection', () => {
@@ -130,6 +132,39 @@ describe('PluginCart', () => {
     });
     await fireEvent.click(within(getByRole('group', { name: 'Quick picks' })).getByText('Everything'));
     expect(onchange).toHaveBeenCalledWith(['plugin-graphql', 'plugin-audit']);
+  });
+
+  it('offers every category as a chip with its count, and filters by it', async () => {
+    const { getByRole, queryByLabelText } = render(PluginCart, { props: { plugins: PLUGINS } });
+    const chips = getByRole('group', { name: 'Category' });
+    // The announced-only plugin is not for sale, so it is not counted.
+    expect(within(chips).getByRole('button', { name: 'All 2 on sale' }).getAttribute('aria-pressed')).toBe('true');
+    await fireEvent.click(within(chips).getByRole('button', { name: 'Compliance 1 on sale' }));
+    expect(queryByLabelText(/GraphQL/)).toBeNull();
+    expect(queryByLabelText(/Audit/)).toBeTruthy();
+  });
+
+  it('shows the price apart from the description, and a beta plugin as a badge', () => {
+    const plugins = [{ ...PLUGINS[0], blurb: 'A typed API. Beta.' }];
+    const { getByRole, getByText } = render(PluginCart, { props: { plugins } });
+    const box = getByRole('checkbox', { name: 'GraphQL' });
+    // The price is part of what a screen reader hears for the box, as it was
+    // when the price sat in the description.
+    const described = (box.getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .map((id) => document.getElementById(id)?.textContent?.replace(/\s+/g, ' ').trim())
+      .join(' | ');
+    expect(described).toBe('$8.00/mo | A typed API. | API Beta');
+    expect(getByText('Beta')).toBeTruthy();
+    expect(getByText('$8.00')).toBeTruthy();
+  });
+
+  it('draws the volume ladder as a meter once something is picked', () => {
+    const { getByText } = render(PluginCart, {
+      props: { plugins: PLUGINS, brackets: BRACKETS, initial: ['plugin-graphql'] },
+    });
+    expect(getByText(/2\+ · 5%/)).toBeTruthy();
+    expect(getByText(/4\+ · 10%/)).toBeTruthy();
   });
 
   it('tells an empty cart it is already on the free tier', () => {

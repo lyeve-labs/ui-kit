@@ -15,12 +15,14 @@
   import { X } from '@lucide/svelte';
   import Badge from './Badge.svelte';
   import Button from './Button.svelte';
-  import Checkbox from './Checkbox.svelte';
   import SearchInput from './SearchInput.svelte';
-  import SegmentedControl from './SegmentedControl.svelte';
   import Spinner from './Spinner.svelte';
+  import * as motion from '../motion.js';
   import { cn } from '../utils/cn.js';
+  import { CHOICE_FOCUS, CHOICE_INPUT, CHOICE_MARK, choiceWrap } from '../internal/choice.js';
+  import { HIT_AREA } from '../internal/touch.js';
   import {
+    betaOf,
     billedCount,
     formatCents,
     ladderState,
@@ -66,6 +68,12 @@
     actions?: Snippet<[{ skus: string[]; total: number | null }]>;
     /** Anything the host wants between the total and the actions. */
     notice?: Snippet;
+    /**
+     * How far below the top of the window the summary sticks on a wide
+     * screen, as a CSS length. A page with a sticky header passes its height,
+     * so the summary does not slide under it.
+     */
+    stickyTop?: string;
     class?: string;
   }
 
@@ -102,23 +110,27 @@
     onchange,
     actions,
     notice,
+    stickyTop = '1rem',
     class: klass = '',
   }: Props = $props();
 
+  const summaryId = $props.id();
   const heldSet = $derived(new Set(held));
   const known = $derived(new Set(plugins.map((p) => p.sku)));
 
   let query = $state('');
   let category = $state('all');
 
-  const categories = $derived([
-    { value: 'all', label: 'All' },
-    ...[...new Set(plugins.map((p) => p.category).filter(Boolean) as string[])]
-      .sort()
-      .map((c) => ({ value: c, label: c })),
-  ]);
-
   const sellable = $derived(plugins.filter((p) => p.status !== 'soon'));
+
+  // Every category with how many it holds, so a reader sees where the bulk of
+  // the catalog is before choosing one.
+  const categories = $derived([
+    { value: 'all', label: 'All', count: sellable.length },
+    ...[...new Set(sellable.map((p) => p.category).filter(Boolean) as string[])]
+      .sort()
+      .map((c) => ({ value: c, label: c, count: sellable.filter((p) => p.category === c).length })),
+  ]);
 
   const shown = $derived(
     sellable.filter((p) => {
@@ -161,6 +173,14 @@
 
   const perLabel = $derived(period === 'annual' ? '/yr' : '/mo');
 
+  // The volume ladder drawn as a meter: the rungs that take something off,
+  // placed along the count of the last one.
+  const rungs = $derived(
+    [...brackets].filter((b) => b.discount_pct > 0).sort((a, b) => a.plugins - b.plugins),
+  );
+  const ladderTop = $derived(rungs.length ? rungs[rungs.length - 1].plugins : 0);
+  const ladderFill = $derived(ladderTop ? Math.min(ladder.count / ladderTop, 1) * 100 : 0);
+
   function commit(next: Set<string>) {
     selected = next;
     onchange?.([...next]);
@@ -181,21 +201,21 @@
 
 <div class={cn('grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]', klass)}>
   <div class="min-w-0 space-y-4">
-    <div class="flex flex-wrap items-center gap-3">
-      <div class="min-w-48 flex-1">
-        <SearchInput
-          label="Search capabilities"
-          placeholder="Search by name or what it does"
-          bind:value={query}
-        />
-      </div>
-      {#if quickPicks.length > 0}
+    <SearchInput
+      label="Search capabilities"
+      placeholder="Search by name or what it does"
+      bind:value={query}
+    />
+
+    {#if quickPicks.length > 0}
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-medium text-muted">Start from</span>
         <div class="flex flex-wrap gap-1.5" role="group" aria-label="Quick picks">
           {#each quickPicks as qp (qp.id)}
             <Button
               type="button"
               size="sm"
-              variant="ghost"
+              variant="secondary"
               onclick={() => pick(qp.skus)}
               disabled={qp.skus.length === 0}
             >
@@ -203,18 +223,31 @@
             </Button>
           {/each}
         </div>
-      {/if}
-    </div>
+      </div>
+    {/if}
 
     {#if categories.length > 2}
-      <div class="-mx-1 overflow-x-auto px-1">
-        <SegmentedControl
-          options={categories}
-          bind:value={category}
-          label="Category"
-          labelHidden
-          size="sm"
-        />
+      <!-- Chips that wrap rather than a strip that scrolls: every category is
+           in sight at every width, and none hides past the edge. -->
+      <div class="flex flex-wrap gap-1.5" role="group" aria-label="Category">
+        {#each categories as c (c.value)}
+          <button
+            type="button"
+            aria-pressed={category === c.value}
+            class={cn(
+              HIT_AREA,
+              'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+              category === c.value
+                ? 'border-brand bg-brand/10 text-fg'
+                : 'border-line text-muted hover:border-line-strong hover:text-fg',
+            )}
+            onclick={() => (category = c.value)}
+          >
+            {c.label}
+            <span class="font-mono text-[10px] text-faint">{c.count}<span class="sr-only"> on sale</span></span>
+          </button>
+        {/each}
       </div>
     {/if}
 
@@ -226,25 +259,83 @@
       <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
         {#each shown as plugin (plugin.sku)}
           {@const owned = heldSet.has(plugin.sku)}
-          <Checkbox
-            variant="card"
-            name={fieldName}
-            value={plugin.sku}
-            label={plugin.name}
-            description={owned
-              ? 'Already on your subscription'
-              : `${formatCents(plugin.price_cents, currency)}/mo${plugin.category ? `, ${plugin.category}` : ''}. ${plugin.blurb ?? ''}`}
-            checked={selected.has(plugin.sku) || owned}
-            disabled={owned}
-            onchange={() => toggle(plugin.sku)}
-          />
+          {@const on = selected.has(plugin.sku) || owned}
+          {@const blurb = betaOf(plugin.blurb, plugin.maturity)}
+          {@const id = `${summaryId}-${plugin.sku}`}
+          {@const tagged = Boolean(plugin.category || blurb.beta || owned)}
+          <!-- One card is one control: the input covers it, so the card is
+               what the focus outline reaches, the way the kit's card checkbox
+               works. The name names the box and the blurb describes it. -->
+          <label class="relative block h-full">
+            <input
+              type="checkbox"
+              class={CHOICE_INPUT}
+              name={fieldName}
+              value={plugin.sku}
+              checked={on}
+              disabled={owned}
+              aria-labelledby="{id}-name"
+              aria-describedby="{id}-price {id}-blurb{tagged ? ` ${id}-tags` : ''}"
+              onchange={() => toggle(plugin.sku)}
+            />
+            <span class={cn(choiceWrap('card', on, owned), CHOICE_FOCUS, 'h-full flex-col gap-2 p-4')}>
+              <span class="flex w-full items-start justify-between gap-3">
+                <span class="flex min-w-0 items-start gap-2.5">
+                  <span
+                    class={cn(
+                      'pointer-events-none mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-xs border transition-colors',
+                      on ? 'border-brand bg-brand text-ink' : 'border-line-strong bg-surface-2',
+                    )}
+                    aria-hidden="true"
+                  >
+                    {#if on}
+                      <svg viewBox="0 0 10 8" class="size-2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d={CHOICE_MARK.check} /></svg>
+                    {/if}
+                  </span>
+                  <span id="{id}-name" class="text-sm font-semibold leading-snug text-fg">{plugin.name}</span>
+                </span>
+                <span id="{id}-price" class="shrink-0 font-mono text-sm font-semibold text-fg">
+                  {formatCents(plugin.price_cents, currency)}<span class="text-xs font-normal text-muted">/mo</span>
+                </span>
+              </span>
+              <span id="{id}-blurb" class="text-xs leading-relaxed text-muted">
+                {owned ? 'Already on your subscription.' : blurb.text}
+              </span>
+              {#if tagged}
+                <span id="{id}-tags" class="mt-auto flex flex-wrap gap-1.5 pt-1">
+                  {#if plugin.category}<Badge tone="neutral" size="sm">{plugin.category}</Badge>{/if}
+                  {#if blurb.beta}<Badge tone="violet" size="sm">Beta</Badge>{/if}
+                  {#if owned}<Badge tone="success" size="sm">Owned</Badge>{/if}
+                </span>
+              {/if}
+            </span>
+          </label>
         {/each}
+      </div>
+    {/if}
+
+    {#if count > 0}
+      <!-- On a narrow screen the summary sits under every card. This keeps
+           the count and the price in sight and one tap from the summary. -->
+      <div class="sticky bottom-3 lg:hidden" transition:motion.toast|global>
+        <a
+          href="#{summaryId}"
+          class="flex items-center justify-between gap-3 rounded-xl border border-brand bg-surface px-4 py-3 text-sm shadow-lg transition-colors hover:bg-surface-2"
+        >
+          <span class="text-fg">
+            <span class="font-semibold">{count}</span> picked{#if total !== null}<span class="text-muted">
+                · </span><span class="font-mono">{formatCents(total, currency)}{perLabel}</span>{/if}
+          </span>
+          <span class="font-semibold text-brand">Review</span>
+        </a>
       </div>
     {/if}
   </div>
 
   <aside
-    class="self-start rounded-xl border border-line bg-surface p-5 lg:sticky lg:top-4"
+    id={summaryId}
+    class="scroll-mt-20 self-start rounded-xl border border-line bg-surface p-5 lg:sticky"
+    style:top={stickyTop}
     aria-label="Your selection"
   >
     <div class="mb-4 flex items-center justify-between gap-2">
@@ -288,6 +379,35 @@
           </li>
         {/each}
       </ul>
+
+      {#if rungs.length > 0}
+        <!-- The ladder as a meter, so "two more" is something a reader can
+             see the distance to. -->
+        <div class="mb-3" aria-hidden="true">
+          <div class="relative h-1.5 rounded-full bg-surface-2">
+            <span
+              class="absolute inset-y-0 start-0 rounded-full bg-brand transition-[width] duration-progress"
+              style:width="{ladderFill}%"
+            ></span>
+            {#each rungs as r (r.plugins)}
+              <span
+                class={cn(
+                  'absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors',
+                  ladder.count >= r.plugins ? 'border-brand bg-brand' : 'border-line-strong bg-surface',
+                )}
+                style:left="{(r.plugins / ladderTop) * 100}%"
+              ></span>
+            {/each}
+          </div>
+          <div class="relative mt-2 h-4 text-[10px] text-muted">
+            {#each rungs as r (r.plugins)}
+              <span class="absolute -translate-x-1/2 whitespace-nowrap font-mono" style:left="{Math.min((r.plugins / ladderTop) * 100, 92)}%">
+                {r.plugins}+ · {r.discount_pct}%
+              </span>
+            {/each}
+          </div>
+        </div>
+      {/if}
 
       {#if ladder.reachedPct > 0}
         <p class="mb-2 text-xs text-success">
