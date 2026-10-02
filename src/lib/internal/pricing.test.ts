@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { billedCount, formatCents, ladderRows, ladderState } from './pricing';
+import { betaOf, billedCount, formatCents, ladderRows, ladderState } from './pricing';
 
 const BRACKETS = [
   { plugins: 3, discount_pct: 5 },
@@ -76,5 +76,30 @@ describe('formatCents', () => {
 
   it('formats another currency by its own symbol', () => {
     expect(formatCents(1500, 'EUR')).toContain('15.00');
+  });
+});
+
+describe('betaOf', () => {
+  it('lifts a trailing "Beta." out of the text and into the flag', () => {
+    expect(betaOf('Multi-locale content. Beta.')).toEqual({ text: 'Multi-locale content.', beta: true });
+  });
+
+  it('lifts a "Beta." sentence from the middle as well', () => {
+    expect(betaOf('Per-field translations. Beta. Without it the engine serves one locale.')).toEqual({
+      text: 'Per-field translations. Without it the engine serves one locale.',
+      beta: true,
+    });
+  });
+
+  it('flags a "Beta:" caveat and keeps the caveat, which carries information', () => {
+    expect(betaOf('SAML single sign-on. Beta: IdP-initiated flows only.')).toEqual({
+      text: 'SAML single sign-on. Beta: IdP-initiated flows only.',
+      beta: true,
+    });
+  });
+
+  it('leaves any other blurb as it came', () => {
+    expect(betaOf('The API transport is beta.')).toEqual({ text: 'The API transport is beta.', beta: false });
+    expect(betaOf(undefined)).toEqual({ text: '', beta: false });
   });
 });
