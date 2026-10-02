@@ -149,3 +149,21 @@ export function formatCents(cents: number, currency = 'USD'): string {
     maximumFractionDigits: 2,
   }).format(cents / 100);
 }
+
+/**
+ * A plugin's blurb split into what it does and whether it is still in beta.
+ *
+ * The catalog carries no beta flag, only a sentence: a trailing "Beta." or a
+ * "Beta:" that opens a caveat. Reading it here lets the card show one badge
+ * instead of a word buried in a paragraph. A blurb that says neither comes
+ * back untouched and unbadged, so a change of wording costs a badge, never a
+ * claim.
+ */
+export function betaOf(blurb: string | undefined): { text: string; beta: boolean } {
+  const text = (blurb ?? '').trim();
+  // "Beta." standing as a sentence of its own says nothing the badge does not,
+  // wherever it falls. A "Beta:" caveat says more, so it stays.
+  const alone = /(^|\s)Beta\.(?=\s|$)/;
+  if (alone.test(text)) return { text: text.replace(/\s*Beta\.(?=\s|$)/, '').trim(), beta: true };
+  return { text, beta: /(^|\s)Beta:/.test(text) };
+}
