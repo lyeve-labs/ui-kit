@@ -24,6 +24,8 @@ export interface CartPlugin {
   price_cents: number;
   category?: string;
   blurb?: string;
+  /** The catalog's maturity, such as "beta", once the API carries it. */
+  maturity?: string;
   /** `soon` is shown and cannot be bought. Anything else sells. */
   status?: string;
 }
@@ -153,14 +155,17 @@ export function formatCents(cents: number, currency = 'USD'): string {
 /**
  * A plugin's blurb split into what it does and whether it is still in beta.
  *
- * The catalog carries no beta flag, only a sentence: a trailing "Beta." or a
- * "Beta:" that opens a caveat. Reading it here lets the card show one badge
- * instead of a word buried in a paragraph. A blurb that says neither comes
- * back untouched and unbadged, so a change of wording costs a badge, never a
- * claim.
+ * The catalog keeps maturity in its own column, and `maturity` wins once the
+ * API returns it. Until then the only signal is a sentence in the blurb: a
+ * "Beta." standing alone, or a "Beta:" that opens a caveat. A blurb that says
+ * neither comes back untouched and unbadged, so a change of wording costs a
+ * badge, never a claim.
  */
-export function betaOf(blurb: string | undefined): { text: string; beta: boolean } {
+export function betaOf(blurb: string | undefined, maturity?: string): { text: string; beta: boolean } {
   const text = (blurb ?? '').trim();
+  if (maturity !== undefined) {
+    return { text: text.replace(/\s*Beta\.(?=\s|$)/, '').trim(), beta: maturity === 'beta' };
+  }
   // "Beta." standing as a sentence of its own says nothing the badge does not,
   // wherever it falls. A "Beta:" caveat says more, so it stays.
   const alone = /(^|\s)Beta\.(?=\s|$)/;

@@ -20,6 +20,7 @@
   import * as motion from '../motion.js';
   import { cn } from '../utils/cn.js';
   import { CHOICE_FOCUS, CHOICE_INPUT, CHOICE_MARK, choiceWrap } from '../internal/choice.js';
+  import { HIT_AREA } from '../internal/touch.js';
   import {
     betaOf,
     billedCount,
@@ -234,6 +235,7 @@
             type="button"
             aria-pressed={category === c.value}
             class={cn(
+              HIT_AREA,
               'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
               category === c.value
@@ -243,7 +245,7 @@
             onclick={() => (category = c.value)}
           >
             {c.label}
-            <span class="font-mono text-[10px] text-faint">{c.count}</span>
+            <span class="font-mono text-[10px] text-faint">{c.count}<span class="sr-only"> on sale</span></span>
           </button>
         {/each}
       </div>
@@ -258,8 +260,9 @@
         {#each shown as plugin (plugin.sku)}
           {@const owned = heldSet.has(plugin.sku)}
           {@const on = selected.has(plugin.sku) || owned}
-          {@const blurb = betaOf(plugin.blurb)}
-          {@const id = `plugin-cart-${plugin.sku}`}
+          {@const blurb = betaOf(plugin.blurb, plugin.maturity)}
+          {@const id = `${summaryId}-${plugin.sku}`}
+          {@const tagged = Boolean(plugin.category || blurb.beta || owned)}
           <!-- One card is one control: the input covers it, so the card is
                what the focus outline reaches, the way the kit's card checkbox
                works. The name names the box and the blurb describes it. -->
@@ -272,7 +275,7 @@
               checked={on}
               disabled={owned}
               aria-labelledby="{id}-name"
-              aria-describedby="{id}-blurb"
+              aria-describedby="{id}-price {id}-blurb{tagged ? ` ${id}-tags` : ''}"
               onchange={() => toggle(plugin.sku)}
             />
             <span class={cn(choiceWrap('card', on, owned), CHOICE_FOCUS, 'h-full flex-col gap-2 p-4')}>
@@ -291,15 +294,15 @@
                   </span>
                   <span id="{id}-name" class="text-sm font-semibold leading-snug text-fg">{plugin.name}</span>
                 </span>
-                <span class="shrink-0 font-mono text-sm font-semibold text-fg">
+                <span id="{id}-price" class="shrink-0 font-mono text-sm font-semibold text-fg">
                   {formatCents(plugin.price_cents, currency)}<span class="text-xs font-normal text-muted">/mo</span>
                 </span>
               </span>
               <span id="{id}-blurb" class="text-xs leading-relaxed text-muted">
                 {owned ? 'Already on your subscription.' : blurb.text}
               </span>
-              {#if plugin.category || blurb.beta || owned}
-                <span class="mt-auto flex flex-wrap gap-1.5 pt-1">
+              {#if tagged}
+                <span id="{id}-tags" class="mt-auto flex flex-wrap gap-1.5 pt-1">
                   {#if plugin.category}<Badge tone="neutral" size="sm">{plugin.category}</Badge>{/if}
                   {#if blurb.beta}<Badge tone="violet" size="sm">Beta</Badge>{/if}
                   {#if owned}<Badge tone="success" size="sm">Owned</Badge>{/if}

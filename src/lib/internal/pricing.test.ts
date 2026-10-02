@@ -98,6 +98,11 @@ describe('betaOf', () => {
     });
   });
 
+  it('takes maturity from the catalog over the wording when the API sends it', () => {
+    expect(betaOf('Search. Beta.', 'stable')).toEqual({ text: 'Search.', beta: false });
+    expect(betaOf('Search.', 'beta')).toEqual({ text: 'Search.', beta: true });
+  });
+
   it('leaves any other blurb as it came', () => {
     expect(betaOf('The API transport is beta.')).toEqual({ text: 'The API transport is beta.', beta: false });
     expect(betaOf(undefined)).toEqual({ text: '', beta: false });
