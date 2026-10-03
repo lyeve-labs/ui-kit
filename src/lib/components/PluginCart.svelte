@@ -292,7 +292,9 @@
                       <svg viewBox="0 0 10 8" class="size-2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d={CHOICE_MARK.check} /></svg>
                     {/if}
                   </span>
-                  <span id="{id}-name" class="text-sm font-semibold leading-snug text-fg">{plugin.name}</span>
+                  <!-- A one-word name longer than the space beside the price breaks
+                       with a hyphen rather than running under it. -->
+                  <span id="{id}-name" class="min-w-0 text-sm font-semibold leading-snug text-fg hyphens-auto [overflow-wrap:anywhere]">{plugin.name}</span>
                 </span>
                 <span id="{id}-price" class="shrink-0 font-mono text-sm font-semibold text-fg">
                   {formatCents(plugin.price_cents, currency)}<span class="text-xs font-normal text-muted">/mo</span>

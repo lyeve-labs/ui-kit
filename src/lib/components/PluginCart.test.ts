@@ -29,6 +29,14 @@ function quoteFor(skus: string[], total: number): CartQuote {
 }
 
 describe('PluginCart', () => {
+  it('lets a long one-word name wrap beside its price instead of running under it', () => {
+    const long = [{ sku: 'plugin-recs', name: 'Recommendations', price_cents: 500, category: 'AI', blurb: 'Related content.' }];
+    const { container } = render(PluginCart, { props: { plugins: long } });
+    const name = container.querySelector('[id$="-name"]') as HTMLElement;
+    expect(name.className).toContain('min-w-0');
+    expect(name.className).toContain('[overflow-wrap:anywhere]');
+  });
+
   it('lists what sells and leaves out what is only announced', () => {
     const { getByLabelText, queryByLabelText } = render(PluginCart, { props: { plugins: PLUGINS } });
     expect(getByLabelText(/GraphQL/)).toBeTruthy();
