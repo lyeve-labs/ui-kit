@@ -15,6 +15,7 @@
   import { X } from '@lucide/svelte';
   import Badge from './Badge.svelte';
   import Button from './Button.svelte';
+  import FilterChips from './FilterChips.svelte';
   import SearchInput from './SearchInput.svelte';
   import Spinner from './Spinner.svelte';
   import * as motion from '../motion.js';
@@ -161,7 +162,11 @@
   );
 
   const total = $derived(
-    quoted ? (period === 'annual' ? (quoted.annual_total_cents ?? null) : quoted.total_cents) : null,
+    quoted
+      ? period === 'annual'
+        ? (quoted.annual_total_cents ?? null)
+        : quoted.total_cents
+      : null,
   );
 
   const ladder = $derived(
@@ -229,26 +234,12 @@
     {#if categories.length > 2}
       <!-- Chips that wrap rather than a strip that scrolls: every category is
            in sight at every width, and none hides past the edge. -->
-      <div class="flex flex-wrap gap-1.5" role="group" aria-label="Category">
-        {#each categories as c (c.value)}
-          <button
-            type="button"
-            aria-pressed={category === c.value}
-            class={cn(
-              HIT_AREA,
-              'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
-              category === c.value
-                ? 'border-brand bg-brand/10 text-fg'
-                : 'border-line text-muted hover:border-line-strong hover:text-fg',
-            )}
-            onclick={() => (category = c.value)}
-          >
-            {c.label}
-            <span class="font-mono text-[10px] text-faint">{c.count}<span class="sr-only"> on sale</span></span>
-          </button>
-        {/each}
-      </div>
+      <FilterChips
+        label="Category"
+        countLabel="on sale"
+        options={categories}
+        bind:value={category}
+      />
     {/if}
 
     {#if shown.length === 0}
@@ -278,7 +269,9 @@
               aria-describedby="{id}-price {id}-blurb{tagged ? ` ${id}-tags` : ''}"
               onchange={() => toggle(plugin.sku)}
             />
-            <span class={cn(choiceWrap('card', on, owned), CHOICE_FOCUS, 'h-full flex-col gap-2 p-4')}>
+            <span
+              class={cn(choiceWrap('card', on, owned), CHOICE_FOCUS, 'h-full flex-col gap-2 p-4')}
+            >
               <span class="flex w-full items-start justify-between gap-3">
                 <span class="flex min-w-0 items-start gap-2.5">
                   <span
@@ -289,15 +282,29 @@
                     aria-hidden="true"
                   >
                     {#if on}
-                      <svg viewBox="0 0 10 8" class="size-2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d={CHOICE_MARK.check} /></svg>
+                      <svg
+                        viewBox="0 0 10 8"
+                        class="size-2.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"><path d={CHOICE_MARK.check} /></svg
+                      >
                     {/if}
                   </span>
                   <!-- A one-word name longer than the space beside the price breaks
                        with a hyphen rather than running under it. -->
-                  <span id="{id}-name" class="min-w-0 text-sm font-semibold leading-snug text-fg hyphens-auto [overflow-wrap:anywhere]">{plugin.name}</span>
+                  <span
+                    id="{id}-name"
+                    class="min-w-0 text-sm font-semibold leading-snug text-fg hyphens-auto [overflow-wrap:anywhere]"
+                    >{plugin.name}</span
+                  >
                 </span>
                 <span id="{id}-price" class="shrink-0 font-mono text-sm font-semibold text-fg">
-                  {formatCents(plugin.price_cents, currency)}<span class="text-xs font-normal text-muted">/mo</span>
+                  {formatCents(plugin.price_cents, currency)}<span
+                    class="text-xs font-normal text-muted">/mo</span
+                  >
                 </span>
               </span>
               <span id="{id}-blurb" class="text-xs leading-relaxed text-muted">
@@ -305,7 +312,8 @@
               </span>
               {#if tagged}
                 <span id="{id}-tags" class="mt-auto flex flex-wrap gap-1.5 pt-1">
-                  {#if plugin.category}<Badge tone="neutral" size="sm">{plugin.category}</Badge>{/if}
+                  {#if plugin.category}<Badge tone="neutral" size="sm">{plugin.category}</Badge
+                    >{/if}
                   {#if blurb.beta}<Badge tone="violet" size="sm">Beta</Badge>{/if}
                   {#if owned}<Badge tone="success" size="sm">Owned</Badge>{/if}
                 </span>
@@ -325,8 +333,11 @@
           class="flex items-center justify-between gap-3 rounded-xl border border-brand bg-surface px-4 py-3 text-sm shadow-lg transition-colors hover:bg-surface-2"
         >
           <span class="text-fg">
-            <span class="font-semibold">{count}</span> picked{#if total !== null}<span class="text-muted">
-                · </span><span class="font-mono">{formatCents(total, currency)}{perLabel}</span>{/if}
+            <span class="font-semibold">{count}</span> picked{#if total !== null}<span
+                class="text-muted"
+              >
+                ·
+              </span><span class="font-mono">{formatCents(total, currency)}{perLabel}</span>{/if}
           </span>
           <span class="font-semibold text-brand">Review</span>
         </a>
@@ -395,7 +406,9 @@
               <span
                 class={cn(
                   'absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors',
-                  ladder.count >= r.plugins ? 'border-brand bg-brand' : 'border-line-strong bg-surface',
+                  ladder.count >= r.plugins
+                    ? 'border-brand bg-brand'
+                    : 'border-line-strong bg-surface',
                 )}
                 style:left="{(r.plugins / ladderTop) * 100}%"
               ></span>
@@ -403,7 +416,10 @@
           </div>
           <div class="relative mt-2 h-4 text-[10px] text-muted">
             {#each rungs as r (r.plugins)}
-              <span class="absolute -translate-x-1/2 whitespace-nowrap font-mono" style:left="{Math.min((r.plugins / ladderTop) * 100, 92)}%">
+              <span
+                class="absolute -translate-x-1/2 whitespace-nowrap font-mono"
+                style:left="{Math.min((r.plugins / ladderTop) * 100, 92)}%"
+              >
                 {r.plugins}+ · {r.discount_pct}%
               </span>
             {/each}
