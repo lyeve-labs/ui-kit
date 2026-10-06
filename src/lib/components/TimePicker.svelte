@@ -43,7 +43,7 @@
    * the first attempt already lives.
    */
 
-  /** A segment the user types digits into. The meridiem is a select, not a spinbutton. */
+  /** A segment the user types digits into. The meridiem is a two-value spinbutton. */
   type DigitSegment = Exclude<TimeSegment, 'meridiem'>;
 
   interface Props {
@@ -377,8 +377,8 @@
     commit();
   }
 
-  function onMeridiemChange(e: Event & { currentTarget: HTMLSelectElement }): void {
-    const next = e.currentTarget.value === 'PM' ? 'PM' : 'AM';
+  function setMeridiem(next: 'AM' | 'PM'): void {
+    if (disabled) return;
     meridiemPref = next;
     if (hour !== null && to12Hour(hour).meridiem !== next) {
       hour = stepSegment({ h: hour, mi: 0, s: 0 }, 'meridiem', 1, 1).h;
@@ -387,11 +387,20 @@
   }
 
   function onMeridiemKeydown(e: KeyboardEvent): void {
-    // Up and down still pick an option, which is what a select does. Left and
-    // right belong to the field: they walk the segments.
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    // Left and right belong to the field: they walk the segments. Up and down
+    // step the value as they do on every other segment, and the first letter
+    // picks it outright.
+    const key = e.key.toLowerCase();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      focusSegment('meridiem', e.key === 'ArrowLeft' ? -1 : 1);
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      setMeridiem(meridiem === 'AM' ? 'PM' : 'AM');
+    } else if (key === 'a' || key === 'p') {
+      setMeridiem(key === 'a' ? 'AM' : 'PM');
+    } else {
+      return;
+    }
     e.preventDefault();
-    focusSegment('meridiem', e.key === 'ArrowLeft' ? -1 : 1);
   }
 </script>
 
@@ -446,24 +455,28 @@
     {/each}
 
     {#if hour12}
-      <!-- A select, because two values is exactly what a select is for: it keeps
-           the native option list, the native keyboard and the native
-           announcement instead of a button pretending to be one. -->
-      <select
+      <!-- A spinbutton like the segments beside it, not a select: a native
+           select opens a list the browser draws, which no theme reaches. A
+           click flips it, so two values never need a list at all. -->
+      <button
+        type="button"
+        role="spinbutton"
         data-segment="meridiem"
         id="{fieldId}-meridiem"
         {disabled}
-        value={meridiem}
         aria-label="AM or PM"
+        aria-valuenow={meridiem === 'AM' ? 0 : 1}
+        aria-valuemin={0}
+        aria-valuemax={1}
+        aria-valuetext={meridiem}
         aria-invalid={error ? 'true' : undefined}
         aria-required={required ? 'true' : undefined}
-        onchange={onMeridiemChange}
+        onclick={() => setMeridiem(meridiem === 'AM' ? 'PM' : 'AM')}
         onkeydown={onMeridiemKeydown}
-        class="{CONTROL_SEGMENT} ms-1"
+        class="{CONTROL_SEGMENT} ms-1 w-8 cursor-pointer"
       >
-        <option value="AM">AM</option>
-        <option value="PM">PM</option>
-      </select>
+        {meridiem}
+      </button>
     {/if}
   </div>
 

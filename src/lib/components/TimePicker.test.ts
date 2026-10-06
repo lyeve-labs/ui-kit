@@ -54,9 +54,9 @@ describe('TimePicker value round trip', () => {
 
     expect(hourOf(r).value).toBe('09');
     expect(minuteOf(r).value).toBe('05');
-    expect((r.getByLabelText('AM or PM') as HTMLSelectElement).value).toBe('PM');
+    expect(r.getByLabelText('AM or PM').textContent?.trim()).toBe('PM');
 
-    await fireEvent.change(r.getByLabelText('AM or PM'), { target: { value: 'AM' } });
+    await fireEvent.keyDown(r.getByLabelText('AM or PM'), { key: 'a' });
 
     expect(hourOf(r).value).toBe('09');
     expect(onchange).toHaveBeenLastCalledWith('09:05');
@@ -85,20 +85,20 @@ describe('TimePicker 12-hour display', () => {
   it('renders midnight as 12 AM, not as hour zero', () => {
     const r = render(TimePicker, { props: { value: '00:00', hour12: true } });
     expect(hourOf(r).value).toBe('12');
-    expect((r.getByLabelText('AM or PM') as HTMLSelectElement).value).toBe('AM');
+    expect(r.getByLabelText('AM or PM').textContent?.trim()).toBe('AM');
   });
 
   it('renders noon as 12 PM', () => {
     const r = render(TimePicker, { props: { value: '12:00', hour12: true } });
     expect(hourOf(r).value).toBe('12');
-    expect((r.getByLabelText('AM or PM') as HTMLSelectElement).value).toBe('PM');
+    expect(r.getByLabelText('AM or PM').textContent?.trim()).toBe('PM');
   });
 
   it('carries the 24-hour value in the hidden input while the display is 12-hour', () => {
     const r = render(TimePicker, { props: { value: '13:45', hour12: true, name: 'start' } });
 
     expect(hourOf(r).value).toBe('01');
-    expect((r.getByLabelText('AM or PM') as HTMLSelectElement).value).toBe('PM');
+    expect(r.getByLabelText('AM or PM').textContent?.trim()).toBe('PM');
 
     const hidden = hiddenOf(r);
     expect(hidden.value).toBe('13:45');
@@ -112,7 +112,7 @@ describe('TimePicker 12-hour display', () => {
     await fireEvent.keyDown(hourOf(r), { key: 'ArrowUp' });
 
     expect(hourOf(r).value).toBe('12');
-    expect((r.getByLabelText('AM or PM') as HTMLSelectElement).value).toBe('AM');
+    expect(r.getByLabelText('AM or PM').textContent?.trim()).toBe('AM');
     expect(onchange).toHaveBeenLastCalledWith('00:00');
   });
 });
