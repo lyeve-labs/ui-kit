@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.0] - 2026-10-06
+
+### Changed
+
+- **Breaking:** `Select` always draws the kit's listbox. The native select is gone, because the browser draws its option list in its own font and colors, which no theme reaches. `mode`, `children` (hand-written option elements), `onchange` and the `SelectChangeEvent` type are removed. Pass `options` as data and read the value through `bind:value` or `onvaluechange`, which now fires once the hidden input holds the new value, so a form can be submitted from it.
+- `TimePicker` draws its AM and PM part as a spinbutton like its other segments. A click, an arrow key, or A or P sets it.
+
 ## [0.33.1] - 2026-10-03
 
 ### Fixed
