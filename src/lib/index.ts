@@ -44,6 +44,8 @@ export { default as Label } from './components/Label.svelte';
 export { default as Field } from './components/Field.svelte';
 export { default as FormMessage } from './components/FormMessage.svelte';
 export { default as SegmentedControl } from './components/SegmentedControl.svelte';
+export { default as FilterChips } from './components/FilterChips.svelte';
+export type { FilterChip } from './components/FilterChips.svelte';
 export { default as Select } from './components/Select.svelte';
 export { default as MultiSelect } from './components/MultiSelect.svelte';
 export { default as Autocomplete } from './components/Autocomplete.svelte';

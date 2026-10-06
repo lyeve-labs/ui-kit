@@ -35,6 +35,7 @@ const COMPONENTS = [
   'Field',
   'FormMessage',
   'SegmentedControl',
+  'FilterChips',
   'Select',
   'MultiSelect',
   'Autocomplete',
