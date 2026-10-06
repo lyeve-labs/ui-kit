@@ -57,7 +57,7 @@ export { default as RadioGroup } from './components/RadioGroup.svelte';
 export { default as Toggle } from './components/Toggle.svelte';
 export type { ChoiceSize, ChoiceVariant, ChoiceOrientation } from './internal/choice.js';
 export type { ChoiceOption } from './components/CheckboxGroup.svelte';
-export type { SelectOption, SelectChangeEvent } from './components/Select.svelte';
+export type { SelectOption } from './components/Select.svelte';
 // One shape for both filtered lists: MultiSelect takes the same option array
 // Autocomplete does, so a consumer types it once.
 export type { ListOption } from './components/Autocomplete.svelte';
