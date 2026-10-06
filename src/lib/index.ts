@@ -44,6 +44,8 @@ export { default as Label } from './components/Label.svelte';
 export { default as Field } from './components/Field.svelte';
 export { default as FormMessage } from './components/FormMessage.svelte';
 export { default as SegmentedControl } from './components/SegmentedControl.svelte';
+export { default as FilterChips } from './components/FilterChips.svelte';
+export type { FilterChip } from './components/FilterChips.svelte';
 export { default as Select } from './components/Select.svelte';
 export { default as MultiSelect } from './components/MultiSelect.svelte';
 export { default as Autocomplete } from './components/Autocomplete.svelte';
@@ -173,4 +175,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.34.0';
+export const VERSION = '0.35.0';

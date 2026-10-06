@@ -5,6 +5,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.0] - 2026-10-06
+
+### Added
+
+- `FilterChips`, one filter out of many: a wrapping row of pressable chips, each with an optional count and icon, one always pressed. For a filter with more options than a `SegmentedControl` holds.
+
+### Changed
+
+- `PluginCart` draws its category row with `FilterChips`.
+
 ## [0.34.0] - 2026-10-06
 
 ### Changed
