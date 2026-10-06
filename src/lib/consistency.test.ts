@@ -136,6 +136,17 @@ describe('component consistency', () => {
     expect(files.length).toBeGreaterThan(40);
   });
 
+  it('renders no control whose popup or face the browser draws', () => {
+    // A native select opens a list the operating system paints, in its own
+    // font and highlight color, and no stylesheet reaches it. It opened white
+    // on a dark checkout. Date, time, color and range inputs do the same, and
+    // the kit ships its own picker for each that a product needs.
+    const NATIVE =
+      /<select\b|<option\b|<optgroup\b|<datalist\b|type="(date|time|datetime-local|month|week|color|range)"/;
+    const offenders = files.filter((f) => NATIVE.test(code(f.src))).map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
   it('draws icons as stroked SVG, never as a Unicode character', () => {
     // A literal × or ✓ renders at whatever weight the user's font gives it,
     // which sat visibly lighter than the SVG icons next to it.

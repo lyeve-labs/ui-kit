@@ -8,51 +8,11 @@ import type { FilterFn } from '../internal/filter.js';
 import Select from './Select.svelte';
 import type { SelectOption } from './Select.svelte';
 
-const options = createRawSnippet(() => ({
-  render: () => '<optgroup><option value="a">A</option><option value="b">B</option></optgroup>',
-}));
-
-describe('Select', () => {
-  it('renders its option children', () => {
-    const { getByText } = render(Select, { props: { children: options } });
-    expect(getByText('A')).toBeTruthy();
-    expect(getByText('B')).toBeTruthy();
-  });
-
-  it('reflects the selected value', () => {
-    const { container } = render(Select, { props: { children: options, value: 'b' } });
-    expect((container.querySelector('select') as HTMLSelectElement).value).toBe('b');
-  });
-
-  it('fires onchange when the selection changes', async () => {
-    const onchange = vi.fn();
-    const { container } = render(Select, { props: { children: options, value: 'a', onchange } });
-    await fireEvent.change(container.querySelector('select') as HTMLSelectElement, {
-      target: { value: 'b' },
-    });
-    expect(onchange).toHaveBeenCalledOnce();
-  });
-
-  it('shows an error message and the danger border', () => {
-    const { container, getByText } = render(Select, {
-      props: { children: options, error: 'Pick one' },
-    });
-    expect(getByText('Pick one').className).toContain('text-danger');
-    expect(container.querySelector('select')?.className).toContain('border-danger');
-  });
-
-  it('is disabled when disabled=true', () => {
-    const { container } = render(Select, { props: { children: options, disabled: true } });
-    expect((container.querySelector('select') as HTMLSelectElement).disabled).toBe(true);
-  });
-});
-
 /**
- * Four kinds of select share one component, and three of the four are new. The
- * cases below are the ones a caller can break without noticing: the mode that
- * decides whether a form carries a value at all, the event signature 34 call
- * sites are contextually typed from, and the parts that must come from the
- * shared modules rather than from a fourth copy of them.
+ * One select, drawn by the kit. The cases below are the ones a caller can break
+ * without noticing: whether a form carries the value at all, when the change
+ * callback fires relative to that value, and the parts that must come from the
+ * shared modules rather than from another copy of them.
  */
 
 /** Two rows with nothing in common, so a matcher cannot pass by accident. */
@@ -85,75 +45,62 @@ const rows = (container: HTMLElement): HTMLElement[] =>
 const labels = (container: HTMLElement): string[] =>
   rows(container).map((row) => (row.textContent ?? '').trim());
 
-describe('Select: the native element stays the default', () => {
-  it('renders a native select when no mode is asked for', () => {
-    // A listbox submits nothing. Most call sites sit in a form and pass name,
-    // so inferring the mode from options would empty those submissions.
-    const { container } = render(Select, { props: { name: 'plan', options: PLANS } });
-    expect(container.querySelector('select')).toBeTruthy();
-    expect(container.querySelector('[role="listbox"]')).toBeNull();
-    expect(container.querySelector('button')).toBeNull();
-    expect((container.querySelector('select') as HTMLSelectElement).name).toBe('plan');
+describe('Select: never the native element', () => {
+  it('renders no native select, option or optgroup', async () => {
+    const { container } = render(Select, {
+      props: { name: 'plan', options: GROUPED, value: 'usd' },
+    });
+    await fireEvent.click(trigger(container));
+    expect(container.querySelector('select, option, optgroup')).toBeNull();
+    expect(container.querySelector('[role="listbox"]')).toBeTruthy();
   });
 
-  it('hands onchange an event whose currentTarget is the select', async () => {
-    // One call site reaches currentTarget.form.requestSubmit(), which only a
-    // form-associated element carries.
-    let seen: EventTarget | null = null;
+  it('keeps no native branch in the source', () => {
+    expect(source).not.toMatch(/<select|<option|<optgroup/);
+  });
+
+  it('shows an error message and the danger border', () => {
+    const { container, getByText } = render(Select, {
+      props: { options: PLANS, error: 'Pick one' },
+    });
+    expect(getByText('Pick one').className).toContain('text-danger');
+    expect(trigger(container).className).toContain('border-danger');
+  });
+
+  it('disables the trigger and the submitted value together', () => {
+    const { container } = render(Select, {
+      props: { name: 'plan', options: PLANS, disabled: true },
+    });
+    expect(trigger(container).disabled).toBe(true);
+    expect((container.querySelector('input[type="hidden"]') as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it('fires onvaluechange after the hidden input holds the new value', async () => {
+    // A page that submits on change reads the form in this callback, so the
+    // value it posts has to be the one just picked.
+    let posted = '';
     const { container } = render(Select, {
       props: {
+        name: 'plan',
         options: PLANS,
         value: 'alpha',
-        onchange: (e) => {
-          seen = e.currentTarget;
+        onvaluechange: () => {
+          posted = (container.querySelector('input[name="plan"]') as HTMLInputElement).value;
         },
       },
     });
-    const select = container.querySelector('select') as HTMLSelectElement;
-    await fireEvent.change(select, { target: { value: 'beta' } });
-
-    expect(seen).toBe(select);
-    expect(seen).toBeInstanceOf(HTMLSelectElement);
-  });
-
-  it('renders options as native option elements in native mode', () => {
-    const { container } = render(Select, { props: { options: PLANS } });
-    const elements = Array.from(container.querySelectorAll('option'));
-    expect(elements.map((o) => o.value)).toEqual(['alpha', 'beta']);
-    expect(elements.map((o) => (o.textContent ?? '').trim())).toEqual(['First', 'Second']);
-    expect(container.querySelectorAll('[role="option"]')).toHaveLength(0);
-  });
-
-  it('renders a group as an optgroup', () => {
-    const { container } = render(Select, { props: { options: GROUPED } });
-    const groups = Array.from(container.querySelectorAll('optgroup'));
-    expect(groups.map((g) => g.label)).toEqual(['Americas', 'Europe']);
-    expect(Array.from(groups[0].querySelectorAll('option')).map((o) => o.value)).toEqual([
-      'usd',
-      'cad',
-    ]);
-    // A row that names no group stays outside every optgroup.
-    const loose = container.querySelector('option[value="xdr"]') as HTMLOptionElement;
-    expect(loose.closest('optgroup')).toBeNull();
-  });
-
-  it('reports a listbox-only prop instead of changing what the form submits', () => {
-    // Upgrading the mode would swap a form-associated element for a button and
-    // silence the change event the auto-submitting call sites depend on.
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const { container } = render(Select, { props: { options: PLANS, searchable: true } });
-
-    expect(container.querySelector('select')).toBeTruthy();
-    expect(warn).toHaveBeenCalledOnce();
-    expect(warn.mock.calls[0][0]).toContain('searchable');
-    warn.mockRestore();
+    await fireEvent.click(trigger(container));
+    await fireEvent.click(rows(container)[1]);
+    await vi.waitFor(() => expect(posted).toBe('beta'));
   });
 });
 
-describe('Select: listbox mode', () => {
+describe('Select: the listbox', () => {
   it('renders a hidden input that carries the value', async () => {
     const { container } = render(Select, {
-      props: { mode: 'listbox', name: 'plan', options: PLANS, value: 'alpha' },
+      props: { name: 'plan', options: PLANS, value: 'alpha' },
     });
     const hidden = container.querySelector('input[type="hidden"]') as HTMLInputElement;
     expect(hidden.name).toBe('plan');
@@ -165,7 +112,7 @@ describe('Select: listbox mode', () => {
   });
 
   it('takes its keyboard navigation from the shared listbox module', async () => {
-    const { container } = render(Select, { props: { mode: 'listbox', options: GROUPED } });
+    const { container } = render(Select, { props: { options: GROUPED } });
     const button = trigger(container);
 
     // Closed, and naming nothing: a dangling idref announces as silence.
@@ -206,7 +153,7 @@ describe('Select: listbox mode', () => {
   it('reports its value through onvaluechange, leaving the event signature frozen', async () => {
     const onvaluechange = vi.fn();
     const { container } = render(Select, {
-      props: { mode: 'listbox', options: PLANS, onvaluechange },
+      props: { options: PLANS, onvaluechange },
     });
     await fireEvent.click(trigger(container));
     await fireEvent.click(rows(container)[1]);
@@ -214,7 +161,7 @@ describe('Select: listbox mode', () => {
   });
 
   it('names each group once and puts its rows inside it', async () => {
-    const { container } = render(Select, { props: { mode: 'listbox', options: GROUPED } });
+    const { container } = render(Select, { props: { options: GROUPED } });
     await fireEvent.click(trigger(container));
 
     const groups = Array.from(container.querySelectorAll('[role="group"]'));
@@ -234,7 +181,7 @@ describe('Select: filtering', () => {
     // reads the value, which is the case a list keyed by machine name needs.
     const byValue: FilterFn<SelectOption> = (option, ctx) => option.value.includes(ctx.needle);
     const { container } = render(Select, {
-      props: { mode: 'listbox', options: PLANS, searchable: true, filter: byValue },
+      props: { options: PLANS, searchable: true, filter: byValue },
     });
     await fireEvent.click(trigger(container));
     const search = container.querySelector('input[type="text"]') as HTMLInputElement;
@@ -247,7 +194,7 @@ describe('Select: filtering', () => {
     // The list arrived narrowed by a server query, so a keystroke still in the
     // box must not cut it again.
     const { container } = render(Select, {
-      props: { mode: 'listbox', options: PLANS, searchable: true, filter: false },
+      props: { options: PLANS, searchable: true, filter: false },
     });
     await fireEvent.click(trigger(container));
     const search = container.querySelector('input[type="text"]') as HTMLInputElement;
@@ -262,7 +209,7 @@ describe('Select: filtering', () => {
       { value: 'beta', label: 'Second' },
     ];
     const { container } = render(Select, {
-      props: { mode: 'listbox', options: withKeywords, searchable: true },
+      props: { options: withKeywords, searchable: true },
     });
     await fireEvent.click(trigger(container));
     const search = container.querySelector('input[type="text"]') as HTMLInputElement;
@@ -273,21 +220,13 @@ describe('Select: filtering', () => {
 });
 
 describe('Select: icons and a custom trigger', () => {
-  it('draws an option icon in listbox mode', async () => {
-    const { container } = render(Select, { props: { mode: 'listbox', options: ICONS } });
+  it('draws an option icon', async () => {
+    const { container } = render(Select, { props: { options: ICONS } });
     await fireEvent.click(trigger(container));
 
     const [withIcon, without] = rows(container);
     expect(withIcon.querySelector('svg')).toBeTruthy();
     expect(without.querySelector('svg')).toBeNull();
-  });
-
-  it('drops an option icon in native mode, where an option holds text only', () => {
-    const { container } = render(Select, { props: { options: ICONS } });
-    expect(container.querySelectorAll('option svg')).toHaveLength(0);
-    expect(
-      Array.from(container.querySelectorAll('option')).map((o) => (o.textContent ?? '').trim()),
-    ).toEqual(['Settings', 'Plain']);
   });
 
   it('hands the custom trigger the selected option and the open state', () => {
@@ -298,7 +237,7 @@ describe('Select: icons and a custom trigger', () => {
       }),
     );
     const { container, getByTestId } = render(Select, {
-      props: { mode: 'listbox', options: PLANS, value: 'beta', trigger: custom },
+      props: { options: PLANS, value: 'beta', trigger: custom },
     });
 
     expect(getByTestId('custom').textContent).toBe('Second / closed');
@@ -307,16 +246,9 @@ describe('Select: icons and a custom trigger', () => {
     expect(getByTestId('custom').closest('button')).toBe(trigger(container));
   });
 
-  it('shows the placeholder when nothing is selected, in both modes', async () => {
-    const listbox = render(Select, {
-      props: { mode: 'listbox', options: PLANS, placeholder: 'Pick a plan' },
-    });
-    expect(trigger(listbox.container).textContent).toContain('Pick a plan');
-
-    const native = render(Select, { props: { options: PLANS, placeholder: 'Pick a plan' } });
-    const first = native.container.querySelector('option') as HTMLOptionElement;
-    expect(first.value).toBe('');
-    expect((first.textContent ?? '').trim()).toBe('Pick a plan');
+  it('shows the placeholder when nothing is selected', () => {
+    const { container } = render(Select, { props: { options: PLANS, placeholder: 'Pick a plan' } });
+    expect(trigger(container).textContent).toContain('Pick a plan');
   });
 });
 
@@ -326,35 +258,25 @@ describe('Select required marker', () => {
     { value: 'team', label: 'Team' },
   ];
 
-  it('states the requirement on the native select, not in its accessible name', () => {
-    // The marker carried aria-label="required" inside the label, which fed the
-    // control's name, so the field announced as "Plan required".
+  it('states the requirement on the trigger, not in its accessible name', () => {
+    // The trigger carries aria-required, and combobox is a role that supports
+    // it. The marker stays out of the name, so the field never announces as
+    // "Plan required".
     const { container, getByRole } = render(Select, {
       props: { label: 'Plan', options: rows, required: true },
     });
     expect(getByRole('combobox', { name: 'Plan' })).toBeTruthy();
-    expect((container.querySelector('select') as HTMLSelectElement).required).toBe(true);
-    const marker = container.querySelector('label span') as HTMLElement;
-    expect(marker.textContent).toBe('*');
-    expect(marker.getAttribute('aria-hidden')).toBe('true');
-    expect(marker.hasAttribute('aria-label')).toBe(false);
-  });
-
-  it('states the requirement on the listbox trigger too', () => {
-    // Listbox mode has no native control to take `required`, so the trigger
-    // carries aria-required. It is a combobox, which is a role that supports it.
-    const { container, getByRole } = render(Select, {
-      props: { label: 'Plan', options: rows, mode: 'listbox' as const, required: true },
-    });
-    expect(getByRole('combobox', { name: 'Plan' })).toBeTruthy();
     const trigger = container.querySelector('[role="combobox"]') as HTMLElement;
     expect(trigger.getAttribute('aria-required')).toBe('true');
+    const marker = container.querySelector('label span') as HTMLElement;
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.hasAttribute('aria-label')).toBe(false);
   });
 });
 
 describe('Select: dismissal', () => {
   it('closes the panel on Escape and puts focus back on the trigger', async () => {
-    const { container } = render(Select, { props: { mode: 'listbox', options: PLANS } });
+    const { container } = render(Select, { props: { options: PLANS } });
     const button = trigger(container);
 
     await fireEvent.keyDown(button, { key: 'ArrowDown' });
@@ -368,7 +290,7 @@ describe('Select: dismissal', () => {
 
   it('hands focus back from the search box, which is about to be unmounted', async () => {
     const { container } = render(Select, {
-      props: { mode: 'listbox', options: PLANS, searchable: true },
+      props: { options: PLANS, searchable: true },
     });
     const button = trigger(container);
     await fireEvent.click(button);
@@ -388,7 +310,7 @@ describe('Select: dismissal', () => {
     };
     document.addEventListener('keydown', onKeydown);
     try {
-      const { container } = render(Select, { props: { mode: 'listbox', options: PLANS } });
+      const { container } = render(Select, { props: { options: PLANS } });
       const button = trigger(container);
 
       await fireEvent.keyDown(button, { key: 'ArrowDown' });
@@ -408,7 +330,7 @@ describe('Select: panel placement', () => {
     // The surface used to sit under the trigger unconditionally, so a listbox
     // near the bottom of a modal opened into space that was not there. The
     // action marks the side it chose, and it needs the list marked to cap it.
-    const { container } = render(Select, { props: { mode: 'listbox', options: PLANS } });
+    const { container } = render(Select, { props: { options: PLANS } });
     await fireEvent.click(trigger(container));
 
     const list = container.querySelector('[role="listbox"]') as HTMLElement;

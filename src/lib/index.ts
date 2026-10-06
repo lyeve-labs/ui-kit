@@ -57,7 +57,7 @@ export { default as RadioGroup } from './components/RadioGroup.svelte';
 export { default as Toggle } from './components/Toggle.svelte';
 export type { ChoiceSize, ChoiceVariant, ChoiceOrientation } from './internal/choice.js';
 export type { ChoiceOption } from './components/CheckboxGroup.svelte';
-export type { SelectOption, SelectChangeEvent } from './components/Select.svelte';
+export type { SelectOption } from './components/Select.svelte';
 // One shape for both filtered lists: MultiSelect takes the same option array
 // Autocomplete does, so a consumer types it once.
 export type { ListOption } from './components/Autocomplete.svelte';
@@ -173,4 +173,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.33.1';
+export const VERSION = '0.34.0';
