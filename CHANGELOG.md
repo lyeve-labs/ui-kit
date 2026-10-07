@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.1] - 2026-10-07
+
+### Fixed
+
+- `Checkbox` keeps a tick made before the page hydrates. The box wrote its `checked` prop over the input as the page hydrated, so a box ticked while the page was still loading came back empty, and a form waiting on it stayed disabled. It now binds `checked` two ways and adopts the input's live state.
+
 ## [0.35.0] - 2026-10-06
 
 ### Added

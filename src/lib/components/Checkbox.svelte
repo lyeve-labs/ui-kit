@@ -93,7 +93,13 @@
     // is what stops a real click, and it is the only thing that does, so a
     // change arriving any other way (a synthetic event, a script driving the
     // node) would still move the bound value with nothing on screen to say so.
-    if (disabled) return;
+    // bind:checked has already taken the input's new state, so a disabled box
+    // puts the input and the value back.
+    if (disabled) {
+      e.currentTarget.checked = !e.currentTarget.checked;
+      checked = e.currentTarget.checked;
+      return;
+    }
     // The DOM clears indeterminate on the first click. Leaving the prop set
     // would repaint the mixed bar over a box the user has just ticked.
     indeterminate = false;
@@ -102,6 +108,10 @@
   }
 </script>
 
+<!-- bind:checked and not {checked}: a visitor can tick the box before the
+     page hydrates. A one-way prop is written over the input when the page
+     hydrates and clears that tick. The binding reads the input's live state
+     instead, the same way the browser kept it. -->
 {#snippet control()}
   <input
     type="checkbox"
@@ -110,7 +120,7 @@
     {value}
     {required}
     {disabled}
-    {checked}
+    bind:checked
     {indeterminate}
     aria-checked={indeterminate ? 'mixed' : undefined}
     aria-invalid={error ? 'true' : undefined}
