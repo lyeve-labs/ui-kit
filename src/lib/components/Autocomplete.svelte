@@ -181,10 +181,15 @@
   {/if}
 
   <div class="relative" bind:this={fieldEl} use:anchor>
+    <!-- The form posts the chosen option's value. The visible input holds the
+         label, or the words being typed, so it carries no name: a form read it
+         as the value and posted "Alpha" where the option was "a". -->
+    {#if name}
+      <input type="hidden" {name} {disabled} value={value ?? ''} />
+    {/if}
     <input
       bind:this={inputEl}
       id={fieldId}
-      {name}
       {placeholder}
       {disabled}
       {required}
