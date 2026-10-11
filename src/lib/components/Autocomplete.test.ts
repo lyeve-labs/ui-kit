@@ -51,6 +51,16 @@ describe('Autocomplete', () => {
     expect(onchange).toHaveBeenCalledWith('c');
   });
 
+  it('posts the chosen value under its name, not the label it shows', async () => {
+    const { container, getByText } = render(Autocomplete, { props: { options, name: 'pick' } });
+    await fireEvent.focus(combobox(container));
+    await fireEvent.click(getByText('Gamma'));
+    const posted = container.querySelectorAll('input[name="pick"]');
+    expect(posted).toHaveLength(1);
+    expect((posted[0] as HTMLInputElement).value).toBe('c');
+    expect(combobox(container).getAttribute('name')).toBeNull();
+  });
+
   it('filters options as the user types', async () => {
     const { container, getAllByRole } = render(Autocomplete, { props: { options } });
     const input = container.querySelector('[role="combobox"]') as HTMLInputElement;
