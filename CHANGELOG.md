@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `Autocomplete` posts the chosen option's value. Given a name, it put the name on the visible input, which holds the option's label or the words being typed, so a form posted "Alpha" where the option was "a". The name now goes on a hidden input that holds the value, the way `Select` posts.
+- The motion presets keep an element's own transform. Under `animate:motion.reorder`, a leaving list item is held where it stood by an inline translate, and an exit that animated `transform` replaced it, so the item jumped to the corner of the list as it faded. Every frame now draws the element's inline transform first, and `<li transition:motion.toast animate:motion.reorder>` leaves from its place.
+
 ## [0.35.1] - 2026-10-07
 
 ### Fixed

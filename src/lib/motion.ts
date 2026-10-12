@@ -142,18 +142,35 @@ export function still(node: Element): boolean {
 }
 
 /**
+ * A frame with the element's own transform put in front of the preset's.
+ *
+ * An animation replaces the inline style it animates, it does not add to it.
+ * Under `animate:`, Svelte holds a leaving item where it stood with an inline
+ * `translate(...)` set just before the exit starts. An exit that animates
+ * `transform` alone would replace that and draw the item from the list's
+ * corner. A frame that does not move `transform` is returned as it is.
+ */
+function composeTransform(frame: string, own: string): string {
+  if (!own || own === 'none') return frame;
+  return frame.replace(/transform:\s*([^;]+)/, (_match, preset: string) => `transform: ${own} ${preset}`);
+}
+
+/**
  * One transition from the rung its entrance runs at and the frame it draws.
  * The exit is derived, never chosen: one rung faster, on the exit curve.
+ * The element's inline transform is read when the transition starts, after
+ * Svelte has pinned a leaving list item, and kept in every frame.
  */
 function surface(rung: Rung, css: (t: number, u: number) => string) {
   return (node: Element): Motion => {
     if (still(node)) return { duration: 0 };
     return ({ direction } = { direction: 'in' }) => {
       const leaving = direction === 'out';
+      const own = (node as HTMLElement).style?.transform ?? '';
       return {
         duration: duration(leaving ? EXIT_RUNG[rung] : rung),
         easing: easing(leaving ? 'exit' : 'enter'),
-        css,
+        css: own ? (t, u) => composeTransform(css(t, u), own) : css,
       };
     };
   };
