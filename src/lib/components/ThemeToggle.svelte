@@ -15,7 +15,7 @@
    * implies the state.
    */
   import { Monitor, Moon, Sun } from '@lucide/svelte';
-  import { TOUCH_GROW } from '../internal/touch.js';
+  import Button from './Button.svelte';
   import {
     THEME_PREFERENCES,
     getThemePreference,
@@ -81,13 +81,17 @@
   }
 </script>
 
-<button
-  type="button"
+<!-- The kit's icon-only Button, so a control set beside this one takes the
+     same box by naming the same size, and the name shows on hover as well as
+     to a screen reader. -->
+<Button
+  variant="ghost"
+  size="icon"
   onclick={advance}
   data-print="hide"
   data-theme-preference={preference}
   aria-label="Theme: {LABEL[preference]}. Switch to {LABEL[upcoming]}."
-  class="{TOUCH_GROW} rounded-lg p-2 text-faint transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg {klass}"
+  class={klass}
 >
   <!-- The icon shows the state the control is in, not the one it moves to. It
        showed the destination while the label named the same destination, which
@@ -99,4 +103,4 @@
   {:else}
     <Sun size={16} aria-hidden="true" />
   {/if}
-</button>
+</Button>
