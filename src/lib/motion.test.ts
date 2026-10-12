@@ -154,6 +154,29 @@ describe('the presets', () => {
     expect(right.css!(0, 1)).not.toContain('opacity');
   });
 
+  it('keeps the transform a leaving list item is pinned with', () => {
+    // Svelte holds a leaving item in place with an inline translate before
+    // its exit starts. The exit has to draw from there, not from the corner
+    // of the list.
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const node = animatable() as HTMLElement;
+    const motion = popover(node);
+    node.style.transform = 'translate(12px, -40px)';
+    const exit = resolve(motion, 'out');
+    vi.unstubAllGlobals();
+    expect(exit.css!(0, 1)).toBe('opacity: 0; transform: translate(12px, -40px) translateY(-4px) scale(0.96)');
+    expect(exit.css!(1, 0)).toBe('opacity: 1; transform: translate(12px, -40px) translateY(0px) scale(1)');
+  });
+
+  it('leaves a frame with no transform as it is', () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const node = animatable() as HTMLElement;
+    node.style.transform = 'translate(12px, -40px)';
+    const exit = resolve(scrim(node), 'out');
+    vi.unstubAllGlobals();
+    expect(exit.css!(0.5, 0.5)).toBe('opacity: 0.5');
+  });
+
   it('moves only opacity and transform', () => {
     // Anything else animates layout, which is paid for on every frame.
     for (const fn of [dialog, scrim, popover, toast]) {
