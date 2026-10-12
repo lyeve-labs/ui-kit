@@ -5,6 +5,16 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Button` takes `size="icon"`, a square for a button whose only content is an icon. The icon sets the size and the box adds 8px round it, and a coarse pointer grows it to the control height like every button. Name it with `aria-label`, which also becomes its hint on hover.
+
+### Changed
+
+- `ThemeToggle` draws itself as a ghost `Button` at the icon size, so a control set beside it takes the same box by naming the size rather than copying its classes, and its name shows on hover as well as to a screen reader.
+
 ## [0.35.2] - 2026-10-12
 
 ### Fixed

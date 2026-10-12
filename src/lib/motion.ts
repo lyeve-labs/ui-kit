@@ -152,7 +152,10 @@ export function still(node: Element): boolean {
  */
 function composeTransform(frame: string, own: string): string {
   if (!own || own === 'none') return frame;
-  return frame.replace(/transform:\s*([^;]+)/, (_match, preset: string) => `transform: ${own} ${preset}`);
+  return frame.replace(
+    /transform:\s*([^;]+)/,
+    (_match, preset: string) => `transform: ${own} ${preset}`,
+  );
 }
 
 /**

@@ -13,7 +13,9 @@ import Checkbox from './Checkbox.svelte';
  */
 describe('Checkbox, rendered on the server', () => {
   it('matches the fixture the hydration test starts from', () => {
-    const { body } = render(Checkbox, { props: { label: 'I accept the terms', name: 'terms', id: 'terms' } });
+    const { body } = render(Checkbox, {
+      props: { label: 'I accept the terms', name: 'terms', id: 'terms' },
+    });
     const fixture = readFileSync(resolve('tests/fixtures/checkbox-ssr.html'), 'utf8');
     expect(body.trim()).toBe(fixture.trim());
   });

@@ -20,7 +20,11 @@ function stubExecCommand(result: boolean | Error) {
 
 afterEach(() => {
   stubClipboard(undefined);
-  Object.defineProperty(document, 'execCommand', { value: undefined, configurable: true, writable: true });
+  Object.defineProperty(document, 'execCommand', {
+    value: undefined,
+    configurable: true,
+    writable: true,
+  });
 });
 
 describe('writeClipboard', () => {

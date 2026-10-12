@@ -20,10 +20,19 @@
   const HIDDEN = 'scale-50 opacity-0 duration-fast ease-exit';
 </script>
 
-<span class="grid place-items-center" data-copy-state={copied ? 'copied' : 'idle'} aria-hidden="true">
-  <Copy {size} class="col-start-1 row-start-1 transition-[opacity,transform] {copied ? HIDDEN : SHOWN}" />
+<span
+  class="grid place-items-center"
+  data-copy-state={copied ? 'copied' : 'idle'}
+  aria-hidden="true"
+>
+  <Copy
+    {size}
+    class="col-start-1 row-start-1 transition-[opacity,transform] {copied ? HIDDEN : SHOWN}"
+  />
   <Check
     {size}
-    class="col-start-1 row-start-1 text-success transition-[opacity,transform] {copied ? SHOWN : HIDDEN}"
+    class="col-start-1 row-start-1 text-success transition-[opacity,transform] {copied
+      ? SHOWN
+      : HIDDEN}"
   />
 </span>

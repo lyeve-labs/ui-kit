@@ -49,7 +49,10 @@ describe('Checkbox, hydrating over a box the visitor already ticked', () => {
   it('leaves an untouched box unticked', () => {
     document.body.innerHTML = SERVER_HTML;
     const onchange = vi.fn();
-    app = hydrate(Checkbox, { target: document.body, props: { label: 'I accept the terms', name: 'terms', id: 'terms', onchange } });
+    app = hydrate(Checkbox, {
+      target: document.body,
+      props: { label: 'I accept the terms', name: 'terms', id: 'terms', onchange },
+    });
     flushSync();
 
     const input = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
