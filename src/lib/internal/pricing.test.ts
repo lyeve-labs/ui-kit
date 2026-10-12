@@ -81,11 +81,16 @@ describe('formatCents', () => {
 
 describe('betaOf', () => {
   it('lifts a trailing "Beta." out of the text and into the flag', () => {
-    expect(betaOf('Multi-locale content. Beta.')).toEqual({ text: 'Multi-locale content.', beta: true });
+    expect(betaOf('Multi-locale content. Beta.')).toEqual({
+      text: 'Multi-locale content.',
+      beta: true,
+    });
   });
 
   it('lifts a "Beta." sentence from the middle as well', () => {
-    expect(betaOf('Per-field translations. Beta. Without it the engine serves one locale.')).toEqual({
+    expect(
+      betaOf('Per-field translations. Beta. Without it the engine serves one locale.'),
+    ).toEqual({
       text: 'Per-field translations. Without it the engine serves one locale.',
       beta: true,
     });
@@ -104,7 +109,10 @@ describe('betaOf', () => {
   });
 
   it('leaves any other blurb as it came', () => {
-    expect(betaOf('The API transport is beta.')).toEqual({ text: 'The API transport is beta.', beta: false });
+    expect(betaOf('The API transport is beta.')).toEqual({
+      text: 'The API transport is beta.',
+      beta: false,
+    });
     expect(betaOf(undefined)).toEqual({ text: '', beta: false });
   });
 });

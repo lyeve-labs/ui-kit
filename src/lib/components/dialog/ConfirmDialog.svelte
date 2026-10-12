@@ -44,7 +44,9 @@
   );
   // An identifier the message refers to. Set apart in monospace on its own
   // line rather than inside the sentence, where a UUID wraps mid-string.
-  let detail = $derived(typeof entry.meta?.confirmDetail === 'string' ? entry.meta.confirmDetail : '');
+  let detail = $derived(
+    typeof entry.meta?.confirmDetail === 'string' ? entry.meta.confirmDetail : '',
+  );
 
   async function handleConfirm() {
     if (loading) return;

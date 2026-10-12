@@ -18,3 +18,8 @@ CHANGELOG.md
 # next build writes them back, and the two gates cannot both pass on the same
 # tree. The emitter owns the file.
 vitest.config.d.ts
+
+# The server render a hydration test starts from, compared byte for byte.
+# Prettier reflows its markup, and the reflowed copy no longer matches what
+# the server renders.
+tests/fixtures/checkbox-ssr.html

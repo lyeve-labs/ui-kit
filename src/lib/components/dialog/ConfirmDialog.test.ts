@@ -80,7 +80,9 @@ describe('ConfirmDialog', () => {
   });
 
   it('sets an identifier apart from the sentence, in monospace', () => {
-    const entry = makeEntry({ meta: { confirmTitle: 'T', confirmMessage: 'Gone for good.', confirmDetail: 'abc-123' } });
+    const entry = makeEntry({
+      meta: { confirmTitle: 'T', confirmMessage: 'Gone for good.', confirmDetail: 'abc-123' },
+    });
     const { getByText } = render(ConfirmDialog, { props: { entry } });
     expect(getByText('Gone for good.').textContent).not.toContain('abc-123');
     expect(getByText('abc-123').className).toContain('font-mono');

@@ -99,7 +99,9 @@
       {value}
       onfocus={(e) => e.currentTarget.select()}
       aria-describedby={describedBy(fieldId, failed ? COPY_FAILED_MESSAGE : undefined, hint)}
-      class="h-full min-w-0 flex-1 truncate bg-transparent px-3 text-sm text-fg outline-none {mono ? 'font-mono' : ''}"
+      class="h-full min-w-0 flex-1 truncate bg-transparent px-3 text-sm text-fg outline-none {mono
+        ? 'font-mono'
+        : ''}"
     />
     {@render actions?.()}
     {#if secret}
