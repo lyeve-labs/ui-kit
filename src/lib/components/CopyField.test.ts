@@ -16,7 +16,8 @@ async function settle(): Promise<void> {
   await tick();
 }
 
-const glyph = (c: HTMLElement) => c.querySelector('[data-copy-state]')?.getAttribute('data-copy-state');
+const glyph = (c: HTMLElement) =>
+  c.querySelector('[data-copy-state]')?.getAttribute('data-copy-state');
 
 afterEach(() => {
   vi.useRealTimers();
@@ -61,7 +62,9 @@ describe('CopyField', () => {
 
   it('says so in words when the clipboard refuses', async () => {
     stubClipboard(vi.fn().mockRejectedValue(new Error('Document is not focused')));
-    const { getByRole, getByLabelText, container } = render(CopyField, { props: { value: 'abc', label: 'Key' } });
+    const { getByRole, getByLabelText, container } = render(CopyField, {
+      props: { value: 'abc', label: 'Key' },
+    });
     await fireEvent.click(getByRole('button'));
     await settle();
     const status = container.querySelector('[role="status"]') as HTMLElement;
@@ -112,10 +115,16 @@ describe('CopyField', () => {
   });
 
   it("puts the caller's own actions in the row, before the reveal and the copy", () => {
-    const actions = createRawSnippet(() => ({ render: () => '<button type="button" aria-label="Rotate">R</button>' }));
+    const actions = createRawSnippet(() => ({
+      render: () => '<button type="button" aria-label="Rotate">R</button>',
+    }));
     const { getAllByRole } = render(CopyField, {
       props: { value: 'k', label: 'Key', secret: true, actions },
     });
-    expect(getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual(['Rotate', 'Show value', 'Copy key']);
+    expect(getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Rotate',
+      'Show value',
+      'Copy key',
+    ]);
   });
 });

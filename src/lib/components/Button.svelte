@@ -7,7 +7,7 @@
   import { TOUCH_GROW } from '../internal/touch.js';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
-  type Size = 'sm' | 'md' | 'lg';
+  type Size = 'sm' | 'md' | 'lg' | 'icon';
 
   /**
    * Attributes forwarded to whichever element renders. Naming them, rather than
@@ -96,10 +96,18 @@
       'border border-line-strong text-fg hover:border-brand hover:text-brand active:bg-brand/10',
   };
 
+  /*
+   * `icon` is a square for a button whose only content is an icon: the icon
+   * sets the size and the box adds 8px round it, so a 16px icon makes the 32px
+   * square the header controls use. Without it, an icon-only control beside
+   * ThemeToggle had to copy ThemeToggle's classes, and every copy drifted on
+   * its own. Name the button with `aria-label`, which also becomes its hint.
+   */
   const sizes: Record<Size, string> = {
     sm: 'px-3 py-1.5 text-sm gap-1.5 rounded-md',
     md: 'px-4 py-2 text-sm gap-2 rounded-lg',
     lg: 'px-5 py-2.5 text-base gap-2 rounded-lg',
+    icon: 'p-2 rounded-lg',
   };
 
   const spinnerSize = $derived(size === 'lg' ? 18 : 15);
@@ -113,7 +121,8 @@
    *
    * TOUCH_GROW: under a coarse pointer the button takes the control height,
    * which is 44px there, so a button and the input beside it grow together.
-   * A mouse sees 36px, 32px and 44px by size, as before.
+   * A mouse sees 36px, 32px and 44px by size, as before, and an icon-only
+   * button its icon plus 16px.
    */
   const cls = $derived(
     `inline-flex items-center justify-center font-medium whitespace-nowrap transition-colors ` +

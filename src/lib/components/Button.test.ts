@@ -44,6 +44,18 @@ describe('Button', () => {
     expect(container.querySelector('button')?.className).toContain('text-base');
   });
 
+  // An icon-only control is a square that the icon sizes, the box ThemeToggle
+  // uses, so a control set beside it no longer copies its classes.
+  it('draws an icon-only button as a square', () => {
+    const { container } = render(Button, {
+      props: { children: text('x'), size: 'icon', variant: 'ghost', 'aria-label': 'Open menu' },
+    });
+    const cls = container.querySelector('button')?.className ?? '';
+    expect(cls).toContain('p-2');
+    expect(cls).not.toMatch(/\bpx-\d/);
+    expect(cls).toContain('coarse:min-h-control');
+  });
+
   it('applies w-full when full=true', () => {
     const { container } = render(Button, {
       props: { children: text('x'), full: true },

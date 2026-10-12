@@ -76,7 +76,9 @@
     {placeholder}
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={describedBy(fieldId, error, hint)}
-    class="{CONTROL_MULTILINE} {controlBorder(!!error)} {resize ? 'resize-y' : 'resize-none'} {mono ? 'font-mono' : ''}"
+    class="{CONTROL_MULTILINE} {controlBorder(!!error)} {resize ? 'resize-y' : 'resize-none'} {mono
+      ? 'font-mono'
+      : ''}"
     bind:value
     {oninput}
     {onblur}

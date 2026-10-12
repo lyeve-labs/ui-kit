@@ -161,7 +161,10 @@ export function formatCents(cents: number, currency = 'USD'): string {
  * neither comes back untouched and unbadged, so a change of wording costs a
  * badge, never a claim.
  */
-export function betaOf(blurb: string | undefined, maturity?: string): { text: string; beta: boolean } {
+export function betaOf(
+  blurb: string | undefined,
+  maturity?: string,
+): { text: string; beta: boolean } {
   const text = (blurb ?? '').trim();
   if (maturity !== undefined) {
     return { text: text.replace(/\s*Beta\.(?=\s|$)/, '').trim(), beta: maturity === 'beta' };

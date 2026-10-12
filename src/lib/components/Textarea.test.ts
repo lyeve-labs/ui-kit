@@ -61,7 +61,9 @@ describe('Textarea required marker', () => {
   });
 
   it('sets mono on the control alone, never on the label or the hint', () => {
-    const { container } = render(Textarea, { props: { label: 'Definition', hint: 'JSON', mono: true } });
+    const { container } = render(Textarea, {
+      props: { label: 'Definition', hint: 'JSON', mono: true },
+    });
     expect(container.querySelector('textarea')?.className).toContain('font-mono');
     expect(container.querySelector('[data-field]')?.className).not.toContain('font-mono');
     expect(container.querySelector('label')?.className).not.toContain('font-mono');

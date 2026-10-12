@@ -60,7 +60,11 @@ describe('Dialog', () => {
     // control that closes it and Enter one keystroke from the danger button.
     const entry = makeEntry({
       options: { id: 'c', title: 'Delete it?' },
-      meta: { confirmTitle: 'Delete it?', confirmMessage: 'This cannot be undone.', confirmDetail: '4af5ef43-3ca5-4ef2-909b-8fcec97e49d4' },
+      meta: {
+        confirmTitle: 'Delete it?',
+        confirmMessage: 'This cannot be undone.',
+        confirmDetail: '4af5ef43-3ca5-4ef2-909b-8fcec97e49d4',
+      },
     });
     const { container, getByText } = render(Dialog, { props: { entry } });
     expect(container.querySelector('button[aria-label="Close"]')).toBeNull();

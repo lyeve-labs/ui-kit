@@ -5,8 +5,20 @@ import PluginCart from './PluginCart.svelte';
 import type { CartQuote } from '../internal/pricing.js';
 
 const PLUGINS = [
-  { sku: 'plugin-graphql', name: 'GraphQL', price_cents: 800, category: 'API', blurb: 'A typed API.' },
-  { sku: 'plugin-audit', name: 'Audit', price_cents: 500, category: 'Compliance', blurb: 'Who did what.' },
+  {
+    sku: 'plugin-graphql',
+    name: 'GraphQL',
+    price_cents: 800,
+    category: 'API',
+    blurb: 'A typed API.',
+  },
+  {
+    sku: 'plugin-audit',
+    name: 'Audit',
+    price_cents: 500,
+    category: 'Compliance',
+    blurb: 'Who did what.',
+  },
   { sku: 'plugin-soon', name: 'Later', price_cents: 100, category: 'API', status: 'soon' },
 ];
 
@@ -30,7 +42,15 @@ function quoteFor(skus: string[], total: number): CartQuote {
 
 describe('PluginCart', () => {
   it('lets a long one-word name wrap beside its price instead of running under it', () => {
-    const long = [{ sku: 'plugin-recs', name: 'Recommendations', price_cents: 500, category: 'AI', blurb: 'Related content.' }];
+    const long = [
+      {
+        sku: 'plugin-recs',
+        name: 'Recommendations',
+        price_cents: 500,
+        category: 'AI',
+        blurb: 'Related content.',
+      },
+    ];
     const { container } = render(PluginCart, { props: { plugins: long } });
     const name = container.querySelector('[id$="-name"]') as HTMLElement;
     expect(name.className).toContain('min-w-0');
@@ -38,7 +58,9 @@ describe('PluginCart', () => {
   });
 
   it('lists what sells and leaves out what is only announced', () => {
-    const { getByLabelText, queryByLabelText } = render(PluginCart, { props: { plugins: PLUGINS } });
+    const { getByLabelText, queryByLabelText } = render(PluginCart, {
+      props: { plugins: PLUGINS },
+    });
     expect(getByLabelText(/GraphQL/)).toBeTruthy();
     expect(queryByLabelText(/Later/)).toBeNull();
   });
@@ -64,7 +86,6 @@ describe('PluginCart', () => {
     expect((getByRole('checkbox', { name: /Audit/ }) as HTMLInputElement).checked).toBe(true);
   });
 
-
   it('shows a held capability as owned and refuses to sell it twice', async () => {
     const onchange = vi.fn();
     const { getByRole } = render(PluginCart, {
@@ -88,7 +109,9 @@ describe('PluginCart', () => {
     });
     // 777, not the 800 the catalog lists. The server decides, in the summary
     // and in the bar that carries it on a narrow screen.
-    expect(within(getByRole('complementary', { name: 'Your selection' })).getByText(/\$7\.77/)).toBeTruthy();
+    expect(
+      within(getByRole('complementary', { name: 'Your selection' })).getByText(/\$7\.77/),
+    ).toBeTruthy();
     expect(getAllByText(/\$7\.77/)).toHaveLength(2);
   });
 
@@ -138,7 +161,9 @@ describe('PluginCart', () => {
         onchange,
       },
     });
-    await fireEvent.click(within(getByRole('group', { name: 'Quick picks' })).getByText('Everything'));
+    await fireEvent.click(
+      within(getByRole('group', { name: 'Quick picks' })).getByText('Everything'),
+    );
     expect(onchange).toHaveBeenCalledWith(['plugin-graphql', 'plugin-audit']);
   });
 
@@ -146,7 +171,9 @@ describe('PluginCart', () => {
     const { getByRole, queryByLabelText } = render(PluginCart, { props: { plugins: PLUGINS } });
     const chips = getByRole('group', { name: 'Category' });
     // The announced-only plugin is not for sale, so it is not counted.
-    expect(within(chips).getByRole('button', { name: 'All 2 on sale' }).getAttribute('aria-pressed')).toBe('true');
+    expect(
+      within(chips).getByRole('button', { name: 'All 2 on sale' }).getAttribute('aria-pressed'),
+    ).toBe('true');
     await fireEvent.click(within(chips).getByRole('button', { name: 'Compliance 1 on sale' }));
     expect(queryByLabelText(/GraphQL/)).toBeNull();
     expect(queryByLabelText(/Audit/)).toBeTruthy();

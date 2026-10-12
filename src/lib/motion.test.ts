@@ -164,8 +164,12 @@ describe('the presets', () => {
     node.style.transform = 'translate(12px, -40px)';
     const exit = resolve(motion, 'out');
     vi.unstubAllGlobals();
-    expect(exit.css!(0, 1)).toBe('opacity: 0; transform: translate(12px, -40px) translateY(-4px) scale(0.96)');
-    expect(exit.css!(1, 0)).toBe('opacity: 1; transform: translate(12px, -40px) translateY(0px) scale(1)');
+    expect(exit.css!(0, 1)).toBe(
+      'opacity: 0; transform: translate(12px, -40px) translateY(-4px) scale(0.96)',
+    );
+    expect(exit.css!(1, 0)).toBe(
+      'opacity: 1; transform: translate(12px, -40px) translateY(0px) scale(1)',
+    );
   });
 
   it('leaves a frame with no transform as it is', () => {
