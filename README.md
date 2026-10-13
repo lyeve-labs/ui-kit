@@ -236,6 +236,29 @@ the fields the panel actually rendered, re-read when the form reveals more, and
 a radio or checkbox group counts as the one question it asks. Name a rung and
 it is kept.
 
+## Component notes
+
+What a component does beyond its props table.
+
+### A filter kept in the URL
+
+`SegmentedControl` and `FilterChips` take an `href` on each option. When every
+option carries one, the options render as plain links: the current one carries
+`aria-current="page"`, no change is reported, and the row works before the page
+hydrates. Every option carries an `href` or none does, and a row that mixes the
+two throws.
+
+```svelte
+<FilterChips
+  label="Status"
+  value={status}
+  options={[
+    { value: 'all', label: 'All', href: '?status=all' },
+    { value: 'open', label: 'Open', count: 7, href: '?status=open' },
+  ]}
+/>
+```
+
 ## Local development
 
 ```bash
