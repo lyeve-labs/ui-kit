@@ -1,6 +1,7 @@
 import { render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import DocumentTitleApp from '../../../tests/fixtures/DocumentTitleApp.svelte';
 import PageShell from './PageShell.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
@@ -303,5 +304,40 @@ describe('PageShell', () => {
       props: { title: 'Team', class: 'pb-0', children: text('Body') },
     });
     expect(frameOf(container).className).toContain('pb-0');
+  });
+});
+
+describe('PageShell document title', () => {
+  beforeEach(() => {
+    document.title = 'Set by the page';
+  });
+
+  it('leaves the title alone while the app states no format', () => {
+    // An app that never states one keeps the title elements its pages render.
+    const titles = document.head.querySelectorAll('title').length;
+    render(PageShell, {
+      props: { title: 'Team', documentTitle: 'Not used', children: text('Body') },
+    });
+    expect(document.title).toBe('Set by the page');
+    expect(document.head.querySelectorAll('title')).toHaveLength(titles);
+  });
+
+  it('titles the tab from the page title, in the format the app stated', () => {
+    render(DocumentTitleApp, { props: { title: 'Users' } });
+    expect(document.title).toBe('Users | Acme');
+  });
+
+  it('puts documentTitle in the tab and leaves the heading alone', () => {
+    const { container } = render(DocumentTitleApp, {
+      props: { title: 'Edit entry', documentTitle: 'Invoice 8841' },
+    });
+    expect(document.title).toBe('Invoice 8841 | Acme');
+    expect(container.querySelector('h1')?.textContent).toBe('Edit entry');
+  });
+
+  it('follows the title when the page changes it', async () => {
+    const { rerender } = render(DocumentTitleApp, { props: { title: 'Users' } });
+    await rerender({ title: 'Roles' });
+    expect(document.title).toBe('Roles | Acme');
   });
 });

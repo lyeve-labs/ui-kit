@@ -27,6 +27,10 @@ export type { CellFit } from './components/Table.svelte';
 export type { SidebarState } from './components/AppShell.svelte';
 export type { PageWidth, SectionVariant } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
+// Stated once in an app's root layout, the format turns every PageShell's
+// title into the browser tab's. An app that never states one gets no title
+// element from the kit.
+export { setDocumentTitleFormat, type DocumentTitleFormat } from './internal/document-title.js';
 
 // ── Forms & inputs ─────────────────────────────────────────────────────────
 export { default as Button } from './components/Button.svelte';

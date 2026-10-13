@@ -13,17 +13,32 @@
    * The shell renders no landmark of its own. An app shell already owns `main`,
    * `nav` and the rest, and a second `main` changes what a landmark query
    * matches for every assistive technology reading the page.
+   *
+   * The browser tab follows the page title once the app states a format with
+   * setDocumentTitleFormat. Until it does, the shell renders no title element,
+   * so a page that renders its own keeps it.
    */
   import type { Snippet } from 'svelte';
   import { ArrowLeft } from '@lucide/svelte';
+  import { getDocumentTitleFormat } from '../internal/document-title.js';
   import { safeHref } from '../internal/href.js';
   import { PAGE_PAD, PAGE_STACK, PAGE_WIDTH, type PageWidth } from '../internal/layout.js';
   import { HIT_AREA } from '../internal/touch.js';
   import PageHeader from './PageHeader.svelte';
 
   interface Props {
-    /** The page's only h1, rendered through PageHeader. */
+    /**
+     * The page's only h1, rendered through PageHeader. Also the browser tab's
+     * title, once the app states a format.
+     */
     title: string;
+    /**
+     * What the browser tab shows when it should read differently from
+     * `title`, such as a record's name on a page whose heading says what is
+     * done to it. Read only once the app states a format with
+     * setDocumentTitleFormat.
+     */
+    documentTitle?: string;
     description?: string;
     /** Content cap. narrow, default, wide, full. */
     width?: PageWidth;
@@ -77,6 +92,7 @@
 
   let {
     title,
+    documentTitle = undefined,
     description = undefined,
     width = 'default',
     fill = false,
@@ -88,6 +104,11 @@
     class: klass = '',
     children,
   }: Props = $props();
+
+  const format = getDocumentTitleFormat();
+
+  /** The tab's words, or nothing at all while the app has stated no format. */
+  const tabTitle = $derived(format === undefined ? undefined : format(documentTitle ?? title));
 
   /**
    * A fill page owns the viewport instead of sitting in it: the content takes
@@ -131,6 +152,12 @@
     'outline-none transition-colors hover:text-fg ' +
     'focus-visible:ring-2 focus-visible:ring-brand';
 </script>
+
+<svelte:head>
+  {#if tabTitle !== undefined}
+    <title>{tabTitle}</title>
+  {/if}
+</svelte:head>
 
 <div class="{frame} {klass}">
   {#if titleHidden}

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as kit from './index.js';
-import type { CopyStatus } from './index.js';
+import type { CopyStatus, DocumentTitleFormat } from './index.js';
 
 // Every component the package documents as public. Guards against an accidental
 // dropped/renamed re-export in index.ts (the sole entry point consumers use).
@@ -114,6 +114,7 @@ const FUNCTIONS = [
   'ladderRows',
   'ladderState',
   'copyToClipboard',
+  'setDocumentTitleFormat',
 ] as const;
 
 /**
@@ -190,6 +191,11 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     expectTypeOf(state.status).toEqualTypeOf<CopyStatus>();
     expectTypeOf(kit.copyToClipboard).toEqualTypeOf<(value: string) => Promise<boolean>>();
     state.dispose();
+  });
+
+  it('exports the shape of a document title format', () => {
+    expectTypeOf<DocumentTitleFormat>().toEqualTypeOf<(title: string) => string>();
+    expectTypeOf(kit.setDocumentTitleFormat).parameter(0).toEqualTypeOf<DocumentTitleFormat>();
   });
 
   it('keeps the two-state helpers a consumer already calls', () => {

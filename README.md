@@ -285,6 +285,30 @@ when the component unmounts.
 worked and never throws. Where the async clipboard is missing, as it is on an
 origin without TLS, it falls back to the legacy copy command.
 
+### Page titles
+
+`PageShell` renders the document title once an app states its format, in its
+root layout. A page then drops its own title element, which would otherwise
+race the shell's. `documentTitle` gives the tab other words than the heading.
+A format that reads reactive state, such as a tenant's name, follows it. An app
+that states no format gets no title element from the kit.
+
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script lang="ts">
+  import { setDocumentTitleFormat } from '@lyeve-labs/ui-kit';
+
+  let { children } = $props();
+  setDocumentTitleFormat((title) => `${title} | Acme`);
+</script>
+
+{@render children()}
+```
+
+```svelte
+<PageShell title="Edit entry" documentTitle={entry.name}>...</PageShell>
+```
+
 ## Local development
 
 ```bash
