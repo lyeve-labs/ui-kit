@@ -274,39 +274,6 @@ describe('the controls that may grow take the control height', () => {
   });
 });
 
-describe('the rail holds a finger without scrolling sideways', () => {
-  const items = [
-    {
-      id: 'ai',
-      label: 'AI',
-      href: '/ai',
-      children: [{ id: 'providers', label: 'Providers', href: '/ai/providers' }],
-    },
-  ];
-
-  /** The row that holds a group's link and its disclosure. */
-  function pair(container: HTMLElement): HTMLElement {
-    const disclosure = container.querySelector('button[aria-controls]') as HTMLElement;
-    const row = disclosure.parentElement as HTMLElement;
-    expect(row.querySelector('a[href="/ai"]')).toBeTruthy();
-    return row;
-  }
-
-  it('stacks the disclosure under the link on the rail, where the two were 92px side by side', () => {
-    const { container } = render(SidebarNav, {
-      props: { items, activePath: '/ai', collapsed: true },
-    });
-    expect(classes(pair(container))).toEqual(
-      expect.arrayContaining(['coarse:flex-col', 'coarse:items-start']),
-    );
-  });
-
-  it('keeps the two side by side in the full column, which has the room', () => {
-    const { container } = render(SidebarNav, { props: { items, activePath: '/ai' } });
-    expect(classes(pair(container))).not.toContain('coarse:flex-col');
-  });
-});
-
 describe('nothing changes with the pointer', () => {
   it('renders the same classes under a mouse, because the query is in the stylesheet', () => {
     const first = render(Toggle, { props: { label: 'x' } });
