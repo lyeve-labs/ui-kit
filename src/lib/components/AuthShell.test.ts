@@ -85,3 +85,59 @@ describe('AuthShell', () => {
     expect(container.querySelectorAll('main > div > p').length).toBe(0);
   });
 });
+
+describe('AuthShell lockup', () => {
+  const tenant = snippet(
+    '<span data-testid="tenant"><img src="/logo.png" alt="" /> Northwind</span>',
+  );
+
+  it('draws the lockup in place of the product mark, above the heading', () => {
+    const { container, getByTestId, queryByText } = render(AuthShell, {
+      props: props({ lockup: tenant }),
+    });
+    expect(queryByText('LyEve')).toBeNull();
+    const lockup = getByTestId('tenant');
+    const h1 = container.querySelector('h1')!;
+    expect(lockup.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+    expect(lockup.closest('a')).toBeNull();
+  });
+
+  it('puts the lockup inside the link when the shell links somewhere', () => {
+    const { container, getByTestId } = render(AuthShell, {
+      props: props({ lockup: tenant, href: '/' }),
+    });
+    const a = container.querySelector('a')!;
+    expect(a.getAttribute('href')).toBe('/');
+    expect(a.contains(getByTestId('tenant'))).toBe(true);
+    expect(a.querySelector('svg')).toBeNull();
+    // The link is named by what the lockup says.
+    expect(a.textContent?.trim()).toBe('Northwind');
+  });
+
+  it('keeps the product mark when no lockup is given', () => {
+    const { container, getByText } = render(AuthShell, { props: props() });
+    expect(getByText('LyEve')).toBeTruthy();
+    expect(container.querySelector('svg')).toBeTruthy();
+  });
+});
+
+describe('AuthShell outer element', () => {
+  it('takes a class and a style, so an accent scopes to the page', () => {
+    const { container } = render(AuthShell, {
+      props: props({ class: 'tenant-page', style: '--color-brand: #0f766e' }),
+    });
+    const main = container.querySelector('main')!;
+    expect(main.className.split(/\s+/)).toContain('tenant-page');
+    expect(main.className).toContain('bg-ink');
+    expect(main.style.getPropertyValue('--color-brand')).toBe('#0f766e');
+  });
+
+  it('renders the outer element as before when given neither', () => {
+    const { container } = render(AuthShell, { props: props() });
+    const main = container.querySelector('main')!;
+    expect(main.getAttribute('class')).toBe(
+      'flex min-h-screen items-center justify-center bg-ink px-4 py-10',
+    );
+    expect(main.hasAttribute('style')).toBe(false);
+  });
+});

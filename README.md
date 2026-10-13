@@ -309,6 +309,26 @@ that states no format gets no title element from the kit.
 <PageShell title="Edit entry" documentTitle={entry.name}>...</PageShell>
 ```
 
+### A sign-in page in a tenant's colors
+
+`AuthShell` takes a `lockup` snippet that replaces the product mark above the
+heading, and passes `class` and `style` to its outer element. Custom properties
+set there scope to the page, so a tenant's accent repaints the brand tokens for
+everything on it. Inside the `href` link the lockup names the link, so give it
+words or an image with alt text.
+
+```svelte
+<AuthShell title="Sign in" href="/" style="--color-brand: {tenant.accent}">
+  {#snippet lockup()}
+    <span class="inline-flex items-center gap-2 text-xl font-semibold text-fg">
+      <img src={tenant.logo} alt="" class="size-9" />
+      {tenant.name}
+    </span>
+  {/snippet}
+  <form method="POST">...</form>
+</AuthShell>
+```
+
 ## Local development
 
 ```bash
