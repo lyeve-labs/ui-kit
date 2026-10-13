@@ -329,6 +329,23 @@ words or an image with alt text.
 </AuthShell>
 ```
 
+### Tone names
+
+`StatusTone` is the tone `Alert`, `Banner` and `Stat` take. `AccentTone` adds
+`violet` and is the tone `Badge`, `Tag`, `Indicator` and `Progress` take. An app
+that maps its own states onto tones types the map with them.
+
+```ts
+import type { StatusTone } from '@lyeve-labs/ui-kit';
+
+const JOB_TONE: Record<JobState, StatusTone> = {
+  queued: 'neutral',
+  running: 'brand',
+  failed: 'danger',
+  done: 'success',
+};
+```
+
 ## Local development
 
 ```bash

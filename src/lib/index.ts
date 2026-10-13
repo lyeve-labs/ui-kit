@@ -112,6 +112,9 @@ export {
   type DiscountBracket,
   type LadderState,
 } from './internal/pricing.js';
+// The tone names the status and accent components take, for an app that maps
+// its own states onto them and would otherwise restate the union.
+export type { AccentTone, StatusTone } from './internal/tone.js';
 export { default as Stat } from './components/Stat.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
 export { default as CopyButton } from './components/CopyButton.svelte';

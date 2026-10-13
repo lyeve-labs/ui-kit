@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import type { ComponentProps } from 'svelte';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as kit from './index.js';
-import type { CopyStatus, DocumentTitleFormat } from './index.js';
+import type { AccentTone, CopyStatus, DocumentTitleFormat, StatusTone } from './index.js';
 
 // Every component the package documents as public. Guards against an accidental
 // dropped/renamed re-export in index.ts (the sole entry point consumers use).
@@ -196,6 +197,15 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
   it('exports the shape of a document title format', () => {
     expectTypeOf<DocumentTitleFormat>().toEqualTypeOf<(title: string) => string>();
     expectTypeOf(kit.setDocumentTitleFormat).parameter(0).toEqualTypeOf<DocumentTitleFormat>();
+  });
+
+  it('exports the tone names an app maps its own states onto', () => {
+    expectTypeOf<StatusTone>().toEqualTypeOf<'neutral' | 'brand' | 'success' | 'warn' | 'danger'>();
+    expectTypeOf<AccentTone>().toEqualTypeOf<StatusTone | 'violet'>();
+    // Each fits the components that take it, so a typed map passes straight in.
+    expectTypeOf<StatusTone>().toMatchTypeOf<ComponentProps<typeof kit.Alert>['tone']>();
+    expectTypeOf<StatusTone>().toMatchTypeOf<ComponentProps<typeof kit.Stat>['tone']>();
+    expectTypeOf<AccentTone>().toMatchTypeOf<ComponentProps<typeof kit.Badge>['tone']>();
   });
 
   it('keeps the two-state helpers a consumer already calls', () => {
