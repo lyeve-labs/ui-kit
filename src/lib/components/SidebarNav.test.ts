@@ -316,6 +316,52 @@ describe('SidebarNav collapsed rail', () => {
       'calc(var(--spacing-nav-indent) * 0 + var(--spacing-inline))',
     );
   });
+
+  describe('a group that is a page as well', () => {
+    /** Answers the pointer query the way a mouse or a finger answers it. */
+    function pointer(coarse: boolean): void {
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query === '(pointer: coarse)' ? coarse : false,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }));
+    }
+
+    /** The row that holds the group's link and its disclosure. */
+    function pair(container: HTMLElement): HTMLElement {
+      return container.querySelector('a[href="/content"]')!.parentElement as HTMLElement;
+    }
+
+    it.each([
+      ['a mouse', false],
+      ['a finger', true],
+    ])('stacks the disclosure under the link under %s', (_reader, coarse) => {
+      // Side by side the two did not fit the rail under either pointer. A mouse
+      // saw the link squeezed to its padding with its icon under the chevron,
+      // and a finger's pair was 92px wide and scrolled the nav sideways.
+      pointer(coarse);
+      const { container } = mount({ collapsed: true });
+      const row = pair(container);
+      const classes = row.className.split(/\s+/);
+      expect(classes).toEqual(expect.arrayContaining(['flex', 'flex-col', 'items-start']));
+      // Stated for every pointer, not under a variant only one of them matches.
+      expect(classes.filter((c) => c.includes(':'))).toEqual([]);
+      // The link comes first and keeps the rail's full width.
+      expect(row.firstElementChild?.tagName).toBe('A');
+      expect(row.firstElementChild?.className.split(/\s+/)).toContain('w-full');
+      expect(row.lastElementChild?.getAttribute('aria-controls')).toBeTruthy();
+    });
+
+    it('keeps the two side by side in the full column, exactly as before', () => {
+      const { container } = mount();
+      expect(pair(container).getAttribute('class')).toBe('flex items-center gap-1');
+    });
+  });
 });
 
 describe('SidebarNav disabled node', () => {

@@ -236,6 +236,116 @@ the fields the panel actually rendered, re-read when the form reveals more, and
 a radio or checkbox group counts as the one question it asks. Name a rung and
 it is kept.
 
+## Component notes
+
+What a component does beyond its props table.
+
+### A filter kept in the URL
+
+`SegmentedControl` and `FilterChips` take an `href` on each option. When every
+option carries one, the options render as plain links: the current one carries
+`aria-current="page"`, no change is reported, and the row works before the page
+hydrates. Every option carries an `href` or none does, and a row that mixes the
+two throws.
+
+```svelte
+<FilterChips
+  label="Status"
+  value={status}
+  options={[
+    { value: 'all', label: 'All', href: '?status=all' },
+    { value: 'open', label: 'Open', count: 7, href: '?status=open' },
+  ]}
+/>
+```
+
+### Copying
+
+`CopyButton` takes `text` for words beside its icon, such as "Copy all codes",
+and the words then name the button. A control the kit does not ship copies
+through the same write and confirms on the same clock with `CopyState`. Create
+one while the component initializes, read `status` in markup, and dispose of it
+when the component unmounts.
+
+```svelte
+<script lang="ts">
+  import { Button, CopyState } from '@lyeve-labs/ui-kit';
+
+  let { id }: { id: string } = $props();
+  const copy = new CopyState();
+  $effect(() => () => copy.dispose());
+</script>
+
+<Button variant="ghost" size="sm" onclick={() => copy.copy(id)}>
+  {copy.status === 'copied' ? 'Copied' : 'Copy ID'}
+</Button>
+```
+
+`copyToClipboard(text)` is the write alone. It resolves to whether the copy
+worked and never throws. Where the async clipboard is missing, as it is on an
+origin without TLS, it falls back to the legacy copy command.
+
+### Page titles
+
+`PageShell` renders the document title once an app states its format, in its
+root layout. A page then drops its own title element, which would otherwise
+race the shell's. `documentTitle` gives the tab other words than the heading.
+A format that reads reactive state, such as a tenant's name, follows it. An app
+that states no format gets no title element from the kit.
+
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script lang="ts">
+  import { setDocumentTitleFormat } from '@lyeve-labs/ui-kit';
+
+  let { children } = $props();
+  setDocumentTitleFormat((title) => `${title} | Acme`);
+</script>
+
+{@render children()}
+```
+
+```svelte
+<PageShell title="Edit entry" documentTitle={entry.name}>...</PageShell>
+```
+
+### A sign-in page in a tenant's colors
+
+`AuthShell` takes a `lockup` snippet that replaces the product mark above the
+heading, and passes `class` and `style` to its outer element. Custom properties
+set there scope to the page, so a tenant's accent repaints the brand tokens for
+everything on it. Inside the `href` link the lockup names the link, so give it
+words or an image with alt text.
+
+```svelte
+<AuthShell title="Sign in" href="/" style="--color-brand: {tenant.accent}">
+  {#snippet lockup()}
+    <span class="inline-flex items-center gap-2 text-xl font-semibold text-fg">
+      <img src={tenant.logo} alt="" class="size-9" />
+      {tenant.name}
+    </span>
+  {/snippet}
+  <form method="POST">...</form>
+</AuthShell>
+```
+
+### Tone names
+
+`StatusTone` is the tone `Alert`, `Banner` and `Stat` take. `AccentTone` adds
+`violet` and is the tone `Badge`, `Tag`, `Indicator` and `Progress` take. An app
+that maps its own states onto tones types the map with them.
+
+```ts
+import type { StatusTone } from '@lyeve-labs/ui-kit';
+
+const JOB_TONE: Record<JobState, StatusTone> = {
+  queued: 'neutral',
+  running: 'brand',
+  failed: 'danger',
+  done: 'success',
+};
+```
+
 ## Local development
 
 ```bash
