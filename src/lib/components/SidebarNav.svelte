@@ -166,7 +166,16 @@
         {@render body(node)}
       </span>
     {:else if node.href && branch}
-      <div class="flex items-center gap-1">
+      <!--
+        Under a finger the rail stacks the disclosure under the link. Side by
+        side the two take 92px there, and the rail is 56px wide, so the row
+        scrolled the whole nav sideways.
+      -->
+      <div
+        class={collapsed
+          ? 'flex items-center gap-1 coarse:flex-col coarse:items-start'
+          : 'flex items-center gap-1'}
+      >
         <a
           href={node.href}
           aria-current={current ? 'page' : undefined}

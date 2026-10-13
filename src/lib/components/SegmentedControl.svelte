@@ -23,6 +23,7 @@
 <script lang="ts" generics="T extends string">
   import { FIELD_LABEL, FIELD_WRAP } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
+  import { HIT_AREA } from '../internal/touch.js';
 
   type Size = 'sm' | 'md';
 
@@ -64,9 +65,14 @@
    * Input in the same row line up. The segments stretch inside it rather than
    * setting their own height, which would add the row's padding and border on
    * top and stand the control two pixels proud of everything beside it.
+   *
+   * Under a finger the small row grows to the control height, as a small
+   * Button does, and each segment keeps its visual inside the track and takes
+   * a hit box of the control size. A segment that grew instead would stand
+   * the track six pixels proud of the Input beside it.
    */
   const SIZES: Record<Size, { row: string; segment: string; icon: number }> = {
-    sm: { row: 'h-8', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
+    sm: { row: 'h-8 coarse:min-h-control', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
     md: { row: 'h-control', segment: 'gap-2 px-3 text-sm', icon: 16 },
   };
 
@@ -196,7 +202,7 @@
       {@const selected = option.value === value}
       {@const Icon = option.icon}
       {@const segment =
-        'inline-flex items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ' +
+        `${HIT_AREA} inline-flex items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
         SIZES[size].segment +
         (selected
           ? ' bg-surface text-brand shadow-sm ring-1 ring-inset ring-brand/40'

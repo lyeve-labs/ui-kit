@@ -23,9 +23,11 @@ import Checkbox from './components/Checkbox.svelte';
 import Collapsible from './components/Collapsible.svelte';
 import CopyButton from './components/CopyButton.svelte';
 import Modal from './components/Modal.svelte';
+import NumberInput from './components/NumberInput.svelte';
 import PageShell from './components/PageShell.svelte';
 import Pagination from './components/Pagination.svelte';
 import Radio from './components/Radio.svelte';
+import SegmentedControl from './components/SegmentedControl.svelte';
 import SidebarNav from './components/SidebarNav.svelte';
 import Tabs from './components/Tabs.svelte';
 import Tag from './components/Tag.svelte';
@@ -160,6 +162,39 @@ describe('the small controls keep their visual and grow their hit box', () => {
     expectHitArea(getByLabelText('Dismiss'));
   });
 
+  it('SegmentedControl segments, which were 26px small and 38px at the default size', () => {
+    // A segment that grew would stand the track proud of the Input beside it,
+    // so it keeps its visual inside the track and grows its hit box.
+    const radios = [
+      { value: 'day', label: 'Day' },
+      { value: 'week', label: 'Week' },
+    ];
+    const links = radios.map((o) => ({ ...o, href: `?range=${o.value}` }));
+    for (const size of ['sm', 'md'] as const) {
+      for (const options of [radios, links]) {
+        const { container, unmount } = render(SegmentedControl, {
+          props: { label: 'Range', options, value: 'day', size },
+        });
+        const segments = container.querySelectorAll('[data-segment]');
+        expect(segments).toHaveLength(2);
+        for (const segment of segments) expectHitArea(segment);
+        unmount();
+      }
+    }
+  });
+
+  it('NumberInput steppers, which left the number 40px wide inside a w-32', () => {
+    // The steppers narrow under a finger and keep a 44px target, so the number
+    // between them keeps its room. A mouse still sees the control-wide caps.
+    const { getByLabelText } = render(NumberInput, { props: { label: 'Seats', value: 3 } });
+    for (const name of ['Decrease', 'Increase']) {
+      const stepper = getByLabelText(name);
+      expectHitArea(stepper);
+      expect(classes(stepper)).toContain('coarse:w-8');
+      expect(classes(stepper)).toContain('w-control');
+    }
+  });
+
   it("a Modal's close cross", () => {
     const { container } = render(Modal, {
       props: { open: true, title: 'T', children: text('x') },
@@ -216,9 +251,59 @@ describe('the controls that may grow take the control height', () => {
     for (const el of container.querySelectorAll('a, button')) expectGrows(el);
   });
 
+  it('the small SegmentedControl track, so it stays level with a small Button', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: {
+        label: 'Range',
+        size: 'sm',
+        value: 'day',
+        options: [
+          { value: 'day', label: 'Day' },
+          { value: 'week', label: 'Week' },
+        ],
+      },
+    });
+    const track = classes(getByRole('radiogroup'));
+    expect(track).toContain('coarse:min-h-control');
+    expect(track).toContain('h-8');
+  });
+
   it('a Collapsible trigger', () => {
     const { getByRole } = render(Collapsible, { props: { label: 'More', children: text('x') } });
     expectGrows(getByRole('button'));
+  });
+});
+
+describe('the rail holds a finger without scrolling sideways', () => {
+  const items = [
+    {
+      id: 'ai',
+      label: 'AI',
+      href: '/ai',
+      children: [{ id: 'providers', label: 'Providers', href: '/ai/providers' }],
+    },
+  ];
+
+  /** The row that holds a group's link and its disclosure. */
+  function pair(container: HTMLElement): HTMLElement {
+    const disclosure = container.querySelector('button[aria-controls]') as HTMLElement;
+    const row = disclosure.parentElement as HTMLElement;
+    expect(row.querySelector('a[href="/ai"]')).toBeTruthy();
+    return row;
+  }
+
+  it('stacks the disclosure under the link on the rail, where the two were 92px side by side', () => {
+    const { container } = render(SidebarNav, {
+      props: { items, activePath: '/ai', collapsed: true },
+    });
+    expect(classes(pair(container))).toEqual(
+      expect.arrayContaining(['coarse:flex-col', 'coarse:items-start']),
+    );
+  });
+
+  it('keeps the two side by side in the full column, which has the room', () => {
+    const { container } = render(SidebarNav, { props: { items, activePath: '/ai' } });
+    expect(classes(pair(container))).not.toContain('coarse:flex-col');
   });
 });
 
