@@ -112,6 +112,10 @@ export { default as Stat } from './components/Stat.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
 export { default as CopyButton } from './components/CopyButton.svelte';
 export { default as CopyField } from './components/CopyField.svelte';
+// The clipboard write and the confirmation both copy controls run on, for a
+// control the kit does not ship. A menu item that copies then falls back the
+// same way on an insecure origin and confirms on the same clock.
+export { CopyState, copyToClipboard, type CopyStatus } from './internal/copy.svelte.js';
 
 // ── Media ──────────────────────────────────────────────────────────────────
 export { default as Avatar } from './components/Avatar.svelte';

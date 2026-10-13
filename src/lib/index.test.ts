@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as kit from './index.js';
+import type { CopyStatus } from './index.js';
 
 // Every component the package documents as public. Guards against an accidental
 // dropped/renamed re-export in index.ts (the sole entry point consumers use).
@@ -112,7 +113,14 @@ const FUNCTIONS = [
   'formatCents',
   'ladderRows',
   'ladderState',
+  'copyToClipboard',
 ] as const;
+
+/**
+ * Classes a consumer constructs. A class is a function at run time, so it
+ * needs a list of its own to stay out of the component check below.
+ */
+const CLASSES = ['CopyState'] as const;
 
 /**
  * Public values that are neither a component nor a function. `toast` and
@@ -163,6 +171,7 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     const exported = Object.keys(kit)
       .filter((name) => !FUNCTIONS.includes(name as (typeof FUNCTIONS)[number]))
       .filter((name) => !CONSTANTS.includes(name as (typeof CONSTANTS)[number]))
+      .filter((name) => !CLASSES.includes(name as (typeof CLASSES)[number]))
       .filter((name) => name !== 'VERSION' && name !== 'toast')
       .sort();
     expect(exported).toEqual([...COMPONENTS].sort());
@@ -173,6 +182,14 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     // console forked it rather than adopt it. The order is exported so a
     // surface offering a subset states which subset rather than inventing one.
     expect(kit.THEME_PREFERENCES).toEqual(['light', 'dark', 'system']);
+  });
+
+  it('exports the copy state a consumer builds its own copy control on', () => {
+    const state = new kit.CopyState();
+    expect(state.status).toBe('idle');
+    expectTypeOf(state.status).toEqualTypeOf<CopyStatus>();
+    expectTypeOf(kit.copyToClipboard).toEqualTypeOf<(value: string) => Promise<boolean>>();
+    state.dispose();
   });
 
   it('keeps the two-state helpers a consumer already calls', () => {

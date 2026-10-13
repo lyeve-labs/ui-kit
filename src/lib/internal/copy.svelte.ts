@@ -3,8 +3,11 @@
  *
  * Both controls report the same three states on the same clock, so a value
  * copied from a field and one copied from a code block confirm the same way.
+ * The package entry point exports the write and the state too, so a control
+ * the kit does not ship confirms the same way as well.
  */
 
+/** Where the last copy stands: at rest, confirmed, or refused. */
 export type CopyStatus = 'idle' | 'copied' | 'failed';
 
 /** How long the confirmation holds before the control returns to rest. */
@@ -20,9 +23,9 @@ export const COPY_FAILED_MESSAGE = 'Copy failed';
  * writeText rejects while the document is not focused. Either way the value
  * goes through a selected, off-screen textarea and the legacy copy command,
  * which the browser still honors inside the click. Only when that also
- * refuses is it a failure the control reports. It never throws.
+ * refuses does it resolve to false. It never throws.
  */
-export async function writeClipboard(value: string): Promise<boolean> {
+export async function copyToClipboard(value: string): Promise<boolean> {
   const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
   if (clipboard) {
     try {
@@ -53,6 +56,14 @@ function legacyCopy(value: string): boolean {
   }
 }
 
+/**
+ * A copy and its outcome, on the clock CopyButton and CopyField confirm on.
+ *
+ * `status` reads `copied` or `failed` for 1.5 seconds after `copy` and `idle`
+ * otherwise. It is reactive, so markup that reads it follows it. Create one
+ * per control while the component initializes, and call `dispose` when that
+ * component unmounts, so the revert timer cannot fire after it.
+ */
 export class CopyState {
   status = $state<CopyStatus>('idle');
   #timer: ReturnType<typeof setTimeout> | undefined;
@@ -61,7 +72,7 @@ export class CopyState {
     // A second press restarts the window. Without this the first press's timer
     // reverts the second copy part way through its own.
     clearTimeout(this.#timer);
-    this.status = (await writeClipboard(value)) ? 'copied' : 'failed';
+    this.status = (await copyToClipboard(value)) ? 'copied' : 'failed';
     this.#timer = setTimeout(() => (this.status = 'idle'), COPY_REVERT_MS);
   }
 

@@ -259,6 +259,32 @@ two throws.
 />
 ```
 
+### Copying
+
+`CopyButton` takes `text` for words beside its icon, such as "Copy all codes",
+and the words then name the button. A control the kit does not ship copies
+through the same write and confirms on the same clock with `CopyState`. Create
+one while the component initializes, read `status` in markup, and dispose of it
+when the component unmounts.
+
+```svelte
+<script lang="ts">
+  import { Button, CopyState } from '@lyeve-labs/ui-kit';
+
+  let { id }: { id: string } = $props();
+  const copy = new CopyState();
+  $effect(() => () => copy.dispose());
+</script>
+
+<Button variant="ghost" size="sm" onclick={() => copy.copy(id)}>
+  {copy.status === 'copied' ? 'Copied' : 'Copy ID'}
+</Button>
+```
+
+`copyToClipboard(text)` is the write alone. It resolves to whether the copy
+worked and never throws. Where the async clipboard is missing, as it is on an
+origin without TLS, it falls back to the legacy copy command.
+
 ## Local development
 
 ```bash
