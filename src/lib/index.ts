@@ -27,6 +27,10 @@ export type { CellFit } from './components/Table.svelte';
 export type { SidebarState } from './components/AppShell.svelte';
 export type { PageWidth, SectionVariant } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
+// Stated once in an app's root layout, the format turns every PageShell's
+// title into the browser tab's. An app that never states one gets no title
+// element from the kit.
+export { setDocumentTitleFormat, type DocumentTitleFormat } from './internal/document-title.js';
 
 // ── Forms & inputs ─────────────────────────────────────────────────────────
 export { default as Button } from './components/Button.svelte';
@@ -108,10 +112,17 @@ export {
   type DiscountBracket,
   type LadderState,
 } from './internal/pricing.js';
+// The tone names the status and accent components take, for an app that maps
+// its own states onto them and would otherwise restate the union.
+export type { AccentTone, StatusTone } from './internal/tone.js';
 export { default as Stat } from './components/Stat.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
 export { default as CopyButton } from './components/CopyButton.svelte';
 export { default as CopyField } from './components/CopyField.svelte';
+// The clipboard write and the confirmation both copy controls run on, for a
+// control the kit does not ship. A menu item that copies then falls back the
+// same way on an insecure origin and confirms on the same clock.
+export { CopyState, copyToClipboard, type CopyStatus } from './internal/copy.svelte.js';
 
 // ── Media ──────────────────────────────────────────────────────────────────
 export { default as Avatar } from './components/Avatar.svelte';
@@ -175,4 +186,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.36.0';
+export const VERSION = '0.37.0';

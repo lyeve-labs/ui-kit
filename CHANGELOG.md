@@ -5,6 +5,21 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.37.0] - 2026-10-13
+
+### Added
+
+- `FilterChips` takes an `href` on each chip, the link mode `SegmentedControl` already has. Every chip carries one or none does, the current chip is marked `aria-current="page"`, and a link row works before the page hydrates, so a filter held in the URL can offer more options than a segmented control holds.
+- `CopyState` and `copyToClipboard` are exported, with the `CopyStatus` type, so an app builds its own copy control on the kit's clipboard write and its confirmation timing. `CopyButton` takes `text`, a visible label beside its icon, which also becomes its accessible name.
+- `setDocumentTitleFormat` lets an app state its browser tab title format once, in its root layout. Every `PageShell` below it then titles the tab from its `title`, or from `documentTitle` when the tab should read differently. With no format stated, `PageShell` renders no title element, so an app that renders its own keeps it.
+- `AuthShell` takes a `lockup` snippet in place of the product mark, and passes `class` and `style` to its outer element, so an app can show a tenant's logo and scope a tenant's accent to the sign-in frame.
+- The `StatusTone` and `AccentTone` types are exported.
+
+### Fixed
+
+- Under a finger, every `SegmentedControl` segment and both `NumberInput` steppers take a 44px target, and a small segmented track grows to the control height. A number field keeps 64px for its value inside a `w-32`. Nothing moves under a mouse.
+- The collapsed `SidebarNav` rail stacks a group row's disclosure under its link. Side by side the two did not fit the 56px rail. Under a mouse the link shrank to 18px with its icon under the chevron and the rail scrolled sideways, and under a finger it scrolled further.
+
 ## [0.36.0] - 2026-10-12
 
 ### Added

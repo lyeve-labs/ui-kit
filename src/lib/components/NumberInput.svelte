@@ -7,6 +7,7 @@
     controlBorder,
     describedBy,
   } from '../internal/field.js';
+  import { HIT_AREA } from '../internal/touch.js';
 
   interface Props {
     value?: number;
@@ -70,8 +71,13 @@
   // line-strong, not line: the stepper buttons and the number between them read
   // as one control, and line sits at 1.25:1, so the caps of that control were
   // the part a low-vision user could not find.
+  //
+  // Under a finger the control token grows to 44px, and steppers as wide as the
+  // token left the number 40px inside a 128px field. They narrow instead and
+  // take a hit box of the control size, so the number keeps its room and each
+  // stepper is still a 44px target.
   const step_ =
-    'flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted ' +
+    `${HIT_AREA} flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted coarse:w-8 ` +
     'transition-colors hover:bg-line hover:text-fg ' +
     'disabled:opacity-50 disabled:cursor-not-allowed';
 </script>

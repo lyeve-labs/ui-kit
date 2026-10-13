@@ -42,3 +42,8 @@ NOTES.md
 # A pack is a build artifact. One was committed by accident, which put a
 # 226 KB binary in the history of a package whose whole job is to be small.
 *.tgz
+
+# The package build writes a declaration beside every Svelte file a test
+# imports. A fixture under tests/ ships nowhere, so its declaration is noise,
+# and Prettier reads this file too, so the emitted file stays out of its check.
+tests/fixtures/*.svelte.d.ts

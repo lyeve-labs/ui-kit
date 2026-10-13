@@ -166,7 +166,14 @@
         {@render body(node)}
       </span>
     {:else if node.href && branch}
-      <div class="flex items-center gap-1">
+      <!--
+        The rail stacks the disclosure under the link, under a mouse and under
+        a finger alike, so the link keeps the rail's width. Side by side the two
+        did not fit. Under a finger the pair took 92px and scrolled the nav
+        sideways. Under a mouse the link shrank to its own padding with its icon
+        under the chevron, and a rail with a gutter scrolled as well.
+      -->
+      <div class={collapsed ? 'flex flex-col items-start gap-1' : 'flex items-center gap-1'}>
         <a
           href={node.href}
           aria-current={current ? 'page' : undefined}

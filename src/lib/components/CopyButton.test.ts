@@ -287,3 +287,60 @@ describe('CopyButton under a finger', () => {
     expect((container.querySelector('button') as HTMLElement).className).toMatch(/\bactive:/);
   });
 });
+
+describe('CopyButton with text', () => {
+  it('shows the words beside the icon and takes its name from them', () => {
+    const { getByRole } = render(CopyButton, {
+      props: { value: 'a\nb', text: 'Copy all codes' },
+    });
+    const button = getByRole('button', { name: 'Copy all codes' });
+    expect(button.hasAttribute('aria-label')).toBe(false);
+    expect(button.textContent?.trim()).toBe('Copy all codes');
+    // The icon stays, and stays out of the name.
+    expect(button.querySelector('[data-copy-state]')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('names the button by the words on screen even when a label is passed', () => {
+    // A voice-control user speaks what the button shows. A label that said
+    // something else would leave the visible words naming nothing.
+    const { getByRole } = render(CopyButton, {
+      props: { value: 'x', text: 'Copy all codes', label: 'Copy' },
+    });
+    expect(getByRole('button', { name: 'Copy all codes' })).toBeTruthy();
+  });
+
+  it('keeps its words and its name through the copied state', async () => {
+    stubClipboard(vi.fn().mockResolvedValue(undefined));
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'x', text: 'Copy all codes' },
+    });
+    const button = getByRole('button', { name: 'Copy all codes' });
+
+    await fireEvent.click(button);
+    await settle();
+
+    expect(glyph(container)).toBe('copied');
+    expect(live(container).textContent).toBe('Copied');
+    expect(getByRole('button', { name: 'Copy all codes' })).toBe(button);
+  });
+
+  it('pads and colors the words as a text action, and keeps the hit box', () => {
+    const { getByRole } = render(CopyButton, {
+      props: { value: 'x', text: 'Copy all codes' },
+    });
+    const classes = getByRole('button').className.split(/\s+/);
+    expect(classes).toEqual(expect.arrayContaining(['gap-1.5', 'px-2', 'text-sm', 'text-muted']));
+    expect(classes).toEqual(expect.arrayContaining(['relative', 'hit-area']));
+    expect(classes).toContain('transition-colors');
+  });
+
+  it('keeps the icon-only button as it was when no text is given', () => {
+    const { getByRole } = render(CopyButton, { props: { value: 'x' } });
+    const button = getByRole('button', { name: 'Copy' });
+    expect(button.getAttribute('aria-label')).toBe('Copy');
+    expect(button.textContent?.trim()).toBe('');
+    const classes = button.className.split(/\s+/);
+    expect(classes).toEqual(expect.arrayContaining(['p-1', 'text-faint']));
+    expect(classes).not.toContain('text-muted');
+  });
+});
