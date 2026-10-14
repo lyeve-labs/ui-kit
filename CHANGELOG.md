@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - A `PageShell` title with no spaces, such as a tenant slug, breaks inside the page width. It used to run past the right edge and widen the page, so on a phone the whole page panned sideways. A title with spaces still wraps at them.
+- A long `FileInput` accept list wraps inside the drop target. A list with no spaces used to print as one line that spilled out of both sides of the dashed box. The input's `accept` attribute is unchanged.
 
 ## [0.38.0] - 2026-10-14
 
