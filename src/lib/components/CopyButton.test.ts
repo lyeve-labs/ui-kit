@@ -402,6 +402,29 @@ describe('CopyButton title', () => {
     expect(tooltip(container)?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('does not describe the button with its name in other case or spacing', async () => {
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'k', text: 'Copy all codes', title: ' copy ALL codes ' },
+    });
+    await tick();
+    expect(getByRole('button').hasAttribute('aria-describedby')).toBe(false);
+    expect(tooltip(container)?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('closes the tooltip on Escape without moving focus', async () => {
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'k', title: 'Copy the signing key' },
+    });
+    const button = getByRole('button');
+    const tip = tooltip(container) as HTMLElement;
+    button.focus();
+    await fireEvent.focusIn(button);
+    expect(tip.className).not.toContain('invisible');
+    await fireEvent.keyDown(button, { key: 'Escape' });
+    expect(tip.className).toContain('invisible');
+    expect(document.activeElement).toBe(button);
+  });
+
   it('copies through the tooltip wrapper', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     stubClipboard(writeText);

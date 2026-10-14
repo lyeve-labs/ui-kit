@@ -62,9 +62,11 @@
 
   /*
    * A tooltip in the same words as the name would be announced twice, as
-   * "Copy, Copy", so it is described only when it adds something.
+   * "Copy, Copy", so it is described only when it adds something. Case and
+   * outer spaces change nothing a reader hears, so neither counts.
    */
-  const describes = $derived(title !== (text || label));
+  const spoken = (words: string) => words.trim().toLowerCase();
+  const describes = $derived(spoken(title ?? '') !== spoken(text || label));
 </script>
 
 <!--
