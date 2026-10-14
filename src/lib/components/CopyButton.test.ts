@@ -344,3 +344,71 @@ describe('CopyButton with text', () => {
     expect(classes).not.toContain('text-muted');
   });
 });
+
+describe('CopyButton title', () => {
+  const tooltip = (c: HTMLElement) => c.querySelector<HTMLElement>('.z-tooltip');
+
+  it('shows no tooltip when no title is given', () => {
+    const { container, getByRole } = render(CopyButton, { props: { value: 'x' } });
+    expect(tooltip(container)).toBeNull();
+    expect(getByRole('button').hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('keeps the label on an icon-only button and describes it with the title', async () => {
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'k', label: 'Copy key', title: 'Copy the signing key' },
+    });
+    await tick();
+    const button = getByRole('button', { name: 'Copy key' });
+    expect(button.getAttribute('aria-label')).toBe('Copy key');
+    const tip = tooltip(container) as HTMLElement;
+    expect(tip.textContent?.trim()).toBe('Copy the signing key');
+    expect(tip.getAttribute('role')).toBe('tooltip');
+    expect(button.getAttribute('aria-describedby')).toBe(tip.id);
+  });
+
+  it('keeps the visible text as the name of a button with text', async () => {
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'k', text: 'Copy all codes', title: 'Copies all ten codes' },
+    });
+    await tick();
+    const button = getByRole('button', { name: 'Copy all codes' });
+    expect(button.hasAttribute('aria-label')).toBe(false);
+    expect(tooltip(container)?.textContent?.trim()).toBe('Copies all ten codes');
+    expect(button.getAttribute('aria-describedby')).toBe(tooltip(container)?.id);
+  });
+
+  it('shows the title on keyboard focus and on hover', async () => {
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'k', title: 'Copy the signing key' },
+    });
+    const tip = tooltip(container) as HTMLElement;
+    expect(tip.className).toContain('invisible');
+    await fireEvent.focusIn(getByRole('button'));
+    expect(tip.className).not.toContain('invisible');
+    await fireEvent.focusOut(getByRole('button'));
+    expect(tip.className).toContain('invisible');
+    await fireEvent.mouseEnter(tip.parentElement as HTMLElement);
+    expect(tip.className).not.toContain('invisible');
+  });
+
+  it('does not describe the button with the words that already name it', async () => {
+    const { container, getByRole } = render(CopyButton, {
+      props: { value: 'k', label: 'Copy key', title: 'Copy key' },
+    });
+    await tick();
+    const button = getByRole('button', { name: 'Copy key' });
+    expect(button.hasAttribute('aria-describedby')).toBe(false);
+    expect(tooltip(container)?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('copies through the tooltip wrapper', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    stubClipboard(writeText);
+    const { getByRole } = render(CopyButton, {
+      props: { value: 'secret-value', title: 'Copy the signing key' },
+    });
+    await fireEvent.click(getByRole('button'));
+    expect(writeText).toHaveBeenCalledWith('secret-value');
+  });
+});

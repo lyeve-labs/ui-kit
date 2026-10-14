@@ -283,7 +283,9 @@ its error through the description alone. Both link modes take the same props.
 ### Copying
 
 `CopyButton` takes `text` for words beside its icon, such as "Copy all codes",
-and the words then name the button. A control the kit does not ship copies
+and the words then name the button. `title` adds a tooltip, shown on hover and
+on keyboard focus. It never renames the button, and when it says more than the
+name it becomes the button's description. A control the kit does not ship copies
 through the same write and confirms on the same clock with `CopyState`. Create
 one while the component initializes, read `status` in markup, and dispose of it
 when the component unmounts.
