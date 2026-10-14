@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A `PageShell` title with no spaces, such as a tenant slug, breaks inside the page width. It used to run past the right edge and widen the page, so on a phone the whole page panned sideways. A title with spaces still wraps at them.
+
 ## [0.38.0] - 2026-10-14
 
 ### Added
