@@ -33,6 +33,7 @@ import SidebarNav from './components/SidebarNav.svelte';
 import Tabs from './components/Tabs.svelte';
 import Tag from './components/Tag.svelte';
 import ThemeToggle from './components/ThemeToggle.svelte';
+import TimePicker from './components/TimePicker.svelte';
 import Toggle from './components/Toggle.svelte';
 import { HIT_AREA, HIT_AREA_POSITIONED, TOUCH_GROW } from './internal/touch.js';
 
@@ -274,6 +275,42 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const row = classes(pageTwo?.parentElement ?? null);
     expect(row).toContain('coarse:gap-4');
     expect(row).toContain('gap-0.5');
+  });
+
+  it('TimePicker segments, which were 28 by 20 with no hit box', () => {
+    // An input draws no pseudo-element, so each digit segment's hit box sits
+    // on the span round it. The segments spread under a finger so their
+    // centers sit 44px apart: 28px, a 4px gap, an 8px colon, a 4px gap.
+    for (const props of [
+      {},
+      { seconds: true },
+      { hour12: true },
+      { hour12: true, seconds: true },
+    ]) {
+      const { container, getByRole, unmount } = render(TimePicker, {
+        props: { label: 'Starts', value: '09:30', ...props },
+      });
+      const group = getByRole('group');
+      expect(classes(group)).toContain('coarse:gap-1');
+      const inputs = container.querySelectorAll('input[data-segment]');
+      expect(inputs.length).toBe(props.seconds ? 3 : 2);
+      for (const input of inputs) {
+        const box = input.parentElement;
+        expect(box?.tagName).toBe('SPAN');
+        expectHitArea(box);
+      }
+      for (const colon of group.querySelectorAll('span[aria-hidden="true"]')) {
+        expect(classes(colon)).toContain('coarse:w-2');
+        expect(classes(colon)).toContain('coarse:text-center');
+      }
+      const meridiem = container.querySelector('[data-segment="meridiem"]');
+      if (props.hour12) {
+        expectHitArea(meridiem);
+        expect(classes(meridiem)).toContain('coarse:ms-2.5');
+        expect(classes(meridiem)).toContain('ms-1');
+      }
+      unmount();
+    }
   });
 
   it('NumberInput steppers, which left the number 40px wide inside a w-32', () => {

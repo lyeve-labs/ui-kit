@@ -485,3 +485,113 @@ describe('TimePicker dismissal', () => {
     }
   });
 });
+
+describe('TimePicker, a press on the field', () => {
+  /** Lays each segment out along x, as a browser would, since jsdom draws nothing. */
+  function place(container: HTMLElement, lefts: Record<string, number>, width = 28) {
+    for (const el of container.querySelectorAll<HTMLElement>('[data-segment]')) {
+      const left = lefts[el.dataset.segment ?? ''];
+      el.getBoundingClientRect = () =>
+        ({
+          left,
+          right: left + width,
+          top: 0,
+          bottom: 20,
+          width,
+          height: 20,
+          x: left,
+          y: 0,
+        }) as DOMRect;
+    }
+  }
+
+  it.each([
+    { x: 2, focused: 'Hour', where: 'the left padding' },
+    { x: 44, focused: 'Hour', where: 'the colon, nearer the hour' },
+    { x: 48, focused: 'Minute', where: 'the colon, nearer the minute' },
+    { x: 88, focused: 'Minute', where: 'the right padding' },
+  ])('focuses the nearest segment from $where', async ({ x, focused }) => {
+    const onchange = vi.fn();
+    const r = render(TimePicker, { props: { label: 'Starts', value: '09:30', onchange } });
+    place(r.container, { hour: 13, minute: 51 });
+    const group = r.container.querySelector('[role="group"]') as HTMLElement;
+    await fireEvent.click(group, { clientX: x });
+    expect(document.activeElement).toBe(r.getByLabelText(focused));
+    // Focus is all it does: the value and what is posted stay as they were.
+    expect(onchange).not.toHaveBeenCalled();
+    expect(hiddenOf(r).value).toBe('09:30');
+  });
+
+  it('focuses the input a tap on its hit box lands on', async () => {
+    const r = render(TimePicker, { props: { label: 'Starts', value: '09:30' } });
+    // As a finger sees it: the minute sits at 57 to 85 and its box at 49 to 93.
+    place(r.container, { hour: 13, minute: 57 });
+    const box = r.getByLabelText('Minute').parentElement as HTMLElement;
+    await fireEvent.click(box, { clientX: 50 });
+    expect(document.activeElement).toBe(r.getByLabelText('Minute'));
+  });
+
+  it('focuses AM or PM from beside it without flipping it', async () => {
+    const onchange = vi.fn();
+    const r = render(TimePicker, { props: { value: '21:30', hour12: true, onchange } });
+    place(r.container, { hour: 13, minute: 51, meridiem: 90 }, 28);
+    const group = r.container.querySelector('[role="group"]') as HTMLElement;
+    await fireEvent.click(group, { clientX: 125 });
+    const meridiem = r.container.querySelector('[data-segment="meridiem"]') as HTMLElement;
+    expect(document.activeElement).toBe(meridiem);
+    expect(meridiem.textContent?.trim()).toBe('PM');
+    expect(onchange).not.toHaveBeenCalled();
+  });
+
+  it('leaves focus in a segment when a drag that started there ends on the padding', async () => {
+    const r = render(TimePicker, { props: { label: 'Starts', value: '09:30' } });
+    place(r.container, { hour: 13, minute: 57 });
+    const hour = r.getByLabelText('Hour');
+    hour.focus();
+    const group = r.container.querySelector('[role="group"]') as HTMLElement;
+    await fireEvent.pointerDown(hour);
+    await fireEvent.click(group, { clientX: 88, detail: 1 });
+    expect(document.activeElement).toBe(hour);
+  });
+
+  it('moves focus to the minute from its box while the hour holds focus', async () => {
+    // iOS Safari keeps the hour focused when a finger taps a box that cannot
+    // take focus, so the press itself has to move it.
+    const r = render(TimePicker, { props: { label: 'Starts', value: '09:30' } });
+    place(r.container, { hour: 13, minute: 57 });
+    r.getByLabelText('Hour').focus();
+    const box = r.getByLabelText('Minute').parentElement as HTMLElement;
+    await fireEvent.pointerDown(box);
+    await fireEvent.click(box, { clientX: 88, detail: 1 });
+    expect(document.activeElement).toBe(r.getByLabelText('Minute'));
+  });
+
+  it('forgets a press in a segment once its click has passed', async () => {
+    const r = render(TimePicker, { props: { label: 'Starts', value: '09:30' } });
+    place(r.container, { hour: 13, minute: 57 });
+    const hour = r.getByLabelText('Hour');
+    const group = r.container.querySelector('[role="group"]') as HTMLElement;
+    await fireEvent.pointerDown(hour);
+    await fireEvent.click(hour, { detail: 1 });
+    // A click with no press before it, as the keyboard sends, still reaches.
+    await fireEvent.click(group, { clientX: 88, detail: 0 });
+    expect(document.activeElement).toBe(r.getByLabelText('Minute'));
+  });
+
+  it('focuses nothing while disabled', async () => {
+    const r = render(TimePicker, { props: { value: '09:30', disabled: true } });
+    place(r.container, { hour: 13, minute: 51 });
+    await fireEvent.click(r.container.querySelector('[role="group"]') as HTMLElement, {
+      clientX: 2,
+    });
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('keeps the names a screen reader reads with a hit box round each input', () => {
+    const r = render(TimePicker, { props: { label: 'Starts', value: '09:30', seconds: true } });
+    for (const name of ['Hour', 'Minute', 'Second']) {
+      expect(r.getByRole('spinbutton', { name })).toBeTruthy();
+    }
+    expect(r.getByRole('group', { name: 'Starts' })).toBeTruthy();
+  });
+});
