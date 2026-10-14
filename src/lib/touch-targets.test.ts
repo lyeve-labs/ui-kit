@@ -260,6 +260,22 @@ describe('the small controls keep their visual and grow their hit box', () => {
     for (const chip of getByRole('group').querySelectorAll('button')) expectHitArea(chip);
   });
 
+  it('Pagination pages, spaced so their hit boxes do not overlap', () => {
+    // A page is 28px wide and its hit box 44px, so pages 16px apart meet
+    // without overlapping. At the 2px gap a mouse keeps, each page took 30px
+    // of its own box.
+    const { container } = render(Pagination, {
+      props: { page: 2, total: 200, perPage: 20, onchange: () => {} },
+    });
+    const pageTwo = [...container.querySelectorAll('button')].find(
+      (b) => b.textContent?.trim() === '2',
+    );
+    expectHitArea(pageTwo ?? null);
+    const row = classes(pageTwo?.parentElement ?? null);
+    expect(row).toContain('coarse:gap-4');
+    expect(row).toContain('gap-0.5');
+  });
+
   it('NumberInput steppers, which left the number 40px wide inside a w-32', () => {
     // The steppers narrow under a finger and keep a 44px target, so the number
     // between them keeps its room. A mouse still sees the control-wide caps.
@@ -280,6 +296,67 @@ describe('the small controls keep their visual and grow their hit box', () => {
       (el) => el.tagName === 'BUTTON' && el.getAttribute('aria-hidden') !== 'true',
     );
     expectHitArea(close ?? null);
+  });
+});
+
+describe('Pagination on a phone held by a finger', () => {
+  // Nine steps 16px apart are 380px, wider than a phone, so below the sm
+  // width a finger sees at most five slots between Previous and Next. Both
+  // lists are in the markup and the stylesheet picks one, so nothing moves
+  // after hydration.
+  type Layout = 'both' | 'fine' | 'touch';
+
+  /** Each slot between the steps as its text and the layout that draws it. */
+  function slotsOf(page: number, pages: number): { text: string; layout: Layout }[] {
+    const { container } = render(Pagination, {
+      props: { page, total: pages * 10, perPage: 10, onchange: () => {} },
+    });
+    const row = container.querySelector('[aria-label="Previous page"]')?.parentElement;
+    const slots = [...(row?.children ?? [])].filter((el) => !el.hasAttribute('aria-label'));
+    return slots.map((el) => {
+      const list = classes(el);
+      const fineOnly = list.includes('max-sm:coarse:hidden');
+      const touchOnly = list.includes('hidden') && list.includes('max-sm:coarse:inline-flex');
+      // A touch-only gap that also carried inline-flex would tie with hidden.
+      if (touchOnly) expect(list).not.toContain('inline-flex');
+      if (fineOnly) expect(list).toContain('inline-flex');
+      expect(fineOnly && touchOnly).toBe(false);
+      return {
+        text: el.tagName === 'SPAN' ? 'gap' : (el.textContent ?? '').trim(),
+        layout: fineOnly ? 'fine' : touchOnly ? 'touch' : 'both',
+      };
+    });
+  }
+
+  const view = (slots: { text: string; layout: Layout }[], hide: Layout) =>
+    slots
+      .filter((s) => s.layout !== hide)
+      .map((s) => s.text)
+      .join(' ');
+
+  it.each([
+    { page: 1, pages: 10, fine: '1 2 gap 10', touch: '1 gap 10' },
+    { page: 3, pages: 10, fine: '1 2 3 4 gap 10', touch: '1 gap 3 gap 10' },
+    { page: 5, pages: 10, fine: '1 gap 4 5 6 gap 10', touch: '1 gap 5 gap 10' },
+    { page: 10, pages: 10, fine: '1 gap 9 10', touch: '1 gap 10' },
+    { page: 4, pages: 7, fine: '1 2 3 4 5 6 7', touch: '1 gap 4 gap 7' },
+    { page: 1, pages: 6, fine: '1 2 3 4 5 6', touch: '1 gap 6' },
+    { page: 3, pages: 5, fine: '1 2 3 4 5', touch: '1 2 3 4 5' },
+  ])('page $page of $pages', ({ page, pages, fine, touch }) => {
+    const slots = slotsOf(page, pages);
+    expect(view(slots, 'touch')).toBe(fine);
+    expect(view(slots, 'fine')).toBe(touch);
+    expect(touch.split(' ').length).toBeLessThanOrEqual(5);
+    // One element per page, and a gap both layouts draw is one element.
+    const pagesDrawn = slots.filter((s) => s.text !== 'gap').map((s) => s.text);
+    expect(new Set(pagesDrawn).size).toBe(pagesDrawn.length);
+  });
+
+  it('draws a gap both layouts share once', () => {
+    const slots = slotsOf(5, 10);
+    expect(slots.map((s) => `${s.text}:${s.layout}`).join(' ')).toBe(
+      '1:both gap:both 4:fine 5:both gap:touch 6:fine gap:fine 10:both',
+    );
   });
 });
 
