@@ -224,16 +224,16 @@ describe('FilterChips, field props', () => {
     expect(group.hasAttribute('aria-invalid')).toBe(false);
   });
 
-  it('moves the caller class to the column that holds the row and its message', () => {
+  it('keeps the caller class on the row when a message shows', () => {
     const { getByRole, getByText } = render(FilterChips, {
       props: { label: 'Status', options: chips, value: 'all', hint: 'h', class: 'mt-4' },
     });
     const group = getByRole('group', { name: 'Status' });
     const column = group.parentElement as HTMLElement;
-    expect(column.className).toContain('mt-4');
+    expect(group.className).toContain('mt-4');
     expect(column.className).toContain('flex-col');
     expect(column.hasAttribute('data-field')).toBe(true);
-    expect(group.className).not.toContain('mt-4');
+    expect(column.className).not.toContain('mt-4');
     expect(getByText('h').parentElement).toBe(column);
   });
 

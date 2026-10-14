@@ -130,18 +130,18 @@
 
 <!--
   The row stands alone until there is a message to show under it, and then a
-  column holds the two. A wrapper that was always there would have moved the
-  caller's class off the row in every app that already places one. The column
-  carries the field marker, so a panel sizing itself to its form counts a row
-  that reports a hint or an error as the one field it then is.
+  column holds the two. The caller's class stays on the row in both states, so
+  a layout class keeps applying when an error arrives. The column carries the
+  field marker, so a panel sizing itself to its form counts a row that reports
+  a hint or an error as the one field it then is.
 
   The row carries no aria-invalid. ARIA does not allow it on a group, or on
   the buttons and links inside one, so an error reaches a reader through
   aria-describedby, which reads the message itself.
 -->
 {#if error || hint}
-  <div data-field class={cn(FIELD_WRAP, klass)}>
-    {@render row('')}
+  <div data-field class={FIELD_WRAP}>
+    {@render row()}
     {#if error}
       <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
     {:else}
@@ -149,13 +149,13 @@
     {/if}
   </div>
 {:else}
-  {@render row(klass)}
+  {@render row()}
 {/if}
 
-{#snippet row(rowClass: string)}
+{#snippet row()}
   <div
     {id}
-    class={cn('flex flex-wrap gap-1.5', rowClass)}
+    class={cn('flex flex-wrap gap-1.5', klass)}
     role="group"
     aria-label={label}
     aria-describedby={describedByIds}
