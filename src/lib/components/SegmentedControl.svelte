@@ -108,7 +108,7 @@
   /*
    * $props.id() and not Math.random(), so the message ids match between the
    * server render and hydration. The group carries an id only when the caller
-   * names one, so a control with no messages renders what it always did.
+   * names one, so a control given none keeps the attributes it had.
    */
   const uid = $props.id();
   const messageBase = $derived(id ?? uid);
