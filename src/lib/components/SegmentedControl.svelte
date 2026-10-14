@@ -99,6 +99,10 @@
    * Button does, and each segment keeps its visual inside the track and takes
    * a hit box of the control size. A segment that grew instead would stand
    * the track six pixels proud of the Input beside it.
+   *
+   * A segment is never narrower than the control size under a finger, so a
+   * short label such as "6h" takes a 44px target across as well, and the hit
+   * boxes of two neighbors do not overlap.
    */
   const SIZES: Record<Size, { row: string; segment: string; icon: number }> = {
     sm: { row: 'h-8 coarse:min-h-control', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
@@ -228,7 +232,16 @@
        carries no aria-checked, and what marks the current one is aria-current,
        the attribute a reader already knows from navigation. ARIA allows
        aria-invalid on a radiogroup and not on a group, so a row of links
-       reports an error through aria-describedby alone. -->
+       reports an error through aria-describedby alone.
+
+       Under a finger the track draws its frame as an inset outline with no
+       border, and its padding grows by the border's pixel. A caller that
+       lets a long row scroll clips the segments at the track's padding box,
+       which a border keeps 2px short of the outer edge, so each segment's
+       44px hit box lost a pixel at the top and the bottom. The track's own
+       overflow does not clip its outline, and forced colors keep an outline
+       where they drop a shadow. The drawn frame and the segments stay where
+       they were. -->
   <div
     bind:this={rootEl}
     {id}
@@ -238,14 +251,16 @@
     aria-describedby={describedByIds}
     onfocusout={linked ? onGroupFocusOut : undefined}
     class="inline-flex items-stretch rounded-lg border {error
-      ? 'border-danger'
-      : 'border-line-strong'} bg-surface-2 p-0.5 {SIZES[size].row} {disabled ? 'opacity-50' : ''}"
+      ? 'border-danger coarse:outline-danger'
+      : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {SIZES[
+      size
+    ].row} {disabled ? 'opacity-50' : ''}"
   >
     {#each options as option, i (option.value)}
       {@const selected = option.value === value}
       {@const Icon = option.icon}
       {@const segment =
-        `${HIT_AREA} inline-flex items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
+        `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
         SIZES[size].segment +
         (selected
           ? ' bg-surface text-brand shadow-sm ring-1 ring-inset ring-brand/40'

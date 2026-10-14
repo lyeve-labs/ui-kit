@@ -184,6 +184,62 @@ describe('the small controls keep their visual and grow their hit box', () => {
     }
   });
 
+  it('the SegmentedControl track frames itself without a border under a finger', () => {
+    // A caller that lets a long row scroll clips the segments at the track's
+    // padding box. A 1px border kept that box at 42px inside a 44px track, so
+    // each segment's hit box lost a pixel at the top and the bottom. An inset
+    // outline draws the same frame, leaves the padding box at the outer edge,
+    // and survives forced colors, which drop a shadow.
+    const options = [
+      { value: 'day', label: 'Day' },
+      { value: 'week', label: 'Week' },
+    ];
+    for (const error of [undefined, 'Pick one']) {
+      const { getByRole, unmount } = render(SegmentedControl, {
+        props: { label: 'Range', options, value: 'day', error },
+      });
+      const track = classes(getByRole('radiogroup'));
+      for (const c of [
+        'coarse:border-0',
+        'coarse:p-0.75',
+        'coarse:outline',
+        'coarse:outline-1',
+        'coarse:-outline-offset-1',
+      ])
+        expect(track, c).toContain(c);
+      expect(track).toContain(error ? 'coarse:outline-danger' : 'coarse:outline-line-strong');
+      expect(
+        track.some((c) => c.startsWith('coarse:ring')),
+        'no shadow frame',
+      ).toBe(false);
+      // The mouse keeps the border and the padding it was drawn with.
+      expect(track).toContain('border');
+      expect(track).toContain('p-0.5');
+      unmount();
+    }
+  });
+
+  it('SegmentedControl segments are never narrower than a finger, at either size', () => {
+    // A short label such as "6h" drew a segment 35px wide, and its 44px hit
+    // box overlapped both neighbors'. A segment as wide as the control size
+    // keeps the boxes apart.
+    const radios = [
+      { value: '6h', label: '6h' },
+      { value: '24h', label: '24h' },
+    ];
+    const links = radios.map((o) => ({ ...o, href: `?window=${o.value}` }));
+    for (const size of ['sm', 'md'] as const) {
+      for (const options of [radios, links]) {
+        const { container, unmount } = render(SegmentedControl, {
+          props: { label: 'Window', options, value: '6h', size },
+        });
+        for (const segment of container.querySelectorAll('[data-segment]'))
+          expect(classes(segment)).toContain('coarse:min-w-control');
+        unmount();
+      }
+    }
+  });
+
   it('wrapped FilterChips rows, whose hit boxes covered the row above', () => {
     // A chip is 26px tall and its hit box 44px, so rows 18px apart meet
     // without overlapping. At the 6px gap a mouse keeps, the next row took
