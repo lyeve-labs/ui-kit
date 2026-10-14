@@ -190,11 +190,39 @@
   function onWindowKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape' && navOpen) navOpen = false;
   }
+
+  /**
+   * Focus that falls to the body lands on the page's content instead.
+   *
+   * Removing the focused element sends focus to the body, and the next Tab
+   * starts again at the top of the document. A dialog that deletes the row
+   * its opener sat on hands focus back to nothing, and an empty state's
+   * create button unmounts once the first record exists. Neither fires an
+   * event, so every change to the document is checked instead. Focus moves
+   * only when it sits on the body and the element that last held it in the
+   * shell is gone, so focus a reader or the page put somewhere stays there.
+   */
+  let main: HTMLElement;
+  let lastFocused: Element | null = null;
+
+  $effect(() => {
+    const observer = new MutationObserver(() => {
+      if (document.activeElement === document.body && lastFocused && !lastFocused.isConnected) {
+        main.focus({ preventScroll: true });
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  });
 </script>
 
 <svelte:window onkeydown={onWindowKeydown} />
 
-<div data-print="unclip" class="flex h-screen {klass}">
+<div
+  data-print="unclip"
+  class="flex h-screen {klass}"
+  onfocusin={(event) => (lastFocused = event.target as Element)}
+>
   <!-- First focusable thing in the document. Without it a keyboard reader tabs
        the whole sidebar again on every page. -->
   <a
@@ -327,6 +355,7 @@
          one low on a long page stretched the document past the h-screen shell,
          so the window scrolled the whole frame up and off. -->
     <main
+      bind:this={main}
       id="content"
       tabindex="-1"
       data-print="unclip"

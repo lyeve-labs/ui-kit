@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Inside `AppShell`, keyboard focus lands on the page's content when the control that held it is removed, such as a row action whose row a dialog just deleted or an empty state's create button once the first record exists. It used to fall to the document, so the next Tab started again at the top of the page.
+
 ## [0.38.1] - 2026-10-14
 
 ### Fixed

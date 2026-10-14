@@ -2,6 +2,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { beforeEach, describe, expect, it } from 'vitest';
 import AppShell from './AppShell.svelte';
+import { overlay } from '../internal/overlay.js';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
@@ -364,5 +365,84 @@ describe('AppShell between md: and lg:', () => {
     width('tablet');
     const { getByText } = render(AppShell, { props: base });
     expect(getByText('Nav')).toBeTruthy();
+  });
+});
+
+describe('AppShell keeps focus in the page when its holder is removed', () => {
+  const page = createRawSnippet(() => ({
+    render: () =>
+      `<div><button data-testid="row">Delete row</button><h1 tabindex="-1" data-testid="title">Records</h1><input data-testid="search" aria-label="Search" /></div>`,
+  }));
+
+  /** The observer reports a removal in a microtask after it. */
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  function shell() {
+    const { container, getByTestId } = render(AppShell, { props: { ...base, children: page } });
+    return { main: container.querySelector('main') as HTMLElement, getByTestId };
+  }
+
+  it('lands on main when a dialog closes after deleting its opener', async () => {
+    const { main, getByTestId } = shell();
+    const row = getByTestId('row');
+    row.focus();
+
+    const panel = document.createElement('div');
+    panel.innerHTML = '<button>Confirm</button>';
+    main.append(panel);
+    const dialog = overlay(panel);
+    expect(document.activeElement?.textContent).toBe('Confirm');
+
+    row.remove();
+    await settle();
+    expect(document.activeElement?.textContent).toBe('Confirm');
+
+    dialog.destroy();
+    panel.remove();
+    await settle();
+    expect(document.activeElement).toBe(main);
+  });
+
+  it('lands on main when the opener is removed just after focus returned to it', async () => {
+    const { main, getByTestId } = shell();
+    const row = getByTestId('row');
+    row.focus();
+
+    row.remove();
+    expect(document.activeElement).toBe(document.body);
+    await settle();
+    expect(document.activeElement).toBe(main);
+  });
+
+  it('keeps the focus a page moves itself after the removal', async () => {
+    const { getByTestId } = shell();
+    const row = getByTestId('row');
+    row.focus();
+
+    row.remove();
+    getByTestId('title').focus();
+    await settle();
+    expect(document.activeElement).toBe(getByTestId('title'));
+  });
+
+  it('moves nothing while the reader has focused a real element', async () => {
+    const { getByTestId } = shell();
+    getByTestId('row').focus();
+    getByTestId('search').focus();
+    getByTestId('row').remove();
+    await settle();
+    expect(document.activeElement).toBe(getByTestId('search'));
+
+    // A control outside the shell, such as a popover the app mounts at the
+    // root, while the last thing focused in the shell is removed.
+    const outside = document.createElement('input');
+    outside.setAttribute('aria-label', 'Jump to');
+    document.body.append(outside);
+    getByTestId('title').focus();
+    outside.focus();
+    getByTestId('title').remove();
+    await settle();
+    expect(document.activeElement).toBe(outside);
+    outside.remove();
   });
 });
