@@ -62,12 +62,16 @@
       Each size token names its own leading and tracking. A `text-*` token
       built from `--text-*` alone sets font-size and leaves line-height to
       whatever it inherits, which is not the ratio the ramp specifies.
+
+      A title can be a user value with no spaces, such as a tenant slug. It
+      breaks anywhere only when a word does not fit the line, so a title with
+      spaces still wraps at them, and a long slug no longer widens the page.
     -->
     <h1
       data-testid="page-title"
-      class={compact
+      class="[overflow-wrap:anywhere] {compact
         ? 'text-sm font-semibold text-fg'
-        : 'text-h2 leading-h2 tracking-h2 font-bold text-fg'}
+        : 'text-h2 leading-h2 tracking-h2 font-bold text-fg'}"
     >
       {title}
     </h1>

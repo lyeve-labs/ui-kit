@@ -29,6 +29,14 @@ describe('FileInput', () => {
     expect(getByText('image/png')).toBeTruthy();
   });
 
+  it('wraps a long accept list inside the drop target', () => {
+    const accept =
+      '.csv,.json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const { container, getByText } = render(FileInput, { props: { accept } });
+    expect(getByText(accept).className).toContain('[overflow-wrap:anywhere]');
+    expect(input(container).getAttribute('accept')).toBe(accept);
+  });
+
   it('forwards the file input type and accept to the input', () => {
     const { container } = render(FileInput, { props: { accept: '.pdf', multiple: true } });
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
