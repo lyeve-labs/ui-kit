@@ -280,6 +280,12 @@ its error through the description alone. Both link modes take the same props.
 />
 ```
 
+### Empty states
+
+`EmptyState` renders its title as an h3, for a list inside a section. On a
+page whose only other heading is its h1, pass `level={2}` so the outline does
+not skip a level. The title looks the same at either level.
+
 ### Copying
 
 `CopyButton` takes `text` for words beside its icon, such as "Copy all codes",
