@@ -285,10 +285,13 @@ its error through the description alone. Both link modes take the same props.
 `CopyButton` takes `text` for words beside its icon, such as "Copy all codes",
 and the words then name the button. `title` adds a tooltip, shown on hover and
 on keyboard focus. It never renames the button, and when it says more than the
-name it becomes the button's description. A control the kit does not ship copies
-through the same write and confirms on the same clock with `CopyState`. Create
-one while the component initializes, read `status` in markup, and dispose of it
-when the component unmounts.
+name it becomes the button's description. `CopyField` shows its value on one
+truncated line, and `wrap` shows the whole value across as many lines as it
+takes, breaking anywhere, for a key the reader has to check end to end.
+
+A control the kit does not ship copies through the same write and confirms on
+the same clock with `CopyState`. Create one while the component initializes,
+read `status` in markup, and dispose of it when the component unmounts.
 
 ```svelte
 <script lang="ts">
