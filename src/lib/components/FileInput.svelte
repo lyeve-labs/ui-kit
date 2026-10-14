@@ -90,7 +90,7 @@
     <div class="text-sm">
       <span class="{error ? 'text-danger' : 'text-brand'} font-medium">Click to upload</span>
       <span class="text-muted"> or drag & drop</span>
-      {#if accept}<p class="mt-0.5 text-xs text-faint">{accept}</p>{/if}
+      {#if accept}<p class="mt-0.5 text-xs text-faint [overflow-wrap:anywhere]">{accept}</p>{/if}
     </div>
     <input
       type="file"

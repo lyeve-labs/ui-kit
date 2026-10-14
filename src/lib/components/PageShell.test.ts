@@ -93,6 +93,20 @@ describe('PageShell', () => {
     expect(capOf(frame), 'a fill page states no cap').toBeUndefined();
   });
 
+  it('breaks a title that has no spaces inside the page width', () => {
+    // A title taken from a user value, such as a tenant slug, can be one word
+    // wider than a phone. Without a break rule it widens the page's scroller
+    // and the whole page pans sideways.
+    for (const compact of [false, true]) {
+      const { container, unmount } = render(PageShell, {
+        props: { title: 'admin_telem_mv7s5p7o', compact, children: text('Body') },
+      });
+      const h1 = container.querySelector('h1') as HTMLElement;
+      expect(h1.className, `compact=${compact}`).toContain('[overflow-wrap:anywhere]');
+      unmount();
+    }
+  });
+
   it('fill keeps the title row in the page gutter, at full size', () => {
     // This case used to assert the opposite, and the opposite is what shipped:
     // the two pages that own the viewport were the only two whose name rendered
