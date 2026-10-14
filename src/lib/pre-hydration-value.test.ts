@@ -28,9 +28,11 @@ function offendersIn(source: string, path: string): string[] {
   /**
    * A read-only textarea takes no typing, so hydration has nothing to
    * overwrite and a value attribute is enough. Only a literal `readonly`
-   * counts: a bound or computed one can be false.
+   * counts: a bound or computed one can be false, and a spread on the same
+   * element can turn it off.
    */
   const readOnly = (attributes: Array<{ type: string; name?: string; value?: unknown }>) =>
+    !attributes.some((a) => a.type === 'SpreadAttribute') &&
     attributes.some((a) => a.type === 'Attribute' && a.name === 'readonly' && a.value === true);
 
   const walk = (node: unknown): void => {
@@ -104,9 +106,11 @@ describe('a field the visitor types into before hydration', () => {
     const readOnly = '<textarea readonly {value}></textarea>';
     const sometimesReadOnly = '<textarea readonly={locked} {value}></textarea>';
     const readOnlyAsContent = '<textarea readonly>{value}</textarea>';
+    const readOnlyWithSpread = '<textarea readonly {...rest}></textarea>';
 
     expect(offendersIn(readOnly, 'readonly.svelte')).toEqual([]);
     expect(offendersIn(sometimesReadOnly, 'locked.svelte')).toHaveLength(1);
     expect(offendersIn(readOnlyAsContent, 'content.svelte')).toHaveLength(1);
+    expect(offendersIn(readOnlyWithSpread, 'spread.svelte')).toHaveLength(1);
   });
 });
