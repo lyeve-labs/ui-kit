@@ -259,13 +259,50 @@ two throws.
 />
 ```
 
+### Hints and errors on a choice row
+
+`SegmentedControl` and `FilterChips` take `id`, `hint`, `error` and
+`describedBy`, the field props `Input`, `Select` and `RadioGroup` take. The
+hint shows under the row, and an error replaces it. The group points
+`aria-describedby` at whichever is on screen, then at the ids in
+`describedBy`, so a row inside a `Field` reads that field's message too. A
+segmented row of radios carries `aria-invalid` while it shows an error. ARIA
+does not allow that attribute on a group, so a row of chips or links reports
+its error through the description alone. Both link modes take the same props.
+
+`SegmentedControl` draws its own caption from `label`. Inside a `Field`, which
+draws the label already, pass `labelHidden` so the name shows once and the
+group keeps it for a screen reader. `FilterChips` draws no caption, and its
+`label` only names the group.
+
+```svelte
+<SegmentedControl
+  label="Billing period"
+  options={periods}
+  bind:value={period}
+  hint="Charged at the start of each period."
+  error={form?.errors?.period}
+/>
+```
+
+### Empty states
+
+`EmptyState` renders its title as an h3, for a list inside a section. On a
+page whose only other heading is its h1, pass `level={2}` so the outline does
+not skip a level. The title looks the same at either level.
+
 ### Copying
 
 `CopyButton` takes `text` for words beside its icon, such as "Copy all codes",
-and the words then name the button. A control the kit does not ship copies
-through the same write and confirms on the same clock with `CopyState`. Create
-one while the component initializes, read `status` in markup, and dispose of it
-when the component unmounts.
+and the words then name the button. `title` adds a tooltip, shown on hover and
+on keyboard focus. It never renames the button, and when it says more than the
+name it becomes the button's description. `CopyField` shows its value on one
+truncated line, and `wrap` shows the whole value across as many lines as it
+takes, breaking anywhere, for a key the reader has to check end to end.
+
+A control the kit does not ship copies through the same write and confirms on
+the same clock with `CopyState`. Create one while the component initializes,
+read `status` in markup, and dispose of it when the component unmounts.
 
 ```svelte
 <script lang="ts">

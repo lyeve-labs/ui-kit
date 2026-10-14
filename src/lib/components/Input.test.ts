@@ -1,5 +1,6 @@
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
+import { drawn, fixture } from '../../../tests/fixtures/markup.js';
 import Input from './Input.svelte';
 
 describe('Input', () => {
@@ -80,5 +81,28 @@ describe('Input required marker', () => {
     expect(container.querySelector('input')?.className).toContain('font-mono');
     expect(container.querySelector('[data-field]')?.className).not.toContain('font-mono');
     expect(container.querySelector('label')?.className).not.toContain('font-mono');
+  });
+});
+
+describe('Input describedBy', () => {
+  it('renders what it rendered before describedBy, when not given it', () => {
+    const { container } = render(Input, {
+      props: { label: 'Email', hint: 'Work address', value: 'a@b.c' },
+    });
+    expect(drawn(container.innerHTML)).toBe(drawn(fixture('input-default.html')));
+  });
+
+  it('reads the caller ids after its own message', () => {
+    const { getByLabelText } = render(Input, {
+      props: { label: 'Email', hint: 'Work address', describedBy: 'note other' },
+    });
+    expect(getByLabelText('Email').getAttribute('aria-describedby')).toBe('email-hint note other');
+  });
+
+  it('points at the caller ids alone when it shows no message', () => {
+    const { getByLabelText } = render(Input, {
+      props: { label: 'Email', describedBy: 'note' },
+    });
+    expect(getByLabelText('Email').getAttribute('aria-describedby')).toBe('note');
   });
 });

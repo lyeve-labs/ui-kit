@@ -53,6 +53,7 @@
     FIELD_WRAP,
     controlBorder,
     describedBy,
+    joinIds,
   } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
@@ -75,6 +76,12 @@
     required?: boolean;
     disabled?: boolean;
     error?: string;
+    /**
+     * Ids of other elements that describe the control, separated by spaces,
+     * such as the message a wrapping Field renders. They are read after the
+     * control's own hint or error.
+     */
+    describedBy?: string;
     class?: string;
     /** The rows, as data. */
     options?: SelectOption[];
@@ -102,6 +109,7 @@
     required = false,
     disabled = false,
     error,
+    describedBy: callerIds,
     class: cls = '',
     options = [],
     searchable = false,
@@ -312,7 +320,7 @@
       }}
       aria-invalid={error ? 'true' : undefined}
       aria-required={required ? 'true' : undefined}
-      aria-describedby={describedBy(fieldId, error, hint)}
+      aria-describedby={joinIds(describedBy(fieldId, error, hint), callerIds)}
       {...box.triggerAttrs}
       class="{CONTROL_BASE} {controlBorder(!!error)} flex cursor-pointer items-center gap-2 pe-8
           text-start"
