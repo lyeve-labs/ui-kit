@@ -1,4 +1,6 @@
 import { fireEvent, render } from '@testing-library/svelte';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import FilterChips from './FilterChips.svelte';
 
@@ -165,5 +167,151 @@ describe('FilterChips link mode', () => {
     expect(anchors(container)).toHaveLength(0);
     expect(getAllByRole('button')).toHaveLength(3);
     expect(container.querySelector('[aria-current]')).toBeNull();
+  });
+});
+
+/**
+ * Markup as a browser draws it. Svelte's empty block anchors render nothing,
+ * and a run of white space between tags collapses to one space, so neither
+ * counts as a change to what the reader sees.
+ */
+function drawn(html: string): string {
+  return html
+    .replace(/<!---->/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const fixture = (name: string) =>
+  readFileSync(join(__dirname, '../../../tests/fixtures', name), 'utf8');
+
+describe('FilterChips, field props', () => {
+  const chips = [
+    { value: 'all', label: 'All', count: 12 },
+    { value: 'open', label: 'Open', count: 3 },
+  ];
+  const chipLinks = chips.map((o) => ({ ...o, href: `?status=${o.value}` }));
+
+  it('renders what it rendered before the field props, when given none of them', () => {
+    const buttons = render(FilterChips, {
+      props: { label: 'Status', options: chips, value: 'open', countLabel: 'rows' },
+    });
+    expect(drawn(buttons.container.innerHTML)).toBe(drawn(fixture('filter-chips-buttons.html')));
+    const links = render(FilterChips, {
+      props: { label: 'Status', options: chipLinks, value: 'open' },
+    });
+    expect(drawn(links.container.innerHTML)).toBe(drawn(fixture('filter-chips-links.html')));
+  });
+
+  it('puts the id on the group and describes the group with the hint', () => {
+    const { getByRole, getByText } = render(FilterChips, {
+      props: {
+        label: 'Status',
+        options: chips,
+        value: 'all',
+        id: 'status',
+        hint: 'Filters the list',
+      },
+    });
+    const group = getByRole('group', { name: 'Status' });
+    expect(group.id).toBe('status');
+    expect(getByText('Filters the list').id).toBe('status-hint');
+    expect(getByText('Filters the list').className).toContain('text-faint');
+    expect(group.getAttribute('aria-describedby')).toBe('status-hint');
+  });
+
+  it('replaces the hint with the error and points the group at it', () => {
+    const { getByRole, getByText, queryByText } = render(FilterChips, {
+      props: {
+        label: 'Status',
+        options: chips,
+        value: 'all',
+        id: 's',
+        hint: 'h',
+        error: 'Pick a status',
+      },
+    });
+    const group = getByRole('group', { name: 'Status' });
+    expect(queryByText('h')).toBeNull();
+    expect(getByText('Pick a status').id).toBe('s-error');
+    expect(getByText('Pick a status').className).toContain('text-danger');
+    expect(group.getAttribute('aria-describedby')).toBe('s-error');
+    // ARIA does not allow aria-invalid on a group.
+    expect(group.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('moves the caller class to the column that holds the row and its message', () => {
+    const { getByRole, getByText } = render(FilterChips, {
+      props: { label: 'Status', options: chips, value: 'all', hint: 'h', class: 'mt-4' },
+    });
+    const group = getByRole('group', { name: 'Status' });
+    const column = group.parentElement as HTMLElement;
+    expect(column.className).toContain('mt-4');
+    expect(column.className).toContain('flex-col');
+    expect(column.hasAttribute('data-field')).toBe(true);
+    expect(group.className).not.toContain('mt-4');
+    expect(getByText('h').parentElement).toBe(column);
+  });
+
+  it('gives the messages a generated id when the caller names none', () => {
+    const { getByRole, getByText } = render(FilterChips, {
+      props: { label: 'Status', options: chips, value: 'all', error: 'Pick a status' },
+    });
+    const group = getByRole('group', { name: 'Status' });
+    const error = getByText('Pick a status');
+    expect(group.hasAttribute('id')).toBe(false);
+    expect(error.id).toMatch(/-error$/);
+    expect(group.getAttribute('aria-describedby')).toBe(error.id);
+  });
+
+  it('reads the caller ids after its own message', () => {
+    const own = render(FilterChips, {
+      props: {
+        label: 'Status',
+        options: chips,
+        value: 'all',
+        id: 's',
+        hint: 'h',
+        describedBy: 'note',
+      },
+    });
+    expect(own.getByRole('group', { name: 'Status' }).getAttribute('aria-describedby')).toBe(
+      's-hint note',
+    );
+    const alone = render(FilterChips, {
+      props: { label: 'Kind', options: chips, value: 'all', describedBy: 'kind-note' },
+    });
+    expect(alone.getByRole('group', { name: 'Kind' }).getAttribute('aria-describedby')).toBe(
+      'kind-note',
+    );
+  });
+
+  it('keeps its links working with every field prop set', () => {
+    const { getByRole, getByText, container } = render(FilterChips, {
+      props: {
+        label: 'Status',
+        options: chipLinks,
+        value: 'open',
+        id: 'status',
+        hint: 'Kept in the URL',
+        describedBy: 'note',
+      },
+    });
+    const group = getByRole('group', { name: 'Status' });
+    expect(getByText('Kept in the URL').id).toBe('status-hint');
+    expect(group.getAttribute('aria-describedby')).toBe('status-hint note');
+    const links = [...container.querySelectorAll('a')];
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['?status=all', '?status=open']);
+    expect(links[1].getAttribute('aria-current')).toBe('page');
+    expect(container.querySelector('button')).toBeNull();
+  });
+
+  it('presses a chip with every field prop set', async () => {
+    const onchange = vi.fn();
+    const { getByRole } = render(FilterChips, {
+      props: { label: 'Status', options: chips, value: 'all', id: 's', error: 'e', onchange },
+    });
+    await fireEvent.click(getByRole('button', { name: /Open/ }));
+    expect(onchange).toHaveBeenCalledWith('open');
   });
 });

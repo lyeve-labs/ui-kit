@@ -21,7 +21,14 @@
 </script>
 
 <script lang="ts" generics="T extends string">
-  import { FIELD_LABEL, FIELD_WRAP } from '../internal/field.js';
+  import {
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    describedBy as messageId,
+    joinIds,
+  } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -39,6 +46,24 @@
     label: string;
     /** Drops the caption above the row. The group keeps its accessible name. */
     labelHidden?: boolean;
+    /**
+     * The group's id. The hint and the error take theirs from it. Left unset,
+     * the group carries no id and the messages take a generated one.
+     */
+    id?: string;
+    /** Shown under the row while there is no error. */
+    hint?: string;
+    /**
+     * Replaces the hint while it is set. A row of radios is marked invalid
+     * with it. A row of links is not, because ARIA refuses the attribute there.
+     */
+    error?: string;
+    /**
+     * Ids of other elements that describe the group, separated by spaces, such
+     * as the message a wrapping Field renders. They are read after the group's
+     * own hint or error.
+     */
+    describedBy?: string;
     /** Submits the value with the surrounding form, through a hidden input. */
     name?: string;
     size?: Size;
@@ -53,6 +78,10 @@
     options,
     label,
     labelHidden = false,
+    id = undefined,
+    hint = undefined,
+    error = undefined,
+    describedBy = undefined,
     name = undefined,
     size = 'md',
     disabled = false,
@@ -75,6 +104,15 @@
     sm: { row: 'h-8 coarse:min-h-control', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
     md: { row: 'h-control', segment: 'gap-2 px-3 text-sm', icon: 16 },
   };
+
+  /*
+   * $props.id() and not Math.random(), so the message ids match between the
+   * server render and hydration. The group carries an id only when the caller
+   * names one, so a control with no messages renders what it always did.
+   */
+  const uid = $props.id();
+  const messageBase = $derived(id ?? uid);
+  const describedByIds = $derived(joinIds(messageId(messageBase, error, hint), describedBy));
 
   let rootEl: HTMLDivElement | undefined = $state();
 
@@ -188,15 +226,20 @@
 
   <!-- A set of links is a group, not a radiogroup: a link is not a radio and
        carries no aria-checked, and what marks the current one is aria-current,
-       the attribute a reader already knows from navigation. -->
+       the attribute a reader already knows from navigation. ARIA allows
+       aria-invalid on a radiogroup and not on a group, so a row of links
+       reports an error through aria-describedby alone. -->
   <div
     bind:this={rootEl}
+    {id}
     role={linked ? 'group' : 'radiogroup'}
     aria-label={label}
+    aria-invalid={error && !linked ? 'true' : undefined}
+    aria-describedby={describedByIds}
     onfocusout={linked ? onGroupFocusOut : undefined}
-    class="inline-flex items-stretch rounded-lg border border-line-strong bg-surface-2 p-0.5 {SIZES[
-      size
-    ].row} {disabled ? 'opacity-50' : ''}"
+    class="inline-flex items-stretch rounded-lg border {error
+      ? 'border-danger'
+      : 'border-line-strong'} bg-surface-2 p-0.5 {SIZES[size].row} {disabled ? 'opacity-50' : ''}"
   >
     {#each options as option, i (option.value)}
       {@const selected = option.value === value}
@@ -266,6 +309,12 @@
       {/if}
     {/each}
   </div>
+
+  {#if error}
+    <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
+  {:else if hint}
+    <p id="{messageBase}-hint" class={FIELD_HINT}>{hint}</p>
+  {/if}
 
   {#if name}
     <!-- A div with role="radiogroup" submits nothing. The value reaches a form

@@ -36,6 +36,13 @@
    * filter the page keeps in its URL.
    */
   import { cn } from '../utils/cn.js';
+  import {
+    FIELD_ERROR,
+    FIELD_HINT,
+    FIELD_WRAP,
+    describedBy as messageId,
+    joinIds,
+  } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -47,6 +54,24 @@
     label: string;
     /** Read after the count, so "3" is heard as "3 on sale". */
     countLabel?: string;
+    /**
+     * The group's id. The hint and the error take theirs from it. Left unset,
+     * the group carries no id and the messages take a generated one.
+     */
+    id?: string;
+    /** Shown under the row while there is no error. */
+    hint?: string;
+    /**
+     * Replaces the hint while it is set. The group points at it and is not
+     * marked invalid, because ARIA refuses that attribute on a group.
+     */
+    error?: string;
+    /**
+     * Ids of other elements that describe the group, separated by spaces, such
+     * as the message a wrapping Field renders. They are read after the group's
+     * own hint or error.
+     */
+    describedBy?: string;
     class?: string;
     /** Button mode only. A link chip reports nothing. The page it opens does. */
     onchange?: (value: T) => void;
@@ -57,6 +82,10 @@
     options,
     label,
     countLabel = '',
+    id = undefined,
+    hint = undefined,
+    error = undefined,
+    describedBy = undefined,
     class: klass = '',
     onchange = undefined,
   }: Props = $props();
@@ -77,6 +106,15 @@
     return count !== 0;
   });
 
+  /*
+   * $props.id() and not Math.random(), so the message ids match between the
+   * server render and hydration. The group carries an id only when the caller
+   * names one, so a row with no messages renders what it always did.
+   */
+  const uid = $props.id();
+  const messageBase = $derived(id ?? uid);
+  const describedByIds = $derived(joinIds(messageId(messageBase, error, hint), describedBy));
+
   function pick(next: T): void {
     if (next === value) return;
     value = next;
@@ -96,32 +134,64 @@
   }
 </script>
 
-<div class={cn('flex flex-wrap gap-1.5', klass)} role="group" aria-label={label}>
-  {#each options as chip (chip.value)}
-    {@const pressed = chip.value === value}
-    {#if linked}
-      <!-- A plain anchor with no click handler, so choosing a chip is a
-           navigation the browser performs on its own, before the page has
-           hydrated as well as after. -->
-      <a
-        href={safeHref(chip.href)}
-        aria-current={pressed ? 'page' : undefined}
-        class={chipClass(pressed)}
-      >
-        {@render face(chip)}
-      </a>
+<!--
+  The row stands alone until there is a message to show under it, and then a
+  column holds the two. A wrapper that was always there would have moved the
+  caller's class off the row in every app that already places one. The column
+  carries the field marker, so a panel sizing itself to its form counts a row
+  that reports a hint or an error as the one field it then is.
+
+  The row carries no aria-invalid. ARIA does not allow it on a group, or on
+  the buttons and links inside one, so an error reaches a reader through
+  aria-describedby, which reads the message itself.
+-->
+{#if error || hint}
+  <div data-field class={cn(FIELD_WRAP, klass)}>
+    {@render row('')}
+    {#if error}
+      <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
     {:else}
-      <button
-        type="button"
-        aria-pressed={pressed}
-        class={chipClass(pressed)}
-        onclick={() => pick(chip.value)}
-      >
-        {@render face(chip)}
-      </button>
+      <p id="{messageBase}-hint" class={FIELD_HINT}>{hint}</p>
     {/if}
-  {/each}
-</div>
+  </div>
+{:else}
+  {@render row(klass)}
+{/if}
+
+{#snippet row(rowClass: string)}
+  <div
+    {id}
+    class={cn('flex flex-wrap gap-1.5', rowClass)}
+    role="group"
+    aria-label={label}
+    aria-describedby={describedByIds}
+  >
+    {#each options as chip (chip.value)}
+      {@const pressed = chip.value === value}
+      {#if linked}
+        <!-- A plain anchor with no click handler, so choosing a chip is a
+             navigation the browser performs on its own, before the page has
+             hydrated as well as after. -->
+        <a
+          href={safeHref(chip.href)}
+          aria-current={pressed ? 'page' : undefined}
+          class={chipClass(pressed)}
+        >
+          {@render face(chip)}
+        </a>
+      {:else}
+        <button
+          type="button"
+          aria-pressed={pressed}
+          class={chipClass(pressed)}
+          onclick={() => pick(chip.value)}
+        >
+          {@render face(chip)}
+        </button>
+      {/if}
+    {/each}
+  </div>
+{/snippet}
 
 {#snippet face(chip: FilterChip<T>)}
   {#if chip.icon}

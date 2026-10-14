@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `SegmentedControl` and `FilterChips` take `id`, `hint`, `error` and `describedBy`, the field props `Input`, `Select` and `RadioGroup` take. The hint or the error shows under the row, and the group's `aria-describedby` points at it and then at the ids in `describedBy`, so a row inside a `Field` reads that field's message. A segmented row of radios carries `aria-invalid` while it shows an error. Both link modes take the same props, and a row given none of them renders as it did.
+
 ## [0.37.0] - 2026-10-13
 
 ### Added
