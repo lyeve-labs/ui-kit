@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
+import { drawn, fixture } from '../../../tests/fixtures/markup.js';
 import type { FilterFn } from '../internal/filter.js';
 import Select from './Select.svelte';
 import type { SelectOption } from './Select.svelte';
@@ -340,5 +341,33 @@ describe('Select: panel placement', () => {
     const surface = list.parentElement as HTMLElement;
     expect(surface.className).toMatch(/\btop-full\b|\bbottom-full\b/);
     expect(surface.className).not.toMatch(/\btop-full\b.*\bbottom-full\b/);
+  });
+});
+
+describe('Select describedBy', () => {
+  const rows = [
+    { value: 'a', label: 'Alpha' },
+    { value: 'b', label: 'Beta' },
+  ];
+
+  it('renders what it rendered before describedBy, when not given it', () => {
+    const { container } = render(Select, {
+      props: { label: 'Plan', options: rows, value: 'b', error: 'Pick one', name: 'plan' },
+    });
+    expect(drawn(container.innerHTML)).toBe(drawn(fixture('select-default.html')));
+  });
+
+  it('reads the caller ids after its own message', () => {
+    const { getByRole } = render(Select, {
+      props: { label: 'Plan', options: rows, error: 'Pick one', describedBy: 'note' },
+    });
+    expect(getByRole('combobox').getAttribute('aria-describedby')).toBe('plan-error note');
+  });
+
+  it('points at the caller ids alone when it shows no message', () => {
+    const { getByRole } = render(Select, {
+      props: { label: 'Plan', options: rows, describedBy: 'note' },
+    });
+    expect(getByRole('combobox').getAttribute('aria-describedby')).toBe('note');
   });
 });

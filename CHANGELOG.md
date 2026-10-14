@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `SegmentedControl` and `FilterChips` take `id`, `hint`, `error` and `describedBy`, the field props `Input`, `Select` and `RadioGroup` take. The hint or the error shows under the row, and the group's `aria-describedby` points at it and then at the ids in `describedBy`, so a row inside a `Field` reads that field's message. A segmented row of radios carries `aria-invalid` while it shows an error. Both link modes take the same props, and a row given none of them renders as it did.
+- `Input`, `Select` and `RadioGroup` take `describedBy`, ids read after the control's own hint or error, and `RadioGroup` takes `id` for its fieldset. A control given neither renders as it did.
 - `CopyButton` takes `title`, a tooltip shown on hover and on keyboard focus. The button keeps its name, its visible `text` or its `label` on an icon alone, and a title that says more than that name becomes its accessible description.
 - `CopyField` takes `wrap`, which shows the whole value across as many lines as it takes instead of one truncated line. It breaks anywhere, since a key or a token has no spaces to break at. A masked secret stays on one line and wraps once revealed. The default is still one truncated line.
 - `EmptyState` takes `level`, `2` or `3`, the heading level of its title, named as `SectionHeading` names it. It stays an h3 by default. A page whose only other heading is its h1 passes `2`, so a screen reader does not meet a jump from h1 to h3.

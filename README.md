@@ -262,13 +262,18 @@ two throws.
 ### Hints and errors on a choice row
 
 `SegmentedControl` and `FilterChips` take `id`, `hint`, `error` and
-`describedBy`, as `Input`, `Select` and `RadioGroup` take the first three. The
+`describedBy`, the field props `Input`, `Select` and `RadioGroup` take. The
 hint shows under the row, and an error replaces it. The group points
 `aria-describedby` at whichever is on screen, then at the ids in
 `describedBy`, so a row inside a `Field` reads that field's message too. A
 segmented row of radios carries `aria-invalid` while it shows an error. ARIA
 does not allow that attribute on a group, so a row of chips or links reports
 its error through the description alone. Both link modes take the same props.
+
+`SegmentedControl` draws its own caption from `label`. Inside a `Field`, which
+draws the label already, pass `labelHidden` so the name shows once and the
+group keeps it for a screen reader. `FilterChips` draws no caption, and its
+`label` only names the group.
 
 ```svelte
 <SegmentedControl

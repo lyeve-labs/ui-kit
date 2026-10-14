@@ -26,7 +26,7 @@
     FIELD_HINT,
     FIELD_LABEL,
     FIELD_WRAP,
-    describedBy as messageId,
+    describedBy,
     joinIds,
   } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
@@ -81,7 +81,7 @@
     id = undefined,
     hint = undefined,
     error = undefined,
-    describedBy = undefined,
+    describedBy: callerIds = undefined,
     name = undefined,
     size = 'md',
     disabled = false,
@@ -112,7 +112,7 @@
    */
   const uid = $props.id();
   const messageBase = $derived(id ?? uid);
-  const describedByIds = $derived(joinIds(messageId(messageBase, error, hint), describedBy));
+  const describedByIds = $derived(joinIds(describedBy(messageBase, error, hint), callerIds));
 
   let rootEl: HTMLDivElement | undefined = $state();
 

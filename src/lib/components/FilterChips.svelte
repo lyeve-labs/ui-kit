@@ -36,13 +36,7 @@
    * filter the page keeps in its URL.
    */
   import { cn } from '../utils/cn.js';
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_WRAP,
-    describedBy as messageId,
-    joinIds,
-  } from '../internal/field.js';
+  import { FIELD_ERROR, FIELD_HINT, FIELD_WRAP, describedBy, joinIds } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -85,7 +79,7 @@
     id = undefined,
     hint = undefined,
     error = undefined,
-    describedBy = undefined,
+    describedBy: callerIds = undefined,
     class: klass = '',
     onchange = undefined,
   }: Props = $props();
@@ -113,7 +107,7 @@
    */
   const uid = $props.id();
   const messageBase = $derived(id ?? uid);
-  const describedByIds = $derived(joinIds(messageId(messageBase, error, hint), describedBy));
+  const describedByIds = $derived(joinIds(describedBy(messageBase, error, hint), callerIds));
 
   function pick(next: T): void {
     if (next === value) return;

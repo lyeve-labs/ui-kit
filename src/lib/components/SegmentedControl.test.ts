@@ -3,6 +3,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
+import { drawn, fixture } from '../../../tests/fixtures/markup.js';
 import SegmentedControl from './SegmentedControl.svelte';
 
 const options = [
@@ -543,21 +544,6 @@ describe('SegmentedControl href mode', () => {
       expect(s.className).not.toContain('text-brand');
   });
 });
-
-/**
- * Markup as a browser draws it. Svelte's empty block anchors render nothing,
- * and a run of white space between tags collapses to one space, so neither
- * counts as a change to what the reader sees.
- */
-function drawn(html: string): string {
-  return html
-    .replace(/<!---->/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-const fixture = (name: string) =>
-  readFileSync(join(__dirname, '../../../tests/fixtures', name), 'utf8');
 
 describe('SegmentedControl, field props', () => {
   const two = [
