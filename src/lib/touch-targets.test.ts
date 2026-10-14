@@ -21,6 +21,7 @@ import Breadcrumb from './components/Breadcrumb.svelte';
 import Button from './components/Button.svelte';
 import Checkbox from './components/Checkbox.svelte';
 import Collapsible from './components/Collapsible.svelte';
+import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
 import Modal from './components/Modal.svelte';
 import NumberInput from './components/NumberInput.svelte';
@@ -183,6 +184,98 @@ describe('the small controls keep their visual and grow their hit box', () => {
     }
   });
 
+  it('the SegmentedControl track frames itself without a border under a finger', () => {
+    // A caller that lets a long row scroll clips the segments at the track's
+    // padding box. A 1px border kept that box at 42px inside a 44px track, so
+    // each segment's hit box lost a pixel at the top and the bottom. An inset
+    // outline draws the same frame, leaves the padding box at the outer edge,
+    // and survives forced colors, which drop a shadow.
+    const options = [
+      { value: 'day', label: 'Day' },
+      { value: 'week', label: 'Week' },
+    ];
+    for (const error of [undefined, 'Pick one']) {
+      const { getByRole, unmount } = render(SegmentedControl, {
+        props: { label: 'Range', options, value: 'day', error },
+      });
+      const track = classes(getByRole('radiogroup'));
+      for (const c of [
+        'coarse:border-0',
+        'coarse:p-0.75',
+        'coarse:outline',
+        'coarse:outline-1',
+        'coarse:-outline-offset-1',
+      ])
+        expect(track, c).toContain(c);
+      expect(track).toContain(error ? 'coarse:outline-danger' : 'coarse:outline-line-strong');
+      expect(
+        track.some((c) => c.startsWith('coarse:ring')),
+        'no shadow frame',
+      ).toBe(false);
+      // The mouse keeps the border and the padding it was drawn with.
+      expect(track).toContain('border');
+      expect(track).toContain('p-0.5');
+      unmount();
+    }
+  });
+
+  it('SegmentedControl segments are never narrower than a finger, at either size', () => {
+    // A short label such as "6h" drew a segment 35px wide, and its 44px hit
+    // box overlapped both neighbors'. A segment as wide as the control size
+    // keeps the boxes apart.
+    const radios = [
+      { value: '6h', label: '6h' },
+      { value: '24h', label: '24h' },
+    ];
+    const links = radios.map((o) => ({ ...o, href: `?window=${o.value}` }));
+    for (const size of ['sm', 'md'] as const) {
+      for (const options of [radios, links]) {
+        const { container, unmount } = render(SegmentedControl, {
+          props: { label: 'Window', options, value: '6h', size },
+        });
+        for (const segment of container.querySelectorAll('[data-segment]'))
+          expect(classes(segment)).toContain('coarse:min-w-control');
+        unmount();
+      }
+    }
+  });
+
+  it('wrapped FilterChips rows, whose hit boxes covered the row above', () => {
+    // A chip is 26px tall and its hit box 44px, so rows 18px apart meet
+    // without overlapping. At the 6px gap a mouse keeps, the next row took
+    // 12px off the bottom of every chip above it.
+    const { getByRole } = render(FilterChips, {
+      props: {
+        label: 'Status',
+        value: 'all',
+        options: [
+          { value: 'all', label: 'All' },
+          { value: 'open', label: 'Open' },
+        ],
+      },
+    });
+    const row = classes(getByRole('group'));
+    expect(row).toContain('coarse:gap-y-4.5');
+    expect(row).toContain('gap-1.5');
+    for (const chip of getByRole('group').querySelectorAll('button')) expectHitArea(chip);
+  });
+
+  it('Pagination pages, spaced so their hit boxes do not overlap', () => {
+    // A page is 28px wide and its hit box 44px, so pages 16px apart meet
+    // without overlapping. At the 2px gap a mouse keeps, each page took 30px
+    // of its own box.
+    const { container } = render(Pagination, {
+      props: { page: 2, total: 200, perPage: 20, onchange: () => {} },
+    });
+    const pageTwo = [...container.querySelectorAll('button')].find(
+      (b) => b.textContent?.trim() === '2',
+    );
+    expectHitArea(pageTwo ?? null);
+    const row = classes(pageTwo?.parentElement ?? null);
+    expect(row).toContain('coarse:gap-4');
+    expect(row).toContain('gap-0.5');
+  });
+
   it('NumberInput steppers, which left the number 40px wide inside a w-32', () => {
     // The steppers narrow under a finger and keep a 44px target, so the number
     // between them keeps its room. A mouse still sees the control-wide caps.
@@ -203,6 +296,67 @@ describe('the small controls keep their visual and grow their hit box', () => {
       (el) => el.tagName === 'BUTTON' && el.getAttribute('aria-hidden') !== 'true',
     );
     expectHitArea(close ?? null);
+  });
+});
+
+describe('Pagination on a phone held by a finger', () => {
+  // Nine steps 16px apart are 380px, wider than a phone, so below the sm
+  // width a finger sees at most five slots between Previous and Next. Both
+  // lists are in the markup and the stylesheet picks one, so nothing moves
+  // after hydration.
+  type Layout = 'both' | 'fine' | 'touch';
+
+  /** Each slot between the steps as its text and the layout that draws it. */
+  function slotsOf(page: number, pages: number): { text: string; layout: Layout }[] {
+    const { container } = render(Pagination, {
+      props: { page, total: pages * 10, perPage: 10, onchange: () => {} },
+    });
+    const row = container.querySelector('[aria-label="Previous page"]')?.parentElement;
+    const slots = [...(row?.children ?? [])].filter((el) => !el.hasAttribute('aria-label'));
+    return slots.map((el) => {
+      const list = classes(el);
+      const fineOnly = list.includes('max-sm:coarse:hidden');
+      const touchOnly = list.includes('hidden') && list.includes('max-sm:coarse:inline-flex');
+      // A touch-only gap that also carried inline-flex would tie with hidden.
+      if (touchOnly) expect(list).not.toContain('inline-flex');
+      if (fineOnly) expect(list).toContain('inline-flex');
+      expect(fineOnly && touchOnly).toBe(false);
+      return {
+        text: el.tagName === 'SPAN' ? 'gap' : (el.textContent ?? '').trim(),
+        layout: fineOnly ? 'fine' : touchOnly ? 'touch' : 'both',
+      };
+    });
+  }
+
+  const view = (slots: { text: string; layout: Layout }[], hide: Layout) =>
+    slots
+      .filter((s) => s.layout !== hide)
+      .map((s) => s.text)
+      .join(' ');
+
+  it.each([
+    { page: 1, pages: 10, fine: '1 2 gap 10', touch: '1 gap 10' },
+    { page: 3, pages: 10, fine: '1 2 3 4 gap 10', touch: '1 gap 3 gap 10' },
+    { page: 5, pages: 10, fine: '1 gap 4 5 6 gap 10', touch: '1 gap 5 gap 10' },
+    { page: 10, pages: 10, fine: '1 gap 9 10', touch: '1 gap 10' },
+    { page: 4, pages: 7, fine: '1 2 3 4 5 6 7', touch: '1 gap 4 gap 7' },
+    { page: 1, pages: 6, fine: '1 2 3 4 5 6', touch: '1 gap 6' },
+    { page: 3, pages: 5, fine: '1 2 3 4 5', touch: '1 2 3 4 5' },
+  ])('page $page of $pages', ({ page, pages, fine, touch }) => {
+    const slots = slotsOf(page, pages);
+    expect(view(slots, 'touch')).toBe(fine);
+    expect(view(slots, 'fine')).toBe(touch);
+    expect(touch.split(' ').length).toBeLessThanOrEqual(5);
+    // One element per page, and a gap both layouts draw is one element.
+    const pagesDrawn = slots.filter((s) => s.text !== 'gap').map((s) => s.text);
+    expect(new Set(pagesDrawn).size).toBe(pagesDrawn.length);
+  });
+
+  it('draws a gap both layouts share once', () => {
+    const slots = slotsOf(5, 10);
+    expect(slots.map((s) => `${s.text}:${s.layout}`).join(' ')).toBe(
+      '1:both gap:both 4:fine 5:both gap:touch 6:fine gap:fine 10:both',
+    );
   });
 });
 

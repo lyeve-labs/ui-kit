@@ -135,6 +135,10 @@
   page. The row carries the field marker while it reports a message, so a
   panel sizing itself to its form counts it as the one field it then is.
 
+  Under a finger each chip draws a 44px hit box round a 26px chip, 9px past
+  its top and bottom. Wrapped rows sit 18px apart there, so the boxes of two
+  rows meet without one row's taps landing on the row above.
+
   The row carries no aria-invalid. ARIA does not allow it on a group, or on
   the buttons and links inside one, so an error reaches a reader through
   aria-describedby, which reads the message itself.
@@ -142,7 +146,7 @@
 <div
   data-field={error || hint ? '' : undefined}
   {id}
-  class={cn('flex flex-wrap gap-1.5', klass)}
+  class={cn('flex flex-wrap gap-1.5 coarse:gap-y-4.5', klass)}
   role="group"
   aria-label={label}
   aria-describedby={describedByIds}
