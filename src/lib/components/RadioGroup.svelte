@@ -33,7 +33,7 @@
     type ChoiceSize,
     type ChoiceVariant,
   } from '../internal/choice.js';
-  import { FIELD_ERROR, FIELD_HINT, describedBy } from '../internal/field.js';
+  import { FIELD_ERROR, FIELD_HINT, describedBy, joinIds } from '../internal/field.js';
   import Radio from './Radio.svelte';
 
   interface Props {
@@ -48,8 +48,19 @@
     label: string;
     /** Keeps the legend for a screen reader and takes it off the screen. */
     labelHidden?: boolean;
+    /**
+     * The fieldset's id. The hint and the error take theirs from it. Left
+     * unset, the fieldset carries no id and the messages take a generated one.
+     */
+    id?: string;
     hint?: string;
     error?: string;
+    /**
+     * Ids of other elements that describe the group, separated by spaces, such
+     * as the message a wrapping Field renders. They are read after the group's
+     * own hint or error.
+     */
+    describedBy?: string;
     name?: string;
     orientation?: ChoiceOrientation;
     size?: ChoiceSize;
@@ -65,8 +76,10 @@
     options,
     label,
     labelHidden = false,
+    id = undefined,
     hint = undefined,
     error = undefined,
+    describedBy: callerIds = undefined,
     name = undefined,
     orientation = 'vertical',
     size = 'md',
@@ -87,6 +100,7 @@
    */
   const uid = $props.id();
   const groupName = $derived(name ?? uid);
+  const messageBase = $derived(id ?? uid);
 </script>
 
 <!--
@@ -97,12 +111,13 @@
 -->
 <fieldset
   data-field
+  {id}
   class="{CHOICE_GROUP} {cls}"
   role="radiogroup"
   {disabled}
   aria-invalid={error ? 'true' : undefined}
   aria-required={required ? 'true' : undefined}
-  aria-describedby={describedBy(uid, error, hint)}
+  aria-describedby={joinIds(describedBy(messageBase, error, hint), callerIds)}
 >
   <!--
     The legend stays a legend when it is hidden. Swapping it for an aria-label
@@ -139,8 +154,8 @@
   </div>
 
   {#if error}
-    <p id="{uid}-error" class={FIELD_ERROR}>{error}</p>
+    <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p id="{uid}-hint" class={FIELD_HINT}>{hint}</p>
+    <p id="{messageBase}-hint" class={FIELD_HINT}>{hint}</p>
   {/if}
 </fieldset>

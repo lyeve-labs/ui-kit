@@ -152,3 +152,14 @@ export const CONTROL_SEGMENT =
   'shrink-0 rounded-sm border-0 bg-transparent p-0 text-center text-sm text-fg tabular-nums ' +
   'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
   'disabled:cursor-not-allowed';
+
+/**
+ * Joins a control's own message id with the ids its caller names.
+ *
+ * A control inside a Field, or explained by text elsewhere on the page, has to
+ * point at that text as well as at its own hint or error. Returns undefined
+ * when there is nothing to point at, for the reason describedBy does.
+ */
+export function joinIds(...ids: (string | undefined)[]): string | undefined {
+  return ids.filter(Boolean).join(' ') || undefined;
+}

@@ -656,17 +656,20 @@ describe('a field says that it is one', () => {
   const CONTROL = /<input|<select|<textarea|role="switch"|role="combobox"|contenteditable/;
 
   /**
-   * Three shapes, because a field takes three. Most wrap themselves in
+   * Four shapes, because a field takes four. Most wrap themselves in
    * FIELD_WRAP. A choice group is a fieldset, and a control that is its own
    * label wraps nothing, which is how Toggle went unchecked. Naming the last
    * shape by hand would leave the next one unchecked too, so the filter asks
    * what the file does: it takes a label and it renders something operable.
+   * A row that renders the kit's error line under itself, as FilterChips
+   * does, reports a field's error and is one.
    */
   const wrappers = files.filter((f) => {
     const src = code(f.src);
     return (
       /FIELD_WRAP/.test(src) ||
       /role="radiogroup"|CHOICE_GROUP/.test(src) ||
+      /FIELD_ERROR/.test(src) ||
       (/label\?:/.test(src) && CONTROL.test(src))
     );
   });

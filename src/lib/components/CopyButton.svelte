@@ -2,6 +2,7 @@
   import { HIT_AREA } from '../internal/touch.js';
   import CopyGlyph from '../internal/CopyGlyph.svelte';
   import { COPY_FAILED_MESSAGE, CopyState } from '../internal/copy.svelte.js';
+  import Tooltip from './Tooltip.svelte';
 
   interface Props {
     /** The text written to the clipboard. */
@@ -17,6 +18,13 @@
      * Left unset, the button is the icon alone.
      */
     text?: string;
+    /**
+     * A tooltip on the button, shown on hover and on keyboard focus, such as
+     * "Copy the signing key". It never renames the button: the name stays
+     * `text`, or `label` on an icon alone. When it says more than the name, it
+     * becomes the button's accessible description.
+     */
+    title?: string;
     /** Announced and shown after a successful copy. */
     copiedLabel?: string;
     /** Icon size in px. */
@@ -28,6 +36,7 @@
     value,
     label = 'Copy',
     text = undefined,
+    title = undefined,
     copiedLabel = 'Copied',
     size = 14,
     class: klass = '',
@@ -50,6 +59,14 @@
   });
 
   $effect(() => () => copier.dispose());
+
+  /*
+   * A tooltip in the same words as the name would be announced twice, as
+   * "Copy, Copy", so it is described only when it adds something. Case and
+   * outer spaces change nothing a reader hears, so neither counts.
+   */
+  const spoken = (words: string) => words.trim().toLowerCase();
+  const describes = $derived(spoken(title ?? '') !== spoken(text || label));
 </script>
 
 <!--
@@ -62,11 +79,26 @@
   of its icon and a row of them lines up.
 -->
 <span class="inline-flex items-center {message ? 'gap-1.5' : ''} {klass}">
+  {#if title}
+    <Tooltip text={title} describe={describes}>{@render button()}</Tooltip>
+  {:else}
+    {@render button()}
+  {/if}
+
+  <span
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    class="text-xs {copier.status === 'failed' ? 'text-danger' : 'text-success'}">{message}</span
+  >
+</span>
+
+{#snippet button()}
   <!--
     The accessible name stays the same through the copied state, whether it
-    comes from `label` or from `text`. The live region below is what reports the
-    result, and renaming the button as well would announce the same word twice
-    and then leave a control called "Copied" that copies.
+    comes from `label` or from `text`. The live region beside it is what
+    reports the result, and renaming the button as well would announce the
+    same word twice and then leave a control called "Copied" that copies.
   -->
   <button
     type="button"
@@ -76,11 +108,4 @@
   >
     <CopyGlyph copied={copier.status === 'copied'} {size} />{#if text}{text}{/if}
   </button>
-
-  <span
-    role="status"
-    aria-live="polite"
-    aria-atomic="true"
-    class="text-xs {copier.status === 'failed' ? 'text-danger' : 'text-success'}">{message}</span
-  >
-</span>
+{/snippet}

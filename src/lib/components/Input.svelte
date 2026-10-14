@@ -7,6 +7,7 @@
     FIELD_WRAP,
     controlBorder,
     describedBy,
+    joinIds,
   } from '../internal/field.js';
   import type { HTMLInputAttributes } from 'svelte/elements';
 
@@ -27,6 +28,12 @@
     placeholder?: string;
     hint?: string;
     error?: string;
+    /**
+     * Ids of other elements that describe the input, separated by spaces, such
+     * as the message a wrapping Field renders. They are read after the input's
+     * own hint or error.
+     */
+    describedBy?: string;
     disabled?: boolean;
     required?: boolean;
     id?: string;
@@ -47,6 +54,7 @@
     placeholder = '',
     hint = undefined,
     error = undefined,
+    describedBy: callerIds = undefined,
     disabled = false,
     required = false,
     id = undefined,
@@ -73,7 +81,7 @@
     {required}
     bind:value
     aria-invalid={error ? 'true' : undefined}
-    aria-describedby={describedBy(fieldId, error, hint)}
+    aria-describedby={joinIds(describedBy(fieldId, error, hint), callerIds)}
     class="{CONTROL_BASE} {controlBorder(!!error)} {mono ? 'font-mono' : ''}"
     {...rest}
   />

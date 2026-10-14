@@ -2,6 +2,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
+import { drawn, fixture } from '../../../tests/fixtures/markup.js';
 import Radio from './Radio.svelte';
 import RadioGroup from './RadioGroup.svelte';
 
@@ -306,5 +307,52 @@ describe('RadioGroup', () => {
     // An unkeyed each reuses the DOM node in place, so reordering the options
     // leaves the selected ring on the option that used to sit at that index.
     expect(code).toContain('(option.value)');
+  });
+});
+
+describe('RadioGroup id and describedBy', () => {
+  const opts = [
+    { value: 'a', label: 'Alpha' },
+    { value: 'b', label: 'Beta' },
+  ];
+
+  it('renders what it rendered before id and describedBy, when given neither', () => {
+    const { container } = render(RadioGroup, {
+      props: {
+        label: 'Plan',
+        options: opts,
+        value: 'b',
+        name: 'plan',
+        required: true,
+        hint: 'Billed monthly',
+      },
+    });
+    expect(drawn(container.innerHTML)).toBe(drawn(fixture('radio-group-default.html')));
+  });
+
+  it('puts the id on the fieldset and builds the message ids from it', () => {
+    const { getByRole, getByText } = render(RadioGroup, {
+      props: { label: 'Plan', options: opts, id: 'plan', error: 'Pick one' },
+    });
+    const group = getByRole('radiogroup', { name: 'Plan' });
+    expect(group.id).toBe('plan');
+    expect(getByText('Pick one').id).toBe('plan-error');
+    expect(group.getAttribute('aria-describedby')).toBe('plan-error');
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('reads the caller ids after its own message', () => {
+    const own = render(RadioGroup, {
+      props: { label: 'Plan', options: opts, id: 'p', hint: 'h', describedBy: 'note' },
+    });
+    expect(own.getByRole('radiogroup', { name: 'Plan' }).getAttribute('aria-describedby')).toBe(
+      'p-hint note',
+    );
+    const alone = render(RadioGroup, {
+      props: { label: 'Size', options: opts, describedBy: 'size-note' },
+    });
+    expect(alone.getByRole('radiogroup', { name: 'Size' }).getAttribute('aria-describedby')).toBe(
+      'size-note',
+    );
   });
 });

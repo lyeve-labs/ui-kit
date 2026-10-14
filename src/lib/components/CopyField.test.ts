@@ -128,3 +128,87 @@ describe('CopyField', () => {
     ]);
   });
 });
+
+describe('CopyField wrap', () => {
+  const KEY = 'demo_0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnop';
+
+  it('stays one truncated line by default', () => {
+    const { getByLabelText, container } = render(CopyField, {
+      props: { value: KEY, label: 'API key' },
+    });
+    const input = getByLabelText('API key');
+    expect(input.tagName).toBe('INPUT');
+    expect(input.className).toContain('truncate');
+    expect(container.querySelector('textarea')).toBeNull();
+    expect(input.parentElement?.className).toContain('h-control');
+  });
+
+  it('shows the whole value on as many lines as it takes, breaking anywhere', () => {
+    const { getByLabelText, container } = render(CopyField, {
+      props: { value: KEY, label: 'API key', wrap: true },
+    });
+    const field = getByLabelText('API key') as HTMLTextAreaElement;
+    expect(field.tagName).toBe('TEXTAREA');
+    expect(field.value).toBe(KEY);
+    expect(field.readOnly).toBe(true);
+    expect(field.className).toContain('break-all');
+    expect(field.className).toContain('font-mono');
+    expect(field.className).not.toContain('truncate');
+    expect(container.querySelector('input')).toBeNull();
+    // The hidden copy sizes the textarea, and only a sighted reader meets it.
+    const sizer = field.previousElementSibling as HTMLElement;
+    expect(sizer.getAttribute('aria-hidden')).toBe('true');
+    expect(sizer.textContent).toBe(KEY);
+    expect(sizer.className).toContain('break-all');
+    const frame = field.parentElement?.parentElement as HTMLElement;
+    expect(frame.className).toContain('min-h-control');
+    expect(frame.className).not.toMatch(/(^|\s)h-control/);
+  });
+
+  it('describes the wrapped value with the hint and selects all of it on focus', async () => {
+    const { getByLabelText, getByText } = render(CopyField, {
+      props: { value: KEY, label: 'API key', hint: 'Shown once', wrap: true, id: 'key' },
+    });
+    const field = getByLabelText('API key') as HTMLTextAreaElement;
+    expect(field.id).toBe('key');
+    expect(getByText('Shown once').id).toBe('key-hint');
+    expect(field.getAttribute('aria-describedby')).toBe('key-hint');
+    await fireEvent.focus(field);
+    expect(field.selectionStart).toBe(0);
+    expect(field.selectionEnd).toBe(KEY.length);
+  });
+
+  it('follows a new value from the caller', async () => {
+    const { getByLabelText, rerender } = render(CopyField, {
+      props: { value: 'first', label: 'API key', wrap: true },
+    });
+    await rerender({ value: 'second', label: 'API key', wrap: true });
+    expect((getByLabelText('API key') as HTMLTextAreaElement).value).toBe('second');
+  });
+
+  it('copies the whole wrapped value', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    stubClipboard(writeText);
+    const { getByRole } = render(CopyField, {
+      props: { value: KEY, label: 'API key', wrap: true },
+    });
+    await fireEvent.click(getByRole('button', { name: 'Copy api key' }));
+    await settle();
+    expect(writeText).toHaveBeenCalledWith(KEY);
+  });
+
+  it('keeps a masked secret on one line and wraps it once revealed', async () => {
+    const { getByLabelText, getByRole } = render(CopyField, {
+      props: { value: KEY, label: 'API key', wrap: true, secret: true },
+    });
+    const masked = getByLabelText('API key') as HTMLInputElement;
+    expect(masked.tagName).toBe('INPUT');
+    expect(masked.type).toBe('password');
+    await fireEvent.click(getByRole('button', { name: 'Show value' }));
+    const shown = getByLabelText('API key') as HTMLTextAreaElement;
+    expect(shown.tagName).toBe('TEXTAREA');
+    expect(shown.value).toBe(KEY);
+    const reveal = getByRole('button', { name: 'Hide value' });
+    expect(reveal.getAttribute('aria-controls')).toBe(shown.id);
+  });
+});

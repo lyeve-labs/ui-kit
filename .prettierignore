@@ -23,3 +23,13 @@ vitest.config.d.ts
 # Prettier reflows its markup, and the reflowed copy no longer matches what
 # the server renders.
 tests/fixtures/checkbox-ssr.html
+
+# What a control given none of its newer field props rendered before it took
+# them, compared after collapsing white space. Prettier would break the markup
+# over lines at its own points, and the copy would stop being what Svelte
+# rendered.
+tests/fixtures/segmented-control-*.html
+tests/fixtures/filter-chips-*.html
+tests/fixtures/input-default.html
+tests/fixtures/select-default.html
+tests/fixtures/radio-group-default.html

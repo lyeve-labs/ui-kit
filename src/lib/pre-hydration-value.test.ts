@@ -25,6 +25,16 @@ function offendersIn(source: string, path: string): string[] {
   const bindsValue = (attributes: Array<{ type: string; name?: string }>): boolean =>
     attributes.some((a) => a.type === 'BindDirective' && a.name === 'value');
 
+  /**
+   * A read-only textarea takes no typing, so hydration has nothing to
+   * overwrite and a value attribute is enough. Only a literal `readonly`
+   * counts: a bound or computed one can be false, and a spread on the same
+   * element can turn it off.
+   */
+  const readOnly = (attributes: Array<{ type: string; name?: string; value?: unknown }>) =>
+    !attributes.some((a) => a.type === 'SpreadAttribute') &&
+    attributes.some((a) => a.type === 'Attribute' && a.name === 'readonly' && a.value === true);
+
   const walk = (node: unknown): void => {
     if (!node || typeof node !== 'object') return;
     const candidate = node as {
@@ -34,11 +44,15 @@ function offendersIn(source: string, path: string): string[] {
       fragment?: { nodes?: Array<{ type?: string }> };
     };
     if (candidate.type === 'RegularElement' && candidate.name === 'textarea') {
-      const attributes = (candidate.attributes ?? []) as Array<{ type: string; name?: string }>;
+      const attributes = (candidate.attributes ?? []) as Array<{
+        type: string;
+        name?: string;
+        value?: unknown;
+      }>;
       const content = candidate.fragment?.nodes ?? [];
       if (content.some((n) => n.type === 'ExpressionTag')) {
         offenders.push(`${path}: <textarea> renders its value as content`);
-      } else if (!bindsValue(attributes)) {
+      } else if (!bindsValue(attributes) && !readOnly(attributes)) {
         offenders.push(`${path}: <textarea> does not bind its value`);
       }
     }
@@ -86,5 +100,17 @@ describe('a field the visitor types into before hydration', () => {
     expect(offendersIn(asNothing, 'nothing.svelte')).toHaveLength(1);
     expect(offendersIn(bound, 'bound.svelte')).toEqual([]);
     expect(offendersIn(boundToSomethingElse, 'other.svelte')).toEqual([]);
+  });
+
+  it('lets a literally read-only textarea set its value without binding it', () => {
+    const readOnly = '<textarea readonly {value}></textarea>';
+    const sometimesReadOnly = '<textarea readonly={locked} {value}></textarea>';
+    const readOnlyAsContent = '<textarea readonly>{value}</textarea>';
+    const readOnlyWithSpread = '<textarea readonly {...rest}></textarea>';
+
+    expect(offendersIn(readOnly, 'readonly.svelte')).toEqual([]);
+    expect(offendersIn(sometimesReadOnly, 'locked.svelte')).toHaveLength(1);
+    expect(offendersIn(readOnlyAsContent, 'content.svelte')).toHaveLength(1);
+    expect(offendersIn(readOnlyWithSpread, 'spread.svelte')).toHaveLength(1);
   });
 });

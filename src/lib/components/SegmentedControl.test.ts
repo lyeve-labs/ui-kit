@@ -3,6 +3,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
+import { drawn, fixture } from '../../../tests/fixtures/markup.js';
 import SegmentedControl from './SegmentedControl.svelte';
 
 const options = [
@@ -541,5 +542,111 @@ describe('SegmentedControl href mode', () => {
     expect(chosen.className).toContain('text-brand');
     for (const s of segments(container).filter((x) => x !== chosen))
       expect(s.className).not.toContain('text-brand');
+  });
+});
+
+describe('SegmentedControl, field props', () => {
+  const two = [
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+  ];
+  const twoLinks = two.map((o) => ({ ...o, href: `?theme=${o.value}` }));
+
+  it('renders what it rendered before the field props, when given none of them', () => {
+    const radios = render(SegmentedControl, {
+      props: { label: 'Theme', options: two, value: 'dark', name: 'theme' },
+    });
+    expect(drawn(radios.container.innerHTML)).toBe(drawn(fixture('segmented-control-radios.html')));
+    const links = render(SegmentedControl, {
+      props: { label: 'Theme', options: twoLinks, value: 'dark' },
+    });
+    expect(drawn(links.container.innerHTML)).toBe(drawn(fixture('segmented-control-links.html')));
+  });
+
+  it('puts the id on the group and describes the group with the hint', () => {
+    const { getByRole, getByText } = render(SegmentedControl, {
+      props: { label: 'Theme', options: two, value: 'dark', id: 'theme', hint: 'Applies at once' },
+    });
+    const group = getByRole('radiogroup');
+    expect(group.id).toBe('theme');
+    expect(getByText('Applies at once').id).toBe('theme-hint');
+    expect(group.getAttribute('aria-describedby')).toBe('theme-hint');
+    expect(group.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('replaces the hint with the error and marks the radiogroup invalid', () => {
+    const { getByRole, getByText, queryByText } = render(SegmentedControl, {
+      props: {
+        label: 'Plan',
+        options: two,
+        value: 'dark',
+        id: 'plan',
+        hint: 'Pick one',
+        error: 'Required',
+      },
+    });
+    const group = getByRole('radiogroup');
+    expect(queryByText('Pick one')).toBeNull();
+    expect(getByText('Required').id).toBe('plan-error');
+    expect(getByText('Required').className).toContain('text-danger');
+    expect(group.getAttribute('aria-describedby')).toBe('plan-error');
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+    expect(group.className).toContain('border-danger');
+    expect(group.className).not.toContain('border-line-strong');
+  });
+
+  it('gives the messages a generated id when the caller names none', () => {
+    const { getByRole, getByText } = render(SegmentedControl, {
+      props: { label: 'Theme', options: two, value: 'dark', hint: 'Applies at once' },
+    });
+    const group = getByRole('radiogroup');
+    const hint = getByText('Applies at once');
+    expect(group.hasAttribute('id')).toBe(false);
+    expect(hint.id).toMatch(/-hint$/);
+    expect(group.getAttribute('aria-describedby')).toBe(hint.id);
+  });
+
+  it('reads the caller ids after its own message', () => {
+    const own = render(SegmentedControl, {
+      props: {
+        label: 'Theme',
+        options: two,
+        value: 'dark',
+        id: 't',
+        hint: 'h',
+        describedBy: 'note',
+      },
+    });
+    expect(own.getByRole('radiogroup', { name: 'Theme' }).getAttribute('aria-describedby')).toBe(
+      't-hint note',
+    );
+    const alone = render(SegmentedControl, {
+      props: { label: 'Size', options: two, value: 'dark', describedBy: 'size-note other' },
+    });
+    expect(alone.getByRole('radiogroup', { name: 'Size' }).getAttribute('aria-describedby')).toBe(
+      'size-note other',
+    );
+  });
+
+  it('keeps its links working with every field prop set', () => {
+    const { getByRole, getByText, container } = render(SegmentedControl, {
+      props: {
+        label: 'Theme',
+        options: twoLinks,
+        value: 'dark',
+        id: 'theme',
+        error: 'Not saved',
+        describedBy: 'note',
+      },
+    });
+    const group = getByRole('group', { name: 'Theme' });
+    expect(group.id).toBe('theme');
+    expect(getByText('Not saved').id).toBe('theme-error');
+    expect(group.getAttribute('aria-describedby')).toBe('theme-error note');
+    // ARIA allows aria-invalid on a radiogroup and not on a group.
+    expect(group.hasAttribute('aria-invalid')).toBe(false);
+    const links = [...container.querySelectorAll('a')];
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['?theme=light', '?theme=dark']);
+    expect(links[1].getAttribute('aria-current')).toBe('page');
   });
 });
