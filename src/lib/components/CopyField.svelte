@@ -110,8 +110,7 @@
            textarea. A textarea does not grow with its text, so it sits in one
            grid cell with an invisible copy of the value, and the copy sets the
            height. The padding and the frame's together keep one line at the
-           control height. It binds its value as every textarea in the kit
-           does, so the check that holds that rule needs no exception. -->
+           control height. -->
       <div class="grid min-w-0 flex-1">
         <span
           aria-hidden="true"
@@ -125,7 +124,7 @@
           autocomplete="off"
           spellcheck="false"
           readonly
-          bind:value
+          {value}
           onfocus={(e) => e.currentTarget.select()}
           aria-describedby={describedBy(fieldId, failed ? COPY_FAILED_MESSAGE : undefined, hint)}
           class="col-start-1 row-start-1 resize-none overflow-hidden bg-transparent px-3 py-1 text-sm break-all whitespace-pre-wrap text-fg outline-none {mono
