@@ -229,12 +229,11 @@ describe('FilterChips, field props', () => {
       props: { label: 'Status', options: chips, value: 'all', hint: 'h', class: 'mt-4' },
     });
     const group = getByRole('group', { name: 'Status' });
-    const column = group.parentElement as HTMLElement;
     expect(group.className).toContain('mt-4');
-    expect(column.className).toContain('flex-col');
-    expect(column.hasAttribute('data-field')).toBe(true);
-    expect(column.className).not.toContain('mt-4');
-    expect(getByText('h').parentElement).toBe(column);
+    expect(group.hasAttribute('data-field')).toBe(true);
+    const message = getByText('h');
+    expect(group.nextElementSibling).toBe(message);
+    expect(message.className).toContain('mt-1.5');
   });
 
   it('gives the messages a generated id when the caller names none', () => {
@@ -288,6 +287,21 @@ describe('FilterChips, field props', () => {
     expect(links.map((a) => a.getAttribute('href'))).toEqual(['?status=all', '?status=open']);
     expect(links[1].getAttribute('aria-current')).toBe('page');
     expect(container.querySelector('button')).toBeNull();
+  });
+
+  it('keeps focus on a chip while an error arrives and clears', async () => {
+    const { getByRole, rerender } = render(FilterChips, {
+      props: { label: 'Status', options: chips, value: 'all' },
+    });
+    const chip = getByRole('button', { name: /Open/ });
+    chip.focus();
+    expect(document.activeElement).toBe(chip);
+    await rerender({ label: 'Status', options: chips, value: 'all', error: 'Pick a status' });
+    expect(document.activeElement).toBe(chip);
+    expect(chip.isConnected).toBe(true);
+    await rerender({ label: 'Status', options: chips, value: 'all', error: undefined });
+    expect(document.activeElement).toBe(chip);
+    expect(chip.isConnected).toBe(true);
   });
 
   it('presses a chip with every field prop set', async () => {
