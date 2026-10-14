@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.3] - 2026-10-14
+
+### Fixed
+
+- Under a finger, each `TimePicker` segment takes a 44px target of its own, the hour, the minute, the second and AM or PM alike. The segments spread a few pixels apart there so no target takes its neighbor's, and a press anywhere else in the field, on its padding or a colon, focuses the nearest segment, as a native time input does, under a mouse as well. A mouse sees the field as it was, and the keys, the names a screen reader reads and the value are unchanged.
+
 ## [0.38.2] - 2026-10-14
 
 ### Fixed

@@ -19,6 +19,7 @@
     toISOTime,
   } from '../internal/time.js';
   import type { TimeParts, TimeSegment } from '../internal/time.js';
+  import { HIT_AREA } from '../internal/touch.js';
 
   /**
    * A time field built from one input per segment, and deliberately not from a
@@ -386,6 +387,46 @@
     commit();
   }
 
+  /** Whether the press now under way started inside a segment. */
+  let pressInSegment = false;
+
+  function onGroupPointerdown(e: PointerEvent): void {
+    pressInSegment = !!(e.target as Element | null)?.closest('[data-segment]');
+  }
+
+  /**
+   * A press on the field's padding, on a colon or on a segment's hit box
+   * focuses the nearest segment, as a native time input does. The group is
+   * 44px tall under a finger and its segments are 20px, so without this a tap
+   * on most of the field focused nothing. A mouse gets the same, because the
+   * box it clicks is the box that looks like the field.
+   */
+  function onGroupClick(e: MouseEvent): void {
+    // A drag that selects digits in a segment and ends on the padding fires
+    // its click on the group, the nearest element both ends share. Where the
+    // press started tells that drag from a press on the padding. Which
+    // element holds focus does not: iOS Safari keeps a focused input focused
+    // when a finger taps something that cannot take focus, so a guard on
+    // focus would refuse a tap on the next segment's box. A click from the
+    // keyboard has no press before it, and the flag is reset by every click.
+    const startedInSegment = pressInSegment;
+    pressInSegment = false;
+    if (disabled || !group) return;
+    if ((e.target as Element | null)?.closest('[data-segment]')) return;
+    if (startedInSegment) return;
+    let nearest: HTMLElement | null = null;
+    let best = Infinity;
+    for (const el of group.querySelectorAll<HTMLElement>('[data-segment]')) {
+      const box = el.getBoundingClientRect();
+      const distance = Math.max(box.left - e.clientX, 0, e.clientX - box.right);
+      if (distance < best) {
+        best = distance;
+        nearest = el;
+      }
+    }
+    nearest?.focus();
+  }
+
   function onMeridiemKeydown(e: KeyboardEvent): void {
     // Left and right belong to the field: they walk the segments. Up and down
     // step the value as they do on every other segment, and the first letter
@@ -414,44 +455,63 @@
     </label>
   {/if}
 
+  <!--
+    Under a finger each segment takes a 44px hit box round its 28px or 32px
+    visual. The segments spread apart there so their centers sit 44px apart
+    and no box takes its neighbor's: a 4px gap each side of a colon held at
+    8px, and 10px before AM or PM. The field grows 8px wider, more with
+    seconds or AM and PM, and a mouse sees it as it was.
+
+    The press and the click on the group only move focus to a segment, which
+    Tab and the label already reach, so they need no key handler of their own.
+  -->
+  <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
   <div
     bind:this={group}
     role="group"
     aria-labelledby={label ? `${fieldId}-label` : undefined}
     aria-label={label ? undefined : 'Time'}
     aria-describedby={describedBy(fieldId, error, hint)}
-    class="{CONTROL_SEGMENTED} {segmentedBorder(!!error)} {disabled
+    onpointerdown={onGroupPointerdown}
+    onclick={onGroupClick}
+    class="{CONTROL_SEGMENTED} coarse:gap-1 {segmentedBorder(!!error)} {disabled
       ? 'cursor-not-allowed opacity-50'
       : ''}"
   >
     {#each digitSegments as segment, i (segment)}
       {#if i > 0}
-        <span aria-hidden="true" class="text-faint">:</span>
+        <span aria-hidden="true" class="text-faint coarse:w-2 coarse:text-center">:</span>
       {/if}
-      <input
-        data-segment={segment}
-        id="{fieldId}-{segment}"
-        type="text"
-        inputmode="numeric"
-        role="spinbutton"
-        autocomplete="off"
-        spellcheck="false"
-        maxlength="2"
-        {disabled}
-        value={shown(segment)}
-        aria-label={SEGMENT_LABEL[segment]}
-        aria-valuenow={shownNow(segment)}
-        aria-valuemin={segmentMin(segment)}
-        aria-valuemax={segmentMax(segment)}
-        aria-valuetext={valueText(segment)}
-        aria-invalid={error ? 'true' : undefined}
-        aria-required={required ? 'true' : undefined}
-        onkeydown={(e) => onSegmentKeydown(segment, e)}
-        oninput={(e) => onSegmentInput(segment, e)}
-        onblur={() => onSegmentBlur(segment)}
-        onfocus={(e) => e.currentTarget.select()}
-        class="{CONTROL_SEGMENT} w-7"
-      />
+      <!-- An input draws no pseudo-element, so the hit box sits on a span
+           round it, and the group's click handler focuses the input a tap on
+           the box lands beside. A label would do it without script, but it
+           would be a second label in the field for every segment. -->
+      <span data-segment-box class="{HIT_AREA} inline-flex">
+        <input
+          data-segment={segment}
+          id="{fieldId}-{segment}"
+          type="text"
+          inputmode="numeric"
+          role="spinbutton"
+          autocomplete="off"
+          spellcheck="false"
+          maxlength="2"
+          {disabled}
+          value={shown(segment)}
+          aria-label={SEGMENT_LABEL[segment]}
+          aria-valuenow={shownNow(segment)}
+          aria-valuemin={segmentMin(segment)}
+          aria-valuemax={segmentMax(segment)}
+          aria-valuetext={valueText(segment)}
+          aria-invalid={error ? 'true' : undefined}
+          aria-required={required ? 'true' : undefined}
+          onkeydown={(e) => onSegmentKeydown(segment, e)}
+          oninput={(e) => onSegmentInput(segment, e)}
+          onblur={() => onSegmentBlur(segment)}
+          onfocus={(e) => e.currentTarget.select()}
+          class="{CONTROL_SEGMENT} w-7"
+        />
+      </span>
     {/each}
 
     {#if hour12}
@@ -473,7 +533,7 @@
         aria-required={required ? 'true' : undefined}
         onclick={() => setMeridiem(meridiem === 'AM' ? 'PM' : 'AM')}
         onkeydown={onMeridiemKeydown}
-        class="{CONTROL_SEGMENT} ms-1 w-8 cursor-pointer"
+        class="{HIT_AREA} {CONTROL_SEGMENT} ms-1 coarse:ms-2.5 w-8 cursor-pointer"
       >
         {meridiem}
       </button>
