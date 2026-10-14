@@ -5,6 +5,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.2] - 2026-10-14
+
+### Fixed
+
+- Under a finger, `FilterChips` that wrap to a second row keep a 44px target on every chip. The rows sit 18px apart, so a tap near the bottom of a chip no longer lands on the chip below it. A mouse keeps the 6px gap.
+- Under a finger, each `SegmentedControl` segment takes a 44px target, at least 44px wide for a short label such as "6h" and 44px tall inside a row that scrolls sideways. The track draws its frame as an inset outline with no border there, so the scroll box no longer cuts a pixel off the top and the bottom of every target, and a contrast theme keeps the frame. A mouse keeps the border and the widths it had.
+- Under a finger, `Pagination` page numbers sit 16px apart, so each one takes a 44px target of its own instead of 30px. On a phone held by a finger the pager shows the first page, the current page and the last, with a gap mark for each run between them, so it stays on one row. From the `sm` width up, and under a mouse, it shows the pages it did before.
+
 ## [0.38.1] - 2026-10-14
 
 ### Fixed

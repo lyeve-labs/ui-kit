@@ -130,15 +130,60 @@
   }
 
   /**
-   * A page number is unique in the list, so it is its own key. Both gaps are
-   * spelled 'gap', so they take their position as well. Keying on the index
-   * alone made every slot change identity when a page was inserted ahead of it.
+   * The pages a phone held by a finger shows: the first, the last and the
+   * current one, with a gap for each run between them. Five slots at most, so
+   * Previous, Next and the five each take a 44px box on one row of a phone.
+   * Every page in it is also in the list above, which keeps one element per
+   * page when the two lists are drawn together.
    */
-  function slotKey(slot: PageSlot, index: number): string {
-    return slot === 'gap' ? `gap-${index}` : `page-${slot}`;
+  function touchPageNumbers(current: number, last: number): Set<number> {
+    if (last <= 5) return new Set(Array.from({ length: last }, (_, i) => i + 1));
+    return new Set([1, current, last]);
   }
 
-  let nums = $derived(counted ? pageNumbers(safePage, totalPages) : []);
+  /**
+   * A slot is a page or a gap, and `only` names the one layout that draws it:
+   * `fine` for a page or gap the touch layout folds away, `touch` for a gap
+   * only the touch layout draws. Unset means both draw it.
+   *
+   * Both layouts are in the markup and the stylesheet picks one, because the
+   * pointer is a media query: a list chosen by script would draw the mouse
+   * layout on the server and switch after hydration. A gap stands where the
+   * run it folds starts, so a gap both layouts draw is one element, and a page
+   * never disappears without a gap in its place.
+   */
+  type Slot = { key: string; page: number | null; only?: 'fine' | 'touch' };
+
+  function pageSlots(current: number, last: number): Slot[] {
+    const fine = new Set(pageNumbers(current, last).filter((s): s is number => s !== 'gap'));
+    const touch = touchPageNumbers(current, last);
+    const starts = new Set<number>();
+    for (const p of fine) starts.add(p).add(p + 1);
+    const slots: Slot[] = [];
+    for (const p of [...starts].filter((p) => p <= last).sort((a, b) => a - b)) {
+      const fineGap = !fine.has(p) && fine.has(p - 1);
+      const touchGap = !touch.has(p) && touch.has(p - 1);
+      if (fineGap || touchGap) {
+        const only = fineGap && touchGap ? undefined : fineGap ? 'fine' : 'touch';
+        slots.push({ key: `gap-${p}`, page: null, only });
+      }
+      if (fine.has(p))
+        slots.push({ key: `page-${p}`, page: p, only: touch.has(p) ? undefined : 'fine' });
+    }
+    return slots;
+  }
+
+  /**
+   * The display of a slot. A touch-only gap carries no base `inline-flex`,
+   * which would tie with `hidden` and leave the outcome to stylesheet order.
+   */
+  function display(only: Slot['only']): string {
+    if (only === 'fine') return 'inline-flex max-sm:coarse:hidden';
+    if (only === 'touch') return 'hidden max-sm:coarse:inline-flex';
+    return 'inline-flex';
+  }
+
+  let slots = $derived(counted ? pageSlots(safePage, totalPages) : []);
 
   /**
    * The noun as it will be read.
@@ -181,9 +226,12 @@
   }
 
   /**
-   * 28px drawn, 44px under a finger. The steps sit 2px apart, so growing the
-   * visual would put a seven-page pager past a phone's width. The hit box
-   * grows instead and the pager keeps its shape.
+   * 28px drawn, 44px under a finger. Growing the visual would push the
+   * neighbors apart, so the hit box grows instead. Under a finger the steps
+   * sit 16px apart, so each 44px box meets its neighbor's without covering
+   * it. Nine steps that far apart are 380px, wider than a phone, so a phone
+   * held by a finger shows the touch list of five pages and gaps instead, and
+   * from the sm width up the full list fits.
    */
   const btnBase = `${HIT_AREA} inline-flex items-center justify-center w-7 h-7 rounded text-xs font-medium transition-colors`;
 
@@ -266,15 +314,19 @@
   <span class="shrink-0 text-xs text-faint">{summary}</span>
 
   {#if hasControls}
-    <div class="ms-auto flex flex-wrap items-center gap-0.5">
+    <div class="ms-auto flex flex-wrap items-center gap-0.5 coarse:gap-4">
       {@render step(safePage - 1, 'Previous page', canPrev, 'M15 18l-6-6 6-6')}
 
-      {#each nums as n, i (slotKey(n, i))}
-        {#if n === 'gap'}
+      {#each slots as slot (slot.key)}
+        {@const n = slot.page}
+        {#if n === null}
           <!-- Three drawn dots, not the ellipsis character: a font glyph lands
                at a different optical weight from every other icon here, and the
                character is what the screen reader was speaking. -->
-          <span class="inline-flex w-7 items-center justify-center text-faint" aria-hidden="true">
+          <span
+            class="{display(slot.only)} w-7 items-center justify-center text-faint"
+            aria-hidden="true"
+          >
             <svg
               width="14"
               height="14"
@@ -292,16 +344,20 @@
           <a
             href={linkTo(n, true)}
             aria-current={safePage === n ? 'page' : undefined}
-            class="{btnBase} {safePage === n ? btnCurrent : btnRest}"
+            class="{btnBase} {slot.only ? 'max-sm:coarse:hidden' : ''} {safePage === n
+              ? btnCurrent
+              : btnRest}"
           >
             {n}
           </a>
         {:else}
           <button
             type="button"
-            onclick={() => onchange?.(n as number)}
+            onclick={() => onchange?.(n)}
             aria-current={safePage === n ? 'page' : undefined}
-            class="{btnBase} {safePage === n ? btnCurrent : btnRest}"
+            class="{btnBase} {slot.only ? 'max-sm:coarse:hidden' : ''} {safePage === n
+              ? btnCurrent
+              : btnRest}"
           >
             {n}
           </button>

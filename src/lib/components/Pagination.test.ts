@@ -7,6 +7,11 @@ function gaps(container: HTMLElement): HTMLElement[] {
   return [...container.querySelectorAll<HTMLElement>('span[aria-hidden="true"]')];
 }
 
+/** The gap markers a mouse sees. A finger on a phone sees the touch list's own. */
+function mouseGaps(container: HTMLElement): HTMLElement[] {
+  return gaps(container).filter((g) => !g.classList.contains('hidden'));
+}
+
 /** The summary line, which is the first span the pager renders. */
 function summary(container: HTMLElement): string {
   return container.querySelector('span')?.textContent?.trim() ?? '';
@@ -72,7 +77,7 @@ describe('Pagination', () => {
     const { container } = render(Pagination, {
       props: { page: 2, total: 200, perPage: 20, onchange: vi.fn() },
     });
-    expect(gaps(container).length).toBe(1);
+    expect(mouseGaps(container).length).toBe(1);
   });
 
   it('elides both ends when the current page sits in the middle', () => {
@@ -80,7 +85,7 @@ describe('Pagination', () => {
     const { container } = render(Pagination, {
       props: { page: 10, total: 400, perPage: 20, onchange: vi.fn() },
     });
-    expect(gaps(container).length).toBe(2);
+    expect(mouseGaps(container).length).toBe(2);
     expect(container.textContent).toContain('9');
     expect(container.textContent).toContain('11');
   });
