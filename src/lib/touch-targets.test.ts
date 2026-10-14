@@ -21,6 +21,7 @@ import Breadcrumb from './components/Breadcrumb.svelte';
 import Button from './components/Button.svelte';
 import Checkbox from './components/Checkbox.svelte';
 import Collapsible from './components/Collapsible.svelte';
+import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
 import Modal from './components/Modal.svelte';
 import NumberInput from './components/NumberInput.svelte';
@@ -181,6 +182,26 @@ describe('the small controls keep their visual and grow their hit box', () => {
         unmount();
       }
     }
+  });
+
+  it('wrapped FilterChips rows, whose hit boxes covered the row above', () => {
+    // A chip is 26px tall and its hit box 44px, so rows 18px apart meet
+    // without overlapping. At the 6px gap a mouse keeps, the next row took
+    // 12px off the bottom of every chip above it.
+    const { getByRole } = render(FilterChips, {
+      props: {
+        label: 'Status',
+        value: 'all',
+        options: [
+          { value: 'all', label: 'All' },
+          { value: 'open', label: 'Open' },
+        ],
+      },
+    });
+    const row = classes(getByRole('group'));
+    expect(row).toContain('coarse:gap-y-4.5');
+    expect(row).toContain('gap-1.5');
+    for (const chip of getByRole('group').querySelectorAll('button')) expectHitArea(chip);
   });
 
   it('NumberInput steppers, which left the number 40px wide inside a w-32', () => {
