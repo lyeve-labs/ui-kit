@@ -9,6 +9,7 @@
     type TreeNode,
     type TriState,
   } from '../internal/tree.js';
+  import { TOUCH_GROW } from '../internal/touch.js';
 
   interface Props {
     nodes: TreeNode<T>[];
@@ -267,10 +268,12 @@
       <!--
         Indentation is a style attribute reading the spacing tokens. A class
         built by interpolating the depth matches no candidate in Tailwind's
-        scan, so no rule is generated and every row draws flush left.
+        scan, so no rule is generated and every row draws flush left. Under a
+        finger the 32px row grows to the control height, as a SidebarNav row
+        does.
       -->
       <div
-        class="flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors {rowPaint(
+        class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors {rowPaint(
           selected === node.id,
           !!node.disabled,
         )}"

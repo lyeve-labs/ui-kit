@@ -41,6 +41,7 @@ import Tag from './components/Tag.svelte';
 import ThemeToggle from './components/ThemeToggle.svelte';
 import TimePicker from './components/TimePicker.svelte';
 import Toggle from './components/Toggle.svelte';
+import TreeView from './components/TreeView.svelte';
 import { HIT_AREA, HIT_AREA_POSITIONED, TOUCH_GROW } from './internal/touch.js';
 
 const theme = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
@@ -548,6 +549,22 @@ describe('the controls that may grow take the control height', () => {
       expect(rows).toHaveLength(2);
       for (const row of rows) expectGrows(row);
     }
+  });
+
+  it('TreeView rows, which were 32px', () => {
+    const { container } = render(TreeView, {
+      props: {
+        label: 'Files',
+        expanded: ['docs'],
+        nodes: [
+          { id: 'docs', label: 'Docs', children: [{ id: 'intro', label: 'Intro' }] },
+          { id: 'readme', label: 'Readme' },
+        ],
+      },
+    });
+    const rows = container.querySelectorAll('[role="treeitem"] > div:first-child');
+    expect(rows).toHaveLength(3);
+    for (const row of rows) expectGrows(row);
   });
 
   it('a Collapsible trigger', () => {
