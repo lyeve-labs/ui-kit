@@ -251,8 +251,10 @@
 
         Under a finger each day keeps its 32px face and a 44px hit box, so the
         days have to sit 44px apart or each box covers a third of its
-        neighbors'. Seven 44px columns are 308px, which the 332px panel holds
-        inside its padding, and the rows open a 12px gap for the same reason.
+        neighbors'. Seven 44px columns are 308px. Inside a 1px border and 6px
+        of padding that is a 320px panel, the width of the narrowest phone,
+        and placePanel slides it back on screen from the page gutter. The rows
+        open a 12px gap for the same reason.
       -->
       <div
         id={calendarId}
@@ -260,9 +262,12 @@
         aria-label="Choose date"
         use:placePanel
         transition:motion.popover|global
-        class="{PANEL_SURFACE} w-68 coarse:w-83"
+        class="{PANEL_SURFACE} w-68 coarse:w-80"
       >
-        <div class="overflow-y-auto overscroll-contain p-3" data-panel-list={PANEL_LIST_UNCAPPED}>
+        <div
+          class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
+          data-panel-list={PANEL_LIST_UNCAPPED}
+        >
           <!-- Header -->
           <div class="flex items-center justify-between mb-2">
             <button

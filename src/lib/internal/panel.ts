@@ -218,6 +218,9 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  * the cap without this code knowing its value. A region marked uncapped takes
  * the room alone.
  *
+ * A panel that would run past the left or the right edge of the viewport
+ * slides back inside it, and never past the left edge when it is wider.
+ *
  * Measured on mount, on resize and on scroll of the clipping ancestor, since
  * each moves the anchor relative to the edge. Scroll does not bubble, so the
  * list's own scrolling never re-measures. A server render has no window and
@@ -248,6 +251,17 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     const flip = natural > below && above > below;
     if (flip) swap(node, PANEL_BELOW, PANEL_ABOVE);
     else swap(node, PANEL_ABOVE, PANEL_BELOW);
+
+    // A panel wider than the room beside its anchor slides back inside the
+    // viewport rather than running off its edge and panning the page: the
+    // calendar under a finger is as wide as a 320px phone, and its field
+    // starts at the page gutter. Read from the layout box, which the entrance
+    // preset's scale does not shrink.
+    const width = document.documentElement.clientWidth || window.innerWidth;
+    const left = rect.left + node.offsetLeft;
+    const right = left + node.offsetWidth;
+    const shift = right > width ? -Math.min(right - width, left) : left < 0 ? -left : 0;
+    node.style.translate = shift === 0 ? '' : `${shift}px 0`;
 
     if (list === null) return;
     // What the surface adds around the list, a search field for instance, is

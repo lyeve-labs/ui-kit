@@ -309,8 +309,9 @@ describe('the small controls keep their visual and grow their hit box', () => {
   it('DatePicker days, whose hit boxes overlapped about 10px each way', async () => {
     // A day is 32px with a 44px hit box. In the 272px panel the columns were
     // 36px apart and the rows 34px, so every box covered its neighbors'.
-    // Under a finger the panel widens to 332px: 308px of grid inside 12px of
-    // padding is seven columns 44px apart, and the rows open a 12px gap.
+    // Under a finger seven columns 44px apart are 308px of grid. The panel
+    // holds them inside its border and padding and is no wider than a 320px
+    // phone, and the rows open a 12px gap.
     const { container } = render(DatePicker, { props: { label: 'Due', value: '2026-07-15' } });
     await fireEvent.click(container.querySelector('button')!);
     /** A spacing utility's value in px, from the class that starts with the prefix. */
@@ -324,7 +325,11 @@ describe('the small controls keep their visual and grow their hit box', () => {
     // The mouse keeps the panel and the grid it had.
     expect(classes(panel)).toContain('w-68');
     expect(classes(grid)).toContain('gap-0.5');
-    const inner = px(panel, 'coarse:w-') - 2 * px(grid?.parentElement ?? null, 'p-');
+    const outer = px(panel, 'coarse:w-');
+    expect(outer, 'fits a 320px screen').toBeLessThanOrEqual(320);
+    expect(classes(panel), 'a 1px border').toContain('border');
+    const padding = px(grid?.parentElement ?? null, 'coarse:p-');
+    const inner = outer - 2 * 1 - 2 * padding;
     const columnGap = px(grid, 'gap-');
     expect((inner + columnGap) / 7, 'column pitch').toBeGreaterThanOrEqual(44);
     expect(32 + px(grid, 'coarse:gap-y-'), 'row pitch').toBeGreaterThanOrEqual(44);

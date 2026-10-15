@@ -334,6 +334,33 @@ describe('placePanel', () => {
     action.destroy();
   });
 
+  it('slides a panel wider than the room beside its anchor back inside the viewport', () => {
+    // The calendar under a finger is 320px and its field starts at the page
+    // gutter, so on a 320px phone it ran 24px past the right edge.
+    const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 320 });
+    try {
+      const at = (left: number, panel: number) => {
+        const f = mount({ anchor: [100, 140], natural: 200 });
+        f.anchor.getBoundingClientRect = () => ({ ...rect(100, 140), left }) as DOMRect;
+        Object.defineProperty(f.surface, 'offsetWidth', { value: panel });
+        const action = placePanel(f.surface);
+        const shift = f.surface.style.translate;
+        action.destroy();
+        return shift;
+      };
+      expect(at(24, 320)).toBe('-24px 0');
+      expect(at(24, 272)).toBe('');
+      // Wider than the screen, it keeps its start edge on the screen.
+      expect(at(24, 400)).toBe('-24px 0');
+      // A start edge off the left, as an end-anchored panel in a right-to-left
+      // page, comes back to the edge.
+      expect(at(-16, 300)).toBe('16px 0');
+    } finally {
+      if (width) Object.defineProperty(window, 'innerWidth', width);
+    }
+  });
+
   it('removes its listeners on destroy', () => {
     const f = mount({ anchor: [100, 140], clip: [0, 800], natural: 200 });
     const onClip = vi.spyOn(f.clip, 'removeEventListener');
