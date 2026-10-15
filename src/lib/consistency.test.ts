@@ -104,6 +104,36 @@ function ariaRequiredRoles(src: string): string[] {
   return roles;
 }
 
+/**
+ * Every opening tag of an HTML element, read to its closing bracket with
+ * braces and quotes honored, so an arrow function inside an attribute does
+ * not end the tag early.
+ */
+function openingTags(src: string): string[] {
+  const out: string[] = [];
+  for (const m of src.matchAll(/<[a-z]/g)) {
+    let depth = 0;
+    let quote = '';
+    let end = m.index + 1;
+    for (; end < src.length; end++) {
+      const c = src[end];
+      if (quote !== '') {
+        if (c === quote) quote = '';
+      } else if (c === '"' || c === "'") {
+        quote = c;
+      } else if (c === '{') {
+        depth += 1;
+      } else if (c === '}') {
+        depth -= 1;
+      } else if (c === '>' && depth === 0) {
+        break;
+      }
+    }
+    out.push(src.slice(m.index, end + 1));
+  }
+  return out;
+}
+
 /** The asterisk a component draws beside a label when the field is required. */
 const REQUIRED_MARKER = /\{#if required\}\s*<span/;
 
@@ -144,6 +174,30 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('sizes every lucide icon by its size prop, never by a class', () => {
+    // A lucide icon draws at 24px and a w-* or h-* class rescales it, which
+    // reads as styling rather than as a rung of the icon ladder and is how
+    // the dialog stack's close cross and the confirm dialog's warning sign
+    // came to sit off it.
+    const offenders = files.flatMap((f) => {
+      const imported = /import \{([^}]*)\} from '@lucide\/svelte'/.exec(f.src)?.[1] ?? '';
+      const names = imported
+        .split(',')
+        .map(
+          (n) =>
+            n
+              .trim()
+              .split(/\s+as\s+/)
+              .pop() ?? '',
+        )
+        .filter(Boolean);
+      return names
+        .filter((n) => new RegExp(`<${n}\\b[^>]*class="[^"]*\\b(?:w|h|size)-\\d`).test(code(f.src)))
+        .map((n) => `${f.name}: ${n}`);
+    });
+    expect(offenders).toEqual([]);
+  });
+
   it('draws icons as stroked SVG, never as a Unicode character', () => {
     // A literal × or ✓ renders at whatever weight the user's font gives it,
     // which sat visibly lighter than the SVG icons next to it.
@@ -165,6 +219,21 @@ describe('component consistency', () => {
       .filter((f) => /focus:border-brand\/|focus:border-danger\//.test(f.src))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
+  });
+
+  it.each(FIELDS)('%s draws the 2px ring wherever it turns the outline off', (name) => {
+    // Input, Select's trigger and Textarea draw the brand ring on focus. A
+    // control that writes outline-none and keeps only focus:border-brand
+    // shows a keyboard user a 1px color change, which NumberInput, the
+    // MultiSelect trigger and both panel search boxes did. A ring on a
+    // wrapper, through has-[...:focus-visible], counts for the control inside.
+    const src = code(files.find((x) => x.name === name)!.src);
+    const wrapperRing = /has-\[\S*?:focus-visible\]:ring-2/.test(src);
+    const bare = [...src.matchAll(/class="([^"]*)"/g)]
+      .map((m) => m[1].replace(/\s+/g, ' '))
+      .filter((c) => /(?:^|\s)outline-none\b/.test(c))
+      .filter((c) => !c.includes('focus-visible:ring-2') && !wrapperRing);
+    expect(bare).toEqual([]);
   });
 
   it.each(FIELDS)('%s composes its classes from the shared field contract', (name) => {
@@ -408,6 +477,35 @@ describe('component consistency', () => {
           /setTimeout\([^)]*\b(?:1[2-9]\d|[2-9]\d\d)\b/.test(f.src) ||
           /\s(?:transition|in|out|animate):(?!motion\.)[A-Za-z_$]/.test(f.src),
       )
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('mounts every modal surface and every scrim through a preset', () => {
+    // The AppShell phone nav drawer and its scrim snapped open and shut
+    // while every other drawer slid. Each opening tag that claims
+    // aria-modal, or dims the page, has to carry its preset itself.
+    const tags = (src: string, marker: RegExp) => openingTags(src).filter((t) => marker.test(t));
+    const offenders = files.flatMap((f) => {
+      const src = code(f.src);
+      const modal = tags(src, /aria-modal="true"/).filter(
+        (t) => !/transition:motion\.(?:dialog|drawer)\|global/.test(t),
+      );
+      const scrim = tags(src, /\bbg-black\//).filter(
+        (t) => !t.includes('transition:motion.scrim|global'),
+      );
+      return [...modal, ...scrim].map((t) => `${f.name}: ${t.slice(0, 60).replace(/\s+/g, ' ')}`);
+    });
+    expect(offenders).toEqual([]);
+  });
+
+  it('leaves through a preset wherever a surface dismisses itself', () => {
+    // Alert left on the toast preset while Banner, dismissed by hand or by
+    // its own timer, vanished in one frame. A component that offers
+    // ondismiss takes itself off the screen and owes that exit.
+    const offenders = files
+      .filter((f) => /\bondismiss\??:/.test(f.src))
+      .filter((f) => !/transition:motion\.[a-z]+\|global/.test(f.src))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
   });

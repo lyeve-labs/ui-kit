@@ -139,14 +139,14 @@ describe('choiceWrap', () => {
 
 describe('choiceGroupList', () => {
   it.each(ORIENTATIONS)('lays %s options out', (orientation) => {
-    const list = classes(choiceGroupList(orientation));
+    const list = classes(choiceGroupList(orientation, 'md', 'inline'));
     expect(list).toContain('flex');
     expect(list).toContain(orientation === 'horizontal' ? 'flex-row' : 'flex-col');
     expect(list).not.toContain(orientation === 'horizontal' ? 'flex-col' : 'flex-row');
   });
 
   it('wraps a horizontal group, so a narrow column does not clip the last option', () => {
-    expect(classes(choiceGroupList('horizontal'))).toContain('flex-wrap');
+    expect(classes(choiceGroupList('horizontal', 'md', 'inline'))).toContain('flex-wrap');
   });
 
   it('lets a fieldset shrink', () => {
@@ -240,7 +240,9 @@ describe('every class this module hands out', () => {
     CHOICE_GROUP,
     ...SIZES.map(choiceLabel),
     ...SIZES.map(choiceIcon),
-    ...ORIENTATIONS.map(choiceGroupList),
+    ...ORIENTATIONS.flatMap((orientation) =>
+      SIZES.flatMap((size) => VARIANTS.map((v) => choiceGroupList(orientation, size, v))),
+    ),
     ...VARIANTS.flatMap((variant) =>
       FLAGS.flatMap((checked) => FLAGS.map((disabled) => choiceWrap(variant, checked, disabled))),
     ),

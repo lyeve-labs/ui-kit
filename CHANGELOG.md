@@ -5,6 +5,30 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.4] - 2026-10-15
+
+### Fixed
+
+- Under a finger, the options of a `CheckboxGroup` or a `RadioGroup` sit far enough apart that each takes a 44px target of its own, in a column and in a row that wraps, so a tap near the bottom of one option no longer picks the option below it. Card options keep their spacing, and a mouse sees the list as it was.
+- Under a finger, every day in a `DatePicker` or `DateTimePicker` calendar takes a 44px target of its own. The calendar opens 48px wider there, 320px, which a phone of that width holds edge to edge, and its weeks sit 12px apart, so a tap near the edge of a day no longer picks the day beside or below it. Any list or calendar that would run past the side of the screen, or of the dialog or scrolling box it opens in, now slides back inside it. A mouse sees the calendar as it was.
+- Under a finger, every option in an open `Select`, `MultiSelect` or `Autocomplete` list is 44px tall, as a `Dropdown` menu item already was. The rows were 36px. A mouse sees the list as it was.
+- Under a finger, every `TreeView` row is 44px tall, the height a `SidebarNav` row takes there. The rows were 32px. A mouse sees the tree as it was.
+- Under a finger, the close cross on a dialog opened with `openDialog` takes a 44px target, as the crosses on `Modal` and `Drawer` do. It was 32px. The cross is drawn the same size, and a mouse sees it as it was.
+- Under a finger, the cross that clears an `Autocomplete` takes a 44px target, as the one in a `SearchInput` does. It was 24px. A mouse sees it as it was.
+- A `FileInput` reached with the keyboard draws the 2px brand focus ring around its drop target. Focus used to land on the hidden input and show nothing at all. A click still opens the file picker with no ring.
+- A `NumberInput`, a `MultiSelect` and the search box inside an open `Select` or `MultiSelect` list draw the 2px brand focus ring under the keyboard, as `Input` and `Textarea` do. Focus used to show only as a 1px change in the border color.
+- `Avatar` initials read at 4.5:1 or better on every one of its eight colors in both themes. Seven of the eight read lower in one theme or the other, down to 1.87:1 in light, because dark initials sat on a see-through color that took on whatever the avatar was drawn over. The five strong colors are now solid behind the same initials and the three soft ones a light tint behind body-colored initials, and each name keeps its color.
+- The count on the active `Tabs` tab reads at 4.5:1 or better in both themes, at least 5.42:1. Its tint was four times as strong as every other brand chip's, and the count read as low as 3.28:1. It now takes the same light tint as the rest.
+- A colored `SidebarNav` badge and the colored initials in an `AccountMenu` read at 4.5:1 or better on every row, at least 4.68:1. On the current page's row, and on any row under the pointer or a finger, the row's own highlight showed through the badge and a violet badge read as low as 3.69:1. A badge on a resting row looks as it did.
+- The warning sign in a `confirm` dialog is sized by its icon size, 20px, rather than by a class. It looks as it did.
+- On a phone, the `AppShell` navigation drawer slides in from the edge it is docked on and back out, the right edge in a right-to-left page, and the dimmed page behind it fades in and out, as a `Drawer` does. Both used to appear and vanish in a single frame.
+- A `Banner` that is dismissed, by hand or by `autoDismiss`, fades away as an `Alert` does. It used to vanish in a single frame.
+- A screen reader announces a `danger` or `warn` `Banner` at once, as it does an `Alert` of the same tone, and waits for a pause for every other tone. Every banner used to wait, so "Payment failed" came after whatever was being read. A banner with `autoDismiss` still waits, whatever its tone.
+- A `TreeView` branch slides open and shut with its chevron, the way an `Accordion` panel does. Its rows used to appear and vanish in a single frame. A branch nobody has opened still renders nothing under it, so a large tree costs no more than it did.
+- A screen reader meets a `MultiSelect` as one field that reads its label and then the chosen values, followed by a remove button for each value, and Tab reaches the field before any remove button. The remove buttons used to sit inside the field's own control, a control nested in a control. After a value is removed, focus returns to the field, and a disabled field removes nothing and leaves its remove buttons out of the Tab order. A press anywhere on the field still opens the list, and the field looks as it did.
+- Under a finger, the check box in a checkable `TreeView` row takes a 44px square of its own beside the label, so a tap that means to check a row no longer opens or selects it instead. The rest of the row still selects it, and a mouse sees the tree as it was.
+- A `danger` or `warn` `Alert` given `autoDismiss` waits for a pause before a screen reader announces it, as every other tone does. It used to interrupt the reader and then clear itself, leaving nothing to act on. Without `autoDismiss` a `danger` or `warn` alert still interrupts.
+
 ## [0.38.3] - 2026-10-14
 
 ### Fixed

@@ -337,6 +337,69 @@ describe('MultiSelect required marker', () => {
 });
 
 describe("a chip's remove button", () => {
+  it('puts no control inside the combobox', () => {
+    // A remove button inside role="combobox" is a control nested in a
+    // control. The chips sit beside the combobox in the field instead.
+    const { container, getByLabelText } = render(MultiSelect, {
+      props: { options, value: ['a', 'b'] },
+    });
+    const combobox = trigger(container);
+    expect(combobox.querySelector('button, a, input, select, textarea, [tabindex]')).toBeNull();
+    expect(combobox.contains(getByLabelText('Remove Alpha'))).toBe(false);
+    expect(combobox.textContent).toContain('Alpha, Beta');
+  });
+
+  it('opens from a press anywhere on the field, with focus on the combobox', async () => {
+    // With a search box, focus moves on into it, so this field has none.
+    const { container, getByLabelText } = render(MultiSelect, {
+      props: { options, value: ['a'], searchable: false },
+    });
+    const chip = getByLabelText('Remove Alpha').parentElement as HTMLElement;
+    await fireEvent.click(chip);
+    expect(trigger(container).getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(trigger(container));
+  });
+
+  it('puts the combobox first in the tab order, ahead of the remove buttons', () => {
+    // Tab from the label landed on "Remove Alpha", and Enter there deleted a
+    // value before the reader had reached the field.
+    const { container } = render(MultiSelect, {
+      props: { label: 'Tags', options, value: ['a', 'b'] },
+    });
+    const stops = [
+      ...container.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ].filter((el) => el.tabIndex >= 0);
+    expect(stops[0]).toBe(trigger(container));
+    expect(stops.slice(1).map((el) => el.getAttribute('aria-label'))).toEqual([
+      'Remove Alpha',
+      'Remove Beta',
+    ]);
+  });
+
+  it('removes nothing and offers no remove stop while disabled', async () => {
+    const onchange = vi.fn();
+    const { getByLabelText } = render(MultiSelect, {
+      props: { options, value: ['a'], disabled: true, onchange },
+    });
+    const remove = getByLabelText('Remove Alpha') as HTMLButtonElement;
+    expect(remove.tabIndex).toBe(-1);
+    await fireEvent.click(remove);
+    expect(onchange).not.toHaveBeenCalled();
+  });
+
+  it('hands focus to the combobox after a remove', async () => {
+    // The button the reader pressed is gone, and focus would fall to the body.
+    const { container, getByLabelText } = render(MultiSelect, {
+      props: { options, value: ['a', 'b'] },
+    });
+    const remove = getByLabelText('Remove Alpha');
+    remove.focus();
+    await fireEvent.click(remove);
+    expect(document.activeElement).toBe(trigger(container));
+  });
+
   it('has a target that clears 24px', () => {
     // SC 2.5.8 at AA. The button sits inside the trigger, so the spacing
     // exception cannot apply to it. jsdom lays nothing out, so the box is

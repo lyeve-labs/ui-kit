@@ -15,7 +15,6 @@
     FIELD_HINT,
     FIELD_LABEL,
     FIELD_WRAP,
-    controlBorder,
     describedBy,
   } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
@@ -112,8 +111,12 @@
   }
 
   function remove(v: string): void {
+    if (disabled) return;
     value = value.filter((x) => x !== v);
     onchange?.(value);
+    // The pressed button leaves with its chip, and focus would fall to the
+    // page. The field is where the reader was.
+    triggerEl?.focus();
   }
 
   function search(event: Event & { currentTarget: HTMLInputElement }): void {
@@ -126,12 +129,14 @@
     box.openList();
   }
 
+  function onFrameClick(): void {
+    if (disabled) return;
+    triggerEl?.focus();
+    box.toggle();
+  }
+
   function onTriggerKeydown(event: KeyboardEvent): void {
     if (disabled) return;
-    // A chip's remove button sits inside the trigger, so its keys bubble
-    // through here. Taken as the trigger's own they would open the panel and
-    // preventDefault the click that removes the chip.
-    if (event.target !== event.currentTarget) return;
     if (box.onkeydown(event)) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
 
@@ -168,89 +173,107 @@
 
   <div class="relative" use:anchor>
     <!--
-      A div and not a button, so the chips' own remove buttons are valid
-      children. role="combobox" and not role="button" for the same reason: a
-      button's descendants are presentational, which took every remove button
-      out of the accessibility tree, and aria-activedescendant says nothing on a
-      role that does not support it.
+      The frame draws the field. The chips and the combobox sit inside it side
+      by side, so no remove button is a control nested inside another control,
+      which a screen reader reads as one widget and a keyboard cannot sort
+      out. A press anywhere on the frame that is not a remove button opens the
+      list from the combobox, as a press on the field always did.
     -->
     <div
-      bind:this={triggerEl}
-      id={fieldId}
-      role="combobox"
-      tabindex={disabled ? -1 : 0}
-      aria-disabled={disabled ? 'true' : undefined}
-      aria-labelledby={label ? `${fieldId}-label` : undefined}
-      aria-required={required ? 'true' : undefined}
-      aria-describedby={describedBy(fieldId, error, hint)}
-      onclick={() => {
-        if (!disabled) box.toggle();
-      }}
-      onkeydown={onTriggerKeydown}
-      {...box.triggerAttrs}
+      role="presentation"
+      onclick={onFrameClick}
       class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg
         border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors
-        outline-none {disabled ? 'cursor-not-allowed opacity-50' : ''} {controlBorder(!!error)}"
+        has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
+        has-[[role=combobox]:focus-visible]:ring-brand
+        {disabled ? 'cursor-not-allowed opacity-50' : ''}
+        {error ? 'border-danger' : 'border-line-strong has-[[role=combobox]:focus]:border-brand'}"
     >
-      {#if selected.length === 0}
-        <span class="px-0.5 text-faint">{placeholder}</span>
-      {:else}
-        {#each selected as option (option.value)}
-          <span
-            class="inline-flex items-center gap-1 rounded-md bg-brand/10 px-2 py-0.5 text-xs text-brand"
+      <!--
+        A div and not an input: there is nothing to type here. The labels of
+        the chosen values are its text, so focusing it reads the label and
+        then what is chosen, as a select reads its value. It comes first in
+        the markup, so Tab reaches the field before any remove button, and
+        order-last draws it after the chips.
+      -->
+      <div
+        bind:this={triggerEl}
+        id={fieldId}
+        role="combobox"
+        tabindex={disabled ? -1 : 0}
+        aria-disabled={disabled ? 'true' : undefined}
+        aria-labelledby={label ? `${fieldId}-label` : undefined}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy(fieldId, error, hint)}
+        onkeydown={onTriggerKeydown}
+        {...box.triggerAttrs}
+        class="order-last flex min-w-12 flex-1 items-center gap-1.5 self-stretch outline-none"
+      >
+        {#if selected.length === 0}
+          <span class="px-0.5 text-faint">{placeholder}</span>
+        {:else}
+          <span class="sr-only">{selected.map((option) => option.label).join(', ')}</span>
+        {/if}
+        <span class="ms-auto shrink-0 text-faint" aria-hidden="true">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            class="transition-transform duration-base {box.open ? 'rotate-180' : ''}"
           >
-            {option.label}
-            <button
-              type="button"
-              aria-label="Remove {option.label}"
-              onclick={(event) => {
-                event.stopPropagation();
-                remove(option.value);
-              }}
-              class="{HIT_AREA} -m-1.5 p-1.5 transition-colors hover:text-brand-light"
-            >
-              <!--
-                12px inside 6px of padding is a 24px target, which is the floor
-                SC 2.5.8 puts on a control that cannot claim the spacing
-                exception, and this one sits inside the trigger. The padding is
-                taken straight back off as margin, so the chip is laid out
-                exactly as it was and only the reachable area grew. The glyph
-                is the same 12px cross Autocomplete clears its value with. It
-                was drawn a pixel smaller here for no reason anyone recorded.
-              -->
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                aria-hidden="true"
-              >
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </span>
-        {/each}
-      {/if}
-      <span class="ms-auto shrink-0 text-faint" aria-hidden="true">
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          class="transition-transform duration-base {box.open ? 'rotate-180' : ''}"
+            <path
+              d="M2 4l4 4 4-4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </div>
+      {#each selected as option (option.value)}
+        <span
+          class="inline-flex items-center gap-1 rounded-md bg-brand/10 px-2 py-0.5 text-xs text-brand"
         >
-          <path
-            d="M2 4l4 4 4-4"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </span>
+          <!-- The combobox reads the chosen labels, so the chip's copy is
+               hidden rather than read twice. Its button names the value. -->
+          <span aria-hidden="true">{option.label}</span>
+          <button
+            type="button"
+            aria-label="Remove {option.label}"
+            aria-disabled={disabled ? 'true' : undefined}
+            tabindex={disabled ? -1 : undefined}
+            onclick={(event) => {
+              event.stopPropagation();
+              remove(option.value);
+            }}
+            class="{HIT_AREA} -m-1.5 p-1.5 transition-colors hover:text-brand-light"
+          >
+            <!--
+              12px inside 6px of padding is a 24px target, which is the floor
+              SC 2.5.8 puts on a control that cannot claim the spacing
+              exception, and this one sits inside the field. The padding is
+              taken straight back off as margin, so the chip is laid out
+              exactly as it was and only the reachable area grew. The glyph
+              is the same 12px cross Autocomplete clears its value with. It
+              was drawn a pixel smaller here for no reason anyone recorded.
+            -->
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      {/each}
     </div>
 
     {#if box.open}
@@ -271,7 +294,7 @@
               {...box.triggerAttrs}
               class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
                 text-sm text-fg outline-none transition-colors
-                placeholder:text-faint focus:border-brand"
+                placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             />
           </div>
         {/if}

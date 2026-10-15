@@ -108,11 +108,13 @@
         {#if tab.count !== undefined}
           <!-- text-xs, not 10px: the count was the one text on a measured
                page under the 12px floor, and it is the one figure a tab
-               carries. -->
+               carries. The active tint is the 10 percent every brand chip
+               uses: at 40 percent it dragged the ground toward the text and
+               the count read 3.28:1. -->
           <span
             class="ms-1.5 inline-flex items-center justify-center min-w-4.5 h-4.5 px-1
               rounded-full text-xs font-semibold
-              {active === tab.id ? 'bg-brand/40 text-brand' : 'bg-surface-2 text-faint'}"
+              {active === tab.id ? 'bg-brand/10 text-brand' : 'bg-surface-2 text-faint'}"
           >
             {tab.count}
           </span>

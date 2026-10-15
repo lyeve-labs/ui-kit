@@ -38,3 +38,21 @@ export const TONE_GLYPH: Record<StatusTone, string> = {
   warn: 'M12 8v5M12 17h.01',
   danger: 'M18 6L6 18M6 6l12 12',
 };
+
+/**
+ * A tinted chip that sits on a row which paints its own highlight: a
+ * SidebarNav badge, the AccountMenu initials.
+ *
+ * A translucent tint lets the row show through, so the 15 percent chip that
+ * read 4.5:1 on a resting row dropped to 3.69:1 on a current row under the
+ * pointer, where the row turns to line. Mixed into surface instead, the chip
+ * is opaque and paints the same on every row state. On a resting row, which
+ * is surface, it is the color the translucent tint was.
+ */
+export const ROW_CHIP_TONE: Record<Exclude<AccentTone, 'neutral'>, string> = {
+  brand: 'bg-[color-mix(in_srgb,var(--color-brand)_15%,var(--color-surface))] text-brand',
+  success: 'bg-[color-mix(in_srgb,var(--color-success)_15%,var(--color-surface))] text-success',
+  warn: 'bg-[color-mix(in_srgb,var(--color-warn)_15%,var(--color-surface))] text-warn',
+  danger: 'bg-[color-mix(in_srgb,var(--color-danger)_15%,var(--color-surface))] text-danger',
+  violet: 'bg-[color-mix(in_srgb,var(--color-violet)_15%,var(--color-surface))] text-violet',
+};

@@ -206,12 +206,34 @@ export const CHOICE_LEGEND = `${FIELD_LABEL} mb-1.5`;
  * A horizontal group gets a wider inline gap than block gap: options read as
  * separate choices across a row and as one list down a column, and an equal gap
  * in both axes makes a wrapped row look like a grid.
+ *
+ * Under a finger the rows of an inline group move apart until their 44px hit
+ * boxes meet. At the 8px a mouse keeps, each box covered a third of the row
+ * below it, and the later row takes an overlap, so a tap on the bottom of one
+ * option picked the next one. A card is taller than the box and keeps its gap.
  */
-export function choiceGroupList(orientation: ChoiceOrientation): string {
-  return orientation === 'horizontal'
-    ? 'flex flex-row flex-wrap gap-x-5 gap-y-2'
-    : 'flex flex-col gap-2';
+export function choiceGroupList(
+  orientation: ChoiceOrientation,
+  size: ChoiceSize,
+  variant: ChoiceVariant,
+): string {
+  const list =
+    orientation === 'horizontal'
+      ? 'flex flex-row flex-wrap gap-x-5 gap-y-2'
+      : 'flex flex-col gap-2';
+  return variant === 'inline' ? `${list} ${COARSE_ROW_GAP[size]}` : list;
 }
+
+/**
+ * 44px less the label line an inline row is as tall as: 16, 20 or 24px.
+ * Spelled out per size because Tailwind generates only the class names it
+ * finds written whole.
+ */
+const COARSE_ROW_GAP: Record<ChoiceSize, string> = {
+  sm: 'coarse:gap-y-7',
+  md: 'coarse:gap-y-6',
+  lg: 'coarse:gap-y-5',
+};
 
 /**
  * The check and the mixed marks, as SVG path data on the box's own grid.

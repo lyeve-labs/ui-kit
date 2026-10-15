@@ -36,6 +36,7 @@
   import type { Snippet } from 'svelte';
   import { Menu, PanelLeft, PanelLeftClose } from '@lucide/svelte';
   import { overlay } from '../internal/overlay.js';
+  import * as motion from '../motion.js';
   import {
     APP_BRAND,
     APP_HEADER,
@@ -134,6 +135,20 @@
   /** md: to lg:, where the expanded column costs the page more than it gives. */
   let isNarrow = $state(false);
   const drawerOpen = $derived(isMobile && navOpen);
+
+  let shellEl = $state<HTMLDivElement | undefined>();
+
+  /**
+   * The edge the phone drawer slides from. It is docked at the start edge,
+   * which a right-to-left page puts on the right, and a slide from the left
+   * would cross the whole screen to get there. Read when the drawer moves,
+   * so a page that changes direction is followed.
+   */
+  function startSide(): 'left' | 'right' {
+    return shellEl !== undefined && getComputedStyle(shellEl).direction === 'rtl'
+      ? 'right'
+      : 'left';
+  }
   /**
    * Collapsing is a desktop gesture. Below md: the same aside is the drawer,
    * so honoring `collapsed` there would leave the hamburger opening nothing.
@@ -194,7 +209,7 @@
 
 <svelte:window onkeydown={onWindowKeydown} />
 
-<div data-print="unclip" class="flex h-screen {klass}">
+<div bind:this={shellEl} data-print="unclip" class="flex h-screen {klass}">
   <!-- First focusable thing in the document. Without it a keyboard reader tabs
        the whole sidebar again on every page. -->
   <a
@@ -211,6 +226,7 @@
          reaching the page under the open drawer. -->
     <div
       data-print="hide"
+      transition:motion.scrim|global
       class="fixed inset-0 z-overlay bg-black/60 backdrop-blur-sm"
       role="presentation"
       onclick={() => (navOpen = false)}
@@ -227,11 +243,13 @@
     complementary landmark, and the a11y gate rejects a non-interactive element
     taking an interactive role. use:overlay is what makes aria-modal true rather
     than merely claimed. It moves focus in, keeps Tab inside, and hands focus
-    back to the hamburger on close.
+    back to the hamburger on close. It slides from the start edge and back
+    on the drawer preset, as every other drawer does, rather than snapping.
   -->
   {#if drawerOpen}
     <div
       data-print="hide"
+      transition:motion.drawer|global={{ side: startSide() }}
       class="fixed inset-y-0 start-0 z-drawer flex shadow-2xl"
       role="dialog"
       aria-modal="true"

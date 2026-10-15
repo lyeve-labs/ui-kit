@@ -19,7 +19,7 @@
   import type { Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
   import { ChevronDown } from '@lucide/svelte';
-  import type { AccentTone } from '../internal/tone.js';
+  import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
 
   interface Props {
     /** The line people recognize themselves by: a display name, or the email. */
@@ -62,11 +62,7 @@
 
   const AVATAR_TONE: Record<AccentTone, string> = {
     neutral: 'bg-surface-2 text-fg',
-    brand: 'bg-brand/15 text-brand',
-    success: 'bg-success/15 text-success',
-    warn: 'bg-warn/15 text-warn',
-    danger: 'bg-danger/15 text-danger',
-    violet: 'bg-violet/15 text-violet',
+    ...ROW_CHIP_TONE,
   };
 
   let root = $state<HTMLDetailsElement | null>(null);

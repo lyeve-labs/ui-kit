@@ -60,6 +60,38 @@ const visible = (container: HTMLElement) => [
   ...container.querySelectorAll<HTMLElement>('[role="treeitem"]'),
 ];
 
+describe('TreeView collapse', () => {
+  // A branch's children mounted and unmounted in one frame while its chevron
+  // turned on the base rung. A collapse animates grid-template-rows, so the
+  // children stay mounted once shown and go inert when shut.
+  const wrapper = (container: HTMLElement, id: string) =>
+    row(container, id).querySelector(':scope > div.grid');
+
+  it('opens and shuts a branch on grid-template-rows', async () => {
+    const { container } = render(TreeView, {
+      props: { nodes, label: 'Files', expanded: ['docs'] },
+    });
+    const grid = wrapper(container, 'docs');
+    expect(grid?.classList).toContain('transition-[grid-template-rows]');
+    expect(grid?.classList).toContain('duration-base');
+    expect(grid?.classList).toContain('grid-rows-[1fr]');
+    expect(grid?.firstElementChild?.classList).toContain('overflow-hidden');
+
+    await fireEvent.click(row(container, 'docs').querySelector('[data-tree-toggle]')!);
+    expect(wrapper(container, 'docs')?.classList).toContain('grid-rows-[0fr]');
+    const group = row(container, 'docs').querySelector<HTMLElement>('[role="group"]');
+    expect(group, 'children stay mounted for the collapse').not.toBeNull();
+    expect(group?.inert).toBe(true);
+  });
+
+  it('mounts nothing under a branch nobody opened', () => {
+    // A large tree would otherwise render every collapsed subtree.
+    const { container } = render(TreeView, { props: { nodes, label: 'Files' } });
+    expect(wrapper(container, 'docs')?.classList).toContain('grid-rows-[0fr]');
+    expect(row(container, 'docs').querySelector('[role="group"]')).toBeNull();
+  });
+});
+
 describe('TreeView structure', () => {
   it('names the tree, so it is not announced as just "tree"', () => {
     const { container } = render(TreeView, { props: { nodes, label: 'Files' } });
@@ -214,7 +246,10 @@ describe('TreeView keyboard', () => {
 
     await fireEvent.keyDown(guide, { key: 'ArrowLeft' });
     expect(row(container, 'guide').getAttribute('aria-expanded')).toBe('false');
-    expect(container.querySelector('[data-tree-id="install"]')).toBeNull();
+    // Shut, the children stay mounted for the collapse to play, out of reach.
+    // Svelte sets inert as a DOM property, which jsdom does not reflect.
+    const group = row(container, 'install').closest('[role="group"]') as HTMLElement;
+    expect(group.inert).toBe(true);
     expect(document.activeElement).toBe(row(container, 'guide'));
 
     await fireEvent.keyDown(row(container, 'guide'), { key: 'ArrowLeft' });

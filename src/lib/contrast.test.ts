@@ -48,10 +48,14 @@ function over(fg: string, bg: string, alpha: number): string {
 /**
  * Tokens from one block of the stylesheet. The dark palette is everything
  * before the light block, so a value moved out of `@theme` still gets measured.
+ * The light palette is that block alone. Read to the end of the file, the
+ * print block's black on white overwrote every light value, so each light
+ * case measured the paper palette and passed whatever the screen showed.
  */
 function palette(scope: 'dark' | 'light'): Record<string, string> {
-  const marker = css.indexOf("html[data-theme='light']");
-  const region = scope === 'dark' ? css.slice(0, marker) : css.slice(marker);
+  const marker = css.indexOf("html[data-theme='light'] {");
+  const region =
+    scope === 'dark' ? css.slice(0, marker) : css.slice(marker, css.indexOf('}', marker));
   const out: Record<string, string> = {};
   for (const [, name, value] of region.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-f]{6})\s*;/gi)) {
     out[name] = value.toLowerCase();
@@ -136,6 +140,98 @@ describe.each([
         ratio(tokens['line-strong'], tokens[ground]),
         `line-strong on ${ground}`,
       ).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
+
+describe('the light palette', () => {
+  it('is the screen block and not the print one', () => {
+    // Print collapses every text token to black on white. A light palette
+    // with no gray in it is the print block read in its place.
+    expect(light.surface).toBe('#ffffff');
+    expect(light['surface-2']).not.toBe('#ffffff');
+    expect(light.brand).not.toBe('#000000');
+  });
+});
+
+describe('Avatar initials', () => {
+  // Each fill names its own text. A fill with an alpha is measured flattened
+  // over every ground an avatar sits on, since the ground shows through it.
+  const src = readFileSync(join(__dirname, 'components/Avatar.svelte'), 'utf8');
+  const fills = [...src.matchAll(/'bg-([a-z-]+)(?:\/(\d+))? text-([a-z-]+)'/g)].map(
+    ([, bg, alpha, text]) => ({ bg, alpha: alpha === undefined ? 1 : Number(alpha) / 100, text }),
+  );
+
+  it('finds all eight fills, each with its text', () => {
+    expect(fills).toHaveLength(8);
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clear 4.5:1 on every fill in the %s palette', (_scope, tokens) => {
+    for (const { bg, alpha, text } of fills) {
+      for (const ground of GROUNDS) {
+        const fill = over(tokens[bg], tokens[ground], alpha);
+        expect(
+          ratio(tokens[text], fill),
+          `${text} on ${bg}/${alpha * 100} over ${ground}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+});
+
+describe("the active Tab's count", () => {
+  const src = readFileSync(join(__dirname, 'components/Tabs.svelte'), 'utf8');
+  const [, alpha] = /active === tab\.id \? 'bg-brand\/(\d+) text-brand'/.exec(src) ?? [];
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clears 4.5:1 in the %s palette', (_scope, tokens) => {
+    expect(alpha, 'the active count paint').toBeDefined();
+    for (const ground of GROUNDS) {
+      const fill = over(tokens.brand, tokens[ground], Number(alpha) / 100);
+      expect(
+        ratio(tokens.brand, fill),
+        `brand on brand/${alpha} over ${ground}`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
+describe('a chip on a row that highlights', () => {
+  // A SidebarNav badge and the AccountMenu initials sit on rows that turn to
+  // surface-2 and to line under the pointer. A translucent tint let that
+  // through: violet read 3.69:1 on a current row being hovered. The chip is
+  // mixed into surface, so it is measured as the one opaque color it is.
+  const tone = readFileSync(join(__dirname, 'internal/tone.ts'), 'utf8');
+  const chips = [
+    ...tone.matchAll(
+      /'bg-\[color-mix\(in_srgb,var\(--color-([a-z-]+)\)_(\d+)%,var\(--color-([a-z-]+)\)\)\] text-([a-z-]+)'/g,
+    ),
+  ].map(([, hue, pct, base, text]) => ({ hue, alpha: Number(pct) / 100, base, text }));
+
+  it('finds a chip for each of the five tones', () => {
+    expect(chips.map((c) => c.hue).sort()).toEqual(
+      ['brand', 'danger', 'success', 'violet', 'warn'].sort(),
+    );
+  });
+
+  it.each(['SidebarNav', 'AccountMenu'])('%s paints no translucent tone chip', (name) => {
+    const src = readFileSync(join(__dirname, `components/${name}.svelte`), 'utf8');
+    expect(src).toContain('...ROW_CHIP_TONE');
+    expect(src).not.toMatch(/'bg-(?:brand|success|warn|danger|violet)\/\d+ text-/);
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clears 4.5:1 in the %s palette', (_scope, tokens) => {
+    for (const { hue, alpha, base, text } of chips) {
+      const fill = over(tokens[hue], tokens[base], alpha);
+      expect(ratio(tokens[text], fill), `${text} on ${hue} in ${base}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 });

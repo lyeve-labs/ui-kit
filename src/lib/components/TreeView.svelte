@@ -9,6 +9,7 @@
     type TreeNode,
     type TriState,
   } from '../internal/tree.js';
+  import { TOUCH_GROW } from '../internal/touch.js';
 
   interface Props {
     nodes: TreeNode<T>[];
@@ -42,6 +43,17 @@
   let activeId: string | undefined = $state(undefined);
 
   const expandedSet = $derived(new Set(expanded));
+
+  /**
+   * Branches whose children have been shown once. They stay mounted after a
+   * collapse so the collapse can animate. A branch nobody opened mounts
+   * nothing, so a tree of thousands of nodes renders what a reader opened and
+   * not the whole tree.
+   */
+  const shown = $state<Record<string, boolean>>({});
+  $effect.pre(() => {
+    for (const id of expandedSet) shown[id] = true;
+  });
   const checkedSet = $derived(new Set(checked));
 
   /**
@@ -267,10 +279,13 @@
       <!--
         Indentation is a style attribute reading the spacing tokens. A class
         built by interpolating the depth matches no candidate in Tailwind's
-        scan, so no rule is generated and every row draws flush left.
+        scan, so no rule is generated and every row draws flush left. Under a
+        finger the 32px row grows to the control height, as a SidebarNav row
+        does, and drops its padding, which would stand a row with a 44px
+        check slot 12px taller than the rest.
       -->
       <div
-        class="flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors {rowPaint(
+        class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm coarse:py-0 transition-colors {rowPaint(
           selected === node.id,
           !!node.disabled,
         )}"
@@ -295,8 +310,11 @@
             A painted box rather than an input: the treeitem itself carries
             aria-checked, and a focusable control inside the row would put a
             second tab stop in a widget whose whole point is that it has one.
+            Under a finger the slot grows to a 44px square around the 14px
+            box. A press inside it checks, and the rest of the row activates,
+            so the two targets sit side by side and neither covers the other.
           -->
-          <span data-tree-check class="flex shrink-0 items-center">
+          <span data-tree-check class="{TOUCH_GROW} flex shrink-0 items-center justify-center">
             <span class={choiceBox('checkbox', 'sm', state === 'all', state === 'some')}>
               {#if state !== 'none'}
                 <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
@@ -325,10 +343,26 @@
         {/if}
       </div>
 
-      {#if isBranch(node) && open}
-        <ul role="group">
-          {@render branch(node.children ?? [], depth + 1, node.id)}
-        </ul>
+      <!--
+        A branch opens and shuts on grid-template-rows, the AccordionItem
+        collapse, so its children slide rather than appear in one frame. Shut,
+        they are inert: out of the tab order and the accessibility tree while
+        they stay mounted for the collapse to play.
+      -->
+      {#if isBranch(node)}
+        <div
+          class="grid transition-[grid-template-rows] duration-base {open
+            ? 'grid-rows-[1fr]'
+            : 'grid-rows-[0fr]'}"
+        >
+          <div class="overflow-hidden">
+            {#if open || shown[node.id]}
+              <ul role="group" inert={!open}>
+                {@render branch(node.children ?? [], depth + 1, node.id)}
+              </ul>
+            {/if}
+          </div>
+        </div>
       {/if}
     </li>
   {/each}

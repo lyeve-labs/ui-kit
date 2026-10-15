@@ -54,10 +54,13 @@
   <!-- The dashed border is the only thing marking this region as a control, so
        it rests on line-strong: line reads 1.25:1 and failed SC 1.4.11. The
        hover is full-strength brand, because a focus-adjacent color dropped to
-       half alpha reads as a weaker affordance for no reason a user can infer. -->
+       half alpha reads as a weaker affordance for no reason a user can infer.
+       The input is sr-only, so the ring the browser draws on it lands on a
+       clipped 1px box nobody sees. The drop target draws it instead. -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
       border-2 border-dashed px-4 py-8 text-center transition-colors
+      has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand
       {error
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver

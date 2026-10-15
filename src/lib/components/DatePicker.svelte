@@ -248,6 +248,13 @@
         inside is capped by the room and not by the list token, which is shorter
         than six weeks of days, so a short modal scrolls the calendar rather
         than cutting it.
+
+        Under a finger each day keeps its 32px face and a 44px hit box, so the
+        days have to sit 44px apart or each box covers a third of its
+        neighbors'. Seven 44px columns are 308px. Inside a 1px border and 6px
+        of padding that is a 320px panel, the width of the narrowest phone,
+        and placePanel slides it back on screen from the page gutter. The rows
+        open a 12px gap for the same reason.
       -->
       <div
         id={calendarId}
@@ -255,9 +262,12 @@
         aria-label="Choose date"
         use:placePanel
         transition:motion.popover|global
-        class="{PANEL_SURFACE} w-68"
+        class="{PANEL_SURFACE} w-68 coarse:w-80"
       >
-        <div class="overflow-y-auto overscroll-contain p-3" data-panel-list={PANEL_LIST_UNCAPPED}>
+        <div
+          class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
+          data-panel-list={PANEL_LIST_UNCAPPED}
+        >
           <!-- Header -->
           <div class="flex items-center justify-between mb-2">
             <button
@@ -303,7 +313,7 @@
           </div>
 
           <!-- Day grid -->
-          <div class="grid grid-cols-7 gap-0.5">
+          <div class="grid grid-cols-7 gap-0.5 coarse:gap-y-3" data-day-grid>
             {#each cells as d}
               {#if d === null}
                 <span></span>
