@@ -111,8 +111,12 @@
   }
 
   function remove(v: string): void {
+    if (disabled) return;
     value = value.filter((x) => x !== v);
     onchange?.(value);
+    // The pressed button leaves with its chip, and focus would fall to the
+    // page. The field is where the reader was.
+    triggerEl?.focus();
   }
 
   function search(event: Event & { currentTarget: HTMLInputElement }): void {
@@ -185,6 +189,49 @@
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
         {error ? 'border-danger' : 'border-line-strong has-[[role=combobox]:focus]:border-brand'}"
     >
+      <!--
+        A div and not an input: there is nothing to type here. The labels of
+        the chosen values are its text, so focusing it reads the label and
+        then what is chosen, as a select reads its value. It comes first in
+        the markup, so Tab reaches the field before any remove button, and
+        order-last draws it after the chips.
+      -->
+      <div
+        bind:this={triggerEl}
+        id={fieldId}
+        role="combobox"
+        tabindex={disabled ? -1 : 0}
+        aria-disabled={disabled ? 'true' : undefined}
+        aria-labelledby={label ? `${fieldId}-label` : undefined}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy(fieldId, error, hint)}
+        onkeydown={onTriggerKeydown}
+        {...box.triggerAttrs}
+        class="order-last flex min-w-12 flex-1 items-center gap-1.5 self-stretch outline-none"
+      >
+        {#if selected.length === 0}
+          <span class="px-0.5 text-faint">{placeholder}</span>
+        {:else}
+          <span class="sr-only">{selected.map((option) => option.label).join(', ')}</span>
+        {/if}
+        <span class="ms-auto shrink-0 text-faint" aria-hidden="true">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            class="transition-transform duration-base {box.open ? 'rotate-180' : ''}"
+          >
+            <path
+              d="M2 4l4 4 4-4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </div>
       {#each selected as option (option.value)}
         <span
           class="inline-flex items-center gap-1 rounded-md bg-brand/10 px-2 py-0.5 text-xs text-brand"
@@ -195,6 +242,8 @@
           <button
             type="button"
             aria-label="Remove {option.label}"
+            aria-disabled={disabled ? 'true' : undefined}
+            tabindex={disabled ? -1 : undefined}
             onclick={(event) => {
               event.stopPropagation();
               remove(option.value);
@@ -225,47 +274,6 @@
           </button>
         </span>
       {/each}
-      <!--
-        A div and not an input: there is nothing to type here. The labels of
-        the chosen values are its text, so focusing it reads the label and
-        then what is chosen, as a select reads its value.
-      -->
-      <div
-        bind:this={triggerEl}
-        id={fieldId}
-        role="combobox"
-        tabindex={disabled ? -1 : 0}
-        aria-disabled={disabled ? 'true' : undefined}
-        aria-labelledby={label ? `${fieldId}-label` : undefined}
-        aria-required={required ? 'true' : undefined}
-        aria-describedby={describedBy(fieldId, error, hint)}
-        onkeydown={onTriggerKeydown}
-        {...box.triggerAttrs}
-        class="flex min-w-12 flex-1 items-center gap-1.5 self-stretch outline-none"
-      >
-        {#if selected.length === 0}
-          <span class="px-0.5 text-faint">{placeholder}</span>
-        {:else}
-          <span class="sr-only">{selected.map((option) => option.label).join(', ')}</span>
-        {/if}
-        <span class="ms-auto shrink-0 text-faint" aria-hidden="true">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            class="transition-transform duration-base {box.open ? 'rotate-180' : ''}"
-          >
-            <path
-              d="M2 4l4 4 4-4"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </span>
-      </div>
     </div>
 
     {#if box.open}
