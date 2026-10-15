@@ -253,8 +253,9 @@
         days have to sit 44px apart or each box covers a third of its
         neighbors'. Seven 44px columns are 308px. Inside a 1px border and 6px
         of padding that is a 320px panel, the width of the narrowest phone,
-        and placePanel slides it back on screen from the page gutter. The rows
-        open a 12px gap for the same reason.
+        and placePanel slides it back on screen from the page gutter. In a
+        modal body narrower than that, placePanel shrinks it to the body and
+        the columns close up. The rows open a 12px gap for the same reason.
       -->
       <div
         id={calendarId}
