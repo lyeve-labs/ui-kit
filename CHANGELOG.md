@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The warning sign in a `confirm` dialog is sized by its icon size, 20px, rather than by a class. It looks as it did.
 - On a phone, the `AppShell` navigation drawer slides in from the edge and back out, and the dimmed page behind it fades in and out, as a `Drawer` does. Both used to appear and vanish in a single frame.
 - A `Banner` that is dismissed, by hand or by `autoDismiss`, fades away as an `Alert` does. It used to vanish in a single frame.
+- A screen reader announces a `danger` or `warn` `Banner` at once, as it does an `Alert` of the same tone, and waits for a pause for every other tone. Every banner used to wait, so "Payment failed" came after whatever was being read. A banner with `autoDismiss` still waits, whatever its tone.
 
 ## [0.38.3] - 2026-10-14
 

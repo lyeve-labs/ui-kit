@@ -68,6 +68,14 @@
   };
 
   const t = $derived(statusTone(tone));
+
+  /**
+   * A failure and a warning interrupt, because the reader has to act, as
+   * Alert does. Anything else waits for a pause. A banner that clears itself
+   * waits too: interrupting to say something and then taking it away leaves
+   * the reader with nothing to act on.
+   */
+  const live = $derived((t === 'danger' || t === 'warn') && delay <= 0);
 </script>
 
 {#if visible}
@@ -77,7 +85,8 @@
        rather than vanishing in one frame. -->
   <div
     transition:motion.toast|global
-    role="status"
+    role={live ? 'alert' : 'status'}
+    aria-live={live ? 'assertive' : 'polite'}
     class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[t]} {cls}"
     onmouseenter={closable ? () => (held = true) : undefined}
     onmouseleave={closable ? () => (held = false) : undefined}
