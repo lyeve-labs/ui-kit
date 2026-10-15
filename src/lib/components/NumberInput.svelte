@@ -41,7 +41,11 @@
     onchange = undefined,
   }: Props = $props();
 
-  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
+  // $props.id() and not the label: two fields under one label on a page took
+  // one id, and both labels named the first control. It also matches between
+  // the server render and hydration, which a random string would not.
+  const uid = $props.id();
+  const fieldId = $derived(id ?? uid);
 
   function dec() {
     const next = value - step;
@@ -161,8 +165,8 @@
   </div>
 
   {#if error}
-    <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
+    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p id={fieldId ? `${fieldId}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
+    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>
