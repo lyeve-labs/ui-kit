@@ -144,6 +144,30 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('sizes every lucide icon by its size prop, never by a class', () => {
+    // A lucide icon draws at 24px and a w-* or h-* class rescales it, which
+    // reads as styling rather than as a rung of the icon ladder and is how
+    // the dialog stack's close cross and the confirm dialog's warning sign
+    // came to sit off it.
+    const offenders = files.flatMap((f) => {
+      const imported = /import \{([^}]*)\} from '@lucide\/svelte'/.exec(f.src)?.[1] ?? '';
+      const names = imported
+        .split(',')
+        .map(
+          (n) =>
+            n
+              .trim()
+              .split(/\s+as\s+/)
+              .pop() ?? '',
+        )
+        .filter(Boolean);
+      return names
+        .filter((n) => new RegExp(`<${n}\\b[^>]*class="[^"]*\\b(?:w|h|size)-\\d`).test(code(f.src)))
+        .map((n) => `${f.name}: ${n}`);
+    });
+    expect(offenders).toEqual([]);
+  });
+
   it('draws icons as stroked SVG, never as a Unicode character', () => {
     // A literal × or ✓ renders at whatever weight the user's font gives it,
     // which sat visibly lighter than the SVG icons next to it.

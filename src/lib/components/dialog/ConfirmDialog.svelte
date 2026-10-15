@@ -78,7 +78,7 @@
     <div
       class="flex items-center justify-center w-10 h-10 rounded-full bg-warn/10 text-warn shrink-0"
     >
-      <TriangleAlert class="w-5 h-5" />
+      <TriangleAlert size={20} />
     </div>
     <div class="flex-1 min-w-0">
       <p class="text-sm text-fg font-medium">{title}</p>
