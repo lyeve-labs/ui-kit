@@ -16,6 +16,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
+import AuthShell from './components/AuthShell.svelte';
 import Autocomplete from './components/Autocomplete.svelte';
 import Badge from './components/Badge.svelte';
 import Breadcrumb from './components/Breadcrumb.svelte';
@@ -26,6 +27,7 @@ import Collapsible from './components/Collapsible.svelte';
 import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
+import CopyField from './components/CopyField.svelte';
 import Modal from './components/Modal.svelte';
 import MultiSelect from './components/MultiSelect.svelte';
 import NumberInput from './components/NumberInput.svelte';
@@ -444,6 +446,27 @@ describe('the small controls keep their visual and grow their hit box', () => {
     expect(spacing(row, 'coarse:gap-x-'), 'past the end').toBeGreaterThanOrEqual(22 - 14);
   });
 
+  it("MultiSelect chips, whose remove boxes reached 5px past the field's border", () => {
+    // The box reaches 12px above and below its 20px chip, and the frame put
+    // the chips 7px inside its outer edge, its 1px border and 6px of padding.
+    // The top row's boxes started 5px above the field and the bottom row's
+    // ended 5px below it, where a tap meant for the label or the next field
+    // removed a value. Under a finger the padding takes the 11px the box
+    // needs, and one row of chips still fills the 44px control height.
+    const { getByLabelText } = render(MultiSelect, {
+      props: {
+        label: 'Roles',
+        options: [{ value: 'a', label: 'Admin' }],
+        value: ['a'],
+      },
+    });
+    const frame = getByLabelText('Remove Admin').closest('[role="presentation"]');
+    expect(classes(frame), 'the mouse keeps its padding').toContain('py-1.5');
+    const pad = spacing(frame, 'coarse:py-');
+    expect(1 + pad, 'border to chip').toBeGreaterThanOrEqual(12);
+    expect(2 + 2 * pad + 20, 'one row of chips').toBeLessThanOrEqual(44);
+  });
+
   it("a removable Tag, whose cross's box reached past it on every side but the start", () => {
     // A Tag is 22px tall and the center of its cross sits 14px from its end,
     // so the cross's 44px box reaches 11px above and below the Tag and 8px
@@ -514,6 +537,47 @@ describe('the small controls keep their visual and grow their hit box', () => {
       expect(classes(stepper)).toContain('coarse:w-8');
       expect(classes(stepper)).toContain('w-control');
     }
+  });
+
+  it("NumberInput steppers' targets, which reached 6px into the number", () => {
+    // A 32px stepper's 44px box, centered on it, covered the first and last
+    // 6px of the number, so a tap just inside the field stepped the value.
+    // Each box is pinned to the edge the stepper shares with the number and
+    // grows outward. Logical sides, so a right-to-left page mirrors it.
+    const { getByLabelText } = render(NumberInput, { props: { label: 'Seats', value: 3 } });
+    const pinned = { Decrease: ['start-auto', 'end-0'], Increase: ['start-0', 'end-auto'] };
+    for (const [name, sides] of Object.entries(pinned)) {
+      const list = classes(getByLabelText(name));
+      for (const side of sides) expect(list).toContain(`coarse:before:${side}`);
+      expect(list).toContain('coarse:before:translate-x-0');
+      expect(list).toContain('coarse:before:-translate-y-1/2');
+    }
+  });
+
+  it("CopyField's Show and Copy targets, which overlapped by 15px", () => {
+    // Each button is 27px with a 44px box centered on it, so they need 17px
+    // between them for the boxes to meet. 2px apart, a tap on the last 7px
+    // of Show copied the value. A mouse keeps the 2px.
+    const { getByLabelText } = render(CopyField, {
+      props: { label: 'Token', value: 'lk_0123', secret: true },
+    });
+    const show = getByLabelText('Show value');
+    const copy = getByLabelText('Copy token');
+    expectHitArea(show);
+    expectHitArea(copy);
+    expect(show.parentElement).toBe(copy.parentElement);
+    const frame = classes(show.parentElement);
+    expect(frame).toContain('gap-0.5');
+    expect(frame).toContain('coarse:gap-4.25');
+  });
+
+  it("AuthShell's logo link, which was 36px tall", () => {
+    // The lockup is drawn at 36px. Grown to 44px it would move the heading
+    // under a mouse as well, so its hit box grows instead, as a breadcrumb's.
+    const { container } = render(AuthShell, {
+      props: { title: 'Sign in', href: '/', children: text('x') },
+    });
+    expectHitArea(container.querySelector('a[href="/"]'));
   });
 
   it("an Autocomplete's clear cross, which was 24px", () => {

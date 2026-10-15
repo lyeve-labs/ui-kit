@@ -398,6 +398,91 @@ describe('placePanel', () => {
     }
   });
 
+  describe('in a container too short for it on either side', () => {
+    /**
+     * A one-field modal body is about 100px tall, so either side of its field
+     * holds about 30px. Capped to that, a calendar showed its month row and
+     * nothing else, and a list showed no whole row.
+     */
+    function short(opts: { natural: number; rows?: number; row?: number; uncapped?: boolean }) {
+      const f = mount({ anchor: [130, 174], clip: [100, 204], natural: opts.natural });
+      if (opts.uncapped) f.list.setAttribute('data-panel-list', PANEL_LIST_UNCAPPED);
+      for (let i = 0; i < (opts.rows ?? 0); i++) {
+        const row = document.createElement('div');
+        row.setAttribute('role', 'option');
+        Object.defineProperty(row, 'offsetHeight', { get: () => opts.row ?? 44 });
+        f.list.append(row);
+      }
+      Object.defineProperty(f.list, 'scrollHeight', { get: () => opts.natural });
+      Object.defineProperty(f.surface, 'offsetHeight', { get: () => opts.natural });
+      return f;
+    }
+
+    it('keeps a calendar whole below its field and makes room for it there', () => {
+      const f = short({ natural: 287, uncapped: true });
+      f.surface.getBoundingClientRect = () => rect(178, 465);
+      const scroll = vi.fn();
+      f.clip.scrollBy = scroll;
+      const action = placePanel(f.surface);
+      expect(hasAll(f.surface.className, PANEL_BELOW)).toBe(true);
+      expect(f.list.style.maxHeight).toBe('');
+      // The surface's height and the 4px PANEL_BELOW opens above it.
+      expect(f.anchor.style.marginBottom).toBe('291px');
+      // Taller than the body, so the body scrolls its top into view, and only
+      // down: a sideways scroll would undo the slide that kept it in view.
+      expect(scroll).toHaveBeenCalledWith(0, 78);
+      action.destroy();
+      expect(f.anchor.style.marginBottom).toBe('');
+    });
+
+    it('keeps a long list at its token cap rather than the room', () => {
+      const f = short({ natural: 242, rows: 12 });
+      const action = placePanel(f.surface);
+      expect(hasAll(f.surface.className, PANEL_BELOW)).toBe(true);
+      expect(f.list.style.maxHeight).toBe('');
+      expect(f.anchor.style.marginBottom).toBe('246px');
+      action.destroy();
+    });
+
+    it('keeps a short list whole', () => {
+      const f = short({ natural: 98, rows: 2 });
+      const action = placePanel(f.surface);
+      expect(f.list.style.maxHeight).toBe('');
+      expect(f.anchor.style.marginBottom).toBe('102px');
+      action.destroy();
+    });
+
+    it('holds the room it made when the container scrolls', () => {
+      // The room it made lengthens the container, and measuring that as room
+      // to spare would give it back and shrink the panel on the next scroll.
+      const f = short({ natural: 287, uncapped: true });
+      const action = placePanel(f.surface);
+      f.clip.getBoundingClientRect = () => rect(100, 600);
+      f.clip.dispatchEvent(new Event('scroll'));
+      expect(f.anchor.style.marginBottom).toBe('291px');
+      expect(f.list.style.maxHeight).toBe('');
+      action.destroy();
+    });
+
+    it('still caps a list to a side that holds a few of its rows', () => {
+      // 4 rows of 36px and the list's padding fit above, so it opens there
+      // and scrolls, as it always has.
+      const f = mount({ anchor: [300, 340], clip: [100, 360], natural: 440 });
+      for (let i = 0; i < 12; i++) {
+        const row = document.createElement('div');
+        row.setAttribute('role', 'option');
+        Object.defineProperty(row, 'offsetHeight', { get: () => 36 });
+        f.list.append(row);
+      }
+      Object.defineProperty(f.list, 'scrollHeight', { get: () => 440 });
+      const action = placePanel(f.surface);
+      expect(hasAll(f.surface.className, PANEL_ABOVE)).toBe(true);
+      expect(f.list.style.maxHeight).toBe('min(var(--spacing-panel-max), 192px)');
+      expect(f.anchor.style.marginBottom).toBe('');
+      action.destroy();
+    });
+  });
+
   it('removes its listeners on destroy', () => {
     const f = mount({ anchor: [100, 140], clip: [0, 800], natural: 200 });
     const onClip = vi.spyOn(f.clip, 'removeEventListener');

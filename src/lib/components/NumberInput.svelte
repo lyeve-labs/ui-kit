@@ -41,7 +41,11 @@
     onchange = undefined,
   }: Props = $props();
 
-  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
+  // $props.id() and not the label: two fields under one label on a page took
+  // one id, and both labels named the first control. It also matches between
+  // the server render and hydration, which a random string would not.
+  const uid = $props.id();
+  const fieldId = $derived(id ?? uid);
 
   function dec() {
     const next = value - step;
@@ -75,11 +79,15 @@
   // Under a finger the control token grows to 44px, and steppers as wide as the
   // token left the number 40px inside a 128px field. They narrow instead and
   // take a hit box of the control size, so the number keeps its room and each
-  // stepper is still a 44px target.
+  // stepper is still a 44px target. A box centered on a 32px stepper reaches
+  // 6px past each side, into the number on one of them, so each box is pinned
+  // to the edge the stepper shares with the number and grows outward instead.
+  // The sides are logical, so a right-to-left page mirrors them.
   const step_ =
     `${HIT_AREA} flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted coarse:w-8 ` +
     'transition-colors hover:bg-line hover:text-fg ' +
-    'disabled:opacity-50 disabled:cursor-not-allowed';
+    'disabled:opacity-50 disabled:cursor-not-allowed ' +
+    'coarse:before:translate-x-0 coarse:before:-translate-y-1/2';
 </script>
 
 <div data-field class="{FIELD_WRAP} {cls}">
@@ -95,7 +103,7 @@
       onclick={dec}
       disabled={!canDec}
       aria-label="Decrease"
-      class="{step_} rounded-s-lg border border-e-0"
+      class="{step_} rounded-s-lg border border-e-0 coarse:before:start-auto coarse:before:end-0"
     >
       <svg
         width="14"
@@ -139,7 +147,7 @@
       onclick={inc}
       disabled={!canInc}
       aria-label="Increase"
-      class="{step_} rounded-e-lg border border-s-0"
+      class="{step_} rounded-e-lg border border-s-0 coarse:before:start-0 coarse:before:end-auto"
     >
       <svg
         width="14"
@@ -157,8 +165,8 @@
   </div>
 
   {#if error}
-    <p id={fieldId ? `${fieldId}-error` : undefined} class={FIELD_ERROR}>{error}</p>
+    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
   {:else if hint}
-    <p id={fieldId ? `${fieldId}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
+    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
   {/if}
 </div>

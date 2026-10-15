@@ -104,6 +104,30 @@ describe('Field', () => {
     expect(input.hasAttribute('aria-label')).toBe(false);
   });
 
+  it('names a group from a caption, since a label cannot point at one', () => {
+    // A radiogroup is not a form control a label's for can reach, so a click
+    // on the caption did nothing and the for pointed at an element it cannot
+    // name. The caption keeps its look and its place in the reading order,
+    // and the group names itself from it.
+    for (const labelHidden of [false, true]) {
+      const { container, wiring, unmount } = mount({ label: 'Period', group: true, labelHidden });
+      expect(container.querySelector('label')).toBeNull();
+      const caption = document.getElementById(wiring().labelledBy as string);
+      expect(caption?.textContent).toBe('Period');
+      expect(caption?.className.split(/\s+/)).toEqual(
+        expect.arrayContaining(['text-sm', 'font-medium']),
+      );
+      expect(caption?.className.split(/\s+/).includes('sr-only')).toBe(labelHidden);
+      unmount();
+    }
+  });
+
+  it('hands a single control no caption id, since its label already names it', () => {
+    const { wiring } = mount({ label: 'Email' });
+    expect(wiring().labelledBy).toBeUndefined();
+    expect(mount({ group: true }).wiring().labelledBy).toBeUndefined();
+  });
+
   it('renders no label element when there is no label', () => {
     const { container } = mount();
     expect(container.querySelector('label')).toBeNull();

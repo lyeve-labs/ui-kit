@@ -5,6 +5,25 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.0] - 2026-10-15
+
+### Added
+
+- A `Field` given `group` draws its caption as text and hands its id to the control as `labelledBy`, and a `SegmentedControl` given `labelledBy` takes its name from that caption. A `Field` caption used to be a label pointing at the group, which a label cannot reach, so a click on it did nothing. The caption looks as it did, and a `Field` without `group` is unchanged.
+
+### Changed
+
+- An `Input`, `Textarea`, `NumberInput`, `SearchInput` or `Select` given no `id` now takes a unique generated id instead of one made from its label. Two fields with one label on a page no longer share an id, so each label names its own control and each control reads its own hint or error. A page that pointed a `Label`'s `for` or a selector at the label-made id now passes `id` itself.
+
+### Fixed
+
+- A list or a calendar opened in a container too short for it on either side, such as a one-field `Modal`, opens at its own height below its field. The container grows to hold it, or scrolls down to it when it cannot grow. A `DatePicker` there opened 34px tall and showed only its month row, and a `Select`, `MultiSelect`, `Autocomplete` or `Dropdown` showed no whole row. A list now keeps at least four rows in view, or all of them when it has fewer, and a calendar keeps its whole grid.
+- Under a finger, each `NumberInput` stepper's 44px target meets the number and grows outward, in either text direction. Centered on the 32px stepper, it reached 6px into the number, so a tap just inside the field stepped the value. A mouse sees it as it was.
+- Under a finger, the buttons in a `CopyField` sit 17px apart, so the 44px targets of Show and Copy meet instead of overlapping by 15px, and a tap on the end of Show no longer copies the value. A mouse keeps the 2px spacing.
+- Under a finger, the logo link at the top of an `AuthShell` takes a 44px target. It was 36px tall. A mouse sees it where it was.
+- Under a finger, the remove crosses on the top and bottom rows of `MultiSelect` chips keep their 44px targets inside the field. They reached 5px past its top and bottom borders, so a tap just above or below the field removed a value. The field pads its chips 11px from its border there, and one row of chips still fills the 44px control height. A mouse sees it as it was.
+- The kit draws its own icons on the five-size ladder the consoles use. The show and hide eye in a `PasswordInput` and a `CopyField`, and the copy icon beside it, are 14px to match the field's text, and were 15px. Their buttons keep their size, so no touch target moves. The `AppShell` sidebar toggle is 20px, as the menu button it replaces on a phone is, and was 18px.
+
 ## [0.38.5] - 2026-10-15
 
 ### Fixed

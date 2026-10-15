@@ -124,14 +124,11 @@
    * render and hydration, and both the label association and every idref the
    * listbox emits are built from this one.
    *
-   * The label-derived id stays for a control that has a label, because call
-   * sites point their own markup at it. The fallback used to be undefined,
-   * which left an error message with no id and the control with no
-   * aria-describedby, so an unlabeled field announced its value and never the
-   * reason it was rejected.
+   * The id is never made from the label: two fields under one label on a
+   * page took one id, and both labels named the first control.
    */
   const uid = $props.id();
-  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : uid));
+  const fieldId = $derived(id ?? uid);
 
   let query = $state('');
   let triggerEl = $state<HTMLButtonElement | undefined>();
