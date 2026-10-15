@@ -112,7 +112,7 @@ describe('Field', () => {
     for (const labelHidden of [false, true]) {
       const { container, wiring, unmount } = mount({ label: 'Period', group: true, labelHidden });
       expect(container.querySelector('label')).toBeNull();
-      const caption = document.getElementById(wiring().labelledBy as string);
+      const caption = document.getElementById(wiring().labeledBy as string);
       expect(caption?.textContent).toBe('Period');
       expect(caption?.className.split(/\s+/)).toEqual(
         expect.arrayContaining(['text-sm', 'font-medium']),
@@ -124,8 +124,8 @@ describe('Field', () => {
 
   it('hands a single control no caption id, since its label already names it', () => {
     const { wiring } = mount({ label: 'Email' });
-    expect(wiring().labelledBy).toBeUndefined();
-    expect(mount({ group: true }).wiring().labelledBy).toBeUndefined();
+    expect(wiring().labeledBy).toBeUndefined();
+    expect(mount({ group: true }).wiring().labeledBy).toBeUndefined();
   });
 
   it('renders no label element when there is no label', () => {

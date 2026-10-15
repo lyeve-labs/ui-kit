@@ -113,7 +113,7 @@ describe('SegmentedControl named from outside', () => {
         options,
         label: 'Period',
         labelHidden: true,
-        labelledBy: 'period-label',
+        labeledBy: 'period-label',
       },
     });
     const group = getByRole('radiogroup', { name: 'Reporting period' });
