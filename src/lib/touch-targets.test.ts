@@ -446,6 +446,27 @@ describe('the small controls keep their visual and grow their hit box', () => {
     expect(spacing(row, 'coarse:gap-x-'), 'past the end').toBeGreaterThanOrEqual(22 - 14);
   });
 
+  it("MultiSelect chips, whose remove boxes reached 5px past the field's border", () => {
+    // The box reaches 12px above and below its 20px chip, and the frame put
+    // the chips 7px inside its outer edge, its 1px border and 6px of padding.
+    // The top row's boxes started 5px above the field and the bottom row's
+    // ended 5px below it, where a tap meant for the label or the next field
+    // removed a value. Under a finger the padding takes the 11px the box
+    // needs, and one row of chips still fills the 44px control height.
+    const { getByLabelText } = render(MultiSelect, {
+      props: {
+        label: 'Roles',
+        options: [{ value: 'a', label: 'Admin' }],
+        value: ['a'],
+      },
+    });
+    const frame = getByLabelText('Remove Admin').closest('[role="presentation"]');
+    expect(classes(frame), 'the mouse keeps its padding').toContain('py-1.5');
+    const pad = spacing(frame, 'coarse:py-');
+    expect(1 + pad, 'border to chip').toBeGreaterThanOrEqual(12);
+    expect(2 + 2 * pad + 20, 'one row of chips').toBeLessThanOrEqual(44);
+  });
+
   it("a removable Tag, whose cross's box reached past it on every side but the start", () => {
     // A Tag is 22px tall and the center of its cross sits 14px from its end,
     // so the cross's 44px box reaches 11px above and below the Tag and 8px
