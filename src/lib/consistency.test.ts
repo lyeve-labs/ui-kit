@@ -167,6 +167,21 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it.each(FIELDS)('%s draws the 2px ring wherever it turns the outline off', (name) => {
+    // Input, Select's trigger and Textarea draw the brand ring on focus. A
+    // control that writes outline-none and keeps only focus:border-brand
+    // shows a keyboard user a 1px color change, which NumberInput, the
+    // MultiSelect trigger and both panel search boxes did. A ring on a
+    // wrapper, through has-[...:focus-visible], counts for the control inside.
+    const src = code(files.find((x) => x.name === name)!.src);
+    const wrapperRing = /has-\[[^\]]*:focus-visible\]:ring-2/.test(src);
+    const bare = [...src.matchAll(/class="([^"]*)"/g)]
+      .map((m) => m[1].replace(/\s+/g, ' '))
+      .filter((c) => /(?:^|\s)outline-none\b/.test(c))
+      .filter((c) => !c.includes('focus-visible:ring-2') && !wrapperRing);
+    expect(bare).toEqual([]);
+  });
+
   it.each(FIELDS)('%s composes its classes from the shared field contract', (name) => {
     const f = files.find((x) => x.name === name);
     expect(f, `${name} not found`).toBeDefined();

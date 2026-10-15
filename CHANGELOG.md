@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Under a finger, the close cross on a dialog opened with `openDialog` takes a 44px target, as the crosses on `Modal` and `Drawer` do. It was 32px. The cross is drawn the same size, and a mouse sees it as it was.
 - Under a finger, the cross that clears an `Autocomplete` takes a 44px target, as the one in a `SearchInput` does. It was 24px. A mouse sees it as it was.
 - A `FileInput` reached with the keyboard draws the 2px brand focus ring around its drop target. Focus used to land on the hidden input and show nothing at all. A click still opens the file picker with no ring.
+- A `NumberInput`, a `MultiSelect` and the search box inside an open `Select` or `MultiSelect` list draw the 2px brand focus ring under the keyboard, as `Input` and `Textarea` do. Focus used to show only as a 1px change in the border color.
 
 ## [0.38.3] - 2026-10-14
 

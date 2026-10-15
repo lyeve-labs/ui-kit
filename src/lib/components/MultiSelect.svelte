@@ -190,7 +190,8 @@
       {...box.triggerAttrs}
       class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg
         border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors
-        outline-none {disabled ? 'cursor-not-allowed opacity-50' : ''} {controlBorder(!!error)}"
+        outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand
+        {disabled ? 'cursor-not-allowed opacity-50' : ''} {controlBorder(!!error)}"
     >
       {#if selected.length === 0}
         <span class="px-0.5 text-faint">{placeholder}</span>
@@ -271,7 +272,7 @@
               {...box.triggerAttrs}
               class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
                 text-sm text-fg outline-none transition-colors
-                placeholder:text-faint focus:border-brand"
+                placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             />
           </div>
         {/if}
