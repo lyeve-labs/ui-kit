@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `TreeView` branch slides open and shut with its chevron, the way an `Accordion` panel does. Its rows used to appear and vanish in a single frame. A branch nobody has opened still renders nothing under it, so a large tree costs no more than it did.
 - A screen reader meets a `MultiSelect` as one field that reads its label and then the chosen values, followed by a remove button for each value. The remove buttons used to sit inside the field's own control, a control nested in a control. A press anywhere on the field still opens the list, and the field looks as it did.
 - Under a finger, the check box in a checkable `TreeView` row takes a 44px square of its own beside the label, so a tap that means to check a row no longer opens or selects it instead. The rest of the row still selects it, and a mouse sees the tree as it was.
+- A `danger` or `warn` `Alert` given `autoDismiss` waits for a pause before a screen reader announces it, as every other tone does. It used to interrupt the reader and then clear itself, leaving nothing to act on. Without `autoDismiss` a `danger` or `warn` alert still interrupts.
 
 ## [0.38.3] - 2026-10-14
 
