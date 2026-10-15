@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Under a finger, every day in a `DatePicker` or `DateTimePicker` calendar takes a 44px target of its own. The calendar opens 60px wider and its weeks sit 12px apart there, so a tap near the edge of a day no longer picks the day beside or below it. A mouse sees the calendar as it was.
 - Under a finger, every option in an open `Select`, `MultiSelect` or `Autocomplete` list is 44px tall, as a `Dropdown` menu item already was. The rows were 36px. A mouse sees the list as it was.
 - Under a finger, every `TreeView` row is 44px tall, the height a `SidebarNav` row takes there. The rows were 32px. A mouse sees the tree as it was.
+- Under a finger, the close cross on a dialog opened with `openDialog` takes a 44px target, as the crosses on `Modal` and `Drawer` do. It was 32px. The cross is drawn the same size, and a mouse sees it as it was.
 
 ## [0.38.3] - 2026-10-14
 

@@ -14,6 +14,7 @@
   import type { DialogEntry } from './types.js';
   import { sizeClass } from './types.js';
   import { overlay } from '../../internal/overlay.js';
+  import { HIT_AREA } from '../../internal/touch.js';
   import * as motion from '../../motion.js';
   import { closeDialog, dismissDialog } from './dialog-manager.svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
@@ -139,13 +140,16 @@
         </div>
 
         {#if !entry.options.persistent}
+          <!-- The 32px face keeps its 44px hit box under a finger, as Modal's
+               and Drawer's close crosses do. -->
           <button
-            class="inline-flex items-center justify-center w-8 h-8 -me-2 rounded-lg
+            type="button"
+            class="{HIT_AREA} inline-flex items-center justify-center w-8 h-8 -me-2 rounded-lg
 						text-muted hover:text-fg hover:bg-surface-2 transition-colors shrink-0"
             onclick={() => handleClose()}
             aria-label="Close"
           >
-            <X class="w-4 h-4" />
+            <X size={16} />
           </button>
         {/if}
       </div>
