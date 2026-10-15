@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The count on the active `Tabs` tab reads at 4.5:1 or better in both themes, at least 5.42:1. Its tint was four times as strong as every other brand chip's, and the count read as low as 3.28:1. It now takes the same light tint as the rest.
 - A colored `SidebarNav` badge and the colored initials in an `AccountMenu` read at 4.5:1 or better on every row, at least 4.68:1. On the current page's row, and on any row under the pointer or a finger, the row's own highlight showed through the badge and a violet badge read as low as 3.69:1. A badge on a resting row looks as it did.
 - The warning sign in a `confirm` dialog is sized by its icon size, 20px, rather than by a class. It looks as it did.
+- On a phone, the `AppShell` navigation drawer slides in from the edge and back out, and the dimmed page behind it fades in and out, as a `Drawer` does. Both used to appear and vanish in a single frame.
 
 ## [0.38.3] - 2026-10-14
 

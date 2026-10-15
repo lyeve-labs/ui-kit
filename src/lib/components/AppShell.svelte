@@ -36,6 +36,7 @@
   import type { Snippet } from 'svelte';
   import { Menu, PanelLeft, PanelLeftClose } from '@lucide/svelte';
   import { overlay } from '../internal/overlay.js';
+  import * as motion from '../motion.js';
   import {
     APP_BRAND,
     APP_HEADER,
@@ -211,6 +212,7 @@
          reaching the page under the open drawer. -->
     <div
       data-print="hide"
+      transition:motion.scrim|global
       class="fixed inset-0 z-overlay bg-black/60 backdrop-blur-sm"
       role="presentation"
       onclick={() => (navOpen = false)}
@@ -227,11 +229,13 @@
     complementary landmark, and the a11y gate rejects a non-interactive element
     taking an interactive role. use:overlay is what makes aria-modal true rather
     than merely claimed. It moves focus in, keeps Tab inside, and hands focus
-    back to the hamburger on close.
+    back to the hamburger on close. It slides from the start edge and back
+    on the drawer preset, as every other drawer does, rather than snapping.
   -->
   {#if drawerOpen}
     <div
       data-print="hide"
+      transition:motion.drawer|global={{ side: 'left' }}
       class="fixed inset-y-0 start-0 z-drawer flex shadow-2xl"
       role="dialog"
       aria-modal="true"

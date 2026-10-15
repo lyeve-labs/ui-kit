@@ -104,6 +104,36 @@ function ariaRequiredRoles(src: string): string[] {
   return roles;
 }
 
+/**
+ * Every opening tag of an HTML element, read to its closing bracket with
+ * braces and quotes honored, so an arrow function inside an attribute does
+ * not end the tag early.
+ */
+function openingTags(src: string): string[] {
+  const out: string[] = [];
+  for (const m of src.matchAll(/<[a-z]/g)) {
+    let depth = 0;
+    let quote = '';
+    let end = m.index + 1;
+    for (; end < src.length; end++) {
+      const c = src[end];
+      if (quote !== '') {
+        if (c === quote) quote = '';
+      } else if (c === '"' || c === "'") {
+        quote = c;
+      } else if (c === '{') {
+        depth += 1;
+      } else if (c === '}') {
+        depth -= 1;
+      } else if (c === '>' && depth === 0) {
+        break;
+      }
+    }
+    out.push(src.slice(m.index, end + 1));
+  }
+  return out;
+}
+
 /** The asterisk a component draws beside a label when the field is required. */
 const REQUIRED_MARKER = /\{#if required\}\s*<span/;
 
@@ -448,6 +478,24 @@ describe('component consistency', () => {
           /\s(?:transition|in|out|animate):(?!motion\.)[A-Za-z_$]/.test(f.src),
       )
       .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('mounts every modal surface and every scrim through a preset', () => {
+    // The AppShell phone nav drawer and its scrim snapped open and shut
+    // while every other drawer slid. Each opening tag that claims
+    // aria-modal, or dims the page, has to carry its preset itself.
+    const tags = (src: string, marker: RegExp) => openingTags(src).filter((t) => marker.test(t));
+    const offenders = files.flatMap((f) => {
+      const src = code(f.src);
+      const modal = tags(src, /aria-modal="true"/).filter(
+        (t) => !/transition:motion\.(?:dialog|drawer)\|global/.test(t),
+      );
+      const scrim = tags(src, /\bbg-black\//).filter(
+        (t) => !t.includes('transition:motion.scrim|global'),
+      );
+      return [...modal, ...scrim].map((t) => `${f.name}: ${t.slice(0, 60).replace(/\s+/g, ' ')}`);
+    });
     expect(offenders).toEqual([]);
   });
 
