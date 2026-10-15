@@ -3,6 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import type { DialogEntry } from './types.js';
 import Dialog from './Dialog.svelte';
+import { HIT_AREA } from '../../internal/touch.js';
 
 // Mock dialog-manager for lifecycle assertions
 const mockLockBodyScroll = vi.fn();
@@ -39,6 +40,19 @@ describe('Dialog', () => {
     const dialog = container.querySelector('[role="dialog"]');
     expect(dialog).toBeTruthy();
     expect(dialog?.getAttribute('aria-modal')).toBe('true');
+  });
+
+  it('gives the close button a 44px target under a finger and an icon sized by number', () => {
+    // The face was 32px with no hit box, where Modal's and Drawer's crosses
+    // carried one. Its icon was sized by a class, which lucide draws at its
+    // default and the class then rescales.
+    const { getByLabelText } = render(Dialog, { props: { entry: makeEntry() } });
+    const close = getByLabelText('Close');
+    expect(close.getAttribute('type')).toBe('button');
+    for (const c of HIT_AREA.split(' ')) expect(close.classList).toContain(c);
+    const icon = close.querySelector('svg');
+    expect(icon?.getAttribute('width')).toBe('16');
+    expect(icon?.getAttribute('class') ?? '').not.toMatch(/\b[wh]-\d/);
   });
 
   it('renders the title when provided as a string', () => {

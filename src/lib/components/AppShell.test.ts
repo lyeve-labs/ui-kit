@@ -1,7 +1,13 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppShell from './AppShell.svelte';
+import * as motion from '../motion.js';
+
+vi.mock('../motion.js', async (original) => {
+  const real = await original<typeof import('../motion.js')>();
+  return { ...real, drawer: vi.fn(real.drawer) };
+});
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
@@ -364,5 +370,42 @@ describe('AppShell between md: and lg:', () => {
     width('tablet');
     const { getByText } = render(AppShell, { props: base });
     expect(getByText('Nav')).toBeTruthy();
+  });
+});
+
+describe('the phone drawer slides from its own edge', () => {
+  // The drawer is docked at the start edge, so a right-to-left page has it on
+  // the right, and a slide from the left crossed the whole screen to get there.
+  const real = window.getComputedStyle.bind(window);
+
+  /** jsdom inherits no direction, so the page's is answered for every element. */
+  function page(direction: 'ltr' | 'rtl') {
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) => {
+      const style = real(el, pseudo);
+      return new Proxy(style, {
+        get: (target, prop) => {
+          if (prop === 'direction') return direction;
+          const value = Reflect.get(target, prop, target);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+      });
+    });
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.mocked(motion.drawer).mockClear();
+  });
+
+  it.each([
+    ['ltr', 'left'],
+    ['rtl', 'right'],
+  ] as const)('in a %s page it slides from the %s', async (direction, side) => {
+    viewport(true);
+    page(direction);
+    const { getByLabelText } = render(AppShell, { props: base });
+    await fireEvent.click(getByLabelText('Open navigation'));
+    expect(vi.mocked(motion.drawer)).toHaveBeenCalled();
+    expect(vi.mocked(motion.drawer).mock.calls.at(-1)?.[1]).toEqual({ side });
   });
 });

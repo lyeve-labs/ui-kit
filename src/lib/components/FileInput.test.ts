@@ -16,6 +16,15 @@ function input(container: HTMLElement): HTMLInputElement {
 }
 
 describe('FileInput', () => {
+  it('draws the focus ring on the drop target, since the input itself is sr-only', () => {
+    const { container } = render(FileInput, { props: { id: 'f', label: 'Logo' } });
+    const input = container.querySelector('input[type="file"]');
+    expect(input?.classList).toContain('sr-only');
+    const target = input?.closest('label');
+    expect(target?.classList).toContain('has-[input:focus-visible]:ring-2');
+    expect(target?.classList).toContain('has-[input:focus-visible]:ring-brand');
+  });
+
   it('renders the upload prompt', () => {
     const { getByText } = render(FileInput, { props: {} });
     expect(getByText('Click to upload')).toBeTruthy();

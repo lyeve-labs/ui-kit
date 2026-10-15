@@ -39,6 +39,33 @@ describe('Banner', () => {
   });
 });
 
+describe('the live region follows the tone', () => {
+  // "Payment failed" waited for a pause like any notice, because every tone
+  // was role="status". A failure and a warning interrupt. Everything else
+  // waits, and so does a banner that will take itself away.
+  const live = (props: Record<string, unknown>) => {
+    const { container } = render(Banner, { props: { children: text('x'), ...props } });
+    const root = container.firstElementChild;
+    return `${root?.getAttribute('role')} ${root?.getAttribute('aria-live')}`;
+  };
+
+  it.each([
+    ['danger', 'alert assertive'],
+    ['warn', 'alert assertive'],
+    ['success', 'status polite'],
+    ['brand', 'status polite'],
+    ['info', 'status polite'],
+    ['neutral', 'status polite'],
+  ])('a %s banner is %s', (tone, expected) => {
+    expect(live({ tone })).toBe(expected);
+  });
+
+  it('keeps a banner that clears itself polite, whatever its tone', () => {
+    expect(live({ tone: 'warn', autoDismiss: true })).toBe('status polite');
+    expect(live({ tone: 'danger', autoDismiss: 3000 })).toBe('status polite');
+  });
+});
+
 describe('a confirmation that clears itself', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());

@@ -12,29 +12,36 @@
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { render } from '@testing-library/svelte';
+import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
+import Autocomplete from './components/Autocomplete.svelte';
 import Badge from './components/Badge.svelte';
 import Breadcrumb from './components/Breadcrumb.svelte';
 import Button from './components/Button.svelte';
 import Checkbox from './components/Checkbox.svelte';
+import CheckboxGroup from './components/CheckboxGroup.svelte';
 import Collapsible from './components/Collapsible.svelte';
+import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
 import Modal from './components/Modal.svelte';
+import MultiSelect from './components/MultiSelect.svelte';
 import NumberInput from './components/NumberInput.svelte';
 import PageShell from './components/PageShell.svelte';
 import Pagination from './components/Pagination.svelte';
 import Radio from './components/Radio.svelte';
+import RadioGroup from './components/RadioGroup.svelte';
 import SegmentedControl from './components/SegmentedControl.svelte';
+import Select from './components/Select.svelte';
 import SidebarNav from './components/SidebarNav.svelte';
 import Tabs from './components/Tabs.svelte';
 import Tag from './components/Tag.svelte';
 import ThemeToggle from './components/ThemeToggle.svelte';
 import TimePicker from './components/TimePicker.svelte';
 import Toggle from './components/Toggle.svelte';
+import TreeView from './components/TreeView.svelte';
 import { HIT_AREA, HIT_AREA_POSITIONED, TOUCH_GROW } from './internal/touch.js';
 
 const theme = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
@@ -261,6 +268,76 @@ describe('the small controls keep their visual and grow their hit box', () => {
     for (const chip of getByRole('group').querySelectorAll('button')) expectHitArea(chip);
   });
 
+  it('CheckboxGroup and RadioGroup rows, whose hit boxes covered the row below', () => {
+    // An inline row is as tall as its label line and its hit box is 44px, so
+    // rows 44px less that line apart meet without overlapping. At the 8px a
+    // mouse keeps, the next row took the bottom third of every row above it.
+    const LINE = { sm: 16, md: 20, lg: 24 } as const;
+    const options = [
+      { value: 'a', label: 'A' },
+      { value: 'b', label: 'B' },
+    ];
+    for (const kind of ['checkbox', 'radio'] as const) {
+      for (const orientation of ['vertical', 'horizontal'] as const) {
+        for (const size of ['sm', 'md', 'lg'] as const) {
+          for (const variant of ['inline', 'card'] as const) {
+            const props = { label: 'Pick', options, orientation, size, variant };
+            const { container, unmount } =
+              kind === 'checkbox'
+                ? render(CheckboxGroup, { props })
+                : render(RadioGroup, { props });
+            const list = classes(container.querySelector('fieldset > div'));
+            const coarse = list.find((c) => c.startsWith('coarse:gap-y-'));
+            const where = `${orientation} ${size} ${variant}`;
+            // The mouse keeps the gap it had.
+            expect(list, where).toContain(orientation === 'vertical' ? 'gap-2' : 'gap-y-2');
+            if (variant === 'card') {
+              // A card is taller than the hit box and draws none.
+              expect(coarse, where).toBeUndefined();
+            } else {
+              expect(coarse, where).toBeDefined();
+              const gap = Number(coarse!.slice('coarse:gap-y-'.length)) * 4;
+              expect(LINE[size] + gap, where).toBeGreaterThanOrEqual(44);
+            }
+            unmount();
+          }
+        }
+      }
+    }
+  });
+
+  it('DatePicker days, whose hit boxes overlapped about 10px each way', async () => {
+    // A day is 32px with a 44px hit box. In the 272px panel the columns were
+    // 36px apart and the rows 34px, so every box covered its neighbors'.
+    // Under a finger seven columns 44px apart are 308px of grid. The panel
+    // holds them inside its border and padding and is no wider than a 320px
+    // phone, and the rows open a 12px gap.
+    const { container } = render(DatePicker, { props: { label: 'Due', value: '2026-07-15' } });
+    await fireEvent.click(container.querySelector('button')!);
+    /** A spacing utility's value in px, from the class that starts with the prefix. */
+    const px = (el: Element | null, prefix: string) => {
+      const c = classes(el).find((x) => x.startsWith(prefix));
+      expect(c, `${prefix} on ${el?.tagName}`).toBeDefined();
+      return Number(c!.slice(prefix.length)) * 4;
+    };
+    const panel = container.querySelector('[role="dialog"]');
+    const grid = container.querySelector('[data-day-grid]');
+    // The mouse keeps the panel and the grid it had.
+    expect(classes(panel)).toContain('w-68');
+    expect(classes(grid)).toContain('gap-0.5');
+    const outer = px(panel, 'coarse:w-');
+    expect(outer, 'fits a 320px screen').toBeLessThanOrEqual(320);
+    expect(classes(panel), 'a 1px border').toContain('border');
+    const padding = px(grid?.parentElement ?? null, 'coarse:p-');
+    const inner = outer - 2 * 1 - 2 * padding;
+    const columnGap = px(grid, 'gap-');
+    expect((inner + columnGap) / 7, 'column pitch').toBeGreaterThanOrEqual(44);
+    expect(32 + px(grid, 'coarse:gap-y-'), 'row pitch').toBeGreaterThanOrEqual(44);
+    const days = grid?.querySelectorAll('button') ?? [];
+    expect(days.length).toBeGreaterThan(27);
+    for (const day of days) expectHitArea(day);
+  });
+
   it('Pagination pages, spaced so their hit boxes do not overlap', () => {
     // A page is 28px wide and its hit box 44px, so pages 16px apart meet
     // without overlapping. At the 2px gap a mouse keeps, each page took 30px
@@ -323,6 +400,13 @@ describe('the small controls keep their visual and grow their hit box', () => {
       expect(classes(stepper)).toContain('coarse:w-8');
       expect(classes(stepper)).toContain('w-control');
     }
+  });
+
+  it("an Autocomplete's clear cross, which was 24px", () => {
+    const { getByLabelText } = render(Autocomplete, {
+      props: { label: 'Find', value: 'a', options: [{ value: 'a', label: 'Alpha' }] },
+    });
+    expectHitArea(getByLabelText('Clear'), 'absolute');
   });
 
   it("a Modal's close cross", () => {
@@ -457,6 +541,72 @@ describe('the controls that may grow take the control height', () => {
     const track = classes(getByRole('radiogroup'));
     expect(track).toContain('coarse:min-h-control');
     expect(track).toContain('h-8');
+  });
+
+  it('the option rows of Select, MultiSelect and Autocomplete, which were 36px', async () => {
+    // Dropdown's menu item is the same row and already grew. The three
+    // listboxes draw theirs from the shared panel row, which did not.
+    const options = [
+      { value: 'a', label: 'Alpha' },
+      { value: 'b', label: 'Beta' },
+    ];
+    const select = render(Select, { props: { label: 'One', options } });
+    await fireEvent.click(select.container.querySelector('button[aria-haspopup="listbox"]')!);
+    const multi = render(MultiSelect, { props: { label: 'Many', options } });
+    await fireEvent.click(multi.container.querySelector('div[role="combobox"]')!);
+    const auto = render(Autocomplete, { props: { label: 'Find', options } });
+    await fireEvent.focus(auto.container.querySelector('input[role="combobox"]')!);
+    for (const { container } of [select, multi, auto]) {
+      const rows = container.querySelectorAll('[role="option"]');
+      expect(rows).toHaveLength(2);
+      for (const row of rows) expectGrows(row);
+    }
+  });
+
+  it('TreeView rows, which were 32px', () => {
+    const { container } = render(TreeView, {
+      props: {
+        label: 'Files',
+        expanded: ['docs'],
+        nodes: [
+          { id: 'docs', label: 'Docs', children: [{ id: 'intro', label: 'Intro' }] },
+          { id: 'readme', label: 'Readme' },
+        ],
+      },
+    });
+    const rows = container.querySelectorAll('[role="treeitem"] > div:first-child');
+    expect(rows).toHaveLength(3);
+    for (const row of rows) expectGrows(row);
+  });
+
+  it('the TreeView check, a 14px box beside the row it sits in', async () => {
+    // A press on the check checks and a press on the rest of the row
+    // activates, as Space and Enter split them. The slot grows to a 44px
+    // square of its own inside the 44px row, so the check's target and the
+    // row's sit side by side.
+    const oncheck = vi.fn();
+    const onactivate = vi.fn();
+    const { container } = render(TreeView, {
+      props: {
+        label: 'Files',
+        checkable: true,
+        oncheck,
+        onactivate,
+        nodes: [{ id: 'readme', label: 'Readme' }],
+      },
+    });
+    const check = container.querySelector('[data-tree-check]');
+    expectGrows(check);
+    expect(classes(check)).toContain('justify-center');
+    const row = classes(check?.parentElement ?? null);
+    expectGrows(check?.parentElement ?? null);
+    // The 44px slot inside the mouse's 6px of padding made the row 56px. The
+    // padding goes under a finger, so the row is the 44px it grows to.
+    expect(row).toContain('py-1.5');
+    expect(row).toContain('coarse:py-0');
+    await fireEvent.click(check!);
+    expect(oncheck).toHaveBeenCalledWith(['readme']);
+    expect(onactivate).not.toHaveBeenCalled();
   });
 
   it('a Collapsible trigger', () => {

@@ -39,6 +39,8 @@
  * Not exported from the package entry point: this is an implementation detail.
  */
 
+import { TOUCH_GROW } from './touch.js';
+
 /**
  * The floating surface every popover paints.
  *
@@ -74,10 +76,11 @@ export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain px
  * No background and no text color of its own: it inherits both from the
  * surface, which leaves each state below a single utility to override.
  * rounded-lg, one step inside the surface's rounded-xl, so the hover tint and
- * the active ring follow the row's own corners.
+ * the active ring follow the row's own corners. Under a finger the 36px row
+ * grows to the control height, as Dropdown's menu item, the same row, does.
  */
 export const PANEL_OPTION =
-  'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ' +
+  `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ` +
   'transition-colors outline-none hover:bg-surface-2 ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
@@ -215,6 +218,10 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  * the cap without this code knowing its value. A region marked uncapped takes
  * the room alone.
  *
+ * A panel that would run past the left or the right edge of the clipping
+ * ancestor or the viewport slides back inside both, and one wider than that
+ * room keeps its start edge in view.
+ *
  * Measured on mount, on resize and on scroll of the clipping ancestor, since
  * each moves the anchor relative to the edge. Scroll does not bubble, so the
  * list's own scrolling never re-measures. A server render has no window and
@@ -236,8 +243,9 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     if (list !== null) list.style.maxHeight = '';
 
     const rect = anchor.getBoundingClientRect();
-    const clipTop = clip === null ? 0 : clip.getBoundingClientRect().top;
-    const clipBottom = clip === null ? window.innerHeight : clip.getBoundingClientRect().bottom;
+    const clipBox = clip === null ? null : clip.getBoundingClientRect();
+    const clipTop = clipBox?.top ?? 0;
+    const clipBottom = clipBox?.bottom ?? window.innerHeight;
     const below = clipBottom - rect.bottom - PANEL_EDGE_GAP;
     const above = rect.top - clipTop - PANEL_EDGE_GAP;
 
@@ -245,6 +253,27 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     const flip = natural > below && above > below;
     if (flip) swap(node, PANEL_BELOW, PANEL_ABOVE);
     else swap(node, PANEL_ABOVE, PANEL_BELOW);
+
+    // A panel wider than the room beside its anchor slides back inside what
+    // the reader can see, which is the clip and the viewport both: the
+    // calendar under a finger is as wide as a 320px phone, and its field
+    // starts at the page gutter or inside a modal body's padding. Where it is
+    // wider than that room it keeps its start edge in view. Read from the
+    // layout box, which the entrance preset's scale does not shrink.
+    const viewport = document.documentElement.clientWidth || window.innerWidth;
+    const lo = Math.max(0, clipBox?.left ?? 0);
+    const hi = Math.min(viewport, clipBox?.right ?? viewport);
+    const left = rect.left + node.offsetLeft;
+    const right = left + node.offsetWidth;
+    let shift = 0;
+    if (node.offsetWidth > hi - lo) {
+      shift = getComputedStyle(node).direction === 'rtl' ? hi - right : lo - left;
+    } else if (right > hi) {
+      shift = hi - right;
+    } else if (left < lo) {
+      shift = lo - left;
+    }
+    node.style.translate = shift === 0 ? '' : `${shift}px 0`;
 
     if (list === null) return;
     // What the surface adds around the list, a search field for instance, is

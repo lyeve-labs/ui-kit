@@ -49,6 +49,7 @@
     panelOption,
     placePanel,
   } from '../internal/panel.js';
+  import { HIT_AREA_POSITIONED } from '../internal/touch.js';
   import * as motion from '../motion.js';
 
   interface Props {
@@ -216,13 +217,14 @@
         box is positioned from its right edge, so a negative right margin holds
         the glyph exactly where it was, while a negative top margin would fight
         the translate that centers it and lift it 6px off the middle of the
-        field.
+        field. Under a finger the hit box grows to 44px, as SearchInput's
+        clear button does.
       -->
       <button
         type="button"
         aria-label="Clear"
         onclick={clear}
-        class="absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors hover:text-fg"
+        class="{HIT_AREA_POSITIONED} absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors hover:text-fg"
       >
         <svg
           width="12"

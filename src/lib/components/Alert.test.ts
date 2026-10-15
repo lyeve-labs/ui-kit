@@ -81,6 +81,21 @@ describe('Alert', () => {
       expect(container.querySelector(`[role="${role}"]`)).toBeTruthy();
       expect(root(container)?.getAttribute('aria-live')).toBe(live);
     });
+
+    it('waits, whatever its tone, when it clears itself', () => {
+      // Interrupting to say something and then taking it away leaves the
+      // reader nothing to act on.
+      for (const tone of ['danger', 'warn', 'success', 'brand', 'neutral'] as const) {
+        for (const autoDismiss of [true, 3000]) {
+          const { container, unmount } = render(Alert, {
+            props: { children: text('x'), tone, autoDismiss },
+          });
+          expect(root(container)?.getAttribute('role'), tone).toBe('status');
+          expect(root(container)?.getAttribute('aria-live'), tone).toBe('polite');
+          unmount();
+        }
+      }
+    });
   });
 
   describe('a confirmation that clears itself', () => {

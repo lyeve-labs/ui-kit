@@ -65,9 +65,9 @@
    * whatever was being read. An alert that also clears itself must not be
    * assertive: it would interrupt to say something and then take it away.
    */
-  const live = $derived(t === 'danger' || t === 'warn');
-
   const delay = $derived(autoDismiss === true ? DISMISS_AFTER : Number(autoDismiss) || 0);
+
+  const live = $derived((t === 'danger' || t === 'warn') && delay <= 0);
 
   /** An alert that can close itself can also be closed by hand. */
   const closable = $derived(dismissible || delay > 0);

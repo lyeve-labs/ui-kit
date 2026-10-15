@@ -2,7 +2,7 @@
   import { activeTrail, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { TOUCH_GROW } from '../internal/touch.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
-  import type { AccentTone } from '../internal/tone.js';
+  import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
 
   interface Props {
     items: NavTree;
@@ -107,11 +107,7 @@
 
   const BADGE_TONE: Record<AccentTone, string> = {
     neutral: 'bg-surface-2 text-faint',
-    brand: 'bg-brand/15 text-brand',
-    success: 'bg-success/15 text-success',
-    warn: 'bg-warn/15 text-warn',
-    danger: 'bg-danger/15 text-danger',
-    violet: 'bg-violet/15 text-violet',
+    ...ROW_CHIP_TONE,
   };
 
   const BADGE = 'ms-auto shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium';

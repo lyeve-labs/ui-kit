@@ -137,7 +137,7 @@
       >{/if}
   </legend>
 
-  <div class={choiceGroupList(orientation)}>
+  <div class={choiceGroupList(orientation, size, variant)}>
     {#each options as option (option.value)}
       <!--
         The option renders through Checkbox rather than through a copy of it.

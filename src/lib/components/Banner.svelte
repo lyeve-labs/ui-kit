@@ -1,6 +1,7 @@
 <script lang="ts">
   import { statusTone, type StatusTone, type StatusToneInput } from '../internal/tone.js';
   import { HIT_AREA } from '../internal/touch.js';
+  import * as motion from '../motion.js';
   import type { Snippet } from 'svelte';
 
   /**
@@ -67,14 +68,25 @@
   };
 
   const t = $derived(statusTone(tone));
+
+  /**
+   * A failure and a warning interrupt, because the reader has to act, as
+   * Alert does. Anything else waits for a pause. A banner that clears itself
+   * waits too: interrupting to say something and then taking it away leaves
+   * the reader with nothing to act on.
+   */
+  const live = $derived((t === 'danger' || t === 'warn') && delay <= 0);
 </script>
 
 {#if visible}
   <!-- The timer stops while the pointer is over the banner or focus is inside
        it, and starts again when they leave. Text is never pulled away from
-       somebody reading it. -->
+       somebody reading it. It leaves on the toast preset, as Alert does,
+       rather than vanishing in one frame. -->
   <div
-    role="status"
+    transition:motion.toast|global
+    role={live ? 'alert' : 'status'}
+    aria-live={live ? 'assertive' : 'polite'}
     class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[t]} {cls}"
     onmouseenter={closable ? () => (held = true) : undefined}
     onmouseleave={closable ? () => (held = false) : undefined}
