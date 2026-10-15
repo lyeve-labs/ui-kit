@@ -201,6 +201,41 @@ describe("the active Tab's count", () => {
   });
 });
 
+describe('a chip on a row that highlights', () => {
+  // A SidebarNav badge and the AccountMenu initials sit on rows that turn to
+  // surface-2 and to line under the pointer. A translucent tint let that
+  // through: violet read 3.69:1 on a current row being hovered. The chip is
+  // mixed into surface, so it is measured as the one opaque color it is.
+  const tone = readFileSync(join(__dirname, 'internal/tone.ts'), 'utf8');
+  const chips = [
+    ...tone.matchAll(
+      /'bg-\[color-mix\(in_srgb,var\(--color-([a-z-]+)\)_(\d+)%,var\(--color-([a-z-]+)\)\)\] text-([a-z-]+)'/g,
+    ),
+  ].map(([, hue, pct, base, text]) => ({ hue, alpha: Number(pct) / 100, base, text }));
+
+  it('finds a chip for each of the five tones', () => {
+    expect(chips.map((c) => c.hue).sort()).toEqual(
+      ['brand', 'danger', 'success', 'violet', 'warn'].sort(),
+    );
+  });
+
+  it.each(['SidebarNav', 'AccountMenu'])('%s paints no translucent tone chip', (name) => {
+    const src = readFileSync(join(__dirname, `components/${name}.svelte`), 'utf8');
+    expect(src).toContain('...ROW_CHIP_TONE');
+    expect(src).not.toMatch(/'bg-(?:brand|success|warn|danger|violet)\/\d+ text-/);
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clears 4.5:1 in the %s palette', (_scope, tokens) => {
+    for (const { hue, alpha, base, text } of chips) {
+      const fill = over(tokens[hue], tokens[base], alpha);
+      expect(ratio(tokens[text], fill), `${text} on ${hue} in ${base}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
     const rule = css.slice(css.indexOf(':focus-visible'), css.indexOf(':focus:not('));
