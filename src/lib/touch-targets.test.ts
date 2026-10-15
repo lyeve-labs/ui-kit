@@ -20,6 +20,7 @@ import Badge from './components/Badge.svelte';
 import Breadcrumb from './components/Breadcrumb.svelte';
 import Button from './components/Button.svelte';
 import Checkbox from './components/Checkbox.svelte';
+import CheckboxGroup from './components/CheckboxGroup.svelte';
 import Collapsible from './components/Collapsible.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
@@ -28,6 +29,7 @@ import NumberInput from './components/NumberInput.svelte';
 import PageShell from './components/PageShell.svelte';
 import Pagination from './components/Pagination.svelte';
 import Radio from './components/Radio.svelte';
+import RadioGroup from './components/RadioGroup.svelte';
 import SegmentedControl from './components/SegmentedControl.svelte';
 import SidebarNav from './components/SidebarNav.svelte';
 import Tabs from './components/Tabs.svelte';
@@ -259,6 +261,44 @@ describe('the small controls keep their visual and grow their hit box', () => {
     expect(row).toContain('coarse:gap-y-4.5');
     expect(row).toContain('gap-1.5');
     for (const chip of getByRole('group').querySelectorAll('button')) expectHitArea(chip);
+  });
+
+  it('CheckboxGroup and RadioGroup rows, whose hit boxes covered the row below', () => {
+    // An inline row is as tall as its label line and its hit box is 44px, so
+    // rows 44px less that line apart meet without overlapping. At the 8px a
+    // mouse keeps, the next row took the bottom third of every row above it.
+    const LINE = { sm: 16, md: 20, lg: 24 } as const;
+    const options = [
+      { value: 'a', label: 'A' },
+      { value: 'b', label: 'B' },
+    ];
+    for (const kind of ['checkbox', 'radio'] as const) {
+      for (const orientation of ['vertical', 'horizontal'] as const) {
+        for (const size of ['sm', 'md', 'lg'] as const) {
+          for (const variant of ['inline', 'card'] as const) {
+            const props = { label: 'Pick', options, orientation, size, variant };
+            const { container, unmount } =
+              kind === 'checkbox'
+                ? render(CheckboxGroup, { props })
+                : render(RadioGroup, { props });
+            const list = classes(container.querySelector('fieldset > div'));
+            const coarse = list.find((c) => c.startsWith('coarse:gap-y-'));
+            const where = `${orientation} ${size} ${variant}`;
+            // The mouse keeps the gap it had.
+            expect(list, where).toContain(orientation === 'vertical' ? 'gap-2' : 'gap-y-2');
+            if (variant === 'card') {
+              // A card is taller than the hit box and draws none.
+              expect(coarse, where).toBeUndefined();
+            } else {
+              expect(coarse, where).toBeDefined();
+              const gap = Number(coarse!.slice('coarse:gap-y-'.length)) * 4;
+              expect(LINE[size] + gap, where).toBeGreaterThanOrEqual(44);
+            }
+            unmount();
+          }
+        }
+      }
+    }
   });
 
   it('Pagination pages, spaced so their hit boxes do not overlap', () => {

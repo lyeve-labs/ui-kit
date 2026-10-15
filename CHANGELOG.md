@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Under a finger, the options of a `CheckboxGroup` or a `RadioGroup` sit far enough apart that each takes a 44px target of its own, in a column and in a row that wraps, so a tap near the bottom of one option no longer picks the option below it. Card options keep their spacing, and a mouse sees the list as it was.
+
 ## [0.38.3] - 2026-10-14
 
 ### Fixed

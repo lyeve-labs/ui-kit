@@ -356,8 +356,9 @@
  * be positioned (`relative`, or `absolute` where it already is) for the box
  * to center on it. The utility does not set position itself, because a
  * position it set would fight the `absolute` an input's clear button relies
- * on. Two neighbors' boxes may overlap. The later one in document order
- * wins the overlap, which is the spacing exception SC 2.5.8 allows for.
+ * on. Neighbors are spaced so their boxes meet rather than overlap: the
+ * later one in document order takes an overlap, so a tap near the edge of
+ * one control lands on the next.
  */
 @custom-variant coarse (@media (pointer: coarse));
 

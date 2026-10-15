@@ -129,7 +129,7 @@
     {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
   </legend>
 
-  <div class={choiceGroupList(orientation)}>
+  <div class={choiceGroupList(orientation, size, variant)}>
     {#each options as option (option.value)}
       <!--
         The option renders through Radio rather than through a copy of it. The
