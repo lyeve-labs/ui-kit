@@ -154,6 +154,34 @@ describe('the light palette', () => {
   });
 });
 
+describe('Avatar initials', () => {
+  // Each fill names its own text. A fill with an alpha is measured flattened
+  // over every ground an avatar sits on, since the ground shows through it.
+  const src = readFileSync(join(__dirname, 'components/Avatar.svelte'), 'utf8');
+  const fills = [...src.matchAll(/'bg-([a-z-]+)(?:\/(\d+))? text-([a-z-]+)'/g)].map(
+    ([, bg, alpha, text]) => ({ bg, alpha: alpha === undefined ? 1 : Number(alpha) / 100, text }),
+  );
+
+  it('finds all eight fills, each with its text', () => {
+    expect(fills).toHaveLength(8);
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clear 4.5:1 on every fill in the %s palette', (_scope, tokens) => {
+    for (const { bg, alpha, text } of fills) {
+      for (const ground of GROUNDS) {
+        const fill = over(tokens[bg], tokens[ground], alpha);
+        expect(
+          ratio(tokens[text], fill),
+          `${text} on ${bg}/${alpha * 100} over ${ground}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+});
+
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
     const rule = css.slice(css.indexOf(':focus-visible'), css.indexOf(':focus:not('));
