@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Under a finger, the remove cross on each `MultiSelect` chip and on a removable `Tag` keeps its 44px target off its neighbors. The chips in a `MultiSelect` sit 8px apart there and their rows 24px apart, and a removable `Tag` holds that room around itself, so a tap meant to open the list or to reach the next tag no longer removes a value. A mouse sees both as they were.
+- A `MultiSelect` is drawn in the order Tab reaches it: the field first, then the remove button of each chip from the start of the row. The field used to be drawn after the chips while Tab reached it before them. Its chevron now sits centered at the end of the field however many rows the chips take, and a long placeholder is cut short rather than wrapped.
 
 ## [0.38.4] - 2026-10-15
 
