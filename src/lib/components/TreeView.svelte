@@ -43,6 +43,17 @@
   let activeId: string | undefined = $state(undefined);
 
   const expandedSet = $derived(new Set(expanded));
+
+  /**
+   * Branches whose children have been shown once. They stay mounted after a
+   * collapse so the collapse can animate. A branch nobody opened mounts
+   * nothing, so a tree of thousands of nodes renders what a reader opened and
+   * not the whole tree.
+   */
+  const shown = $state<Record<string, boolean>>({});
+  $effect.pre(() => {
+    for (const id of expandedSet) shown[id] = true;
+  });
   const checkedSet = $derived(new Set(checked));
 
   /**
@@ -328,10 +339,26 @@
         {/if}
       </div>
 
-      {#if isBranch(node) && open}
-        <ul role="group">
-          {@render branch(node.children ?? [], depth + 1, node.id)}
-        </ul>
+      <!--
+        A branch opens and shuts on grid-template-rows, the AccordionItem
+        collapse, so its children slide rather than appear in one frame. Shut,
+        they are inert: out of the tab order and the accessibility tree while
+        they stay mounted for the collapse to play.
+      -->
+      {#if isBranch(node)}
+        <div
+          class="grid transition-[grid-template-rows] duration-base {open
+            ? 'grid-rows-[1fr]'
+            : 'grid-rows-[0fr]'}"
+        >
+          <div class="overflow-hidden">
+            {#if open || shown[node.id]}
+              <ul role="group" inert={!open}>
+                {@render branch(node.children ?? [], depth + 1, node.id)}
+              </ul>
+            {/if}
+          </div>
+        </div>
       {/if}
     </li>
   {/each}
