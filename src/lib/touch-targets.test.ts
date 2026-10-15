@@ -352,6 +352,30 @@ describe('the small controls keep their visual and grow their hit box', () => {
     );
   });
 
+  it('DatePicker month steps, whose hit boxes ran past the calendar', async () => {
+    // A step is a 14px glyph in 6px of padding, 26px, so its 44px box reaches
+    // 9px past it. It sits at the edge of the region inside 6px of padding,
+    // so the box ran 3px past the edge and the calendar panned sideways under
+    // a finger. The header insets itself by the rest, at the sides and the top.
+    const { container, getByLabelText } = render(DatePicker, {
+      props: { label: 'Due', value: '2026-07-15' },
+    });
+    await fireEvent.click(container.querySelector('button')!);
+    const step = getByLabelText('Previous month');
+    expectHitArea(step);
+    expectHitArea(getByLabelText('Next month'));
+    const px = (el: Element | null, prefix: string) => {
+      const c = classes(el).find((x) => x.startsWith(prefix));
+      return c === undefined ? 0 : Number(c.slice(prefix.length)) * 4;
+    };
+    const glyph = Number(step.querySelector('svg')?.getAttribute('width'));
+    const overhang = (44 - (glyph + 2 * px(step, 'p-'))) / 2;
+    const header = step.parentElement;
+    const region = px(header?.parentElement ?? null, 'coarse:p-');
+    expect(region + px(header, 'coarse:px-'), 'at the sides').toBeGreaterThanOrEqual(overhang);
+    expect(region + px(header, 'coarse:pt-'), 'at the top').toBeGreaterThanOrEqual(overhang);
+  });
+
   it('a DatePicker calendar never narrower than its day grid', async () => {
     // placePanel shrinks a panel to the room it opens in, with no floor, so in
     // a container narrower than about 250px the grid overflowed and the

@@ -271,8 +271,11 @@
           class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
           data-panel-list={PANEL_LIST_UNCAPPED}
         >
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-2">
+          <!-- Header. Under a finger each 26px month step takes a 44px box,
+               9px past it, and the region's padding is 6px, so the header
+               insets itself by the other 3px at the sides and the top. The
+               boxes stay whole inside the calendar, which no longer pans. -->
+          <div class="flex items-center justify-between mb-2 coarse:px-0.75 coarse:pt-0.75">
             <button
               type="button"
               aria-label="Previous month"
