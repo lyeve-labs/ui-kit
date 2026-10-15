@@ -25,7 +25,7 @@
      * The id of the caption, for a group's `aria-labelledby`. Set only when
      * the field is a `group` with a label.
      */
-    labelledBy: string | undefined;
+    labeledBy: string | undefined;
   }
 </script>
 
@@ -49,7 +49,7 @@
      * The control is a group, a `SegmentedControl`, `FilterChips` or a row of
      * your own. A label's `for` reaches one form control and never a group, so
      * the caption is drawn as text with an id instead, and the group takes its
-     * name from it through `labelledBy`.
+     * name from it through `labeledBy`.
      */
     group?: boolean;
     hint?: string;
@@ -91,7 +91,7 @@
     id: fieldId,
     describedBy: describedBy(fieldId, error, hint),
     invalid: !!error,
-    labelledBy: group && label ? `${fieldId}-label` : undefined,
+    labeledBy: group && label ? `${fieldId}-label` : undefined,
   });
 </script>
 

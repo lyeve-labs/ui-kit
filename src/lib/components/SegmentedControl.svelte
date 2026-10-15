@@ -68,7 +68,7 @@
      * The id of a caption drawn outside the row, a `Field` one for instance.
      * The group takes its name from it in place of `label`.
      */
-    labelledBy?: string;
+    labeledBy?: string;
     /** Submits the value with the surrounding form, through a hidden input. */
     name?: string;
     size?: Size;
@@ -87,7 +87,7 @@
     hint = undefined,
     error = undefined,
     describedBy: callerIds = undefined,
-    labelledBy = undefined,
+    labeledBy = undefined,
     name = undefined,
     size = 'md',
     disabled = false,
@@ -252,8 +252,8 @@
     bind:this={rootEl}
     {id}
     role={linked ? 'group' : 'radiogroup'}
-    aria-label={labelledBy ? undefined : label}
-    aria-labelledby={labelledBy}
+    aria-label={labeledBy ? undefined : label}
+    aria-labelledby={labeledBy}
     aria-invalid={error && !linked ? 'true' : undefined}
     aria-describedby={describedByIds}
     onfocusout={linked ? onGroupFocusOut : undefined}
