@@ -361,7 +361,8 @@ describe('Select describedBy', () => {
     const { getByRole } = render(Select, {
       props: { label: 'Plan', options: rows, error: 'Pick one', describedBy: 'note' },
     });
-    expect(getByRole('combobox').getAttribute('aria-describedby')).toBe('plan-error note');
+    const combobox = getByRole('combobox');
+    expect(combobox.getAttribute('aria-describedby')).toBe(`${combobox.id}-error note`);
   });
 
   it('points at the caller ids alone when it shows no message', () => {

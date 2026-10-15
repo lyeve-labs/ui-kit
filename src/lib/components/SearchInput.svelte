@@ -24,7 +24,11 @@
     oninput = undefined,
   }: Props = $props();
 
-  const fieldId = $derived(id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined));
+  // $props.id() and not the label: two fields under one label on a page took
+  // one id, and both labels named the first control. It also matches between
+  // the server render and hydration, which a random string would not.
+  const uid = $props.id();
+  const fieldId = $derived(id ?? uid);
 
   // bind:value keeps what was typed before hydration. A one-way value
   // cleared it. The binding has updated value by the time this runs.

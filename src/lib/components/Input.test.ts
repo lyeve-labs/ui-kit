@@ -4,13 +4,13 @@ import { drawn, fixture } from '../../../tests/fixtures/markup.js';
 import Input from './Input.svelte';
 
 describe('Input', () => {
-  it('renders a label and links it to the input via a derived id', () => {
+  it('renders a label and links it to the input via a generated id', () => {
     const { container, getByText } = render(Input, { props: { label: 'Email Address' } });
     expect(getByText('Email Address')).toBeTruthy();
     const input = container.querySelector('input') as HTMLInputElement;
     const label = container.querySelector('label') as HTMLLabelElement;
-    expect(input.id).toBe('email-address');
-    expect(label.getAttribute('for')).toBe('email-address');
+    expect(input.id).not.toBe('email-address');
+    expect(label.getAttribute('for')).toBe(input.id);
   });
 
   it('shows a required marker', () => {
@@ -96,7 +96,8 @@ describe('Input describedBy', () => {
     const { getByLabelText } = render(Input, {
       props: { label: 'Email', hint: 'Work address', describedBy: 'note other' },
     });
-    expect(getByLabelText('Email').getAttribute('aria-describedby')).toBe('email-hint note other');
+    const input = getByLabelText('Email');
+    expect(input.getAttribute('aria-describedby')).toBe(`${input.id}-hint note other`);
   });
 
   it('points at the caller ids alone when it shows no message', () => {
