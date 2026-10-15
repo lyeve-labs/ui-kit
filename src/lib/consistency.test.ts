@@ -134,6 +134,190 @@ function openingTags(src: string): string[] {
   return out;
 }
 
+/** An element of a component's markup, with the element it sits inside. */
+interface MarkupElement {
+  name: string;
+  tag: string;
+  parent: MarkupElement | undefined;
+}
+
+const VOID = new Set([
+  'area',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'source',
+  'wbr',
+]);
+
+/**
+ * Every element of a component's markup, components included, each with its
+ * parent, so a rule can ask what an element sits inside rather than what the
+ * file holds somewhere. The script and style blocks are dropped and a `{...}`
+ * expression in the text is skipped whole, so a `<` in either opens nothing.
+ */
+function markupElements(source: string): MarkupElement[] {
+  const src = code(source)
+    .replace(/<script\b[\s\S]*?<\/script>/g, '')
+    .replace(/<style\b[\s\S]*?<\/style>/g, '');
+  const out: MarkupElement[] = [];
+  const open: MarkupElement[] = [];
+  let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '{') {
+      let depth = 0;
+      for (; i < src.length; i++) {
+        if (src[i] === '{') depth += 1;
+        else if (src[i] === '}' && --depth === 0) break;
+      }
+      i += 1;
+      continue;
+    }
+    if (c !== '<') {
+      i += 1;
+      continue;
+    }
+    const closing = /^<\/([A-Za-z][\w:.-]*)\s*>/.exec(src.slice(i));
+    if (closing !== null) {
+      const at = open.map((e) => e.name).lastIndexOf(closing[1]);
+      if (at !== -1) open.length = at;
+      i += closing[0].length;
+      continue;
+    }
+    const name = /^<([A-Za-z][\w:.-]*)/.exec(src.slice(i))?.[1];
+    if (name === undefined) {
+      i += 1;
+      continue;
+    }
+    let depth = 0;
+    let quote = '';
+    let end = i + 1;
+    for (; end < src.length; end++) {
+      const ch = src[end];
+      if (quote !== '') {
+        if (ch === quote) quote = '';
+      } else if (ch === '"' || ch === "'") {
+        quote = ch;
+      } else if (ch === '{') {
+        depth += 1;
+      } else if (ch === '}') {
+        depth -= 1;
+      } else if (ch === '>' && depth === 0) {
+        break;
+      }
+    }
+    const tag = src.slice(i, end + 1);
+    const element = { name, tag, parent: open.at(-1) };
+    out.push(element);
+    if (!tag.endsWith('/>') && !VOID.has(name)) open.push(element);
+    i = end + 1;
+  }
+  return out;
+}
+
+/** The text of an element's class attribute, quoted or an expression, or ''. */
+function classOf(tag: string): string {
+  const at = /\sclass=(["{])/.exec(tag);
+  if (at === null) return '';
+  const start = at.index + at[0].length;
+  if (at[1] === '"') return tag.slice(start, tag.indexOf('"', start));
+  let depth = 1;
+  let end = start;
+  for (; end < tag.length && depth > 0; end++) {
+    if (tag[end] === '{') depth += 1;
+    else if (tag[end] === '}') depth -= 1;
+  }
+  return tag.slice(start, end - 1);
+}
+
+/**
+ * Whether an element answers a selector a `has-[...]` variant names: a tag
+ * name, attribute tests, or both, read from the element's own tag. A spread
+ * of attributes is not read, so an element styled by one does not match.
+ */
+function matchesSelector(element: MarkupElement, selector: string): boolean {
+  const m = /^>?([a-z][\w-]*)?((?:\[[^\]]+\])*)$/.exec(selector);
+  if (m === null || (m[1] === undefined && m[2] === '')) return false;
+  if (m[1] !== undefined && m[1] !== element.name) return false;
+  return [...m[2].matchAll(/\[([\w-]+)(?:=["']?([^\]"']*)["']?)?\]/g)].every(([, attr, value]) =>
+    value === undefined
+      ? new RegExp(`\\s${attr}(?=[\\s=/>])`).test(element.tag)
+      : new RegExp(`\\s${attr}="${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`).test(
+          element.tag,
+        ),
+  );
+}
+
+/**
+ * The class text of every element that turns its outline off with no 2px
+ * ring to replace it. An element passes on its own focus-visible ring, or on
+ * the ring a wrapper draws for it through has-[...:focus-visible]:ring-2,
+ * where the wrapper is one of its ancestors and the selector picks it out.
+ */
+function outlinesWithoutRing(src: string): string[] {
+  const ringFor = (element: MarkupElement): boolean => {
+    for (let up = element.parent; up !== undefined; up = up.parent) {
+      for (const [, selector] of classOf(up.tag).matchAll(/has-\[(\S+?):focus-visible\]:ring-2/g)) {
+        if (selector.startsWith('>') && up !== element.parent) continue;
+        if (matchesSelector(element, selector)) return true;
+      }
+    }
+    return false;
+  };
+  return markupElements(src)
+    .map((element) => ({ element, cls: classOf(element.tag).replace(/\s+/g, ' ') }))
+    .filter(({ cls }) => /(?<![\w:-])outline-none(?![\w-])/.test(cls))
+    .filter(({ element, cls }) => !cls.includes('focus-visible:ring-2') && !ringFor(element))
+    .map(({ cls }) => cls);
+}
+
+/**
+ * Every lucide icon a component sizes with a class, by the name it imported
+ * the icon under. Reads every import of the package, named, default from an
+ * icon path, or a namespace, and the class whether it is quoted or an
+ * expression.
+ */
+function iconsSizedByClass(src: string): string[] {
+  const names = new Set<string>();
+  const namespaces: string[] = [];
+  for (const [, list] of src.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]@lucide\/svelte['"]/g)) {
+    for (const part of list.split(',').map((p) => p.trim())) {
+      if (part !== '' && !part.startsWith('type ')) names.add(part.split(/\s+as\s+/).pop()!);
+    }
+  }
+  for (const [, n] of src.matchAll(
+    /import\s+(\w+)\s+from\s*['"]@lucide\/svelte\/icons\/[^'"]+['"]/g,
+  )) {
+    names.add(n);
+  }
+  for (const [, n] of src.matchAll(/import\s*\*\s*as\s+(\w+)\s+from\s*['"]@lucide\/svelte['"]/g)) {
+    namespaces.push(n);
+  }
+  return markupElements(src)
+    .filter((e) => names.has(e.name) || namespaces.some((ns) => e.name.startsWith(`${ns}.`)))
+    .filter((e) => /\b(?:w|h|size)-\d/.test(classOf(e.tag)))
+    .map((e) => e.name);
+}
+
+/**
+ * The top-level elements of a component that do not leave through a preset.
+ * A component that dismisses itself takes those elements off the screen, so
+ * each one owes the exit, and a preset elsewhere in the file plays nothing
+ * when it goes.
+ */
+function surfacesWithoutExit(src: string): string[] {
+  return markupElements(src)
+    .filter((e) => e.parent === undefined && /^[a-z]/.test(e.name) && !e.name.includes(':'))
+    .filter((e) => !/\stransition:motion\.[a-z]+\|global\b/.test(e.tag))
+    .map((e) => e.tag.slice(0, 60).replace(/\s+/g, ' '));
+}
+
 /** The asterisk a component draws beside a label when the field is required. */
 const REQUIRED_MARKER = /\{#if required\}\s*<span/;
 
@@ -179,22 +363,7 @@ describe('component consistency', () => {
     // reads as styling rather than as a rung of the icon ladder and is how
     // the dialog stack's close cross and the confirm dialog's warning sign
     // came to sit off it.
-    const offenders = files.flatMap((f) => {
-      const imported = /import \{([^}]*)\} from '@lucide\/svelte'/.exec(f.src)?.[1] ?? '';
-      const names = imported
-        .split(',')
-        .map(
-          (n) =>
-            n
-              .trim()
-              .split(/\s+as\s+/)
-              .pop() ?? '',
-        )
-        .filter(Boolean);
-      return names
-        .filter((n) => new RegExp(`<${n}\\b[^>]*class="[^"]*\\b(?:w|h|size)-\\d`).test(code(f.src)))
-        .map((n) => `${f.name}: ${n}`);
-    });
+    const offenders = files.flatMap((f) => iconsSizedByClass(f.src).map((n) => `${f.name}: ${n}`));
     expect(offenders).toEqual([]);
   });
 
@@ -227,13 +396,9 @@ describe('component consistency', () => {
     // shows a keyboard user a 1px color change, which NumberInput, the
     // MultiSelect trigger and both panel search boxes did. A ring on a
     // wrapper, through has-[...:focus-visible], counts for the control inside.
-    const src = code(files.find((x) => x.name === name)!.src);
-    const wrapperRing = /has-\[\S*?:focus-visible\]:ring-2/.test(src);
-    const bare = [...src.matchAll(/class="([^"]*)"/g)]
-      .map((m) => m[1].replace(/\s+/g, ' '))
-      .filter((c) => /(?:^|\s)outline-none\b/.test(c))
-      .filter((c) => !c.includes('focus-visible:ring-2') && !wrapperRing);
-    expect(bare).toEqual([]);
+    // The wrapper's ring counts only for the element it is drawn for: one
+    // wrapper ring in a file used to excuse every outline-none in it.
+    expect(outlinesWithoutRing(files.find((x) => x.name === name)!.src)).toEqual([]);
   });
 
   it.each(FIELDS)('%s composes its classes from the shared field contract', (name) => {
@@ -435,6 +600,62 @@ describe('component consistency', () => {
     expect(ariaRequiredRoles(fixture)).toEqual(['button', 'group', 'combobox', 'spinbutton']);
   });
 
+  it('excuses an outline-none only by its own ring or the wrapper drawing one for it', () => {
+    // The field rule above is a filter, so it passes on a scanner that reads
+    // nothing. One wrapper ring per file used to excuse every outline-none in
+    // that file, so each bare element below passed.
+    const fixture = [
+      `<div class="has-[input:focus]:border-brand has-[input:focus-visible]:ring-2">`,
+      `  <input class="outline-none" />`,
+      `  <div role="combobox" class="outline-none"></div>`,
+      `</div>`,
+      `<button class={open ? 'outline-none' : ''}>x</button>`,
+      `<div class="has-[[role=combobox]:focus-visible]:ring-2">`,
+      `  <div role="combobox" class="outline-none"></div>`,
+      `</div>`,
+      `<textarea class="outline-none"></textarea>`,
+      `<input class="outline-none focus-visible:ring-2" />`,
+    ].join('\n');
+    expect(outlinesWithoutRing(fixture)).toEqual([
+      'outline-none',
+      "open ? 'outline-none' : ''",
+      'outline-none',
+    ]);
+    expect(markupElements(fixture).filter((e) => e.parent === undefined)).toHaveLength(5);
+  });
+
+  it('reads every lucide import and a class written as an expression', () => {
+    // The icon rule read the first import only and a quoted class only, so
+    // both icons sized here passed it.
+    const fixture = [
+      `<script lang="ts">`,
+      `  import { X } from '@lucide/svelte';`,
+      `  import { Eye, EyeOff as Hidden, type IconProps } from '@lucide/svelte';`,
+      `  import Check from '@lucide/svelte/icons/check';`,
+      `</script>`,
+      `<X size={16} />`,
+      `<Eye class={open ? 'h-4 w-4' : 'h-5 w-5'} />`,
+      `<Hidden class="shrink-0 size-4" />`,
+      `<Check size={14} class="text-success" />`,
+    ].join('\n');
+    expect(iconsSizedByClass(fixture)).toEqual(['Eye', 'Hidden']);
+  });
+
+  it('asks for the exit on the surface that leaves, not anywhere in the file', () => {
+    // A preset on a child, or on a panel the component also opens, used to
+    // pass the dismiss rule for a surface that vanished in one frame.
+    const leaves = `{#if visible}<div transition:motion.toast|global role="status"><p>Saved</p></div>{/if}`;
+    const snaps = [
+      `{#if visible}`,
+      `  <div role="status">`,
+      `    <span transition:motion.toast|global>Saved</span>`,
+      `  </div>`,
+      `{/if}`,
+    ].join('\n');
+    expect(surfacesWithoutExit(leaves)).toEqual([]);
+    expect(surfacesWithoutExit(snaps)).toEqual(['<div role="status">']);
+  });
+
   it.each(NO_CONTROL_OF_THEIR_OWN)(
     '%s tells the caller the marker is decorative and the attribute is theirs to set',
     (name) => {
@@ -502,11 +723,12 @@ describe('component consistency', () => {
   it('leaves through a preset wherever a surface dismisses itself', () => {
     // Alert left on the toast preset while Banner, dismissed by hand or by
     // its own timer, vanished in one frame. A component that offers
-    // ondismiss takes itself off the screen and owes that exit.
+    // ondismiss takes itself off the screen and owes that exit. The preset
+    // has to sit on the surface that leaves: one anywhere else in the file,
+    // on a panel or a child, plays nothing when the component goes.
     const offenders = files
       .filter((f) => /\bondismiss\??:/.test(f.src))
-      .filter((f) => !/transition:motion\.[a-z]+\|global/.test(f.src))
-      .map((f) => f.name);
+      .flatMap((f) => surfacesWithoutExit(f.src).map((t) => `${f.name}: ${t}`));
     expect(offenders).toEqual([]);
   });
 
