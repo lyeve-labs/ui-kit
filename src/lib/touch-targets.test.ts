@@ -26,6 +26,7 @@ import Collapsible from './components/Collapsible.svelte';
 import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
+import CopyField from './components/CopyField.svelte';
 import Modal from './components/Modal.svelte';
 import MultiSelect from './components/MultiSelect.svelte';
 import NumberInput from './components/NumberInput.svelte';
@@ -529,6 +530,23 @@ describe('the small controls keep their visual and grow their hit box', () => {
       expect(list).toContain('coarse:before:translate-x-0');
       expect(list).toContain('coarse:before:-translate-y-1/2');
     }
+  });
+
+  it("CopyField's Show and Copy targets, which overlapped by 15px", () => {
+    // Each button is 27px with a 44px box centered on it, so they need 17px
+    // between them for the boxes to meet. 2px apart, a tap on the last 7px
+    // of Show copied the value. A mouse keeps the 2px.
+    const { getByLabelText } = render(CopyField, {
+      props: { label: 'Token', value: 'lk_0123', secret: true },
+    });
+    const show = getByLabelText('Show value');
+    const copy = getByLabelText('Copy token');
+    expectHitArea(show);
+    expectHitArea(copy);
+    expect(show.parentElement).toBe(copy.parentElement);
+    const frame = classes(show.parentElement);
+    expect(frame).toContain('gap-0.5');
+    expect(frame).toContain('coarse:gap-4.25');
   });
 
   it("an Autocomplete's clear cross, which was 24px", () => {
