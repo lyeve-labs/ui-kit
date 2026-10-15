@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Under a finger, the remove cross on each `MultiSelect` chip and on a removable `Tag` keeps its 44px target off its neighbors. The chips in a `MultiSelect` sit 8px apart there and their rows 24px apart, and a removable `Tag` holds that room around itself, so a tap meant to open the list or to reach the next tag no longer removes a value. A mouse sees both as they were.
 - A `MultiSelect` is drawn in the order Tab reaches it: the field first, then the remove button of each chip from the start of the row. The field used to be drawn after the chips while Tab reached it before them. Its chevron now sits centered at the end of the field however many rows the chips take, and a long placeholder is cut short rather than wrapped.
 - A list or a calendar wider than the room it opens in shrinks to that room. Under a finger the `DatePicker` calendar is 320px, so inside a `Modal` on a 320px phone it ran past the modal body, which then scrolled sideways. Where there is room it keeps its width.
+- A `TreeView` branch unmounts its rows once its collapse has played. A branch that had been opened once kept its rows mounted for good, so a large tree that a reader opened and shut held every row it had ever shown.
 
 ## [0.38.4] - 2026-10-15
 
