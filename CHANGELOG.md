@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `FileInput` reached with the keyboard draws the 2px brand focus ring around its drop target. Focus used to land on the hidden input and show nothing at all. A click still opens the file picker with no ring.
 - A `NumberInput`, a `MultiSelect` and the search box inside an open `Select` or `MultiSelect` list draw the 2px brand focus ring under the keyboard, as `Input` and `Textarea` do. Focus used to show only as a 1px change in the border color.
 - `Avatar` initials read at 4.5:1 or better on every one of its eight colors in both themes. Seven of the eight read lower in one theme or the other, down to 1.87:1 in light, because dark initials sat on a see-through color that took on whatever the avatar was drawn over. The five strong colors are now solid behind the same initials and the three soft ones a light tint behind body-colored initials, and each name keeps its color.
+- The count on the active `Tabs` tab reads at 4.5:1 or better in both themes, at least 5.42:1. Its tint was four times as strong as every other brand chip's, and the count read as low as 3.28:1. It now takes the same light tint as the rest.
 
 ## [0.38.3] - 2026-10-14
 

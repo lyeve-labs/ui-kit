@@ -182,6 +182,25 @@ describe('Avatar initials', () => {
   });
 });
 
+describe("the active Tab's count", () => {
+  const src = readFileSync(join(__dirname, 'components/Tabs.svelte'), 'utf8');
+  const [, alpha] = /active === tab\.id \? 'bg-brand\/(\d+) text-brand'/.exec(src) ?? [];
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clears 4.5:1 in the %s palette', (_scope, tokens) => {
+    expect(alpha, 'the active count paint').toBeDefined();
+    for (const ground of GROUNDS) {
+      const fill = over(tokens.brand, tokens[ground], Number(alpha) / 100);
+      expect(
+        ratio(tokens.brand, fill),
+        `brand on brand/${alpha} over ${ground}`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
     const rule = css.slice(css.indexOf(':focus-visible'), css.indexOf(':focus:not('));
