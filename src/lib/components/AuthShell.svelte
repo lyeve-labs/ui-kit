@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { HIT_AREA } from '../internal/touch.js';
   import { cn } from '../utils/cn.js';
   import Card from './Card.svelte';
   import Logo from './Logo.svelte';
@@ -67,9 +68,12 @@
 
     <div class="mb-8 text-center">
       {#if href}
+        <!-- The lockup is 36px tall. Under a finger the link takes a 44px
+             hit box around it rather than growing, so a mouse sees the
+             heading where it was. -->
         <a
           {href}
-          class="mb-5 inline-flex rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          class="{HIT_AREA} mb-5 inline-flex rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           {#if lockup}
             {@render lockup()}

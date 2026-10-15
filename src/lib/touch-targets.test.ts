@@ -16,6 +16,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
+import AuthShell from './components/AuthShell.svelte';
 import Autocomplete from './components/Autocomplete.svelte';
 import Badge from './components/Badge.svelte';
 import Breadcrumb from './components/Breadcrumb.svelte';
@@ -547,6 +548,15 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const frame = classes(show.parentElement);
     expect(frame).toContain('gap-0.5');
     expect(frame).toContain('coarse:gap-4.25');
+  });
+
+  it("AuthShell's logo link, which was 36px tall", () => {
+    // The lockup is drawn at 36px. Grown to 44px it would move the heading
+    // under a mouse as well, so its hit box grows instead, as a breadcrumb's.
+    const { container } = render(AuthShell, {
+      props: { title: 'Sign in', href: '/', children: text('x') },
+    });
+    expectHitArea(container.querySelector('a[href="/"]'));
   });
 
   it("an Autocomplete's clear cross, which was 24px", () => {
