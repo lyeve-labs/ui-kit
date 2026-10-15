@@ -64,6 +64,11 @@
      * own hint or error.
      */
     describedBy?: string;
+    /**
+     * The id of a caption drawn outside the row, a `Field` one for instance.
+     * The group takes its name from it in place of `label`.
+     */
+    labelledBy?: string;
     /** Submits the value with the surrounding form, through a hidden input. */
     name?: string;
     size?: Size;
@@ -82,6 +87,7 @@
     hint = undefined,
     error = undefined,
     describedBy: callerIds = undefined,
+    labelledBy = undefined,
     name = undefined,
     size = 'md',
     disabled = false,
@@ -222,9 +228,9 @@
 
 <div data-field class="{FIELD_WRAP} items-start {klass}">
   {#if !labelHidden}
-    <!-- A caption, not a label element. The group is named by aria-label, and a
-         label has nothing to point at here: role="radiogroup" is not a form
-         control that `for` can name. -->
+    <!-- A caption, not a label element. The group is named by aria-label, or
+         by the caption it is handed, and a label has nothing to point at
+         here: role="radiogroup" is not a form control that `for` can name. -->
     <span class={FIELD_LABEL}>{label}</span>
   {/if}
 
@@ -246,7 +252,8 @@
     bind:this={rootEl}
     {id}
     role={linked ? 'group' : 'radiogroup'}
-    aria-label={label}
+    aria-label={labelledBy ? undefined : label}
+    aria-labelledby={labelledBy}
     aria-invalid={error && !linked ? 'true' : undefined}
     aria-describedby={describedByIds}
     onfocusout={linked ? onGroupFocusOut : undefined}

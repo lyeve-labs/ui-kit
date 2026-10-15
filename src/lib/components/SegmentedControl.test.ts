@@ -101,6 +101,28 @@ describe('SegmentedControl', () => {
   });
 });
 
+describe('SegmentedControl named from outside', () => {
+  it('takes its name from a caption it is handed, a Field one for instance', () => {
+    const caption = document.createElement('span');
+    caption.id = 'period-label';
+    caption.textContent = 'Reporting period';
+    document.body.append(caption);
+    const { getByRole } = render(SegmentedControl, {
+      props: {
+        value: 'light',
+        options,
+        label: 'Period',
+        labelHidden: true,
+        labelledBy: 'period-label',
+      },
+    });
+    const group = getByRole('radiogroup', { name: 'Reporting period' });
+    expect(group.getAttribute('aria-labelledby')).toBe('period-label');
+    expect(group.hasAttribute('aria-label')).toBe(false);
+    caption.remove();
+  });
+});
+
 describe('SegmentedControl aria state', () => {
   it('tracks the value with aria-checked', async () => {
     const { container, rerender } = render(SegmentedControl, {
