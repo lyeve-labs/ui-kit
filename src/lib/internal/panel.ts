@@ -39,6 +39,8 @@
  * Not exported from the package entry point: this is an implementation detail.
  */
 
+import { TOUCH_GROW } from './touch.js';
+
 /**
  * The floating surface every popover paints.
  *
@@ -74,10 +76,11 @@ export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain px
  * No background and no text color of its own: it inherits both from the
  * surface, which leaves each state below a single utility to override.
  * rounded-lg, one step inside the surface's rounded-xl, so the hover tint and
- * the active ring follow the row's own corners.
+ * the active ring follow the row's own corners. Under a finger the 36px row
+ * grows to the control height, as Dropdown's menu item, the same row, does.
  */
 export const PANEL_OPTION =
-  'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ' +
+  `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ` +
   'transition-colors outline-none hover:bg-surface-2 ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 

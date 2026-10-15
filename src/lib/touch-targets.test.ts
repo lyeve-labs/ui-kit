@@ -16,6 +16,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
+import Autocomplete from './components/Autocomplete.svelte';
 import Badge from './components/Badge.svelte';
 import Breadcrumb from './components/Breadcrumb.svelte';
 import Button from './components/Button.svelte';
@@ -26,12 +27,14 @@ import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
 import Modal from './components/Modal.svelte';
+import MultiSelect from './components/MultiSelect.svelte';
 import NumberInput from './components/NumberInput.svelte';
 import PageShell from './components/PageShell.svelte';
 import Pagination from './components/Pagination.svelte';
 import Radio from './components/Radio.svelte';
 import RadioGroup from './components/RadioGroup.svelte';
 import SegmentedControl from './components/SegmentedControl.svelte';
+import Select from './components/Select.svelte';
 import SidebarNav from './components/SidebarNav.svelte';
 import Tabs from './components/Tabs.svelte';
 import Tag from './components/Tag.svelte';
@@ -525,6 +528,26 @@ describe('the controls that may grow take the control height', () => {
     const track = classes(getByRole('radiogroup'));
     expect(track).toContain('coarse:min-h-control');
     expect(track).toContain('h-8');
+  });
+
+  it('the option rows of Select, MultiSelect and Autocomplete, which were 36px', async () => {
+    // Dropdown's menu item is the same row and already grew. The three
+    // listboxes draw theirs from the shared panel row, which did not.
+    const options = [
+      { value: 'a', label: 'Alpha' },
+      { value: 'b', label: 'Beta' },
+    ];
+    const select = render(Select, { props: { label: 'One', options } });
+    await fireEvent.click(select.container.querySelector('button[aria-haspopup="listbox"]')!);
+    const multi = render(MultiSelect, { props: { label: 'Many', options } });
+    await fireEvent.click(multi.container.querySelector('div[role="combobox"]')!);
+    const auto = render(Autocomplete, { props: { label: 'Find', options } });
+    await fireEvent.focus(auto.container.querySelector('input[role="combobox"]')!);
+    for (const { container } of [select, multi, auto]) {
+      const rows = container.querySelectorAll('[role="option"]');
+      expect(rows).toHaveLength(2);
+      for (const row of rows) expectGrows(row);
+    }
   });
 
   it('a Collapsible trigger', () => {
