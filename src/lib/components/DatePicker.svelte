@@ -246,8 +246,8 @@
         the part of the scroll region nobody could reach and was cut below the
         weekday row. The width stays here, sized to seven columns. The region
         inside is capped by the room and not by the list token, which is shorter
-        than six weeks of days, so a short modal scrolls the calendar rather
-        than cutting it.
+        than six weeks of days, and never below the whole grid: in a modal body
+        too short for it on either side, placePanel makes room under the field.
 
         Under a finger each day keeps its 32px face and a 44px hit box, so the
         days have to sit 44px apart or each box covers a third of its

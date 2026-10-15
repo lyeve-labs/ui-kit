@@ -157,8 +157,8 @@ export const PANEL_LIST_ATTR = 'data-panel-list';
  *
  * The token cap is sized for a list of rows, and a calendar is not one: six
  * weeks of days stand taller than the token, so under it every month would
- * scroll by a few rows. Such a region still takes the room as its cap, so
- * inside a short modal it scrolls rather than being cut.
+ * scroll by a few rows. Such a region takes the room as its cap, and never
+ * less than its whole height: a calendar that scrolls is one nobody can read.
  */
 export const PANEL_LIST_UNCAPPED = 'uncapped';
 
@@ -173,6 +173,28 @@ export const PANEL_ABOVE = 'bottom-full mb-1 origin-bottom';
  * panel that fits exactly does not sit on the edge of the window or the modal.
  */
 const PANEL_EDGE_GAP = 8;
+
+/** The gap PANEL_BELOW opens between the anchor and the surface, mt-1. */
+const PANEL_OFFSET = 4;
+
+/**
+ * The fewest rows a list keeps in view, or all of them when it has fewer.
+ * Below that a list is a slot that scrolls one row at a time.
+ */
+const PANEL_MIN_ROWS = 4;
+
+/**
+ * The least height a region is usable at: an uncapped region's whole height,
+ * a list's first few rows and its padding, or a short list whole.
+ */
+function leastHeight(list: HTMLElement, capped: boolean): number {
+  const rows = list.querySelectorAll<HTMLElement>('[role="option"], [role="menuitem"]');
+  if (!capped || rows.length <= PANEL_MIN_ROWS) return list.scrollHeight;
+  const style = getComputedStyle(list);
+  let height = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+  for (let i = 0; i < PANEL_MIN_ROWS; i++) height += rows[i].offsetHeight;
+  return height;
+}
 
 /**
  * The nearest ancestor that clips or scrolls its content.
@@ -218,6 +240,14 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  * the cap without this code knowing its value. A region marked uncapped takes
  * the room alone.
  *
+ * Neither side may hold even that: a one-field modal body is about 100px
+ * tall, and capped to it a calendar showed its month row and a list no whole
+ * row. When neither side has room for the region's least height, the panel
+ * opens below at its own height and the anchor takes a bottom margin of that
+ * height, so the container grows to hold it or scrolls to it, and the panel
+ * is brought into view. The room is kept until the panel closes, because the
+ * container it lengthened would otherwise read as room to spare.
+ *
  * A panel that would run past the left or the right edge of the clipping
  * ancestor or the viewport slides back inside both, and one wider than that
  * room shrinks to it.
@@ -233,6 +263,8 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
   const anchor = node.offsetParent instanceof HTMLElement ? node.offsetParent : node.parentElement;
   const clip = anchor === null ? null : clippingAncestor(anchor);
   const list = node.querySelector<HTMLElement>(`[${PANEL_LIST_ATTR}]`);
+  const capped = list?.getAttribute(PANEL_LIST_ATTR) !== PANEL_LIST_UNCAPPED;
+  let reserved = false;
 
   function measure(): void {
     if (anchor === null) return;
@@ -250,7 +282,12 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     const above = rect.top - clipTop - PANEL_EDGE_GAP;
 
     const natural = node.scrollHeight;
-    const flip = natural > below && above > below;
+    // What the surface adds around the list, a search field for instance, is
+    // taken out of the room so the whole panel fits and not only its list.
+    const chrome = list === null ? 0 : Math.max(0, node.offsetHeight - list.offsetHeight);
+    const reserve =
+      reserved || (list !== null && chrome + leastHeight(list, capped) > Math.max(above, below));
+    const flip = !reserve && natural > below && above > below;
     if (flip) swap(node, PANEL_BELOW, PANEL_ABOVE);
     else swap(node, PANEL_ABOVE, PANEL_BELOW);
 
@@ -280,13 +317,31 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     }
     node.style.translate = shift === 0 ? '' : `${shift}px 0`;
 
-    if (list === null) return;
-    // What the surface adds around the list, a search field for instance, is
-    // taken out of the room so the whole panel fits and not only its list.
-    const chrome = Math.max(0, node.offsetHeight - list.offsetHeight);
+    if (list === null || anchor === null) return;
+    if (reserve) {
+      anchor.style.marginBottom = `${node.offsetHeight + PANEL_OFFSET}px`;
+      if (!reserved) reveal();
+      reserved = true;
+      return;
+    }
     const room = Math.max(0, Math.round((flip ? above : below) - chrome));
-    const capped = list.getAttribute(PANEL_LIST_ATTR) !== PANEL_LIST_UNCAPPED;
     list.style.maxHeight = capped ? `min(var(--spacing-panel-max), ${room}px)` : `${room}px`;
+  }
+
+  /**
+   * Scrolls the container down until the panel's bottom is in view, or its
+   * top when it is taller than the container. Down only: scrollIntoView also
+   * scrolls sideways, and a modal body on a 320px phone took a 20px sideways
+   * scroll from the room the panel's slide back had already made up.
+   */
+  function reveal(): void {
+    const target = clip ?? window;
+    if (typeof target.scrollBy !== 'function') return;
+    const top = node.getBoundingClientRect().top;
+    const clipTop = clip === null ? 0 : clip.getBoundingClientRect().top;
+    const clipBottom = clip === null ? window.innerHeight : clip.getBoundingClientRect().bottom;
+    const by = Math.min(top + node.offsetHeight + PANEL_EDGE_GAP - clipBottom, top - clipTop);
+    if (by > 0) target.scrollBy(0, by);
   }
 
   measure();
@@ -299,6 +354,7 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     destroy() {
       window.removeEventListener('resize', measure);
       scroller.removeEventListener('scroll', measure);
+      if (reserved && anchor !== null) anchor.style.marginBottom = '';
     },
   };
 }
