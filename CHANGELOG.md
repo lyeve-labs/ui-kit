@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Under a finger, the remove cross on each `MultiSelect` chip and on a removable `Tag` keeps its 44px target off its neighbors. The chips in a `MultiSelect` sit 8px apart there and their rows 24px apart, and a removable `Tag` holds that room around itself, so a tap meant to open the list or to reach the next tag no longer removes a value. A mouse sees both as they were.
+
 ## [0.38.4] - 2026-10-15
 
 ### Fixed

@@ -354,6 +354,55 @@ describe('the small controls keep their visual and grow their hit box', () => {
     expect(row).toContain('gap-0.5');
   });
 
+  /** A spacing utility's value in px, from the class that starts with the prefix. */
+  const spacing = (el: Element | null, prefix: string) => {
+    const c = classes(el).find((x) => x.startsWith(prefix));
+    expect(c, `${prefix} on ${el?.tagName}`).toBeDefined();
+    return Number(c!.slice(prefix.length)) * 4;
+  };
+
+  it('MultiSelect chips, whose remove boxes covered the next chip and the row below', () => {
+    // A chip is 20px tall and the center of its cross sits 14px from its end,
+    // so the cross's 44px box reaches 12px above and below the chip and 8px
+    // past its end. At the 6px gap a mouse keeps, the box took 18px of the row
+    // below and 2px of the next chip, so a tap that meant to open the list
+    // could remove a value.
+    const { getByLabelText } = render(MultiSelect, {
+      props: {
+        label: 'Roles',
+        options: [
+          { value: 'a', label: 'Admin' },
+          { value: 'b', label: 'Billing' },
+        ],
+        value: ['a', 'b'],
+      },
+    });
+    const cross = getByLabelText('Remove Admin');
+    expectHitArea(cross);
+    const row = cross.closest('[role="presentation"]');
+    expect(classes(row), 'the mouse keeps its gap').toContain('gap-1.5');
+    expect(20 + spacing(row, 'coarse:gap-y-'), 'row pitch').toBeGreaterThanOrEqual(44);
+    expect(spacing(row, 'coarse:gap-x-'), 'past the end').toBeGreaterThanOrEqual(22 - 14);
+  });
+
+  it("a removable Tag, whose cross's box reached past it on every side but the start", () => {
+    // A Tag is 22px tall and the center of its cross sits 14px from its end,
+    // so the cross's 44px box reaches 11px above and below the Tag and 8px
+    // past its end. The Tag claims that room as margin under a finger, so in
+    // a row of Tags, wrapped or not, the boxes meet whatever gap the row sets.
+    const { getByLabelText } = render(Tag, {
+      props: { label: 'beta', removable: true, onremove: () => {} },
+    });
+    const tag = getByLabelText('Remove beta').parentElement;
+    expect(22 + 2 * spacing(tag, 'coarse:my-'), 'height').toBeGreaterThanOrEqual(44);
+    expect(spacing(tag, 'coarse:me-'), 'past the end').toBeGreaterThanOrEqual(22 - 14);
+
+    // A Tag with no cross has no box and takes no room.
+    const plain = render(Tag, { props: { label: 'gamma' } });
+    const plainTag = plain.getByText('gamma');
+    expect(classes(plainTag).filter((c) => c.startsWith('coarse:'))).toEqual([]);
+  });
+
   it('TimePicker segments, which were 28 by 20 with no hit box', () => {
     // An input draws no pseudo-element, so each digit segment's hit box sits
     // on the span round it. The segments spread under a finger so their

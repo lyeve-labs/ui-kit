@@ -178,11 +178,17 @@
       which a screen reader reads as one widget and a keyboard cannot sort
       out. A press anywhere on the frame that is not a remove button opens the
       list from the combobox, as a press on the field always did.
+
+      Under a finger each remove cross takes a 44px box on a 20px chip, which
+      reaches 12px above and below the chip and 8px past its end. The chips
+      sit 8px apart there and their rows 24px apart, so no box covers the
+      next chip or the row below, and a tap meant to open the list lands on
+      the field.
     -->
     <div
       role="presentation"
       onclick={onFrameClick}
-      class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg
+      class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 coarse:gap-x-2 coarse:gap-y-6 rounded-lg
         border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors
         has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
         has-[[role=combobox]:focus-visible]:ring-brand
