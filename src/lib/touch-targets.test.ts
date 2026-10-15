@@ -598,7 +598,12 @@ describe('the controls that may grow take the control height', () => {
     const check = container.querySelector('[data-tree-check]');
     expectGrows(check);
     expect(classes(check)).toContain('justify-center');
+    const row = classes(check?.parentElement ?? null);
     expectGrows(check?.parentElement ?? null);
+    // The 44px slot inside the mouse's 6px of padding made the row 56px. The
+    // padding goes under a finger, so the row is the 44px it grows to.
+    expect(row).toContain('py-1.5');
+    expect(row).toContain('coarse:py-0');
     await fireEvent.click(check!);
     expect(oncheck).toHaveBeenCalledWith(['readme']);
     expect(onactivate).not.toHaveBeenCalled();

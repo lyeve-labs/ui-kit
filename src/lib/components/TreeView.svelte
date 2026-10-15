@@ -281,10 +281,11 @@
         built by interpolating the depth matches no candidate in Tailwind's
         scan, so no rule is generated and every row draws flush left. Under a
         finger the 32px row grows to the control height, as a SidebarNav row
-        does.
+        does, and drops its padding, which would stand a row with a 44px
+        check slot 12px taller than the rest.
       -->
       <div
-        class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm transition-colors {rowPaint(
+        class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-md py-1.5 pe-2 text-sm coarse:py-0 transition-colors {rowPaint(
           selected === node.id,
           !!node.disabled,
         )}"
