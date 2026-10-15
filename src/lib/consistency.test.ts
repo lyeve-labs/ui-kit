@@ -499,6 +499,17 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('leaves through a preset wherever a surface dismisses itself', () => {
+    // Alert left on the toast preset while Banner, dismissed by hand or by
+    // its own timer, vanished in one frame. A component that offers
+    // ondismiss takes itself off the screen and owes that exit.
+    const offenders = files
+      .filter((f) => /\bondismiss\??:/.test(f.src))
+      .filter((f) => !/transition:motion\.[a-z]+\|global/.test(f.src))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
   it('plays every exit even when a parent removes the component', () => {
     // A Svelte transition is local by default: it plays only when its own
     // block toggles. Every console wraps a Modal in a page-level {#if} so the
