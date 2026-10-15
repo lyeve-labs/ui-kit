@@ -102,7 +102,9 @@
        the textarea inside it. A focused button draws its own ring and not the frame's.
        Under a finger each 27px button takes a 44px box centered on it, so the
        row opens 17px between its items: neighboring boxes meet instead of
-       overlapping, and the first box stops short of the value. -->
+       overlapping, and the first box stops short of the value. The buttons
+       hold their 27px around a 14px icon, the rung of the text beside it, so
+       those boxes stay where they are. -->
   <div
     class="flex w-full gap-0.5 coarse:gap-4.25 rounded-lg border bg-surface-2 pe-1 transition-colors border-line-strong {wrapped
       ? 'min-h-control items-start py-1 has-[textarea:focus]:border-brand has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-inset has-[textarea:focus-visible]:ring-brand'
@@ -157,12 +159,12 @@
         aria-pressed={revealed}
         aria-controls={fieldId}
         aria-label={revealed ? 'Hide value' : 'Show value'}
-        class="{HIT_AREA} flex shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA} flex size-6.75 shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
       >
         {#if revealed}
-          <EyeOff size={15} aria-hidden="true" />
+          <EyeOff size={14} aria-hidden="true" />
         {:else}
-          <Eye size={15} aria-hidden="true" />
+          <Eye size={14} aria-hidden="true" />
         {/if}
       </button>
     {/if}
@@ -170,9 +172,9 @@
       type="button"
       aria-label={buttonName}
       onclick={() => copier.copy(value)}
-      class="{HIT_AREA} flex shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+      class="{HIT_AREA} flex size-6.75 shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
     >
-      <CopyGlyph copied={copier.status === 'copied'} size={15} />
+      <CopyGlyph copied={copier.status === 'copied'} size={14} />
     </button>
   </div>
 

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Under a finger, the buttons in a `CopyField` sit 17px apart, so the 44px targets of Show and Copy meet instead of overlapping by 15px, and a tap on the end of Show no longer copies the value. A mouse keeps the 2px spacing.
 - Under a finger, the logo link at the top of an `AuthShell` takes a 44px target. It was 36px tall. A mouse sees it where it was.
 - Under a finger, the remove crosses on the top and bottom rows of `MultiSelect` chips keep their 44px targets inside the field. They reached 5px past its top and bottom borders, so a tap just above or below the field removed a value. The field pads its chips 11px from its border there, and one row of chips still fills the 44px control height. A mouse sees it as it was.
+- The kit draws its own icons on the five-size ladder the consoles use. The show and hide eye in a `PasswordInput` and a `CopyField`, and the copy icon beside it, are 14px to match the field's text, and were 15px. Their buttons keep their size, so no touch target moves. The `AppShell` sidebar toggle is 20px, as the menu button it replaces on a phone is, and was 18px.
 
 ## [0.38.5] - 2026-10-15
 

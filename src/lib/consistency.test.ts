@@ -278,12 +278,11 @@ function outlinesWithoutRing(src: string): string[] {
 }
 
 /**
- * Every lucide icon a component sizes with a class, by the name it imported
- * the icon under. Reads every import of the package, named, default from an
- * icon path, or a namespace, and the class whether it is quoted or an
- * expression.
+ * Every lucide icon a component draws, by the name it imported the icon
+ * under. Reads every import of the package: named, default from an icon
+ * path, or a namespace.
  */
-function iconsSizedByClass(src: string): string[] {
+function lucideIcons(src: string): MarkupElement[] {
   const names = new Set<string>();
   const namespaces: string[] = [];
   for (const [, list] of src.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]@lucide\/svelte['"]/g)) {
@@ -299,10 +298,34 @@ function iconsSizedByClass(src: string): string[] {
   for (const [, n] of src.matchAll(/import\s*\*\s*as\s+(\w+)\s+from\s*['"]@lucide\/svelte['"]/g)) {
     namespaces.push(n);
   }
-  return markupElements(src)
-    .filter((e) => names.has(e.name) || namespaces.some((ns) => e.name.startsWith(`${ns}.`)))
+  return markupElements(src).filter(
+    (e) => names.has(e.name) || namespaces.some((ns) => e.name.startsWith(`${ns}.`)),
+  );
+}
+
+/** Every lucide icon a component sizes with a class, quoted or an expression. */
+function iconsSizedByClass(src: string): string[] {
+  return lucideIcons(src)
     .filter((e) => /\b(?:w|h|size)-\d/.test(classOf(e.tag)))
     .map((e) => e.name);
+}
+
+/** The five sizes an icon may take, the ladder each console names in its icon.ts. */
+const ICON_LADDER = [12, 14, 16, 20, 40];
+
+/**
+ * Every lucide icon whose size is a number off the ladder, with that number.
+ * An icon with no size draws at lucide's 24. A size held in a variable is
+ * not read here, so a component passing one owns keeping it on the ladder.
+ */
+function iconsOffLadder(src: string): string[] {
+  return lucideIcons(src).flatMap((e) => {
+    const literal = /\ssize=(?:\{\s*([\d.]+)\s*\}|"([\d.]+)")/.exec(e.tag);
+    const dynamic = /\ssize=\{|\s\{size\}|\{\.\.\./.test(e.tag);
+    if (literal === null && dynamic) return [];
+    const size = literal === null ? 24 : Number(literal[1] ?? literal[2]);
+    return ICON_LADDER.includes(size) ? [] : [`${e.name} ${size}`];
+  });
 }
 
 /**
@@ -364,6 +387,15 @@ describe('component consistency', () => {
     // the dialog stack's close cross and the confirm dialog's warning sign
     // came to sit off it.
     const offenders = files.flatMap((f) => iconsSizedByClass(f.src).map((n) => `${f.name}: ${n}`));
+    expect(offenders).toEqual([]);
+  });
+
+  it('draws every lucide icon at a rung of the icon ladder', () => {
+    // The consoles size icons from five rungs and the kit drew its own at 15
+    // and 18, so an eye in a password field sat a pixel off the row action
+    // beside it and the sidebar toggle two pixels under the menu button it
+    // replaces.
+    const offenders = files.flatMap((f) => iconsOffLadder(f.src).map((n) => `${f.name}: ${n}`));
     expect(offenders).toEqual([]);
   });
 
@@ -639,6 +671,24 @@ describe('component consistency', () => {
       `<Check size={14} class="text-success" />`,
     ].join('\n');
     expect(iconsSizedByClass(fixture)).toEqual(['Eye', 'Hidden']);
+  });
+
+  it('refuses a lucide size off the ladder, and an icon with no size at all', () => {
+    // The class rule passes every one of these, because none is sized by a
+    // class. A size the component computes is read where it is computed.
+    const fixture = [
+      `<script lang="ts">`,
+      `  import { Eye, PanelLeft, X, Check } from '@lucide/svelte';`,
+      `  import Copy from '@lucide/svelte/icons/copy';`,
+      `</script>`,
+      `<Eye size={15} aria-hidden="true" />`,
+      `<PanelLeft size="18" />`,
+      `<X />`,
+      `<Check size={14} />`,
+      `<Copy {size} />`,
+    ].join('\n');
+    expect(iconsSizedByClass(fixture)).toEqual([]);
+    expect(iconsOffLadder(fixture)).toEqual(['Eye 15', 'PanelLeft 18', 'X 24']);
   });
 
   it('asks for the exit on the surface that leaves, not anywhere in the file', () => {
