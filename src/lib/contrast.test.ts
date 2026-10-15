@@ -48,10 +48,14 @@ function over(fg: string, bg: string, alpha: number): string {
 /**
  * Tokens from one block of the stylesheet. The dark palette is everything
  * before the light block, so a value moved out of `@theme` still gets measured.
+ * The light palette is that block alone. Read to the end of the file, the
+ * print block's black on white overwrote every light value, so each light
+ * case measured the paper palette and passed whatever the screen showed.
  */
 function palette(scope: 'dark' | 'light'): Record<string, string> {
-  const marker = css.indexOf("html[data-theme='light']");
-  const region = scope === 'dark' ? css.slice(0, marker) : css.slice(marker);
+  const marker = css.indexOf("html[data-theme='light'] {");
+  const region =
+    scope === 'dark' ? css.slice(0, marker) : css.slice(marker, css.indexOf('}', marker));
   const out: Record<string, string> = {};
   for (const [, name, value] of region.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-f]{6})\s*;/gi)) {
     out[name] = value.toLowerCase();
@@ -137,6 +141,16 @@ describe.each([
         `line-strong on ${ground}`,
       ).toBeGreaterThanOrEqual(3);
     }
+  });
+});
+
+describe('the light palette', () => {
+  it('is the screen block and not the print one', () => {
+    // Print collapses every text token to black on white. A light palette
+    // with no gray in it is the print block read in its place.
+    expect(light.surface).toBe('#ffffff');
+    expect(light['surface-2']).not.toBe('#ffffff');
+    expect(light.brand).not.toBe('#000000');
   });
 });
 
