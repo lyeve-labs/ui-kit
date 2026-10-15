@@ -361,6 +361,36 @@ describe('placePanel', () => {
     }
   });
 
+  it('keeps a panel inside the clip it scrolls in as well as the viewport', () => {
+    // A Modal body on a 360px phone clips at 17 and 343. Clamped to the
+    // viewport alone, the 320px touch calendar ran 10px past the body and was
+    // cut, and the body scrolled sideways.
+    const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      const at = (left: number, panel: number, rtl = false) => {
+        const f = mount({ anchor: [100, 140], clip: [0, 800], natural: 200 });
+        f.clip.getBoundingClientRect = () => ({ ...rect(0, 800), left: 17, right: 343 }) as DOMRect;
+        f.anchor.getBoundingClientRect = () => ({ ...rect(100, 140), left }) as DOMRect;
+        Object.defineProperty(f.surface, 'offsetWidth', { value: panel });
+        if (rtl) f.surface.style.direction = 'rtl';
+        const action = placePanel(f.surface);
+        const shift = f.surface.style.translate;
+        action.destroy();
+        return shift;
+      };
+      // 33 + 320 = 353, 10px past the clip.
+      expect(at(33, 320)).toBe('-10px 0');
+      expect(at(33, 300)).toBe('');
+      // Wider than the 326px of room, it keeps its start edge at the clip's.
+      expect(at(33, 340)).toBe('-16px 0');
+      // In a right-to-left page the start edge is the right one.
+      expect(at(33, 340, true)).toBe('-30px 0');
+    } finally {
+      if (width) Object.defineProperty(window, 'innerWidth', width);
+    }
+  });
+
   it('removes its listeners on destroy', () => {
     const f = mount({ anchor: [100, 140], clip: [0, 800], natural: 200 });
     const onClip = vi.spyOn(f.clip, 'removeEventListener');
