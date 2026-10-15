@@ -135,6 +135,20 @@
   /** md: to lg:, where the expanded column costs the page more than it gives. */
   let isNarrow = $state(false);
   const drawerOpen = $derived(isMobile && navOpen);
+
+  let shellEl = $state<HTMLDivElement | undefined>();
+
+  /**
+   * The edge the phone drawer slides from. It is docked at the start edge,
+   * which a right-to-left page puts on the right, and a slide from the left
+   * would cross the whole screen to get there. Read when the drawer moves,
+   * so a page that changes direction is followed.
+   */
+  function startSide(): 'left' | 'right' {
+    return shellEl !== undefined && getComputedStyle(shellEl).direction === 'rtl'
+      ? 'right'
+      : 'left';
+  }
   /**
    * Collapsing is a desktop gesture. Below md: the same aside is the drawer,
    * so honoring `collapsed` there would leave the hamburger opening nothing.
@@ -195,7 +209,7 @@
 
 <svelte:window onkeydown={onWindowKeydown} />
 
-<div data-print="unclip" class="flex h-screen {klass}">
+<div bind:this={shellEl} data-print="unclip" class="flex h-screen {klass}">
   <!-- First focusable thing in the document. Without it a keyboard reader tabs
        the whole sidebar again on every page. -->
   <a
@@ -235,7 +249,7 @@
   {#if drawerOpen}
     <div
       data-print="hide"
-      transition:motion.drawer|global={{ side: 'left' }}
+      transition:motion.drawer|global={{ side: startSide() }}
       class="fixed inset-y-0 start-0 z-drawer flex shadow-2xl"
       role="dialog"
       aria-modal="true"
