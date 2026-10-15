@@ -5,11 +5,17 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.1] - 2026-10-15
+
+### Fixed
+
+- The property that names a control after its `Field` caption is now spelled `labeledBy`, in US English like every other name in the kit, on `SegmentedControl` and in the wiring a `Field` given `group` hands its control. 0.39.0 spelled it with a double l. Rename it where you pass it or read it.
+
 ## [0.39.0] - 2026-10-15
 
 ### Added
 
-- A `Field` given `group` draws its caption as text and hands its id to the control as `labelledBy`, and a `SegmentedControl` given `labelledBy` takes its name from that caption. A `Field` caption used to be a label pointing at the group, which a label cannot reach, so a click on it did nothing. The caption looks as it did, and a `Field` without `group` is unchanged.
+- A `Field` given `group` draws its caption as text and hands its id to the control as `labelledBy`, and a `SegmentedControl` given `labelledBy` takes its name from that caption. A `Field` caption used to be a label pointing at the group, which a label cannot reach, so a click on it did nothing. The caption looks as it did, and a `Field` without `group` is unchanged. <!-- us-english: keep: the name 0.39.0 shipped -->
 
 ### Changed
 
