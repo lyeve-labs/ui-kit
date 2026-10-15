@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `MultiSelect` is drawn in the order Tab reaches it: the field first, then the remove button of each chip from the start of the row. The field used to be drawn after the chips while Tab reached it before them. Its chevron now sits centered at the end of the field however many rows the chips take, and a long placeholder is cut short rather than wrapped.
 - A list or a calendar wider than the room it opens in shrinks to that room. Under a finger the `DatePicker` calendar is 320px, so inside a `Modal` on a 320px phone it ran past the modal body, which then scrolled sideways. Where there is room it keeps its width.
 - A `TreeView` branch unmounts its rows once its collapse has played. A branch that had been opened once kept its rows mounted for good, so a large tree that a reader opened and shut held every row it had ever shown.
+- In a right-to-left page, a `Drawer` slides in from the edge it is docked on and back out, as the `AppShell` navigation drawer does. A drawer docked on the left slid in from the right across the whole screen.
 
 ## [0.38.4] - 2026-10-15
 
