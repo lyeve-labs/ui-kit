@@ -516,6 +516,21 @@ describe('the small controls keep their visual and grow their hit box', () => {
     }
   });
 
+  it("NumberInput steppers' targets, which reached 6px into the number", () => {
+    // A 32px stepper's 44px box, centered on it, covered the first and last
+    // 6px of the number, so a tap just inside the field stepped the value.
+    // Each box is pinned to the edge the stepper shares with the number and
+    // grows outward. Logical sides, so a right-to-left page mirrors it.
+    const { getByLabelText } = render(NumberInput, { props: { label: 'Seats', value: 3 } });
+    const pinned = { Decrease: ['start-auto', 'end-0'], Increase: ['start-0', 'end-auto'] };
+    for (const [name, sides] of Object.entries(pinned)) {
+      const list = classes(getByLabelText(name));
+      for (const side of sides) expect(list).toContain(`coarse:before:${side}`);
+      expect(list).toContain('coarse:before:translate-x-0');
+      expect(list).toContain('coarse:before:-translate-y-1/2');
+    }
+  });
+
   it("an Autocomplete's clear cross, which was 24px", () => {
     const { getByLabelText } = render(Autocomplete, {
       props: { label: 'Find', value: 'a', options: [{ value: 'a', label: 'Alpha' }] },

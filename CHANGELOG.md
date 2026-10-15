@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - A list or a calendar opened in a container too short for it on either side, such as a one-field `Modal`, opens at its own height below its field. The container grows to hold it, or scrolls down to it when it cannot grow. A `DatePicker` there opened 34px tall and showed only its month row, and a `Select`, `MultiSelect`, `Autocomplete` or `Dropdown` showed no whole row. A list now keeps at least four rows in view, or all of them when it has fewer, and a calendar keeps its whole grid.
+- Under a finger, each `NumberInput` stepper's 44px target meets the number and grows outward, in either text direction. Centered on the 32px stepper, it reached 6px into the number, so a tap just inside the field stepped the value. A mouse sees it as it was.
 
 ## [0.38.5] - 2026-10-15
 
