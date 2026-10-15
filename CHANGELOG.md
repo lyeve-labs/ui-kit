@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Under a finger, the options of a `CheckboxGroup` or a `RadioGroup` sit far enough apart that each takes a 44px target of its own, in a column and in a row that wraps, so a tap near the bottom of one option no longer picks the option below it. Card options keep their spacing, and a mouse sees the list as it was.
+- Under a finger, every day in a `DatePicker` or `DateTimePicker` calendar takes a 44px target of its own. The calendar opens 60px wider and its weeks sit 12px apart there, so a tap near the edge of a day no longer picks the day beside or below it. A mouse sees the calendar as it was.
 
 ## [0.38.3] - 2026-10-14
 

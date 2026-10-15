@@ -12,7 +12,7 @@
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { render } from '@testing-library/svelte';
+import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
@@ -22,6 +22,7 @@ import Button from './components/Button.svelte';
 import Checkbox from './components/Checkbox.svelte';
 import CheckboxGroup from './components/CheckboxGroup.svelte';
 import Collapsible from './components/Collapsible.svelte';
+import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
 import Modal from './components/Modal.svelte';
@@ -299,6 +300,33 @@ describe('the small controls keep their visual and grow their hit box', () => {
         }
       }
     }
+  });
+
+  it('DatePicker days, whose hit boxes overlapped about 10px each way', async () => {
+    // A day is 32px with a 44px hit box. In the 272px panel the columns were
+    // 36px apart and the rows 34px, so every box covered its neighbors'.
+    // Under a finger the panel widens to 332px: 308px of grid inside 12px of
+    // padding is seven columns 44px apart, and the rows open a 12px gap.
+    const { container } = render(DatePicker, { props: { label: 'Due', value: '2026-07-15' } });
+    await fireEvent.click(container.querySelector('button')!);
+    /** A spacing utility's value in px, from the class that starts with the prefix. */
+    const px = (el: Element | null, prefix: string) => {
+      const c = classes(el).find((x) => x.startsWith(prefix));
+      expect(c, `${prefix} on ${el?.tagName}`).toBeDefined();
+      return Number(c!.slice(prefix.length)) * 4;
+    };
+    const panel = container.querySelector('[role="dialog"]');
+    const grid = container.querySelector('[data-day-grid]');
+    // The mouse keeps the panel and the grid it had.
+    expect(classes(panel)).toContain('w-68');
+    expect(classes(grid)).toContain('gap-0.5');
+    const inner = px(panel, 'coarse:w-') - 2 * px(grid?.parentElement ?? null, 'p-');
+    const columnGap = px(grid, 'gap-');
+    expect((inner + columnGap) / 7, 'column pitch').toBeGreaterThanOrEqual(44);
+    expect(32 + px(grid, 'coarse:gap-y-'), 'row pitch').toBeGreaterThanOrEqual(44);
+    const days = grid?.querySelectorAll('button') ?? [];
+    expect(days.length).toBeGreaterThan(27);
+    for (const day of days) expectHitArea(day);
   });
 
   it('Pagination pages, spaced so their hit boxes do not overlap', () => {
