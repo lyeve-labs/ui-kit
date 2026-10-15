@@ -397,6 +397,13 @@ describe('the small controls keep their visual and grow their hit box', () => {
     }
   });
 
+  it("an Autocomplete's clear cross, which was 24px", () => {
+    const { getByLabelText } = render(Autocomplete, {
+      props: { label: 'Find', value: 'a', options: [{ value: 'a', label: 'Alpha' }] },
+    });
+    expectHitArea(getByLabelText('Clear'), 'absolute');
+  });
+
   it("a Modal's close cross", () => {
     const { container } = render(Modal, {
       props: { open: true, title: 'T', children: text('x') },
