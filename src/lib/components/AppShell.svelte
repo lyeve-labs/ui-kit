@@ -316,7 +316,7 @@
               aria-expanded={!collapsed}
               onclick={() => (collapsed = !collapsed)}
             >
-              {#if collapsed}<PanelLeft size={18} />{:else}<PanelLeftClose size={18} />{/if}
+              {#if collapsed}<PanelLeft size={20} />{:else}<PanelLeftClose size={20} />{/if}
             </button>
           {/if}
           {#if section}

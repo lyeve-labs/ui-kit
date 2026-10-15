@@ -117,19 +117,21 @@
     {#if showToggle}
       <!-- type="button" is load bearing. A button inside a form defaults to
            type="submit", so a reveal control on a login form posted the form
-           on the first click and the user never saw what they had typed. -->
+           on the first click and the user never saw what they had typed.
+           The button holds its 27px around a 14px icon, the rung of the
+           text it sits on, so its touch target stays where it was. -->
       <button
         type="button"
         onclick={() => (revealed = !revealed)}
         aria-pressed={revealed}
         aria-controls={fieldId}
         aria-label={revealed ? 'Hide password' : 'Show password'}
-        class="{HIT_AREA_POSITIONED} absolute top-1/2 end-1 flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA_POSITIONED} absolute top-1/2 end-1 flex size-6.75 -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
       >
         {#if revealed}
-          <EyeOff size={15} aria-hidden="true" />
+          <EyeOff size={14} aria-hidden="true" />
         {:else}
-          <Eye size={15} aria-hidden="true" />
+          <Eye size={14} aria-hidden="true" />
         {/if}
       </button>
     {/if}
