@@ -21,6 +21,11 @@
     describedBy: string | undefined;
     /** True while an error is showing, for the control's `aria-invalid`. */
     invalid: boolean;
+    /**
+     * The id of the caption, for a group's `aria-labelledby`. Set only when
+     * the field is a `group` with a label.
+     */
+    labelledBy: string | undefined;
   }
 </script>
 
@@ -40,6 +45,13 @@
     label?: string;
     /** Screen-reader-only label, for a control whose visible name is a table column header. */
     labelHidden?: boolean;
+    /**
+     * The control is a group, a `SegmentedControl`, `FilterChips` or a row of
+     * your own. A label's `for` reaches one form control and never a group, so
+     * the caption is drawn as text with an id instead, and the group takes its
+     * name from it through `labelledBy`.
+     */
+    group?: boolean;
     hint?: string;
     /** Replaces the hint while it is set, and marks the wiring invalid. */
     error?: string;
@@ -58,6 +70,7 @@
     id = undefined,
     label = undefined,
     labelHidden = false,
+    group = false,
     hint = undefined,
     error = undefined,
     required = false,
@@ -78,6 +91,7 @@
     id: fieldId,
     describedBy: describedBy(fieldId, error, hint),
     invalid: !!error,
+    labelledBy: group && label ? `${fieldId}-label` : undefined,
   });
 </script>
 
@@ -89,9 +103,15 @@
       the reading order, so a reader moving through a row of them would meet
       the controls with nothing ahead of them saying what each one is.
     -->
-    <label for={fieldId} class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    {#if group}
+      <span id="{fieldId}-label" class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
+        {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      </span>
+    {:else}
+      <label for={fieldId} class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
+        {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
+      </label>
+    {/if}
   {/if}
 
   {@render children(wiring)}
