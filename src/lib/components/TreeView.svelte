@@ -309,8 +309,11 @@
             A painted box rather than an input: the treeitem itself carries
             aria-checked, and a focusable control inside the row would put a
             second tab stop in a widget whose whole point is that it has one.
+            Under a finger the slot grows to a 44px square around the 14px
+            box. A press inside it checks, and the rest of the row activates,
+            so the two targets sit side by side and neither covers the other.
           -->
-          <span data-tree-check class="flex shrink-0 items-center">
+          <span data-tree-check class="{TOUCH_GROW} flex shrink-0 items-center justify-center">
             <span class={choiceBox('checkbox', 'sm', state === 'all', state === 'some')}>
               {#if state !== 'none'}
                 <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">

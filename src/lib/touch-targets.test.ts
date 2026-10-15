@@ -579,6 +579,31 @@ describe('the controls that may grow take the control height', () => {
     for (const row of rows) expectGrows(row);
   });
 
+  it('the TreeView check, a 14px box beside the row it sits in', async () => {
+    // A press on the check checks and a press on the rest of the row
+    // activates, as Space and Enter split them. The slot grows to a 44px
+    // square of its own inside the 44px row, so the check's target and the
+    // row's sit side by side.
+    const oncheck = vi.fn();
+    const onactivate = vi.fn();
+    const { container } = render(TreeView, {
+      props: {
+        label: 'Files',
+        checkable: true,
+        oncheck,
+        onactivate,
+        nodes: [{ id: 'readme', label: 'Readme' }],
+      },
+    });
+    const check = container.querySelector('[data-tree-check]');
+    expectGrows(check);
+    expect(classes(check)).toContain('justify-center');
+    expectGrows(check?.parentElement ?? null);
+    await fireEvent.click(check!);
+    expect(oncheck).toHaveBeenCalledWith(['readme']);
+    expect(onactivate).not.toHaveBeenCalled();
+  });
+
   it('a Collapsible trigger', () => {
     const { getByRole } = render(Collapsible, { props: { label: 'More', children: text('x') } });
     expectGrows(getByRole('button'));
