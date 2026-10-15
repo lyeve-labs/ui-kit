@@ -352,6 +352,27 @@ describe('the small controls keep their visual and grow their hit box', () => {
     );
   });
 
+  it('a DatePicker calendar never narrower than its day grid', async () => {
+    // placePanel shrinks a panel to the room it opens in, with no floor, so in
+    // a container narrower than about 250px the grid overflowed and the
+    // calendar scrolled sideways inside itself. The panel holds seven 32px
+    // days, six gaps, its padding and its 1px border, at either pointer.
+    const { container } = render(DatePicker, { props: { label: 'Due', value: '2026-07-15' } });
+    await fireEvent.click(container.querySelector('button')!);
+    const panel = container.querySelector('[role="dialog"]');
+    const grid = container.querySelector('[data-day-grid]');
+    const px = (el: Element | null, prefix: string) => {
+      const c = classes(el).find((x) => x.startsWith(prefix));
+      expect(c, `${prefix} on ${el?.tagName}`).toBeDefined();
+      return Number(c!.slice(prefix.length)) * 4;
+    };
+    const floor = (variant: string) => px(panel, `${variant}min-w-`);
+    const days = 7 * 32 + 6 * px(grid, 'gap-');
+    const padding = (prefix: string) => px(grid?.parentElement ?? null, prefix);
+    expect(floor('')).toBe(days + 2 * padding('p-') + 2);
+    expect(floor('coarse:')).toBe(days + 2 * padding('coarse:p-') + 2);
+  });
+
   it('Pagination pages, spaced so their hit boxes do not overlap', () => {
     // A page is 28px wide and its hit box 44px, so pages 16px apart meet
     // without overlapping. At the 2px gap a mouse keeps, each page took 30px

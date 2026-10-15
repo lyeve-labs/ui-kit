@@ -255,7 +255,9 @@
         of padding that is a 320px panel, the width of the narrowest phone,
         and placePanel slides it back on screen from the page gutter. In a
         modal body narrower than that, placePanel shrinks it to the body and
-        the columns close up. The rows open a 12px gap for the same reason.
+        the columns close up, but never below the grid: seven 32px days, six
+        2px gaps, the padding and the border, or the days would overflow and
+        the calendar scroll sideways inside itself. The rows open a 12px gap for the same reason.
       -->
       <div
         id={calendarId}
@@ -263,7 +265,7 @@
         aria-label="Choose date"
         use:placePanel
         transition:motion.popover|global
-        class="{PANEL_SURFACE} w-68 coarse:w-80"
+        class="{PANEL_SURFACE} w-68 min-w-65.5 coarse:w-80 coarse:min-w-62.5"
       >
         <div
           class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
