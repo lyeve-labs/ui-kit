@@ -178,12 +178,18 @@
       which a screen reader reads as one widget and a keyboard cannot sort
       out. A press anywhere on the frame that is not a remove button opens the
       list from the combobox, as a press on the field always did.
+
+      Under a finger each remove cross takes a 44px box on a 20px chip, which
+      reaches 12px above and below the chip and 8px past its end. The chips
+      sit 8px apart there and their rows 24px apart, so no box covers the
+      next chip or the row below, and a tap meant to open the list lands on
+      the field.
     -->
     <div
       role="presentation"
       onclick={onFrameClick}
-      class="flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg
-        border bg-surface-2 px-2.5 py-1.5 text-start text-sm transition-colors
+      class="relative flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 coarse:gap-x-2 coarse:gap-y-6 rounded-lg
+        border bg-surface-2 py-1.5 ps-2.5 pe-7 text-start text-sm transition-colors
         has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
         has-[[role=combobox]:focus-visible]:ring-brand
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
@@ -193,8 +199,11 @@
         A div and not an input: there is nothing to type here. The labels of
         the chosen values are its text, so focusing it reads the label and
         then what is chosen, as a select reads its value. It comes first in
-        the markup, so Tab reaches the field before any remove button, and
-        order-last draws it after the chips.
+        the markup, so Tab reaches the field before any remove button, and it
+        spans the frame as the field itself, so it comes first on screen too.
+        A press on a chip lands on it. The remove buttons are positioned and
+        later in the markup, so they sit above it and take their own presses.
+        The frame keeps room at its end for the chevron.
       -->
       <div
         bind:this={triggerEl}
@@ -207,10 +216,10 @@
         aria-describedby={describedBy(fieldId, error, hint)}
         onkeydown={onTriggerKeydown}
         {...box.triggerAttrs}
-        class="order-last flex min-w-12 flex-1 items-center gap-1.5 self-stretch outline-none"
+        class="absolute inset-0 flex items-center gap-1.5 rounded-lg px-2.5 outline-none"
       >
         {#if selected.length === 0}
-          <span class="px-0.5 text-faint">{placeholder}</span>
+          <span class="min-w-0 truncate px-0.5 text-faint">{placeholder}</span>
         {:else}
           <span class="sr-only">{selected.map((option) => option.label).join(', ')}</span>
         {/if}

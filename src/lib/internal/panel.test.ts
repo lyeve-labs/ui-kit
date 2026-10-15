@@ -376,16 +376,23 @@ describe('placePanel', () => {
         if (rtl) f.surface.style.direction = 'rtl';
         const action = placePanel(f.surface);
         const shift = f.surface.style.translate;
+        cap = f.surface.style.maxWidth;
         action.destroy();
         return shift;
       };
+      let cap = '';
       // 33 + 320 = 353, 10px past the clip.
       expect(at(33, 320)).toBe('-10px 0');
+      expect(cap, 'a panel that fits keeps its width').toBe('');
       expect(at(33, 300)).toBe('');
-      // Wider than the 326px of room, it keeps its start edge at the clip's.
+      // Wider than the 326px of room, it shrinks to the room, so a Modal body
+      // on a narrow phone does not scroll sideways, and keeps its start edge
+      // at the clip's.
       expect(at(33, 340)).toBe('-16px 0');
+      expect(cap).toBe('326px');
       // In a right-to-left page the start edge is the right one.
       expect(at(33, 340, true)).toBe('-30px 0');
+      expect(cap).toBe('326px');
     } finally {
       if (width) Object.defineProperty(window, 'innerWidth', width);
     }

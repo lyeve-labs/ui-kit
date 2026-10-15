@@ -220,7 +220,7 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  *
  * A panel that would run past the left or the right edge of the clipping
  * ancestor or the viewport slides back inside both, and one wider than that
- * room keeps its start edge in view.
+ * room shrinks to it.
  *
  * Measured on mount, on resize and on scroll of the clipping ancestor, since
  * each moves the anchor relative to the edge. Scroll does not bubble, so the
@@ -257,12 +257,17 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     // A panel wider than the room beside its anchor slides back inside what
     // the reader can see, which is the clip and the viewport both: the
     // calendar under a finger is as wide as a 320px phone, and its field
-    // starts at the page gutter or inside a modal body's padding. Where it is
-    // wider than that room it keeps its start edge in view. Read from the
-    // layout box, which the entrance preset's scale does not shrink.
+    // starts at the page gutter or inside a modal body's padding. A panel
+    // wider than that room shrinks to it, since a modal body on a 320px phone
+    // is narrower than the calendar and scrolled sideways around it. Should
+    // it still be wider, it keeps its start edge in view. Read from the
+    // layout box, which the entrance preset's scale does not shrink, and from
+    // the width the class gives, not one an earlier measurement capped.
+    node.style.maxWidth = '';
     const viewport = document.documentElement.clientWidth || window.innerWidth;
     const lo = Math.max(0, clipBox?.left ?? 0);
     const hi = Math.min(viewport, clipBox?.right ?? viewport);
+    if (node.offsetWidth > hi - lo) node.style.maxWidth = `${hi - lo}px`;
     const left = rect.left + node.offsetLeft;
     const right = left + node.offsetWidth;
     let shift = 0;

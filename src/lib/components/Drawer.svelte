@@ -66,6 +66,19 @@
 
   const rung = $derived(size === 'auto' ? fitOverlay(fields) : size);
 
+  let frameEl = $state<HTMLDivElement | undefined>();
+
+  /**
+   * The edge the panel slides from. It docks by the start and end of the
+   * line, so `right` sits at the left edge of a right-to-left page, and a
+   * slide from the right would cross the whole screen to get there. Read when
+   * the panel moves, as AppShell reads its own drawer's.
+   */
+  function edge(): Side {
+    const rtl = frameEl !== undefined && getComputedStyle(frameEl).direction === 'rtl';
+    return (side === 'right') !== rtl ? 'right' : 'left';
+  }
+
   const headingId = $props.id();
   const descriptionId = `${headingId}-description`;
 
@@ -86,6 +99,7 @@
 
 {#if open}
   <div
+    bind:this={frameEl}
     data-print="hide"
     class="fixed inset-0 z-drawer flex {side === 'right' ? 'justify-end' : 'justify-start'}"
   >
@@ -100,7 +114,7 @@
 
     <div
       use:overlay
-      transition:motion.drawer|global={{ side }}
+      transition:motion.drawer|global={{ side: edge() }}
       class="relative flex h-full w-full flex-col {OVERLAY_WIDTH[rung]} bg-surface shadow-2xl
         {side === 'right' ? 'border-s' : 'border-e'} border-line"
       role="dialog"

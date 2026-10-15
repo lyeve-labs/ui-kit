@@ -96,7 +96,9 @@ describe('the theme declares the mechanism', () => {
     const utility = theme.slice(theme.indexOf('@utility hit-area'));
     const body = utility.slice(0, utility.indexOf('\n}') + 2);
     expect(body).toContain('@media (pointer: coarse)');
-    expect(body).toContain('min-width: var(--spacing-control)');
+    // A row of targets narrower than the control size may hand its own width
+    // in, so neighbors' boxes meet rather than overlap.
+    expect(body).toContain('min-width: var(--hit-width, var(--spacing-control))');
     expect(body).toContain('min-height: var(--spacing-control)');
     expect(body).toContain('translate: -50% -50%');
     // It does not position the element: that would fight the `absolute` a
@@ -336,6 +338,63 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const days = grid?.querySelectorAll('button') ?? [];
     expect(days.length).toBeGreaterThan(27);
     for (const day of days) expectHitArea(day);
+
+    // In a Modal on a 320px phone the calendar shrinks to the body, about
+    // 286px, and the columns close to 39px, so each 44px box overlapped its
+    // neighbors by 5px. There the box takes the column's pitch and keeps its
+    // height: the grid is a container and hands the box the smaller of the
+    // control size and one pitch, its width and one gap over seven, so the
+    // boxes meet at any width.
+    expect(classes(grid)).toContain('@container');
+    const gap = columnGap / 16;
+    expect(classes(grid)).toContain(
+      `coarse:[--hit-width:min(var(--spacing-control),calc((100cqw_+_${gap}rem)_/_7))]`,
+    );
+  });
+
+  it('DatePicker month steps, whose hit boxes ran past the calendar', async () => {
+    // A step is a 14px glyph in 6px of padding, 26px, so its 44px box reaches
+    // 9px past it. It sits at the edge of the region inside 6px of padding,
+    // so the box ran 3px past the edge and the calendar panned sideways under
+    // a finger. The header insets itself by the rest, at the sides and the top.
+    const { container, getByLabelText } = render(DatePicker, {
+      props: { label: 'Due', value: '2026-07-15' },
+    });
+    await fireEvent.click(container.querySelector('button')!);
+    const step = getByLabelText('Previous month');
+    expectHitArea(step);
+    expectHitArea(getByLabelText('Next month'));
+    const px = (el: Element | null, prefix: string) => {
+      const c = classes(el).find((x) => x.startsWith(prefix));
+      return c === undefined ? 0 : Number(c.slice(prefix.length)) * 4;
+    };
+    const glyph = Number(step.querySelector('svg')?.getAttribute('width'));
+    const overhang = (44 - (glyph + 2 * px(step, 'p-'))) / 2;
+    const header = step.parentElement;
+    const region = px(header?.parentElement ?? null, 'coarse:p-');
+    expect(region + px(header, 'coarse:px-'), 'at the sides').toBeGreaterThanOrEqual(overhang);
+    expect(region + px(header, 'coarse:pt-'), 'at the top').toBeGreaterThanOrEqual(overhang);
+  });
+
+  it('a DatePicker calendar never narrower than its day grid', async () => {
+    // placePanel shrinks a panel to the room it opens in, with no floor, so in
+    // a container narrower than about 250px the grid overflowed and the
+    // calendar scrolled sideways inside itself. The panel holds seven 32px
+    // days, six gaps, its padding and its 1px border, at either pointer.
+    const { container } = render(DatePicker, { props: { label: 'Due', value: '2026-07-15' } });
+    await fireEvent.click(container.querySelector('button')!);
+    const panel = container.querySelector('[role="dialog"]');
+    const grid = container.querySelector('[data-day-grid]');
+    const px = (el: Element | null, prefix: string) => {
+      const c = classes(el).find((x) => x.startsWith(prefix));
+      expect(c, `${prefix} on ${el?.tagName}`).toBeDefined();
+      return Number(c!.slice(prefix.length)) * 4;
+    };
+    const floor = (variant: string) => px(panel, `${variant}min-w-`);
+    const days = 7 * 32 + 6 * px(grid, 'gap-');
+    const padding = (prefix: string) => px(grid?.parentElement ?? null, prefix);
+    expect(floor('')).toBe(days + 2 * padding('p-') + 2);
+    expect(floor('coarse:')).toBe(days + 2 * padding('coarse:p-') + 2);
   });
 
   it('Pagination pages, spaced so their hit boxes do not overlap', () => {
@@ -352,6 +411,61 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const row = classes(pageTwo?.parentElement ?? null);
     expect(row).toContain('coarse:gap-4');
     expect(row).toContain('gap-0.5');
+  });
+
+  /** A spacing utility's value in px, from the class that starts with the prefix. */
+  const spacing = (el: Element | null, prefix: string) => {
+    const c = classes(el).find((x) => x.startsWith(prefix));
+    expect(c, `${prefix} on ${el?.tagName}`).toBeDefined();
+    return Number(c!.slice(prefix.length)) * 4;
+  };
+
+  it('MultiSelect chips, whose remove boxes covered the next chip and the row below', () => {
+    // A chip is 20px tall and the center of its cross sits 14px from its end,
+    // so the cross's 44px box reaches 12px above and below the chip and 8px
+    // past its end. At the 6px gap a mouse keeps, the box took 18px of the row
+    // below and 2px of the next chip, so a tap that meant to open the list
+    // could remove a value.
+    const { getByLabelText } = render(MultiSelect, {
+      props: {
+        label: 'Roles',
+        options: [
+          { value: 'a', label: 'Admin' },
+          { value: 'b', label: 'Billing' },
+        ],
+        value: ['a', 'b'],
+      },
+    });
+    const cross = getByLabelText('Remove Admin');
+    expectHitArea(cross);
+    const row = cross.closest('[role="presentation"]');
+    expect(classes(row), 'the mouse keeps its gap').toContain('gap-1.5');
+    expect(20 + spacing(row, 'coarse:gap-y-'), 'row pitch').toBeGreaterThanOrEqual(44);
+    expect(spacing(row, 'coarse:gap-x-'), 'past the end').toBeGreaterThanOrEqual(22 - 14);
+  });
+
+  it("a removable Tag, whose cross's box reached past it on every side but the start", () => {
+    // A Tag is 22px tall and the center of its cross sits 14px from its end,
+    // so the cross's 44px box reaches 11px above and below the Tag and 8px
+    // past its end. The Tag claims that room as margin under a finger, so in
+    // a row of Tags, wrapped or not, the boxes meet whatever gap the row sets.
+    const { getByLabelText } = render(Tag, {
+      props: { label: 'beta', removable: true, onremove: () => {} },
+    });
+    const tag = getByLabelText('Remove beta').parentElement;
+    expect(22 + 2 * spacing(tag, 'coarse:my-'), 'height').toBeGreaterThanOrEqual(44);
+    expect(spacing(tag, 'coarse:me-'), 'past the end').toBeGreaterThanOrEqual(22 - 14);
+
+    // A Tag with no cross has no box and takes no room.
+    const plain = render(Tag, { props: { label: 'gamma' } });
+    const plainTag = plain.getByText('gamma');
+    expect(classes(plainTag).filter((c) => c.startsWith('coarse:'))).toEqual([]);
+
+    // That margin made a removable Tag's box 44px tall, so a plain Tag beside
+    // it in a stretching row grew to 44px, and one in a list item sat at the
+    // top of the line. Every Tag centers itself, whatever its row aligns.
+    expect(classes(tag)).toContain('self-center');
+    expect(classes(plainTag)).toContain('self-center');
   });
 
   it('TimePicker segments, which were 28 by 20 with no hit box', () => {

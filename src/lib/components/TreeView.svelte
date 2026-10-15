@@ -45,10 +45,10 @@
   const expandedSet = $derived(new Set(expanded));
 
   /**
-   * Branches whose children have been shown once. They stay mounted after a
-   * collapse so the collapse can animate. A branch nobody opened mounts
-   * nothing, so a tree of thousands of nodes renders what a reader opened and
-   * not the whole tree.
+   * Branches whose children are mounted. A branch stays mounted after a
+   * collapse until the collapse has played, and then unmounts. A branch nobody
+   * opened mounts nothing, so a tree of thousands of nodes renders the rows a
+   * reader has open and not the whole tree, nor every row it ever showed.
    */
   const shown = $state<Record<string, boolean>>({});
   $effect.pre(() => {
@@ -347,10 +347,16 @@
         A branch opens and shuts on grid-template-rows, the AccordionItem
         collapse, so its children slide rather than appear in one frame. Shut,
         they are inert: out of the tab order and the accessibility tree while
-        they stay mounted for the collapse to play.
+        they stay mounted for the collapse to play, and they unmount when it
+        ends. A nested branch's transition bubbles up here, so only this
+        wrapper's own counts.
       -->
       {#if isBranch(node)}
         <div
+          ontransitionend={(event) => {
+            if (event.target !== event.currentTarget || open) return;
+            if (event.propertyName === 'grid-template-rows') shown[node.id] = false;
+          }}
           class="grid transition-[grid-template-rows] duration-base {open
             ? 'grid-rows-[1fr]'
             : 'grid-rows-[0fr]'}"

@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import TreeView from './TreeView.svelte';
 import { CHOICE_MARK } from '../internal/choice.js';
@@ -82,6 +83,42 @@ describe('TreeView collapse', () => {
     const group = row(container, 'docs').querySelector<HTMLElement>('[role="group"]');
     expect(group, 'children stay mounted for the collapse').not.toBeNull();
     expect(group?.inert).toBe(true);
+  });
+
+  it('unmounts a branch once its collapse has played', async () => {
+    // Shown branches stayed mounted for good, so a large tree that was opened
+    // and shut kept every row it had ever shown.
+    const end = (el: Element) => {
+      const event = new Event('transitionend', { bubbles: true });
+      Object.defineProperty(event, 'propertyName', { value: 'grid-template-rows' });
+      el.dispatchEvent(event);
+    };
+    const group = (container: HTMLElement, id: string) =>
+      row(container, id).querySelector(':scope > div.grid [role="group"]');
+    const { container } = render(TreeView, {
+      props: { nodes, label: 'Files', expanded: ['docs', 'guide'] },
+    });
+
+    // A nested branch's own collapse bubbles past the open branch above it
+    // and leaves that one alone.
+    await fireEvent.click(row(container, 'guide').querySelector('[data-tree-toggle]')!);
+    end(wrapper(container, 'guide')!);
+    await tick();
+    expect(group(container, 'guide')).toBeNull();
+    expect(group(container, 'docs')).not.toBeNull();
+
+    await fireEvent.click(row(container, 'docs').querySelector('[data-tree-toggle]')!);
+    expect(group(container, 'docs'), 'mounted while the collapse plays').not.toBeNull();
+    end(wrapper(container, 'guide')!);
+    await tick();
+    expect(group(container, 'docs'), 'a nested end is not its own').not.toBeNull();
+    end(wrapper(container, 'docs')!);
+    await tick();
+    expect(group(container, 'docs')).toBeNull();
+
+    // Opened again, it mounts again.
+    await fireEvent.click(row(container, 'docs').querySelector('[data-tree-toggle]')!);
+    expect(group(container, 'docs')).not.toBeNull();
   });
 
   it('mounts nothing under a branch nobody opened', () => {

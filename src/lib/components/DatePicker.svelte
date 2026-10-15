@@ -253,8 +253,11 @@
         days have to sit 44px apart or each box covers a third of its
         neighbors'. Seven 44px columns are 308px. Inside a 1px border and 6px
         of padding that is a 320px panel, the width of the narrowest phone,
-        and placePanel slides it back on screen from the page gutter. The rows
-        open a 12px gap for the same reason.
+        and placePanel slides it back on screen from the page gutter. In a
+        modal body narrower than that, placePanel shrinks it to the body and
+        the columns close up, but never below the grid: seven 32px days, six
+        2px gaps, the padding and the border, or the days would overflow and
+        the calendar scroll sideways inside itself. The rows open a 12px gap for the same reason.
       -->
       <div
         id={calendarId}
@@ -262,14 +265,17 @@
         aria-label="Choose date"
         use:placePanel
         transition:motion.popover|global
-        class="{PANEL_SURFACE} w-68 coarse:w-80"
+        class="{PANEL_SURFACE} w-68 min-w-65.5 coarse:w-80 coarse:min-w-62.5"
       >
         <div
           class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
           data-panel-list={PANEL_LIST_UNCAPPED}
         >
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-2">
+          <!-- Header. Under a finger each 26px month step takes a 44px box,
+               9px past it, and the region's padding is 6px, so the header
+               insets itself by the other 3px at the sides and the top. The
+               boxes stay whole inside the calendar, which no longer pans. -->
+          <div class="flex items-center justify-between mb-2 coarse:px-0.75 coarse:pt-0.75">
             <button
               type="button"
               aria-label="Previous month"
@@ -313,7 +319,17 @@
           </div>
 
           <!-- Day grid -->
-          <div class="grid grid-cols-7 gap-0.5 coarse:gap-y-3" data-day-grid>
+          <!--
+            Shrunk into a narrow modal, the columns close below 44px and the
+            day boxes would overlap. The grid is a container, so each box
+            takes the smaller of the control size and one column's pitch, the
+            grid's width and one gap over seven, and keeps its height. The
+            boxes meet at any width.
+          -->
+          <div
+            class="@container grid grid-cols-7 gap-0.5 coarse:gap-y-3 coarse:[--hit-width:min(var(--spacing-control),calc((100cqw_+_0.125rem)_/_7))]"
+            data-day-grid
+          >
             {#each cells as d}
               {#if d === null}
                 <span></span>

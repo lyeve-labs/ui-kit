@@ -1,8 +1,14 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet, tick, type ComponentProps } from 'svelte';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OVERLAY_WIDTH } from '../internal/layout.js';
+import * as motion from '../motion.js';
 import Drawer from './Drawer.svelte';
+
+vi.mock('../motion.js', async (original) => {
+  const real = await original<typeof import('../motion.js')>();
+  return { ...real, drawer: vi.fn(real.drawer) };
+});
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
@@ -117,5 +123,46 @@ describe('Drawer', () => {
     const closeBtn = container.querySelectorAll('[aria-label="Close"]')[0] as HTMLButtonElement;
     await fireEvent.click(closeBtn);
     expect(onclose).toHaveBeenCalledOnce();
+  });
+});
+
+describe('the drawer slides from the edge it is docked on', () => {
+  // The panel docks by the start and end of the line, so side="right" sits at
+  // the left edge of a right-to-left page, and a slide on the physical axis
+  // crossed the whole screen to get there.
+  const real = window.getComputedStyle.bind(window);
+
+  /** jsdom inherits no direction, so the page's is answered for every element. */
+  function page(direction: 'ltr' | 'rtl') {
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) => {
+      const style = real(el, pseudo);
+      return new Proxy(style, {
+        get: (target, prop) => {
+          if (prop === 'direction') return direction;
+          const value = Reflect.get(target, prop, target);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+      });
+    });
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.mocked(motion.drawer).mockClear();
+  });
+
+  it.each([
+    ['right', 'ltr', 'right'],
+    ['left', 'ltr', 'left'],
+    ['right', 'rtl', 'left'],
+    ['left', 'rtl', 'right'],
+  ] as const)('side="%s" in a %s page slides from the %s', async (side, direction, edge) => {
+    page(direction);
+    const { rerender } = render(Drawer, { props: { side, children: text('x') } });
+    await rerender({ open: true });
+    await tick();
+    await Promise.resolve();
+    expect(vi.mocked(motion.drawer)).toHaveBeenCalled();
+    expect(vi.mocked(motion.drawer).mock.calls.at(-1)?.[1]).toEqual({ side: edge });
   });
 });
