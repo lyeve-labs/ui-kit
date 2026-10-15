@@ -28,9 +28,18 @@
   };
 </script>
 
+<!--
+  Under a finger the remove cross takes a 44px box on a 22px tag, which
+  reaches 11px above and below the tag and 8px past its end. A removable tag
+  claims that room as margin there, so the boxes in a row of tags meet
+  without overlapping, wrapped or not, whatever gap the row sets. That
+  margin makes a removable tag 44px tall in a row, so every tag centers
+  itself, and a plain tag beside it neither stretches to 44px nor sits at
+  the top of the line, whatever the row aligns.
+-->
 <span
-  class="inline-flex items-center gap-1 rounded-md border px-2 py-0.5
-    text-xs font-medium {tones[tone]} {cls}"
+  class="inline-flex items-center self-center gap-1 rounded-md border px-2 py-0.5
+    text-xs font-medium {removable ? 'coarse:my-2.75 coarse:me-2' : ''} {tones[tone]} {cls}"
 >
   {label}
   {#if removable}

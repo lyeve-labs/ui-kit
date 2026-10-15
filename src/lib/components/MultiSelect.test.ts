@@ -378,6 +378,26 @@ describe("a chip's remove button", () => {
     ]);
   });
 
+  it('draws the field in the order Tab reaches it', () => {
+    // The combobox came first in the markup and was drawn after the chips by
+    // a flex order, so Tab went to the end of the row and then back to its
+    // start. The combobox now spans the frame as the field itself, and the
+    // chips sit on it in the order Tab reaches their remove buttons.
+    const { container } = render(MultiSelect, {
+      props: { label: 'Tags', options, value: ['a', 'b'] },
+    });
+    const combobox = trigger(container);
+    const frame = combobox.parentElement as HTMLElement;
+    expect(frame.firstElementChild).toBe(combobox);
+    const reordered = [frame, ...frame.querySelectorAll('*')].flatMap((el) =>
+      [...el.classList].filter((c) => /(^|:)order-/.test(c)),
+    );
+    expect(reordered).toEqual([]);
+    expect(frame.classList).toContain('relative');
+    expect(combobox.classList).toContain('absolute');
+    expect(combobox.classList).toContain('inset-0');
+  });
+
   it('removes nothing and offers no remove stop while disabled', async () => {
     const onchange = vi.fn();
     const { getByLabelText } = render(MultiSelect, {
