@@ -228,7 +228,7 @@ describe('component consistency', () => {
     // MultiSelect trigger and both panel search boxes did. A ring on a
     // wrapper, through has-[...:focus-visible], counts for the control inside.
     const src = code(files.find((x) => x.name === name)!.src);
-    const wrapperRing = /has-\[[^\]]*:focus-visible\]:ring-2/.test(src);
+    const wrapperRing = /has-\[\S*?:focus-visible\]:ring-2/.test(src);
     const bare = [...src.matchAll(/class="([^"]*)"/g)]
       .map((m) => m[1].replace(/\s+/g, ' '))
       .filter((c) => /(?:^|\s)outline-none\b/.test(c))

@@ -337,6 +337,29 @@ describe('MultiSelect required marker', () => {
 });
 
 describe("a chip's remove button", () => {
+  it('puts no control inside the combobox', () => {
+    // A remove button inside role="combobox" is a control nested in a
+    // control. The chips sit beside the combobox in the field instead.
+    const { container, getByLabelText } = render(MultiSelect, {
+      props: { options, value: ['a', 'b'] },
+    });
+    const combobox = trigger(container);
+    expect(combobox.querySelector('button, a, input, select, textarea, [tabindex]')).toBeNull();
+    expect(combobox.contains(getByLabelText('Remove Alpha'))).toBe(false);
+    expect(combobox.textContent).toContain('Alpha, Beta');
+  });
+
+  it('opens from a press anywhere on the field, with focus on the combobox', async () => {
+    // With a search box, focus moves on into it, so this field has none.
+    const { container, getByLabelText } = render(MultiSelect, {
+      props: { options, value: ['a'], searchable: false },
+    });
+    const chip = getByLabelText('Remove Alpha').parentElement as HTMLElement;
+    await fireEvent.click(chip);
+    expect(trigger(container).getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(trigger(container));
+  });
+
   it('has a target that clears 24px', () => {
     // SC 2.5.8 at AA. The button sits inside the trigger, so the spacing
     // exception cannot apply to it. jsdom lays nothing out, so the box is
