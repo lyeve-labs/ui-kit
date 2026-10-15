@@ -314,7 +314,17 @@
           </div>
 
           <!-- Day grid -->
-          <div class="grid grid-cols-7 gap-0.5 coarse:gap-y-3" data-day-grid>
+          <!--
+            Shrunk into a narrow modal, the columns close below 44px and the
+            day boxes would overlap. The grid is a container, so each box
+            takes the smaller of the control size and one column's pitch, the
+            grid's width and one gap over seven, and keeps its height. The
+            boxes meet at any width.
+          -->
+          <div
+            class="@container grid grid-cols-7 gap-0.5 coarse:gap-y-3 coarse:[--hit-width:min(var(--spacing-control),calc((100cqw_+_0.125rem)_/_7))]"
+            data-day-grid
+          >
             {#each cells as d}
               {#if d === null}
                 <span></span>

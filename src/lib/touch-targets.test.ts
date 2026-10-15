@@ -96,7 +96,9 @@ describe('the theme declares the mechanism', () => {
     const utility = theme.slice(theme.indexOf('@utility hit-area'));
     const body = utility.slice(0, utility.indexOf('\n}') + 2);
     expect(body).toContain('@media (pointer: coarse)');
-    expect(body).toContain('min-width: var(--spacing-control)');
+    // A row of targets narrower than the control size may hand its own width
+    // in, so neighbors' boxes meet rather than overlap.
+    expect(body).toContain('min-width: var(--hit-width, var(--spacing-control))');
     expect(body).toContain('min-height: var(--spacing-control)');
     expect(body).toContain('translate: -50% -50%');
     // It does not position the element: that would fight the `absolute` a
@@ -336,6 +338,18 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const days = grid?.querySelectorAll('button') ?? [];
     expect(days.length).toBeGreaterThan(27);
     for (const day of days) expectHitArea(day);
+
+    // In a Modal on a 320px phone the calendar shrinks to the body, about
+    // 286px, and the columns close to 39px, so each 44px box overlapped its
+    // neighbors by 5px. There the box takes the column's pitch and keeps its
+    // height: the grid is a container and hands the box the smaller of the
+    // control size and one pitch, its width and one gap over seven, so the
+    // boxes meet at any width.
+    expect(classes(grid)).toContain('@container');
+    const gap = columnGap / 16;
+    expect(classes(grid)).toContain(
+      `coarse:[--hit-width:min(var(--spacing-control),calc((100cqw_+_${gap}rem)_/_7))]`,
+    );
   });
 
   it('Pagination pages, spaced so their hit boxes do not overlap', () => {
