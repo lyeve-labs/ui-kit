@@ -5,6 +5,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A list or a calendar opened in a container too short for it on either side, such as a one-field `Modal`, opens at its own height below its field. The container grows to hold it, or scrolls down to it when it cannot grow. A `DatePicker` there opened 34px tall and showed only its month row, and a `Select`, `MultiSelect`, `Autocomplete` or `Dropdown` showed no whole row. A list now keeps at least four rows in view, or all of them when it has fewer, and a calendar keeps its whole grid.
+- Under a finger, each `NumberInput` stepper's 44px target meets the number and grows outward, in either text direction. Centered on the 32px stepper, it reached 6px into the number, so a tap just inside the field stepped the value. A mouse sees it as it was.
+- Under a finger, the buttons in a `CopyField` sit 17px apart, so the 44px targets of Show and Copy meet instead of overlapping by 15px, and a tap on the end of Show no longer copies the value. A mouse keeps the 2px spacing.
+- Under a finger, the logo link at the top of an `AuthShell` takes a 44px target. It was 36px tall. A mouse sees it where it was.
+
 ## [0.38.5] - 2026-10-15
 
 ### Fixed

@@ -16,6 +16,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
+import AuthShell from './components/AuthShell.svelte';
 import Autocomplete from './components/Autocomplete.svelte';
 import Badge from './components/Badge.svelte';
 import Breadcrumb from './components/Breadcrumb.svelte';
@@ -26,6 +27,7 @@ import Collapsible from './components/Collapsible.svelte';
 import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
 import CopyButton from './components/CopyButton.svelte';
+import CopyField from './components/CopyField.svelte';
 import Modal from './components/Modal.svelte';
 import MultiSelect from './components/MultiSelect.svelte';
 import NumberInput from './components/NumberInput.svelte';
@@ -514,6 +516,47 @@ describe('the small controls keep their visual and grow their hit box', () => {
       expect(classes(stepper)).toContain('coarse:w-8');
       expect(classes(stepper)).toContain('w-control');
     }
+  });
+
+  it("NumberInput steppers' targets, which reached 6px into the number", () => {
+    // A 32px stepper's 44px box, centered on it, covered the first and last
+    // 6px of the number, so a tap just inside the field stepped the value.
+    // Each box is pinned to the edge the stepper shares with the number and
+    // grows outward. Logical sides, so a right-to-left page mirrors it.
+    const { getByLabelText } = render(NumberInput, { props: { label: 'Seats', value: 3 } });
+    const pinned = { Decrease: ['start-auto', 'end-0'], Increase: ['start-0', 'end-auto'] };
+    for (const [name, sides] of Object.entries(pinned)) {
+      const list = classes(getByLabelText(name));
+      for (const side of sides) expect(list).toContain(`coarse:before:${side}`);
+      expect(list).toContain('coarse:before:translate-x-0');
+      expect(list).toContain('coarse:before:-translate-y-1/2');
+    }
+  });
+
+  it("CopyField's Show and Copy targets, which overlapped by 15px", () => {
+    // Each button is 27px with a 44px box centered on it, so they need 17px
+    // between them for the boxes to meet. 2px apart, a tap on the last 7px
+    // of Show copied the value. A mouse keeps the 2px.
+    const { getByLabelText } = render(CopyField, {
+      props: { label: 'Token', value: 'lk_0123', secret: true },
+    });
+    const show = getByLabelText('Show value');
+    const copy = getByLabelText('Copy token');
+    expectHitArea(show);
+    expectHitArea(copy);
+    expect(show.parentElement).toBe(copy.parentElement);
+    const frame = classes(show.parentElement);
+    expect(frame).toContain('gap-0.5');
+    expect(frame).toContain('coarse:gap-4.25');
+  });
+
+  it("AuthShell's logo link, which was 36px tall", () => {
+    // The lockup is drawn at 36px. Grown to 44px it would move the heading
+    // under a mouse as well, so its hit box grows instead, as a breadcrumb's.
+    const { container } = render(AuthShell, {
+      props: { title: 'Sign in', href: '/', children: text('x') },
+    });
+    expectHitArea(container.querySelector('a[href="/"]'));
   });
 
   it("an Autocomplete's clear cross, which was 24px", () => {
