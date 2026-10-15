@@ -401,6 +401,12 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const plain = render(Tag, { props: { label: 'gamma' } });
     const plainTag = plain.getByText('gamma');
     expect(classes(plainTag).filter((c) => c.startsWith('coarse:'))).toEqual([]);
+
+    // That margin made a removable Tag's box 44px tall, so a plain Tag beside
+    // it in a stretching row grew to 44px, and one in a list item sat at the
+    // top of the line. Every Tag centers itself, whatever its row aligns.
+    expect(classes(tag)).toContain('self-center');
+    expect(classes(plainTag)).toContain('self-center');
   });
 
   it('TimePicker segments, which were 28 by 20 with no hit box', () => {
