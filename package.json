@@ -22,7 +22,9 @@
     "lyeve"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "packageManager": "pnpm@11.25.0",
   "engines": {
     "node": ">=24"
