@@ -30,6 +30,7 @@
     joinIds,
   } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
+  import type { IconPx } from '../internal/icon.js';
   import { HIT_AREA } from '../internal/touch.js';
 
   type Size = 'sm' | 'md';
@@ -115,7 +116,7 @@
    * short label such as "6h" takes a 44px target across as well, and the hit
    * boxes of two neighbors do not overlap.
    */
-  const SIZES: Record<Size, { row: string; segment: string; icon: number }> = {
+  const SIZES: Record<Size, { row: string; segment: string; icon: IconPx }> = {
     sm: { row: 'h-8 coarse:min-h-control', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
     md: { row: 'h-control', segment: 'gap-2 px-3 text-sm', icon: 16 },
   };

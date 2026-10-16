@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { ICON_LADDER, type IconPx } from './internal/icon.js';
 
 /**
  * The library drifted because nothing measured it. Every component was correct
@@ -310,13 +311,13 @@ function iconsSizedByClass(src: string): string[] {
     .map((e) => e.name);
 }
 
-/** The five sizes an icon may take, the ladder each console names in its icon.ts. */
-const ICON_LADDER = [12, 14, 16, 20, 40];
-
 /**
  * Every lucide icon whose size is a number off the ladder, with that number.
  * An icon with no size draws at lucide's 24. A size held in a variable is
- * not read here, so a component passing one owns keeping it on the ladder.
+ * not read here. A component that looks its size up in a table types the
+ * table with IconPx, so the type check holds that size to the ladder.
+ * CopyButton's size is the exception: a public prop typed number, so a
+ * consumer's own number still compiles, and nothing holds it to the ladder.
  */
 function iconsOffLadder(src: string): string[] {
   return lucideIcons(src).flatMap((e) => {
@@ -324,7 +325,7 @@ function iconsOffLadder(src: string): string[] {
     const dynamic = /\ssize=\{|\s\{size\}|\{\.\.\./.test(e.tag);
     if (literal === null && dynamic) return [];
     const size = literal === null ? 24 : Number(literal[1] ?? literal[2]);
-    return ICON_LADDER.includes(size) ? [] : [`${e.name} ${size}`];
+    return (ICON_LADDER as readonly number[]).includes(size) ? [] : [`${e.name} ${size}`];
   });
 }
 
@@ -675,7 +676,8 @@ describe('component consistency', () => {
 
   it('refuses a lucide size off the ladder, and an icon with no size at all', () => {
     // The class rule passes every one of these, because none is sized by a
-    // class. A size the component computes is read where it is computed.
+    // class. A size passed in a variable is skipped here, and the table it
+    // comes from carries the ladder's type.
     const fixture = [
       `<script lang="ts">`,
       `  import { Eye, PanelLeft, X, Check } from '@lucide/svelte';`,
@@ -689,6 +691,16 @@ describe('component consistency', () => {
     ].join('\n');
     expect(iconsSizedByClass(fixture)).toEqual([]);
     expect(iconsOffLadder(fixture)).toEqual(['Eye 15', 'PanelLeft 18', 'X 24']);
+  });
+
+  it('types a size table so an entry off the ladder fails the type check', () => {
+    // The rule above skips a size held in a variable. A table typed with
+    // IconPx takes only a rung, so a 15 in one fails the type check instead.
+    // @ts-expect-error 15 is not a rung of the ladder.
+    const off: IconPx = 15;
+    const on: IconPx = 16;
+    expect(ICON_LADDER).toContain(on);
+    expect(ICON_LADDER).not.toContain(off);
   });
 
   it('asks for the exit on the surface that leaves, not anywhere in the file', () => {
