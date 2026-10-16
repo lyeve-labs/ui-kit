@@ -35,15 +35,22 @@ describe('FileInput', () => {
       props: { label: 'Avatar', accept: 'image/png' },
     });
     expect(getByText('Avatar')).toBeTruthy();
-    expect(getByText('image/png')).toBeTruthy();
+    expect(getByText('PNG')).toBeTruthy();
   });
 
-  it('wraps a long accept list inside the drop target', () => {
+  it('names the accepted types in a short line and hands the browser the raw list', () => {
     const accept =
-      '.csv,.json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    const { container, getByText } = render(FileInput, { props: { accept } });
-    expect(getByText(accept).className).toContain('[overflow-wrap:anywhere]');
+      '.csv,.json,.xlsx,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const { container, getByText, queryByText } = render(FileInput, { props: { accept } });
+    expect(getByText('CSV, JSON, or XLSX')).toBeTruthy();
+    expect(queryByText(accept)).toBeNull();
     expect(input(container).getAttribute('accept')).toBe(accept);
+  });
+
+  it('wraps a type it cannot shorten inside the drop target', () => {
+    const accept = 'application/vnd.example.a-long-vendor-type-with-no-short-name';
+    const { getByText } = render(FileInput, { props: { accept } });
+    expect(getByText(accept).className).toContain('[overflow-wrap:anywhere]');
   });
 
   it('forwards the file input type and accept to the input', () => {
