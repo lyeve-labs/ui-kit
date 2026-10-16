@@ -105,6 +105,63 @@ describe('still', () => {
   });
 });
 
+describe('the stylesheet honors reduced motion', () => {
+  /** The body of the one reduced-motion media query, braces balanced. */
+  function reducedMotionBody(): string {
+    const head = css.search(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{/);
+    expect(head, 'no reduced-motion block in theme.css').toBeGreaterThanOrEqual(0);
+    const open = css.indexOf('{', head);
+    let depth = 0;
+    for (let i = open; i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      if (css[i] === '}' && --depth === 0) return css.slice(open + 1, i);
+    }
+    throw new Error('unbalanced reduced-motion block');
+  }
+
+  /** Each rule in the block as its selector list and its declarations. */
+  function rules(): { selectors: string[]; body: string }[] {
+    return [...reducedMotionBody().matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, sel, body]) => ({
+      selectors: sel
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      body,
+    }));
+  }
+
+  const VIEW_TRANSITION = [
+    '::view-transition-group(*)',
+    '::view-transition-image-pair(*)',
+    '::view-transition-old(*)',
+    '::view-transition-new(*)',
+  ];
+
+  it('states the preference in one block', () => {
+    // A second block is a second place to forget a selector.
+    expect(css.match(/prefers-reduced-motion/g)).toHaveLength(1);
+  });
+
+  it('shortens the view transition pseudo-elements', () => {
+    // The View Transitions API animates these on the root, and `*` does not
+    // match a pseudo-element, so a page cross-faded for a reader who asked for
+    // less motion and a consuming app kept a script check to stop it.
+    const rule = rules().find((r) => r.selectors.some((s) => s.includes('::view-transition')));
+    expect(rule, 'no view transition rule in the reduced-motion block').toBeTruthy();
+    expect([...rule!.selectors].sort()).toEqual([...VIEW_TRANSITION].sort());
+    expect(rule!.body).toMatch(/animation-duration:\s*1ms\s*!important/);
+  });
+
+  it('keeps the view transition selectors out of the element rule', () => {
+    // A browser that does not know a pseudo-element drops the whole rule it
+    // appears in, and the element rule has to survive in that browser.
+    const element = rules().find((r) => r.selectors.includes('*'));
+    expect(element, 'no element rule in the reduced-motion block').toBeTruthy();
+    expect(element!.selectors).toEqual(['*', '*::before', '*::after']);
+  });
+});
+
 describe('the presets', () => {
   const run = (fn: (node: Element) => ReturnType<typeof dialog>) => {
     vi.stubGlobal('matchMedia', () => ({ matches: false }));

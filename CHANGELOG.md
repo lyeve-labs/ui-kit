@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Panel` takes `tone="danger"` for a group of destructive actions, such as deleting an account. It draws an opaque danger-tinted box with a danger border and puts the heading and its icon in the danger color. It is not a live region, so it can hold a form, which `Alert` and `Banner` cannot. With `variant="plain"` there is no box and only the heading carries the tone. The default `tone="neutral"` renders as before.
+
 ### Fixed
 
 - The notes on `Field`'s `group` prop and on `SegmentedControl`'s `labeledBy` and `labelHidden` say what the components do. A `SegmentedControl` named by a `Field` caption takes `labelHidden` as well, or it draws its own caption under that one. `FilterChips` takes no `labeledBy`: it names its group from its own `label`, so give that label the caption's words. The `group` note had named `FilterChips` among the controls that take `labeledBy`, so a caller who followed it got a type error. Nothing renders differently.
 - The notes for 0.39.0 left out one case of the generated id. An `Input`, `Textarea`, `NumberInput` or `SearchInput` given neither a label nor an `id` has carried a generated id since 0.39.0, where 0.38.5 gave it none, so a test that expected no id on such a field now finds one. An `Input`, `Textarea` or `NumberInput` among them has also pointed `aria-describedby` at its hint or error since that release. `SearchInput` takes no hint or error.
+- A page transition no longer cross-fades for a reader who asked for reduced motion. The View Transitions API animates pseudo-elements that the stylesheet's reduced-motion rule did not match, so a page using `document.startViewTransition` or `@view-transition` kept its full fade. Those pseudo-elements now finish in 1ms like every other animation, in a rule of their own, so a browser without view transitions keeps the element rule.
 
 ## [0.39.1] - 2026-10-15
 

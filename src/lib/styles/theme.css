@@ -524,6 +524,12 @@ html[data-theme='light'] {
    *
    * Durations are not zeroed. An animation that finishes in 1ms still fires its
    * animationend, so components that wait on one keep working.
+   *
+   * The View Transitions API animates pseudo-elements on the root, and `*`
+   * matches none of them, so a page transition still cross-faded. They take a
+   * rule of their own because a browser that does not know a pseudo-element
+   * drops the whole rule it appears in, and the element rule has to survive
+   * there.
    */
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -533,6 +539,14 @@ html[data-theme='light'] {
       animation-iteration-count: 1 !important;
       transition-duration: 1ms !important;
       scroll-behavior: auto !important;
+    }
+
+    ::view-transition-group(*),
+    ::view-transition-image-pair(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
     }
   }
 }
