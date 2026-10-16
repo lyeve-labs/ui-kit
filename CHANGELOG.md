@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The notes on `Field`'s `group` prop and on `SegmentedControl`'s `labeledBy` and `labelHidden` say what the components do. A `SegmentedControl` named by a `Field` caption takes `labelHidden` as well, or it draws its own caption under that one. `FilterChips` takes no `labeledBy`: it names its group from its own `label`, so give that label the caption's words. The `group` note had named `FilterChips` among the controls that take `labeledBy`, so a caller who followed it got a type error. Nothing renders differently.
+- The notes for 0.39.0 left out one case of the generated id. An `Input`, `Textarea`, `NumberInput` or `SearchInput` given neither a label nor an `id` has carried a generated id since 0.39.0, where 0.38.5 gave it none, so a test that expected no id on such a field now finds one. An `Input`, `Textarea` or `NumberInput` among them has also pointed `aria-describedby` at its hint or error since that release. `SearchInput` takes no hint or error.
+
 ## [0.39.1] - 2026-10-15
 
 ### Fixed
