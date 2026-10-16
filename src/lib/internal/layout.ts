@@ -119,6 +119,17 @@ export const PAGE_STACK = 'flex flex-col gap-section';
 export const CARD_SURFACE = 'bg-surface border border-line rounded-xl';
 
 /**
+ * The card surface in the danger tone, for a group of destructive actions.
+ *
+ * The fill is danger mixed into surface rather than a translucent tint, so it
+ * is opaque and paints the same on the page ground and inside a card. Five
+ * percent keeps the controls of a form inside it on a ground they were drawn
+ * for. The contrast suite reads the share from this string.
+ */
+export const PANEL_DANGER_SURFACE =
+  'bg-[color-mix(in_srgb,var(--color-danger)_5%,var(--color-surface))] border border-danger/40 rounded-xl';
+
+/**
  * Card padding by name.
  *
  * `md` is the 20px the theme names `--spacing-card`: the measured mode across

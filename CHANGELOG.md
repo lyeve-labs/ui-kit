@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Panel` takes `tone="danger"` for a group of destructive actions, such as deleting an account. It draws an opaque danger-tinted box with a danger border and puts the heading and its icon in the danger color. It is not a live region, so it can hold a form, which `Alert` and `Banner` cannot. With `variant="plain"` there is no box and only the heading carries the tone. The default `tone="neutral"` renders as before.
+
 ### Fixed
 
 - The notes on `Field`'s `group` prop and on `SegmentedControl`'s `labeledBy` and `labelHidden` say what the components do. A `SegmentedControl` named by a `Field` caption takes `labelHidden` as well, or it draws its own caption under that one. `FilterChips` takes no `labeledBy`: it names its group from its own `label`, so give that label the caption's words. The `group` note had named `FilterChips` among the controls that take `labeledBy`, so a caller who followed it got a type error. Nothing renders differently.
