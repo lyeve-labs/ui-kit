@@ -3,6 +3,7 @@ import { Settings } from '@lucide/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import Panel from './Panel.svelte';
+import { PANEL_DANGER_SURFACE } from '../internal/layout.js';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
@@ -134,6 +135,94 @@ describe('Panel', () => {
   it('renders no header row when there is nothing to put in it', () => {
     const { container } = render(Panel, { props: { children: text('Body') } });
     expect(rootOf(container).children).toHaveLength(1);
+  });
+
+  it('renders the same markup with tone neutral as with no tone', () => {
+    // Every panel written before the prop existed has to draw as it did.
+    const props = { heading: 'Retention', description: 'Kept', icon: Settings };
+    for (const variant of ['bordered', 'plain'] as const) {
+      const bare = render(Panel, { props: { ...props, variant, children: text('Body') } });
+      const neutral = render(Panel, {
+        props: { ...props, variant, tone: 'neutral', children: text('Body') },
+      });
+      expect(neutral.container.innerHTML, variant).toBe(bare.container.innerHTML);
+      bare.unmount();
+      neutral.unmount();
+    }
+  });
+
+  it('danger draws its own surface in place of the card surface', () => {
+    // One border color and one fill: two utilities for one property resolve by
+    // the order Tailwind emits them, so the neutral pair cannot stay beside it.
+    const { container } = render(Panel, { props: { tone: 'danger', children: text('Body') } });
+    const cls = classesOf(rootOf(container));
+    expect(cls).toEqual(expect.arrayContaining(PANEL_DANGER_SURFACE.split(' ')));
+    expect(cls).not.toContain('border-line');
+    expect(cls).not.toContain('bg-surface');
+    expect(cls.filter((c) => c.startsWith('bg-'))).toHaveLength(1);
+    expect(cls.filter((c) => /^border-(?!0$)[a-z]/.test(c))).toHaveLength(1);
+  });
+
+  it('danger puts the heading and its icon in the danger color at both levels', () => {
+    for (const headingLevel of [2, 3] as const) {
+      const { container, unmount } = render(Panel, {
+        props: {
+          tone: 'danger',
+          heading: 'Delete account',
+          headingLevel,
+          icon: Settings,
+          children: text('Body'),
+        },
+      });
+      const h = container.querySelector(`h${headingLevel}`) as HTMLElement;
+      const hc = classesOf(h);
+      expect(hc, `h${headingLevel}`).toContain('text-danger');
+      expect(hc, `h${headingLevel}`).not.toContain('text-fg');
+      const glyph = h.querySelector('[aria-hidden="true"]') as HTMLElement;
+      expect(classesOf(glyph)).toContain('text-danger');
+      expect(classesOf(glyph)).not.toContain('text-muted');
+      unmount();
+    }
+  });
+
+  it('danger keeps the description muted', () => {
+    // Muted is measured on the danger surface in the contrast suite. A danger
+    // description would make the whole header read as one alarm.
+    const { getByText } = render(Panel, {
+      props: {
+        tone: 'danger',
+        heading: 'Delete account',
+        description: 'Gone for good',
+        children: text('Body'),
+      },
+    });
+    expect(classesOf(getByText('Gone for good'))).toContain('text-muted');
+  });
+
+  it('danger with plain draws no box and keeps the danger heading', () => {
+    // The variant decides whether there is a box and the tone decides its
+    // color, so neither silently overrides the other.
+    const { container } = render(Panel, {
+      props: {
+        tone: 'danger',
+        variant: 'plain',
+        heading: 'Delete account',
+        children: text('Body'),
+      },
+    });
+    const cls = classesOf(rootOf(container));
+    expect(cls.some((c) => c.startsWith('border') || c.startsWith('bg-'))).toBe(false);
+    expect(cls).not.toContain('rounded-xl');
+    expect(classesOf(container.querySelector('h3') as HTMLElement)).toContain('text-danger');
+  });
+
+  it('danger is not a live region, so it can hold a form', () => {
+    // Alert and Banner announce their content. A form inside one would be
+    // read out on every change, which is why a danger zone needs this surface.
+    const { container } = render(Panel, { props: { tone: 'danger', children: text('Body') } });
+    const root = rootOf(container);
+    expect(root.getAttribute('role')).toBeNull();
+    expect(root.getAttribute('aria-live')).toBeNull();
   });
 
   it('accepts a consumer class without competing with a built-in utility', () => {

@@ -30,6 +30,7 @@
     joinIds,
   } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
+  import type { IconPx } from '../internal/icon.js';
   import { HIT_AREA } from '../internal/touch.js';
 
   type Size = 'sm' | 'md';
@@ -44,7 +45,11 @@
      * is for from the segments alone.
      */
     label: string;
-    /** Drops the caption above the row. The group keeps its accessible name. */
+    /**
+     * Drops the caption above the row. The group keeps its accessible name.
+     * Pass it with `labeledBy`, or the row draws its own caption as well as
+     * the one it is named by.
+     */
     labelHidden?: boolean;
     /**
      * The group's id. The hint and the error take theirs from it. Left unset,
@@ -66,7 +71,8 @@
     describedBy?: string;
     /**
      * The id of a caption drawn outside the row, a `Field` one for instance.
-     * The group takes its name from it in place of `label`.
+     * The group takes its name from it in place of `label`. The row still draws
+     * `label` above itself until `labelHidden` is set too.
      */
     labeledBy?: string;
     /** Submits the value with the surrounding form, through a hidden input. */
@@ -110,7 +116,7 @@
    * short label such as "6h" takes a 44px target across as well, and the hit
    * boxes of two neighbors do not overlap.
    */
-  const SIZES: Record<Size, { row: string; segment: string; icon: number }> = {
+  const SIZES: Record<Size, { row: string; segment: string; icon: IconPx }> = {
     sm: { row: 'h-8 coarse:min-h-control', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
     md: { row: 'h-control', segment: 'gap-2 px-3 text-sm', icon: 16 },
   };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { PANEL_DANGER_SURFACE } from './internal/layout.js';
 
 /**
  * The palette is the one place a defect reaches every surface at once, and it
@@ -241,5 +242,31 @@ describe('focus ring', () => {
     const rule = css.slice(css.indexOf(':focus-visible'), css.indexOf(':focus:not('));
     expect(rule).toContain('outline: 2px solid var(--color-brand)');
     expect(rule).not.toContain('color-mix');
+  });
+});
+
+describe('the danger panel surface', () => {
+  // The fill is danger mixed into surface, which is opaque, so it paints the
+  // same on a page and inside a card. The share is read from the class the
+  // panel draws, so a heavier tint cannot pass here and ship darker.
+  const share = PANEL_DANGER_SURFACE.match(/var\(--color-danger\)_(\d+)%,var\(--color-surface\)/);
+
+  it('mixes danger into surface', () => {
+    expect(share, 'no danger-into-surface mix in the panel surface').toBeTruthy();
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('holds every text token at 4.5:1 in the %s palette', (scope, tokens) => {
+    // fg is the body, muted the description, danger the heading, and faint the
+    // hint under a field in a form the panel holds.
+    const ground = over(tokens.danger, tokens.surface, Number(share![1]) / 100);
+    for (const name of ['fg', 'muted', 'faint', 'danger']) {
+      expect(
+        ratio(tokens[name], ground),
+        `${name} on the ${scope} danger panel`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

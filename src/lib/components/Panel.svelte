@@ -14,12 +14,28 @@
    *
    * The heading is a real h2 or h3. A page's outline is what a screen reader
    * navigates by, and a styled div appears in no heading list.
+   *
+   * `tone="danger"` is the surface for destructive actions such as deleting an
+   * account. Alert and Banner are live regions, so a form inside one is read
+   * out on every change, and apps drew this box by hand instead. The tone
+   * colors the heading and its icon, and the box when there is one. With
+   * `variant="plain"` there is no box, so only the heading carries the tone:
+   * the variant decides whether a box is drawn and the tone decides its color,
+   * and neither prop silently undoes the other. That plain form is the danger
+   * group inside a card that already draws the box. The description stays
+   * muted, and the contrast suite measures every text token on the surface.
    */
   import type { Component, Snippet } from 'svelte';
-  import { CARD_PAD, CARD_SURFACE, sectionHeading } from '../internal/layout.js';
+  import {
+    CARD_PAD,
+    CARD_SURFACE,
+    PANEL_DANGER_SURFACE,
+    sectionHeading,
+  } from '../internal/layout.js';
 
   type Pad = 'none' | 'sm' | 'md';
   type Variant = 'bordered' | 'plain';
+  type Tone = 'neutral' | 'danger';
 
   interface Props {
     heading?: string;
@@ -31,6 +47,8 @@
     pad?: Pad;
     /** A quiet variant with no border, for a grouping that needs separation but not a box. */
     variant?: Variant;
+    /** `danger` for a group of destructive actions. It composes with `plain`, see above. */
+    tone?: Tone;
     class?: string;
     actions?: Snippet;
     children: Snippet;
@@ -43,6 +61,7 @@
     icon = undefined,
     pad = 'md',
     variant = 'bordered',
+    tone = 'neutral',
     class: klass = '',
     actions,
     children,
@@ -55,9 +74,9 @@
    * and which of them wins is decided by the order Tailwind emits them and not
    * by the order they were written here.
    */
-  const SURFACE: Record<Variant, string> = {
-    bordered: CARD_SURFACE,
-    plain: '',
+  const SURFACE: Record<Tone, Record<Variant, string>> = {
+    neutral: { bordered: CARD_SURFACE, plain: '' },
+    danger: { bordered: PANEL_DANGER_SURFACE, plain: '' },
   };
 
   /**
@@ -65,14 +84,25 @@
    * padding change. A plain panel usually takes `pad="none"`: with no box to
    * inset from, an inset only pushes its heading out of line with the page.
    */
-  const surface = $derived(`${SURFACE[variant]} ${CARD_PAD[pad]}`.trim());
+  const surface = $derived(`${SURFACE[tone][variant]} ${CARD_PAD[pad]}`.trim());
+
+  /**
+   * The level's treatment with its one text color swapped, not a second color
+   * added after it: two utilities for one property resolve by emit order.
+   */
+  const headingClass = (level: 2 | 3) =>
+    tone === 'danger'
+      ? sectionHeading(level).replace(/\btext-fg\b/, 'text-danger')
+      : sectionHeading(level);
 </script>
 
 <div data-print="keep" class="flex flex-col gap-stack {surface} {klass}">
   {#snippet headingText()}
     {#if icon}
       {@const Icon = icon}
-      <span class="shrink-0 text-muted" aria-hidden="true"><Icon size={16} /></span>
+      <span class="shrink-0 {tone === 'danger' ? 'text-danger' : 'text-muted'}" aria-hidden="true"
+        ><Icon size={16} /></span
+      >
     {/if}
     {heading}
   {/snippet}
@@ -84,9 +114,9 @@
              document structure decision, and both headings this can produce
              should be readable in the file. -->
         {#if heading && headingLevel === 2}
-          <h2 class="{sectionHeading(2)} flex items-center gap-2">{@render headingText()}</h2>
+          <h2 class="{headingClass(2)} flex items-center gap-2">{@render headingText()}</h2>
         {:else if heading}
-          <h3 class="{sectionHeading(3)} flex items-center gap-2">{@render headingText()}</h3>
+          <h3 class="{headingClass(3)} flex items-center gap-2">{@render headingText()}</h3>
         {/if}
         {#if description}<p class="text-sm text-muted">{description}</p>{/if}
       </div>

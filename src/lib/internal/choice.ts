@@ -16,6 +16,7 @@
  */
 
 import { FIELD_HINT, FIELD_LABEL } from './field.js';
+import type { IconPx } from './icon.js';
 import { HIT_AREA } from './touch.js';
 
 /** The scale of the painted box: sm 14px, md 16px, lg 20px. */
@@ -172,9 +173,10 @@ export function choiceIcon(size: ChoiceSize): string {
  *
  * A lucide icon takes a number, not a class, so the slot above cannot size it.
  * These are the same 14, 16 and 20 the slot reserves. An icon rendered at any
- * other size overflows the slot or floats inside it.
+ * other size overflows the slot or floats inside it. Each is a rung of the
+ * icon ladder, which the type holds.
  */
-export const CHOICE_ICON_PX: Record<ChoiceSize, number> = {
+export const CHOICE_ICON_PX: Record<ChoiceSize, IconPx> = {
   sm: 14,
   md: 16,
   lg: 20,
