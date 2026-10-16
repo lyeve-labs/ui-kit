@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The notes on `Field`'s `group` prop and on `SegmentedControl`'s `labeledBy` and `labelHidden` say what the components do. A `SegmentedControl` named by a `Field` caption takes `labelHidden` as well, or it draws its own caption under that one. `FilterChips` takes no `labeledBy`: it names its group from its own `label`, so give that label the caption's words. The `group` note had named `FilterChips` among the controls that take `labeledBy`, so a caller who followed it got a type error. Nothing renders differently.
+
 ## [0.39.1] - 2026-10-15
 
 ### Fixed

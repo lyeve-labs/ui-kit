@@ -44,7 +44,11 @@
      * is for from the segments alone.
      */
     label: string;
-    /** Drops the caption above the row. The group keeps its accessible name. */
+    /**
+     * Drops the caption above the row. The group keeps its accessible name.
+     * Pass it with `labeledBy`, or the row draws its own caption as well as
+     * the one it is named by.
+     */
     labelHidden?: boolean;
     /**
      * The group's id. The hint and the error take theirs from it. Left unset,
@@ -66,7 +70,8 @@
     describedBy?: string;
     /**
      * The id of a caption drawn outside the row, a `Field` one for instance.
-     * The group takes its name from it in place of `label`.
+     * The group takes its name from it in place of `label`. The row still draws
+     * `label` above itself until `labelHidden` is set too.
      */
     labeledBy?: string;
     /** Submits the value with the surrounding form, through a hidden input. */

@@ -48,8 +48,12 @@
     /**
      * The control is a group, a `SegmentedControl`, `FilterChips` or a row of
      * your own. A label's `for` reaches one form control and never a group, so
-     * the caption is drawn as text with an id instead, and the group takes its
-     * name from it through `labeledBy`.
+     * the caption is drawn as text with an id instead, handed over as
+     * `labeledBy`. A `SegmentedControl` takes its name from it, and draws no
+     * caption of its own once given `labelHidden` as well. `FilterChips` takes
+     * no `labeledBy`. It names its group from its own `label`, so give that
+     * label the caption's words. A row of your own points `aria-labelledby` at
+     * the caption.
      */
     group?: boolean;
     hint?: string;
@@ -98,10 +102,12 @@
 <div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
     <!--
-      A hidden label stays a real label with a real `for`. Swapping it for an
-      aria-label on the control would name the control and drop the name out of
-      the reading order, so a reader moving through a row of them would meet
-      the controls with nothing ahead of them saying what each one is.
+      A hidden label stays in the page: a real label with a real `for`, or for
+      a group a caption with an id that a SegmentedControl or a row of your own
+      points at. Swapping it for an aria-label on the control would name the
+      control and drop the name out of the reading order, so a reader moving
+      through a row of them would meet the controls with nothing ahead of them
+      saying what each one is.
     -->
     {#if group}
       <span id="{fieldId}-label" class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
