@@ -37,9 +37,10 @@ describe('fields that share a label on one page', () => {
     const { container } = render(SameLabelFields);
     for (const field of container.querySelectorAll<HTMLElement>('[data-field]')) {
       const control = named(field.querySelector('label') as HTMLLabelElement) as HTMLElement;
-      const refs = control.getAttribute('aria-describedby');
-      if (!refs) continue;
-      for (const ref of refs.split(' ')) {
+      const refs = control.getAttribute('aria-describedby')?.split(' ') ?? [];
+      const shown = field.querySelector<HTMLElement>('p[id]');
+      if (shown) expect(refs).toContain(shown.id);
+      for (const ref of refs) {
         const message = document.getElementById(ref);
         expect(message).not.toBeNull();
         expect(field.contains(message)).toBe(true);
