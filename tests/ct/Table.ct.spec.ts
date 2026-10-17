@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Table from '../../src/lib/components/Table.svelte';
+import TableStory from './TableStory.svelte';
 
 test.describe('Table', () => {
   test('renders rows and columns', async ({ mount }) => {
-    const c = await mount(Table, {
+    const c = await mount(TableStory, {
       props: {
         columns: [
           { key: 'name', label: 'Name' },
@@ -21,7 +21,7 @@ test.describe('Table', () => {
   });
 
   test('renders empty state', async ({ mount }) => {
-    const c = await mount(Table, {
+    const c = await mount(TableStory, {
       props: { columns: [{ key: 'name', label: 'Name' }], rows: [] },
     });
     await expect(c).toBeVisible();

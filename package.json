@@ -71,6 +71,7 @@
   },
   "devDependencies": {
     "@lucide/svelte": "^0.511.0",
+    "@playwright/experimental-ct-svelte": "1.58.2",
     "@sveltejs/package": "^2.5.7",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@testing-library/svelte": "^5.3.1",

@@ -8,7 +8,7 @@ import Button from '../../src/lib/components/Button.svelte';
 test.describe('Button', () => {
   test('renders with label', async ({ mount }) => {
     const component = await mount(Button, {
-      slots: { default: 'Submit' },
+      slots: { children: 'Submit' },
     });
     await expect(component).toBeVisible();
     await expect(component).toContainText('Submit');
@@ -22,7 +22,7 @@ test.describe('Button', () => {
           clicked = true;
         },
       },
-      slots: { default: 'Click me' },
+      slots: { children: 'Click me' },
     });
     await component.click();
     expect(clicked).toBe(true);
@@ -37,7 +37,7 @@ test.describe('Button', () => {
           clicked = true;
         },
       },
-      slots: { default: 'Disabled' },
+      slots: { children: 'Disabled' },
     });
     await expect(component).toBeDisabled();
     await component.click({ force: true });
@@ -47,7 +47,7 @@ test.describe('Button', () => {
   test('loading spinner when loading=true', async ({ mount }) => {
     const component = await mount(Button, {
       props: { loading: true },
-      slots: { default: 'Saving' },
+      slots: { children: 'Saving' },
     });
     await expect(component).toBeDisabled();
     await expect(component.locator('svg.animate-spin')).toBeVisible();
