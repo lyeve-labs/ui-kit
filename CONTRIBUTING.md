@@ -92,7 +92,7 @@ pnpm format:check   # prettier
 pnpm build          # ensure svelte-package + publint pass
 ```
 
-CI runs the same set on every PR.
+No CI runs these checks, so this local gate is the only gate. Run all four before every PR.
 
 `pnpm test:ct` runs the component specs in `tests/ct` in a real Chromium,
 which sees focus, pointer and keyboard behavior that the vitest DOM does
