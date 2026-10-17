@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
 import Pagination from '../../src/lib/components/Pagination.svelte';
+import PaginationLinks from './PaginationLinks.svelte';
 
 test.describe('Pagination', () => {
   test('renders page numbers', async ({ mount }) => {
@@ -34,9 +35,7 @@ test.describe('Pagination', () => {
   });
 
   test('pages by link when given an href builder', async ({ mount }) => {
-    const c = await mount(Pagination, {
-      props: { page: 2, perPage: 20, hasNext: true, href: (p: number) => `?page=${p}` },
-    });
+    const c = await mount(PaginationLinks, { props: { page: 2, hasNext: true } });
     await expect(c.getByLabel('Next page')).toHaveAttribute('href', '?page=3');
   });
 });

@@ -44,7 +44,10 @@ test.describe('Checkbox', () => {
         },
       },
     });
-    await component.locator('label').click();
+    // Playwright waits for a disabled control to become enabled. Forcing the
+    // click sends it anyway, so the test sees what the browser does with it.
+    await component.locator('label').click({ force: true });
     expect(toggled).toBe(false);
+    await expect(component.locator('input[type="checkbox"]')).not.toBeChecked();
   });
 });

@@ -29,6 +29,12 @@ yarn-debug.log*
 # test
 coverage/
 
+# Component test runs write these. The runner rebuilds its bundle cache on
+# each run.
+playwright/.cache/
+playwright-report/
+test-results/
+
 # package manager
 .pnpm-store/
 

@@ -1,3 +1,11 @@
 allowBuilds:
   esbuild: true
 minimumReleaseAgeStrict: true
+# The Svelte plugin under the component test runner peers on Vite 6, and the
+# root resolves Vite 5 for vitest, so the plugin would load the wrong major.
+# Naming Vite as the runner's own dependency resolves that peer to the Vite 6
+# the runner already installs.
+packageExtensions:
+  '@playwright/experimental-ct-svelte':
+    dependencies:
+      vite: ^6.4.1
