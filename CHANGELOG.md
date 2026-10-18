@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `SplitPane` docks a column to the start or end of a page. Above its breakpoint the inner edge drags, and the handle is a focusable separator that reports its width and moves by 24px on an arrow key, 80px with Shift, and to the smallest and largest width on Home and End. In a right-to-left page the edge follows the arrow the way it looks. A lock fixes the width, a collapsible pane folds to a strip carrying its name, and below the breakpoint it stacks in the page, hides, or floats over the page as an overlay. The width and the lock are kept in local storage under the key the page names, as `{"width": <px>, "locked": <bool>}`. Storage that is missing or throws leaves the pane at its default width for the session, and the server renders the default width. A stored width wider than the screen allows is capped so the main column keeps the pane's minimum, and is written again only when the reader moves the edge.
+
 ## [0.40.0] - 2026-10-16
 
 ### Added

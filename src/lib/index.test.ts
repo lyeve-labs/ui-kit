@@ -24,6 +24,7 @@ const COMPONENTS = [
   'DescriptionList',
   'Toolbar',
   'TreeView',
+  'SplitPane',
   // Forms & inputs
   'Button',
   'ButtonGroup',
