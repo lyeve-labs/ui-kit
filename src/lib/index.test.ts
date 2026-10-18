@@ -66,6 +66,7 @@ const COMPONENTS = [
   'Alert',
   'Banner',
   'RefusalNotice',
+  'GateNotice',
   'Badge',
   'Tag',
   'Indicator',

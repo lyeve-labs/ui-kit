@@ -99,6 +99,8 @@ export { default as Skeleton } from './components/Skeleton.svelte';
 export { default as EmptyState } from './components/EmptyState.svelte';
 export { default as CheckoutSteps } from './components/CheckoutSteps.svelte';
 export { default as RefusalNotice } from './components/RefusalNotice.svelte';
+export { default as GateNotice } from './components/GateNotice.svelte';
+export type { Gate, GateText, GateWords } from './internal/gate.js';
 export { default as PluginCart } from './components/PluginCart.svelte';
 export type { QuickPick } from './components/PluginCart.svelte';
 export {
