@@ -29,9 +29,12 @@ type Writer = Pick<Storage, 'setItem'> | null | undefined;
 
 /**
  * The page's local storage, or nothing. Reading the global can itself throw
- * when site data is blocked, and the server has none.
+ * when site data is blocked. Outside a browser it is never read: a server
+ * runtime may define a localStorage of its own, warning on first access or
+ * holding one store that every request would share.
  */
 export function viewerStorage(): Storage | null {
+  if (typeof window === 'undefined') return null;
   try {
     return typeof localStorage === 'undefined' ? null : localStorage;
   } catch {
