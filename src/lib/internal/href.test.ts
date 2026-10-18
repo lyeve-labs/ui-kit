@@ -43,10 +43,10 @@ describe('safeHref', () => {
 
 describe('isExternalHref', () => {
   it.each([
-    ['https://shop.example.com/pricing', true],
+    ['https://help.example.com/guide', true],
     ['HTTP://example.com', true],
     ['//cdn.example.com/a', true],
-    ['/settings/license', false],
+    ['/settings', false],
     ['?tab=rules', false],
     ['#top', false],
     ['mailto:help@example.com', false],

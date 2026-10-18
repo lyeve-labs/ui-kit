@@ -9,7 +9,7 @@ afterEach(cleanup);
 const WORDS: GateWords = {
   absent: 'The cache is not part of this build, so nothing is cached.',
   full: { title: 'Cache is at its limit', body: '7 of 7 are in use.' },
-  forbidden: 'Your role cannot open cache. Ask a super admin if you need it.',
+  forbidden: 'Your role cannot open cache. Ask an administrator if you need it.',
   busy: { title: 'Too many requests', body: 'Wait a moment, then try again.' },
   unavailable: {
     title: 'Temporarily unavailable',
@@ -30,8 +30,8 @@ function mount(gate: Gate) {
 
 const ALL: Gate[] = [
   { state: 'absent' },
-  { state: 'locked', upgradeUrl: '/settings/license?item=cache' },
-  { state: 'full', limit: 7, current: 7, upgradeUrl: '' },
+  { state: 'locked', forwardHref: '/settings/cache' },
+  { state: 'full', limit: 7, current: 7, forwardHref: '' },
   { state: 'forbidden' },
   { state: 'busy' },
   { state: 'unavailable' },
@@ -43,7 +43,7 @@ describe('GateNotice', () => {
     ['absent', { state: 'absent' }, [WORDS.absent]],
     [
       'full',
-      { state: 'full', limit: 7, current: 7, upgradeUrl: '' },
+      { state: 'full', limit: 7, current: 7, forwardHref: '' },
       [WORDS.full.title, WORDS.full.body],
     ],
     ['forbidden', { state: 'forbidden' }, [WORDS.forbidden]],
@@ -59,14 +59,14 @@ describe('GateNotice', () => {
     for (const s of sentences) expect(container.textContent).toContain(s);
   });
 
-  it('hands a feature that is not enabled to the page, with the link the gate carried', () => {
+  it('hands a feature that is not enabled to the page, with the link forward the gate carried', () => {
     const { getByTestId, getByRole } = mount({
       state: 'locked',
-      upgradeUrl: '/settings/license?item=cache',
+      forwardHref: '/settings/cache',
     });
     expect(getByTestId('locked')).toBeTruthy();
     expect(getByRole('link', { name: 'How to enable it' }).getAttribute('href')).toBe(
-      '/settings/license?item=cache',
+      '/settings/cache',
     );
   });
 

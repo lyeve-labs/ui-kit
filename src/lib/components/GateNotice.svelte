@@ -14,8 +14,8 @@
   interface Props {
     gate: Gate;
     words: GateWords;
-    /** Drawn for a feature that is not enabled, given the link the gate carried. */
-    locked: Snippet<[upgradeUrl: string]>;
+    /** Drawn for a feature that is not enabled, given the link forward the gate carried. */
+    locked: Snippet<[forwardHref: string]>;
     /** The address that asks for this page again, usually its own path and query. */
     retryHref: string;
     class?: string;
@@ -42,7 +42,7 @@
     {#if gate.state === 'absent'}
       <Alert tone="brand">{words.absent}</Alert>
     {:else if gate.state === 'locked'}
-      {@render locked(gate.upgradeUrl)}
+      {@render locked(gate.forwardHref)}
     {:else if gate.state === 'full'}
       <Alert tone="warn" title={words.full.title}>{words.full.body}</Alert>
     {:else if gate.state === 'forbidden'}

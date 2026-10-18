@@ -8,10 +8,10 @@ export type Gate =
   | { state: 'ok' }
   /** The route is not there. */
   | { state: 'absent' }
-  /** Not enabled here. The link is where it is turned on, when the server names one. */
-  | { state: 'locked'; upgradeUrl: string }
+  /** Not enabled here. The link forward is where it is turned on, when the server names one. */
+  | { state: 'locked'; forwardHref: string }
   /** At a capacity ceiling. Either number is null when the server did not send it. */
-  | { state: 'full'; limit: number | null; current: number | null; upgradeUrl: string }
+  | { state: 'full'; limit: number | null; current: number | null; forwardHref: string }
   /** The reader's role may not read it, which no retry changes. */
   | { state: 'forbidden' }
   /** Refused for the request rate. The same read succeeds once the window passes. */
