@@ -53,4 +53,9 @@ describe('isExternalHref', () => {
   ])('%s leaves the page: %s', (href, away) => {
     expect(isExternalHref(href)).toBe(away);
   });
+
+  it('keeps an absolute URL on the page origin in the page', () => {
+    expect(isExternalHref(`${location.origin}/settings`)).toBe(false);
+    expect(isExternalHref(`//${location.host}/settings`)).toBe(false);
+  });
 });

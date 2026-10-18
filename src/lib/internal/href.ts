@@ -30,9 +30,17 @@ export function safeHref(href: string | undefined | null): string | undefined {
 
 /**
  * Whether an href leaves the page's own origin: an absolute URL with a scheme
- * and a host, or a protocol-relative one. A link that leaves opens in a tab of
- * its own, so the page it opens cannot reach back through window.opener.
+ * and a host, or a protocol-relative one, whose origin is not the page's. A
+ * link that leaves opens in a tab of its own, so the page it opens cannot
+ * reach back through window.opener. A server render has no location to
+ * compare with, so there every absolute URL counts as leaving.
  */
 export function isExternalHref(href: string): boolean {
-  return /^[a-z][a-z0-9+.-]*:\/\//i.test(href) || href.startsWith('//');
+  const absolute = /^[a-z][a-z0-9+.-]*:\/\//i.test(href) || href.startsWith('//');
+  if (!absolute || typeof location === 'undefined') return absolute;
+  try {
+    return new URL(href, location.href).origin !== location.origin;
+  } catch {
+    return true;
+  }
 }
