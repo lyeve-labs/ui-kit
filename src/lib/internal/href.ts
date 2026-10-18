@@ -27,3 +27,12 @@ export function safeHref(href: string | undefined | null): string | undefined {
   if (!href) return undefined;
   return DENIED.test(href.replace(IGNORED, '')) ? undefined : href;
 }
+
+/**
+ * Whether an href leaves the page's own origin: an absolute URL with a scheme
+ * and a host, or a protocol-relative one. A link that leaves opens in a tab of
+ * its own, so the page it opens cannot reach back through window.opener.
+ */
+export function isExternalHref(href: string): boolean {
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(href) || href.startsWith('//');
+}

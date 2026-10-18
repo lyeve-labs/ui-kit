@@ -65,6 +65,7 @@ const COMPONENTS = [
   // Feedback & status
   'Alert',
   'Banner',
+  'RefusalNotice',
   'Badge',
   'Tag',
   'Indicator',
