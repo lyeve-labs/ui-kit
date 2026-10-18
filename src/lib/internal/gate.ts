@@ -10,8 +10,14 @@ export type Gate =
   | { state: 'absent' }
   /** Not enabled here. The link forward is where it is turned on, when the server names one. */
   | { state: 'locked'; forwardHref: string }
-  /** At a capacity ceiling. Either number is null when the server did not send it. */
-  | { state: 'full'; limit: number | null; current: number | null; forwardHref: string }
+  /**
+   * At a capacity ceiling: as many are in use as the server allows, so it
+   * refuses one more. The notice draws the page's words for it and offers no
+   * link, since only the page knows a way past the ceiling. The numbers are
+   * there for the page to put into those words, and either is null when the
+   * server did not send it.
+   */
+  | { state: 'full'; limit: number | null; current: number | null }
   /** The reader's role may not read it, which no retry changes. */
   | { state: 'forbidden' }
   /** Refused for the request rate. The same read succeeds once the window passes. */

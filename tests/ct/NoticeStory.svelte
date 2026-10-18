@@ -23,7 +23,7 @@
   const gates: Gate[] = [
     { state: 'absent' },
     { state: 'locked', forwardHref: '/settings/reports' },
-    { state: 'full', limit: 12, current: 12, forwardHref: '' },
+    { state: 'full', limit: 12, current: 12 },
     { state: 'forbidden' },
     { state: 'busy' },
     { state: 'unavailable' },

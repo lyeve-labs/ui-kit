@@ -1,6 +1,6 @@
 import { cleanup, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, expectTypeOf, it } from 'vitest';
 import GateNotice from './GateNotice.svelte';
 import type { Gate, GateWords } from '../internal/gate.js';
 
@@ -31,7 +31,7 @@ function mount(gate: Gate) {
 const ALL: Gate[] = [
   { state: 'absent' },
   { state: 'locked', forwardHref: '/settings/cache' },
-  { state: 'full', limit: 7, current: 7, forwardHref: '' },
+  { state: 'full', limit: 7, current: 7 },
   { state: 'forbidden' },
   { state: 'busy' },
   { state: 'unavailable' },
@@ -41,11 +41,7 @@ const ALL: Gate[] = [
 describe('GateNotice', () => {
   it.each([
     ['absent', { state: 'absent' }, [WORDS.absent]],
-    [
-      'full',
-      { state: 'full', limit: 7, current: 7, forwardHref: '' },
-      [WORDS.full.title, WORDS.full.body],
-    ],
+    ['full', { state: 'full', limit: 7, current: 7 }, [WORDS.full.title, WORDS.full.body]],
     ['forbidden', { state: 'forbidden' }, [WORDS.forbidden]],
     ['busy', { state: 'busy' }, [WORDS.busy.title, WORDS.busy.body]],
     ['unavailable', { state: 'unavailable' }, [WORDS.unavailable.title, WORDS.unavailable.body]],
@@ -93,6 +89,16 @@ describe('GateNotice', () => {
       expect(danger, gate.state).toBe(gate.state === 'error');
       cleanup();
     }
+  });
+
+  it('carries no link for a full gate, because it draws none', () => {
+    expectTypeOf<Extract<Gate, { state: 'full' }>>().toEqualTypeOf<{
+      state: 'full';
+      limit: number | null;
+      current: number | null;
+    }>();
+    const { container } = mount({ state: 'full', limit: 7, current: 7 });
+    expect(container.querySelector('a, button')).toBeNull();
   });
 
   it('offers nothing to press for a role, because trying again cannot change one', () => {
