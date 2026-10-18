@@ -12,6 +12,10 @@ pnpm exec playwright install chromium
 
 The test page loads no stylesheet, so a spec that measures color, such as the
 axe checks in `axe.ct.spec.ts`, adds the kit's styles through `kit-css.ts`.
+Its first case is a control: a line in the border color on the page
+background, which axe has to report as serious. Without the styles that line
+reads black on white, so the control fails before any clean case can pass on
+unstyled markup.
 
 They live here rather than beside the components because `src/lib` is what
 `svelte-package` publishes. While they sat there, all 15 shipped to npm

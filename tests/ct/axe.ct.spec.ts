@@ -6,6 +6,7 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/experimental-ct-svelte';
+import LowContrastStory from './LowContrastStory.svelte';
 import NoticeStory from './NoticeStory.svelte';
 import SplitPaneStory from './SplitPaneStory.svelte';
 import { styleWithKit } from './kit-css.js';
@@ -26,6 +27,14 @@ for (const theme of ['dark', 'light'] as const) {
       await styleWithKit(page, theme);
       await expect(page.locator('body')).toHaveCSS('background-color', INK[theme]);
     }
+
+    // The control: a run that finds nothing here measured unstyled markup,
+    // and every clean case below would mean nothing.
+    test('reports a planted low-contrast line as serious', async ({ mount, page }) => {
+      await mount(LowContrastStory);
+      await styled(page);
+      expect(await blocking(page)).toEqual(['color-contrast: p']);
+    });
 
     test('SplitPane, expanded', async ({ mount, page }) => {
       await mount(SplitPaneStory, { props: { collapsible: true } });
