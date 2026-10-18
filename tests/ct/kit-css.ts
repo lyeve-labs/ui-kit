@@ -36,11 +36,21 @@ function kitCompiler() {
   return compiler;
 }
 
-/** Adds the kit's styles for every class on the page, in the theme it names. */
-export async function styleWithKit(page: Page, theme: 'dark' | 'light') {
+/**
+ * Adds the kit's styles for every class on the page, in the theme it names.
+ *
+ * A class the markup gains only after a change, such as the variant that hides
+ * a folded pane's body, is not on the page yet, so it would get no rule. Each
+ * file in `sources` adds every word it holds as a candidate, the way Tailwind
+ * scans a consumer's files, and a word that is no class builds nothing.
+ */
+export async function styleWithKit(page: Page, theme: 'dark' | 'light', sources: string[] = []) {
   const classes = await page.evaluate(() => [
     ...new Set([...document.querySelectorAll('*')].flatMap((el) => [...el.classList])),
   ]);
+  for (const source of sources) {
+    classes.push(...(await readFile(source, 'utf8')).split(/[\s"'`{}<>]+/));
+  }
   const css = (await kitCompiler()).build(classes);
   await page.addStyleTag({ content: css });
   await page.evaluate((t) => {

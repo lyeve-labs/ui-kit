@@ -5,8 +5,12 @@
  */
 
 import { test, expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
+import { fileURLToPath } from 'node:url';
 import SplitPaneStory from './SplitPaneStory.svelte';
 import { tabTo } from './keys.js';
+import { styleWithKit } from './kit-css.js';
+
+const SOURCE = fileURLToPath(new URL('../../src/lib/components/SplitPane.svelte', import.meta.url));
 
 const stored = (page: Page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem('ct-pane') ?? 'null'));
@@ -120,16 +124,52 @@ test.describe('SplitPane', () => {
     await expect(pane.getByRole('separator', { name: 'Resize Layers' })).toBeVisible();
     expect(await stored(page)).toEqual({ width: 260, locked: false });
   });
+});
 
-  test('folds on Space and opens on Enter from the keyboard', async ({ mount, page }) => {
+// With the kit's styles the control pressed is hidden by the fold it causes,
+// which unstyled markup never shows: a pane that leaves focus there strands a
+// keyboard reader on the body or on a control nobody can see.
+test.describe('SplitPane with the kit styles', () => {
+  async function holdsFocus(control: Locator) {
+    await expect(control).toBeFocused();
+    expect(await control.evaluate((el) => el.checkVisibility())).toBe(true);
+  }
+
+  test('hands focus to the control that undoes a fold made from the keyboard', async ({
+    mount,
+    page,
+  }) => {
     const pane = await mount(SplitPaneStory, { props: { collapsible: true } });
+    await styleWithKit(page, 'dark', [SOURCE]);
     const aside = pane.locator('aside');
-    await tabTo(page, pane.getByRole('button', { name: 'Collapse Layers' }));
+    const collapse = pane.getByRole('button', { name: 'Collapse Layers' });
+    const expand = pane.getByRole('button', { name: 'Expand Layers' });
+
+    await tabTo(page, collapse);
     await page.keyboard.press('Space');
     await expect(aside).toHaveAttribute('data-open', 'false');
-    await tabTo(page, pane.getByRole('button', { name: 'Expand Layers' }));
+    await holdsFocus(expand);
     await page.keyboard.press('Enter');
     await expect(aside).toHaveAttribute('data-open', 'true');
+    await holdsFocus(collapse);
+    await page.keyboard.press('Enter');
+    await expect(aside).toHaveAttribute('data-open', 'false');
+    await holdsFocus(expand);
+    await page.keyboard.press('Space');
+    await expect(aside).toHaveAttribute('data-open', 'true');
+    await holdsFocus(collapse);
+  });
+
+  test('hands focus to the control that undoes a fold made by a click', async ({ mount, page }) => {
+    const pane = await mount(SplitPaneStory, { props: { collapsible: true } });
+    await styleWithKit(page, 'dark', [SOURCE]);
+    const collapse = pane.getByRole('button', { name: 'Collapse Layers' });
+    const expand = pane.getByRole('button', { name: 'Expand Layers' });
+
+    await collapse.click();
+    await holdsFocus(expand);
+    await expand.click();
+    await holdsFocus(collapse);
   });
 });
 

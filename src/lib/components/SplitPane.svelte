@@ -7,7 +7,7 @@
     PanelRightClose,
     PanelRightOpen,
   } from '@lucide/svelte';
-  import { untrack, type Snippet } from 'svelte';
+  import { tick, untrack, type Snippet } from 'svelte';
   import Button from './Button.svelte';
   import SectionHeading from './SectionHeading.svelte';
   import { clampWidth, readAside, viewerStorage, writeAside } from '../internal/aside.js';
@@ -278,6 +278,21 @@
     remember();
   }
 
+  let strip: HTMLElement | undefined = $state();
+  let controls: HTMLElement | undefined = $state();
+
+  /**
+   * Folds or opens the pane from its own control. The fold hides the control
+   * that was pressed, so once the markup carries the new state focus moves to
+   * the control that undoes it. Left where it was, a keyboard reader lands on
+   * the body or on a button nobody can see.
+   */
+  async function fold(next: boolean) {
+    open = next;
+    await tick();
+    (next ? controls : strip)?.querySelector<HTMLElement>('[aria-expanded]')?.focus();
+  }
+
   // The panel glyphs are drawn for a left-to-right page, so a right-to-left
   // one mirrors them with the rest of the layout.
   const Collapse = $derived(side === 'start' ? PanelLeftClose : PanelRightClose);
@@ -330,6 +345,7 @@
   {#if collapsible}
     <!-- The strip: the name read down the edge and the one control that brings the pane back. -->
     <div
+      bind:this={strip}
       class="h-full flex-col items-center gap-2 py-1 {folded ? `hidden ${at.flex}` : 'hidden'}"
       data-testid="{id}-strip"
     >
@@ -339,7 +355,7 @@
         aria-label="Expand {label}"
         aria-expanded={false}
         hint={false}
-        onclick={() => (open = true)}
+        onclick={() => fold(true)}
       >
         <Expand size={14} class="rtl:-scale-x-100" />
       </Button>
@@ -355,7 +371,7 @@
       class="flex h-control shrink-0 items-center justify-between border-b border-line ps-3 pe-1"
     >
       <SectionHeading level={2} variant="eyebrow" actions={meta}>{label}</SectionHeading>
-      <div class="hidden items-center {at.flex}">
+      <div bind:this={controls} class="hidden items-center {at.flex}">
         <Button
           variant="ghost"
           size="sm"
@@ -373,7 +389,7 @@
             aria-label="Collapse {label}"
             aria-expanded={true}
             hint={false}
-            onclick={() => (open = false)}
+            onclick={() => fold(false)}
           >
             <Collapse size={14} class="rtl:-scale-x-100" />
           </Button>
