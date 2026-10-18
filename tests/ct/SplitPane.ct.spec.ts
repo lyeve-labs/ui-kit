@@ -72,6 +72,9 @@ test.describe('SplitPane', () => {
     // Drawn at the room left, and the stored width is left alone until the edge moves.
     expect(Math.round((await pane.locator('aside').boundingBox())!.width)).toBe(400);
     expect(await stored(page)).toEqual({ width: 480, locked: false });
+    // The handle announces the width drawn and the most the room allows.
+    await expect(handle).toHaveAttribute('aria-valuenow', '400');
+    await expect(handle).toHaveAttribute('aria-valuemax', '400');
     await handle.focus();
     await page.keyboard.press('End');
     await expect(handle).toHaveAttribute('aria-valuenow', '400');

@@ -201,15 +201,34 @@
 
   /**
    * The bounds as this screen allows them. The upper bound also leaves the
-   * main column the pane's minimum, so the stylesheet's cap and the width the
-   * handle reports agree. A parent with no measured width (before layout, or
-   * in a test) leaves the bounds as given.
+   * main column the pane's minimum, the same cap the stylesheet draws. A
+   * parent with no measured width (before layout, or in a test) leaves the
+   * bounds as given.
    */
   function room() {
     const total = aside?.parentElement?.clientWidth ?? 0;
     const upper = total > 0 ? Math.max(min, Math.min(max, total - min)) : max;
     return { min, max: upper };
   }
+
+  /**
+   * The upper bound the room allows, kept current as the page resizes, so the
+   * handle announces the width drawn and a maximum the keys can reach. The
+   * server has no layout and renders the bounds as given.
+   */
+  let roomMax = $state(untrack(() => max));
+
+  $effect(() => {
+    const parent = aside?.parentElement;
+    const sync = () => {
+      roomMax = room().max;
+    };
+    sync();
+    if (!parent || typeof ResizeObserver !== 'function') return;
+    const watch = new ResizeObserver(sync);
+    watch.observe(parent);
+    return () => watch.disconnect();
+  });
 
   /** The width on screen, which the room cap can hold below the stored one. */
   function shown(): number {
@@ -377,9 +396,9 @@
         role="separator"
         aria-orientation="vertical"
         aria-label="Resize {label}"
-        aria-valuenow={width}
+        aria-valuenow={clampWidth({ min, max: roomMax }, width)}
         aria-valuemin={min}
-        aria-valuemax={max}
+        aria-valuemax={roomMax}
         tabindex="0"
         data-testid="{id}-handle"
         onpointerdown={startResize}
