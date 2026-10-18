@@ -24,6 +24,7 @@ const COMPONENTS = [
   'DescriptionList',
   'Toolbar',
   'TreeView',
+  'SplitPane',
   // Forms & inputs
   'Button',
   'ButtonGroup',
@@ -64,6 +65,8 @@ const COMPONENTS = [
   // Feedback & status
   'Alert',
   'Banner',
+  'RefusalNotice',
+  'GateNotice',
   'Badge',
   'Tag',
   'Indicator',
