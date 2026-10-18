@@ -6,6 +6,7 @@
 
 import { test, expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
 import SplitPaneStory from './SplitPaneStory.svelte';
+import { tabTo } from './keys.js';
 
 const stored = (page: Page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem('ct-pane') ?? 'null'));
@@ -103,6 +104,31 @@ test.describe('SplitPane', () => {
     await pane.getByRole('button', { name: 'Collapse Layers' }).click();
     await expect(aside).toHaveAttribute('data-open', 'false');
     await pane.getByRole('button', { name: 'Expand Layers' }).click();
+    await expect(aside).toHaveAttribute('data-open', 'true');
+  });
+
+  test('locks on Enter and unlocks on Space from the keyboard', async ({ mount, page }) => {
+    const pane = await mount(SplitPaneStory, { props: {} });
+    const lock = pane.getByRole('button', { name: 'Lock Layers width' });
+    await tabTo(page, lock);
+    await page.keyboard.press('Enter');
+    await expect(pane.getByRole('separator')).toHaveCount(0);
+    const unlock = pane.getByRole('button', { name: 'Unlock Layers width' });
+    await expect(unlock).toBeFocused();
+    expect(await stored(page)).toEqual({ width: 260, locked: true });
+    await page.keyboard.press('Space');
+    await expect(pane.getByRole('separator', { name: 'Resize Layers' })).toBeVisible();
+    expect(await stored(page)).toEqual({ width: 260, locked: false });
+  });
+
+  test('folds on Space and opens on Enter from the keyboard', async ({ mount, page }) => {
+    const pane = await mount(SplitPaneStory, { props: { collapsible: true } });
+    const aside = pane.locator('aside');
+    await tabTo(page, pane.getByRole('button', { name: 'Collapse Layers' }));
+    await page.keyboard.press('Space');
+    await expect(aside).toHaveAttribute('data-open', 'false');
+    await tabTo(page, pane.getByRole('button', { name: 'Expand Layers' }));
+    await page.keyboard.press('Enter');
     await expect(aside).toHaveAttribute('data-open', 'true');
   });
 });
