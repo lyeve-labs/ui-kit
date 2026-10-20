@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RefusalNotice` draws a write the server refused as a warning `Alert`: the title and sentence the page passes, an optional way forward, and a link offered on every refusal. The way forward is a secondary button and the other link a ghost, or the way forward is the primary with `lead`. A way forward on another origin opens in a new tab.
 - `GateNotice` draws what a page shows in place of a read that was refused or failed, for each state of the exported `Gate` type: absent, locked, full, forbidden, busy, unavailable and error. Every sentence comes from the `words` prop, the locked state renders the page's `locked` snippet with the link the gate carried, and busy, unavailable and error offer a link to `retryHref` that asks for a fresh document. A read that answered draws nothing.
 
+### Fixed
+
+- `FileInput` names the accepted file types in a short line. The drop zone printed its `accept` list as written, so `.csv,.json,application/json` ran as one long line of extensions and media types. Each entry now folds to the name a reader knows the format by, duplicates collapse, and the names join with "or", so that list reads "CSV or JSON". The input still receives the raw list, and a vendor type with no short form stays as written.
+- The package lists its stylesheets as side effects. It declared itself free of side effects, so webpack dropped a bare import of the stylesheet and the theme tokens never reached the page. The JavaScript modules still tree shake.
+
 ## [0.40.0] - 2026-10-16
 
 ### Added
