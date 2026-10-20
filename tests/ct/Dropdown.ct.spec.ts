@@ -6,13 +6,12 @@
  */
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import Dropdown from '../../src/lib/components/Dropdown.svelte';
+import DropdownStory from './DropdownStory.svelte';
 
 test.describe('Dropdown', () => {
   test('renders with trigger', async ({ mount }) => {
-    const component = await mount(Dropdown, {
+    const component = await mount(DropdownStory, {
       props: { items: [{ label: 'Option 1', onclick: () => {} }] },
-      slots: { trigger: '<button>Select</button>' },
     });
     await expect(component).toBeVisible();
     await expect(component).toContainText('Select');
@@ -20,7 +19,7 @@ test.describe('Dropdown', () => {
 
   test('opens menu on trigger click', async ({ mount }) => {
     let clicked = false;
-    const component = await mount(Dropdown, {
+    const component = await mount(DropdownStory, {
       props: {
         items: [
           {
@@ -31,7 +30,6 @@ test.describe('Dropdown', () => {
           },
         ],
       },
-      slots: { trigger: '<button>Select</button>' },
     });
     await component.locator('button').click();
     await expect(component.locator('[role="menu"]')).toBeVisible();
@@ -41,9 +39,8 @@ test.describe('Dropdown', () => {
   });
 
   test('escape key closes menu', async ({ mount, page }) => {
-    const component = await mount(Dropdown, {
+    const component = await mount(DropdownStory, {
       props: { items: [{ label: 'Option 1', onclick: () => {} }] },
-      slots: { trigger: '<button>Select</button>' },
     });
     await component.locator('button').click();
     await expect(component.locator('[role="menu"]')).toBeVisible();

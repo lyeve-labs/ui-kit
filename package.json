@@ -1,6 +1,6 @@
 {
   "name": "@lyeve-labs/ui-kit",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "description": "A clean, accessible, palette-aware Svelte 5 component library. The design system behind LyEve.",
   "license": "MIT",
   "author": "LyEve Labs <hello@lyeve.com>",
@@ -22,7 +22,9 @@
     "lyeve"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "packageManager": "pnpm@11.25.0",
   "engines": {
     "node": ">=24"
@@ -68,7 +70,9 @@
     "access": "public"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
     "@lucide/svelte": "^0.511.0",
+    "@playwright/experimental-ct-svelte": "1.58.2",
     "@sveltejs/package": "^2.5.7",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@testing-library/svelte": "^5.3.1",

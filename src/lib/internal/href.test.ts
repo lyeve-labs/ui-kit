@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { safeHref } from './href.js';
+import { isExternalHref, safeHref } from './href.js';
 
 describe('safeHref', () => {
   it('passes an ordinary link through untouched', () => {
@@ -38,5 +38,24 @@ describe('safeHref', () => {
     // The rule is about the scheme this URL uses, not about the letters in it.
     expect(safeHref('/docs/javascript:guide')).toBe('/docs/javascript:guide');
     expect(safeHref('/files?src=data:image')).toBe('/files?src=data:image');
+  });
+});
+
+describe('isExternalHref', () => {
+  it.each([
+    ['https://help.example.com/guide', true],
+    ['HTTP://example.com', true],
+    ['//cdn.example.com/a', true],
+    ['/settings', false],
+    ['?tab=rules', false],
+    ['#top', false],
+    ['mailto:help@example.com', false],
+  ])('%s leaves the page: %s', (href, away) => {
+    expect(isExternalHref(href)).toBe(away);
+  });
+
+  it('keeps an absolute URL on the page origin in the page', () => {
+    expect(isExternalHref(`${location.origin}/settings`)).toBe(false);
+    expect(isExternalHref(`//${location.host}/settings`)).toBe(false);
   });
 });

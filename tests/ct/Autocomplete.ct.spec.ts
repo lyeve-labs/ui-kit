@@ -55,8 +55,9 @@ test.describe('Autocomplete', () => {
     });
     await page.keyboard.press('Tab');
     await expect(page.locator('[role="listbox"]')).toBeVisible();
+    // Focus opens the list on the first row, so one ArrowDown rests on the second.
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
-    expect(selected).toBe('a');
+    expect(selected).toBe('b');
   });
 });

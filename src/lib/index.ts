@@ -23,6 +23,7 @@ export { default as Table } from './components/Table.svelte';
 export { default as DescriptionList } from './components/DescriptionList.svelte';
 export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
+export { default as SplitPane } from './components/SplitPane.svelte';
 export type { CellFit } from './components/Table.svelte';
 export type { SidebarState } from './components/AppShell.svelte';
 export type { PageWidth, SectionVariant } from './internal/layout.js';
@@ -97,6 +98,9 @@ export { default as Spinner } from './components/Spinner.svelte';
 export { default as Skeleton } from './components/Skeleton.svelte';
 export { default as EmptyState } from './components/EmptyState.svelte';
 export { default as CheckoutSteps } from './components/CheckoutSteps.svelte';
+export { default as RefusalNotice } from './components/RefusalNotice.svelte';
+export { default as GateNotice } from './components/GateNotice.svelte';
+export type { Gate, GateText, GateWords } from './internal/gate.js';
 export { default as PluginCart } from './components/PluginCart.svelte';
 export type { QuickPick } from './components/PluginCart.svelte';
 export {
@@ -186,4 +190,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.40.0';
+export const VERSION = '0.41.0';
