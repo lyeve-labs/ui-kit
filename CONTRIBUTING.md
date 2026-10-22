@@ -15,8 +15,9 @@ pnpm test         # verify everything works
 
 You'll need:
 
-- **Node 20** or newer
-- **pnpm 9.15** (the `packageManager` field pins it)
+- **Node 26.12.1**, the version `mise.toml` and CI pin
+- **pnpm 11.25.0**, pinned by the `packageManager` field. The repository
+  installs with pnpm only, and its lockfile is the only one it keeps.
 
 ## Repository layout
 

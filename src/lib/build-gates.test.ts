@@ -99,12 +99,10 @@ describe('coverage measures the shipped tree', () => {
     ]);
   });
 
-  it('keeps the defaults a user-supplied exclude would have replaced', () => {
-    // In vitest 2 `exclude` replaces the default list rather than extending it,
-    // so the previous three-entry list put node_modules straight back into the
-    // measured tree.
+  it('leaves the specs and the build output out of the measured tree', () => {
+    // vitest excludes node_modules on its own. The specs, the component suite
+    // and the packaged output sit beside src/lib and are this list's to name.
     const exclude = coverage && 'exclude' in coverage ? (coverage.exclude ?? []) : [];
-    expect(exclude).toContain('**/node_modules/**');
     expect(exclude).toContain('dist/**');
     expect(exclude).toContain('tests/**');
     expect(exclude).toContain('src/**/*.{test,spec}.{js,ts}');
