@@ -106,6 +106,20 @@ describe('Button', () => {
     expect(onclick.mock.calls[0][0].defaultPrevented).toBe(true);
   });
 
+  // An inert link has no href, but assistive technology or a script can still
+  // click it, and the button branch's disabled attribute is what stops that.
+  it.each([
+    ['disabled', { disabled: true }],
+    ['loading', { loading: true }],
+  ])('does not call onclick on a %s link button', async (_state, over) => {
+    const onclick = vi.fn();
+    const { container } = render(Button, {
+      props: { href: '/go', onclick, children: text('Go'), ...over },
+    });
+    await fireEvent.click(container.querySelector('a') as HTMLAnchorElement);
+    expect(onclick).not.toHaveBeenCalled();
+  });
+
   it('does not navigate when a link button is disabled', () => {
     // `disabled` is not an anchor attribute and `disabled:opacity-50` never
     // matches an <a>, so the prop was accepted and dropped: the link rendered
