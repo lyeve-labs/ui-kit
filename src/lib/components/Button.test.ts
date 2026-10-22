@@ -94,6 +94,18 @@ describe('Button', () => {
     expect(a?.getAttribute('href')).toBe('/go');
   });
 
+  // The link branch spread the rest props but never applied onclick, so a
+  // host's handler on a link button was dropped without a word.
+  it('calls onclick on a link button, so a host can handle the click in place', async () => {
+    const onclick = vi.fn((e: MouseEvent) => e.preventDefault());
+    const { container } = render(Button, {
+      props: { href: '/go', onclick, children: text('Go') },
+    });
+    await fireEvent.click(container.querySelector('a') as HTMLAnchorElement);
+    expect(onclick).toHaveBeenCalledOnce();
+    expect(onclick.mock.calls[0][0].defaultPrevented).toBe(true);
+  });
+
   it('does not navigate when a link button is disabled', () => {
     // `disabled` is not an anchor attribute and `disabled:opacity-50` never
     // matches an <a>, so the prop was accepted and dropped: the link rendered

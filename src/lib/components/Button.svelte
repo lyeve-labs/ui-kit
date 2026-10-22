@@ -152,6 +152,7 @@
       class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
       aria-disabled={inert ? 'true' : undefined}
       tabindex={inert ? -1 : undefined}
+      {onclick}
       {...rest}
     >
       {#if loading}<Spinner size={spinnerSize} />{/if}
