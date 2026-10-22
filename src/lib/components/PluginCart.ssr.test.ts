@@ -1,6 +1,7 @@
 // @vitest-environment node
 
 import { describe, expect, it } from 'vitest';
+import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import PluginCart from './PluginCart.svelte';
 
@@ -40,5 +41,15 @@ describe('PluginCart, rendered on the server', () => {
       props: { plugins: PLUGINS, initial: ['plugin-audit'], held: ['plugin-audit'] },
     });
     expect(body).toContain('Already on your subscription');
+  });
+
+  it('hands a seeded selection to a summary of its own', () => {
+    const summary = createRawSnippet((args: () => { skus: string[] }) => ({
+      render: () => `<p>Picked: ${args().skus.join(',')}</p>`,
+    }));
+    const { body } = render(PluginCart, {
+      props: { plugins: PLUGINS, initial: ['plugin-audit'], summary },
+    });
+    expect(body).toContain('Picked: plugin-audit');
   });
 });

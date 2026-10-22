@@ -1,5 +1,5 @@
 import { fireEvent, render, within } from '@testing-library/svelte';
-
+import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import PluginCart from './PluginCart.svelte';
 import type { CartQuote } from '../internal/pricing.js';
@@ -205,5 +205,110 @@ describe('PluginCart', () => {
   it('tells an empty cart it is already on the free tier', () => {
     const { getByText } = render(PluginCart, { props: { plugins: PLUGINS } });
     expect(getByText(/free tier, which needs no checkout/)).toBeTruthy();
+  });
+
+  describe('with a summary of its own', () => {
+    // The host's summary as a list of what it was handed, with a button that
+    // takes the first capability out.
+    const summary = createRawSnippet(
+      (args: () => { skus: string[]; total: number | null; remove: (sku: string) => void }) => ({
+        render: () =>
+          `<div><p data-testid="handed">${args().skus.join(',')}|${args().total ?? 'none'}</p><button type="button">Remove first</button></div>`,
+        setup: (node: Element) => {
+          const button = node.querySelector('button') as HTMLButtonElement;
+          const remove = () => args().remove(args().skus[0]);
+          button.addEventListener('click', remove);
+          return () => button.removeEventListener('click', remove);
+        },
+      }),
+    );
+
+    it('draws it in place of the list, the total and the actions', () => {
+      const actions = createRawSnippet(() => ({ render: () => '<button>Buy</button>' }));
+      const { getByRole, queryByText } = render(PluginCart, {
+        props: {
+          plugins: PLUGINS,
+          brackets: BRACKETS,
+          initial: ['plugin-graphql'],
+          summary,
+          actions,
+          heading: 'Your order',
+        },
+      });
+      const aside = getByRole('complementary', { name: 'Your order' });
+      expect(within(aside).getByTestId('handed').textContent).toBe('plugin-graphql|none');
+      expect(queryByText(/1 more and the discount is 5%/)).toBeNull();
+      expect(queryByText(/Waiting for a price/)).toBeNull();
+      expect(within(aside).queryByRole('button', { name: 'Buy' })).toBeNull();
+    });
+
+    it('hands it the server total for the selection', () => {
+      const { getByTestId } = render(PluginCart, {
+        props: {
+          plugins: PLUGINS,
+          selected: new Set(['plugin-graphql']),
+          quote: quoteFor(['plugin-graphql'], 777),
+          quotePeriod: 'monthly',
+          summary,
+        },
+      });
+      expect(getByTestId('handed').textContent).toBe('plugin-graphql|777');
+    });
+
+    it('takes a capability out through remove, as unticking its card does', async () => {
+      const onchange = vi.fn();
+      const { getByRole } = render(PluginCart, {
+        props: { plugins: PLUGINS, initial: ['plugin-graphql', 'plugin-audit'], summary, onchange },
+      });
+      await fireEvent.click(getByRole('button', { name: 'Remove first' }));
+      expect(onchange).toHaveBeenCalledWith(['plugin-audit']);
+      expect((getByRole('checkbox', { name: /GraphQL/ }) as HTMLInputElement).checked).toBe(false);
+    });
+
+    // A summary drawn from an old selection may name a capability the reader
+    // has already unticked. Removing it must not tick it again.
+    it('leaves the selection alone when remove names a capability that is not selected', async () => {
+      const stale = createRawSnippet(
+        (args: () => { skus: string[]; total: number | null; remove: (sku: string) => void }) => ({
+          render: () => '<button type="button">Remove audit</button>',
+          setup: (node: Element) => {
+            const remove = () => args().remove('plugin-audit');
+            node.addEventListener('click', remove);
+            return () => node.removeEventListener('click', remove);
+          },
+        }),
+      );
+      const onchange = vi.fn();
+      const { getByRole } = render(PluginCart, {
+        props: { plugins: PLUGINS, initial: ['plugin-graphql'], summary: stale, onchange },
+      });
+      await fireEvent.click(getByRole('button', { name: 'Remove audit' }));
+      expect(onchange).not.toHaveBeenCalled();
+      expect((getByRole('checkbox', { name: /Audit/ }) as HTMLInputElement).checked).toBe(false);
+      expect((getByRole('checkbox', { name: /GraphQL/ }) as HTMLInputElement).checked).toBe(true);
+    });
+
+    // Regression guard: these held before the summary existed, and a summary
+    // must not cost the aside any of them.
+    it('still keeps the aside sticky and the bar that jumps to it when a summary replaces the body', () => {
+      const { getByRole, container } = render(PluginCart, {
+        props: { plugins: PLUGINS, initial: ['plugin-graphql'], summary, stickyTop: '4rem' },
+      });
+      const aside = getByRole('complementary');
+      expect(aside.id).not.toBe('');
+      expect(aside.className).toContain('lg:sticky');
+      expect(aside.style.top).toBe('4rem');
+      const bar = container.querySelector(`a[href="#${aside.id}"]`);
+      expect(bar?.textContent).toContain('Review');
+    });
+  });
+
+  it('names its own summary with the heading it is given', () => {
+    const { getByRole } = render(PluginCart, {
+      props: { plugins: PLUGINS, heading: 'Your cart' },
+    });
+    expect(
+      within(getByRole('complementary', { name: 'Your cart' })).getByText('Your cart'),
+    ).toBeTruthy();
   });
 });
