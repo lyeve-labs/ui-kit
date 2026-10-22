@@ -71,15 +71,18 @@
     notice?: Snippet;
     /**
      * The host's own summary, drawn in place of everything inside the aside:
-     * the heading, `error`, the list, the ladder, the total, `notice` and
+     * the title line, `error`, the list, the ladder, the total, `notice` and
      * `actions`. For a host that prices more than the selection, such as a
      * plan change or a discount code. The aside keeps its id, its stickiness
      * and the bar that jumps to it on a narrow screen. `remove` takes one
-     * capability out of the selection and reports it through `onchange`, as
-     * unticking its card does.
+     * selected capability out and reports it through `onchange`, as unticking
+     * its card does. A capability that is not selected is left alone. `total`
+     * is null both while a price is in flight and before one is asked for, so
+     * a host that tells the two apart tracks its own request, as it does for
+     * `quoting`.
      */
     summary?: Snippet<[{ skus: string[]; total: number | null; remove: (sku: string) => void }]>;
-    /** Names the aside, and heads the summary drawn when there is no `summary`. */
+    /** The panel's name: the aside's accessible name, also printed atop the default summary. */
     heading?: string;
     /**
      * How far below the top of the window the summary sticks on a wide
@@ -366,7 +369,13 @@
     aria-label={heading}
   >
     {#if summary}
-      {@render summary({ skus: [...selected], total, remove: toggle })}
+      {@render summary({
+        skus: [...selected],
+        total,
+        remove: (sku) => {
+          if (selected.has(sku)) toggle(sku);
+        },
+      })}
     {:else}
       <div class="mb-4 flex items-center justify-between gap-2">
         <p class="text-xs font-semibold uppercase tracking-widest text-faint">{heading}</p>

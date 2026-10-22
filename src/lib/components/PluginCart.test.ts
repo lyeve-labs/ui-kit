@@ -265,7 +265,32 @@ describe('PluginCart', () => {
       expect((getByRole('checkbox', { name: /GraphQL/ }) as HTMLInputElement).checked).toBe(false);
     });
 
-    it('keeps the aside sticky and the bar that jumps to it', () => {
+    // A summary drawn from an old selection may name a capability the reader
+    // has already unticked. Removing it must not tick it again.
+    it('leaves the selection alone when remove names a capability that is not selected', async () => {
+      const stale = createRawSnippet(
+        (args: () => { skus: string[]; total: number | null; remove: (sku: string) => void }) => ({
+          render: () => '<button type="button">Remove audit</button>',
+          setup: (node: Element) => {
+            const remove = () => args().remove('plugin-audit');
+            node.addEventListener('click', remove);
+            return () => node.removeEventListener('click', remove);
+          },
+        }),
+      );
+      const onchange = vi.fn();
+      const { getByRole } = render(PluginCart, {
+        props: { plugins: PLUGINS, initial: ['plugin-graphql'], summary: stale, onchange },
+      });
+      await fireEvent.click(getByRole('button', { name: 'Remove audit' }));
+      expect(onchange).not.toHaveBeenCalled();
+      expect((getByRole('checkbox', { name: /Audit/ }) as HTMLInputElement).checked).toBe(false);
+      expect((getByRole('checkbox', { name: /GraphQL/ }) as HTMLInputElement).checked).toBe(true);
+    });
+
+    // Regression guard: these held before the summary existed, and a summary
+    // must not cost the aside any of them.
+    it('still keeps the aside sticky and the bar that jumps to it when a summary replaces the body', () => {
       const { getByRole, container } = render(PluginCart, {
         props: { plugins: PLUGINS, initial: ['plugin-graphql'], summary, stickyTop: '4rem' },
       });

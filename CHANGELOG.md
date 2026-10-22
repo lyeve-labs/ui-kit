@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `PluginCart` takes a `summary` snippet that draws the host's own summary in place of everything inside its aside: the heading, `error`, the list, the ladder, the total, `notice` and `actions`. It suits a host that prices more than the selection, such as a plan change or a discount code. The snippet receives the selection, the server total and a `remove` function that takes one capability out and reports it through `onchange`, as unticking its card does. The aside keeps its id, its stickiness and the bar that jumps to it on a narrow screen.
-- `PluginCart` takes a `heading` that names its aside and heads the default summary. It stays "Your selection" when unset.
+- `PluginCart` takes a `summary` snippet that draws the host's own summary in place of everything inside its aside: the title line, `error`, the list, the ladder, the total, `notice` and `actions`. It suits a host that prices more than the selection, such as a plan change or a discount code. The snippet receives the selection, the server total and a `remove` function that takes one selected capability out and reports it through `onchange`, as unticking its card does, and leaves a capability that is not selected alone. The total is null while a price is in flight and before one is asked for, so the host tracks its own request. The aside keeps its id, its stickiness and the bar that jumps to it on a narrow screen.
+- `PluginCart` takes a `heading`, the panel's name: the accessible name of its aside, also printed atop the default summary. It stays "Your selection" when unset, and the default markup is unchanged.
 
 ## [0.41.1] - 2026-10-22
 
