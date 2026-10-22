@@ -207,6 +207,71 @@ describe('PluginCart', () => {
     expect(getByText(/free tier, which needs no checkout/)).toBeTruthy();
   });
 
+  // A one-time payment is charged once, for the monthly total. A "/mo" beside
+  // it would promise a renewal that never comes.
+  it('states a one-time price as charged once, in the total and the review bar', () => {
+    const { getByRole, container } = render(PluginCart, {
+      props: {
+        plugins: PLUGINS,
+        selected: new Set(['plugin-graphql']),
+        quote: quoteFor(['plugin-graphql'], 600),
+        quotePeriod: 'monthly',
+        per: 'once',
+      },
+    });
+    const aside = getByRole('complementary');
+    expect(aside.textContent?.replace(/\s+/g, ' ')).toContain('$6.00 once');
+    expect(aside.textContent).not.toContain('/mo');
+    const bar = container.querySelector('a[href^="#"]') as HTMLAnchorElement;
+    expect(bar.textContent).not.toContain('/mo');
+  });
+
+  it('keeps the period label when the host names none', () => {
+    const { getByRole } = render(PluginCart, {
+      props: {
+        plugins: PLUGINS,
+        selected: new Set(['plugin-graphql']),
+        quote: quoteFor(['plugin-graphql'], 600),
+        quotePeriod: 'monthly',
+      },
+    });
+    expect(getByRole('complementary').textContent?.replace(/\s+/g, ' ')).toContain('$6.00/mo');
+  });
+
+  it('reads the review bar as the count and the total, spaced, with a button to the order', () => {
+    const { container } = render(PluginCart, {
+      props: {
+        plugins: PLUGINS,
+        selected: new Set(['plugin-graphql', 'plugin-audit']),
+        quote: quoteFor(['plugin-graphql', 'plugin-audit'], 1300),
+        quotePeriod: 'monthly',
+      },
+    });
+    const bar = container.querySelector('a[href^="#"]') as HTMLAnchorElement;
+    expect(bar.textContent?.replace(/\s+/g, ' ').trim()).toBe('2 picked · $13.00 Review order');
+  });
+
+  // One typeface on the page: figures line up through tabular numerals, not
+  // through a second, monospace face.
+  it('sets every price in the body face with tabular numerals', () => {
+    const { container } = render(PluginCart, {
+      props: {
+        plugins: PLUGINS,
+        brackets: BRACKETS,
+        selected: new Set(['plugin-graphql']),
+        quote: quoteFor(['plugin-graphql'], 800),
+        quotePeriod: 'monthly',
+      },
+    });
+    const prices = [...container.querySelectorAll('span, p')].filter((el) =>
+      /^\$\d/.test(el.textContent?.trim() ?? ''),
+    );
+    expect(prices.length).toBeGreaterThan(1);
+    for (const el of prices) expect(el.closest('.font-mono')).toBeNull();
+    const price = container.querySelector('[id$="-price"]') as HTMLElement;
+    expect(price.className).toContain('tabular-nums');
+  });
+
   describe('with a summary of its own', () => {
     // The host's summary as a list of what it was handed, with a button that
     // takes the first capability out.
