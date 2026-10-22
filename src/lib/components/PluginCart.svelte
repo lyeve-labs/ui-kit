@@ -70,6 +70,18 @@
     /** Anything the host wants between the total and the actions. */
     notice?: Snippet;
     /**
+     * The host's own summary, drawn in place of everything inside the aside:
+     * the heading, `error`, the list, the ladder, the total, `notice` and
+     * `actions`. For a host that prices more than the selection, such as a
+     * plan change or a discount code. The aside keeps its id, its stickiness
+     * and the bar that jumps to it on a narrow screen. `remove` takes one
+     * capability out of the selection and reports it through `onchange`, as
+     * unticking its card does.
+     */
+    summary?: Snippet<[{ skus: string[]; total: number | null; remove: (sku: string) => void }]>;
+    /** Names the aside, and heads the summary drawn when there is no `summary`. */
+    heading?: string;
+    /**
      * How far below the top of the window the summary sticks on a wide
      * screen, as a CSS length. A page with a sticky header passes its height,
      * so the summary does not slide under it.
@@ -111,6 +123,8 @@
     onchange,
     actions,
     notice,
+    summary,
+    heading = 'Your selection',
     stickyTop = '1rem',
     class: klass = '',
   }: Props = $props();
@@ -349,129 +363,135 @@
     id={summaryId}
     class="scroll-mt-20 self-start rounded-xl border border-line bg-surface p-5 lg:sticky"
     style:top={stickyTop}
-    aria-label="Your selection"
+    aria-label={heading}
   >
-    <div class="mb-4 flex items-center justify-between gap-2">
-      <p class="text-xs font-semibold uppercase tracking-widest text-faint">Your selection</p>
-      {#if count > 0}
-        <Badge tone="brand" size="sm">
-          {count}
-          {count === 1 ? 'capability' : 'capabilities'}
-        </Badge>
-      {/if}
-    </div>
-
-    {#if error}
-      <p class="mb-3 rounded-lg border border-danger/30 bg-danger/10 p-3 text-xs text-danger">
-        {error}
-      </p>
-    {/if}
-
-    {#if count === 0}
-      <p class="py-6 text-center text-sm text-muted">
-        Nothing picked yet. With none of these you are on the free tier, which needs no checkout.
-      </p>
+    {#if summary}
+      {@render summary({ skus: [...selected], total, remove: toggle })}
     {:else}
-      <ul class="mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
-        {#each [...selected] as sku (sku)}
-          {@const p = bySku.get(sku)}
-          <li class="flex items-center justify-between gap-2 text-xs">
-            <span class="truncate text-fg">{p?.name ?? sku}</span>
-            <span class="flex items-center gap-1">
-              <span class="font-mono text-muted">{formatCents(p?.price_cents ?? 0, currency)}</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onclick={() => toggle(sku)}
-                aria-label={`Take ${p?.name ?? sku} out of your selection`}
-              >
-                <X size={12} />
-              </Button>
-            </span>
-          </li>
-        {/each}
-      </ul>
+      <div class="mb-4 flex items-center justify-between gap-2">
+        <p class="text-xs font-semibold uppercase tracking-widest text-faint">{heading}</p>
+        {#if count > 0}
+          <Badge tone="brand" size="sm">
+            {count}
+            {count === 1 ? 'capability' : 'capabilities'}
+          </Badge>
+        {/if}
+      </div>
 
-      {#if rungs.length > 0}
-        <!-- The ladder as a meter, so "two more" is something a reader can
-             see the distance to. -->
-        <div class="mb-3" aria-hidden="true">
-          <div class="relative h-1.5 rounded-full bg-surface-2">
-            <span
-              class="absolute inset-y-0 start-0 rounded-full bg-brand transition-[width] duration-progress"
-              style:width="{ladderFill}%"
-            ></span>
-            {#each rungs as r (r.plugins)}
-              <span
-                class={cn(
-                  'absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors',
-                  ladder.count >= r.plugins
-                    ? 'border-brand bg-brand'
-                    : 'border-line-strong bg-surface',
-                )}
-                style:left="{(r.plugins / ladderTop) * 100}%"
-              ></span>
-            {/each}
-          </div>
-          <div class="relative mt-2 h-4 text-[10px] text-muted">
-            {#each rungs as r (r.plugins)}
-              <span
-                class="absolute -translate-x-1/2 whitespace-nowrap font-mono"
-                style:left="{Math.min((r.plugins / ladderTop) * 100, 92)}%"
-              >
-                {r.plugins}+ · {r.discount_pct}%
+      {#if error}
+        <p class="mb-3 rounded-lg border border-danger/30 bg-danger/10 p-3 text-xs text-danger">
+          {error}
+        </p>
+      {/if}
+
+      {#if count === 0}
+        <p class="py-6 text-center text-sm text-muted">
+          Nothing picked yet. With none of these you are on the free tier, which needs no checkout.
+        </p>
+      {:else}
+        <ul class="mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
+          {#each [...selected] as sku (sku)}
+            {@const p = bySku.get(sku)}
+            <li class="flex items-center justify-between gap-2 text-xs">
+              <span class="truncate text-fg">{p?.name ?? sku}</span>
+              <span class="flex items-center gap-1">
+                <span class="font-mono text-muted"
+                  >{formatCents(p?.price_cents ?? 0, currency)}</span
+                >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onclick={() => toggle(sku)}
+                  aria-label={`Take ${p?.name ?? sku} out of your selection`}
+                >
+                  <X size={12} />
+                </Button>
               </span>
-            {/each}
+            </li>
+          {/each}
+        </ul>
+
+        {#if rungs.length > 0}
+          <!-- The ladder as a meter, so "two more" is something a reader can
+             see the distance to. -->
+          <div class="mb-3" aria-hidden="true">
+            <div class="relative h-1.5 rounded-full bg-surface-2">
+              <span
+                class="absolute inset-y-0 start-0 rounded-full bg-brand transition-[width] duration-progress"
+                style:width="{ladderFill}%"
+              ></span>
+              {#each rungs as r (r.plugins)}
+                <span
+                  class={cn(
+                    'absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors',
+                    ladder.count >= r.plugins
+                      ? 'border-brand bg-brand'
+                      : 'border-line-strong bg-surface',
+                  )}
+                  style:left="{(r.plugins / ladderTop) * 100}%"
+                ></span>
+              {/each}
+            </div>
+            <div class="relative mt-2 h-4 text-[10px] text-muted">
+              {#each rungs as r (r.plugins)}
+                <span
+                  class="absolute -translate-x-1/2 whitespace-nowrap font-mono"
+                  style:left="{Math.min((r.plugins / ladderTop) * 100, 92)}%"
+                >
+                  {r.plugins}+ · {r.discount_pct}%
+                </span>
+              {/each}
+            </div>
           </div>
+        {/if}
+
+        {#if ladder.reachedPct > 0}
+          <p class="mb-2 text-xs text-success">
+            Volume discount {ladder.reachedPct}% applied.
+          </p>
+        {/if}
+        {#if ladder.next}
+          <p class="mb-3 text-xs text-muted">
+            {ladder.next.more} more and the discount is {ladder.next.discount_pct}%.
+          </p>
+        {/if}
+
+        <div class="mb-4 border-t border-line pt-3">
+          {#if total === null}
+            <p class="flex items-center gap-2 text-sm text-muted">
+              {#if quoting}
+                <Spinner size={14} />
+                Pricing your selection
+              {:else}
+                Waiting for a price.
+              {/if}
+            </p>
+          {:else}
+            <p class="flex items-baseline justify-between gap-2">
+              <span class="text-sm text-muted">Total</span>
+              <span class="font-mono text-xl font-semibold text-fg">
+                {formatCents(total, currency)}<span class="text-sm font-normal text-muted"
+                  >{perLabel}</span
+                >
+              </span>
+            </p>
+            {#if quoted && quoted.volume_discount_cents > 0}
+              <p class="mt-1 text-end text-xs text-muted">
+                {formatCents(quoted.volume_discount_cents, currency)} off the list price.
+              </p>
+            {/if}
+            {#if quoted && quoted.community_discount_cents > 0}
+              <p class="mt-1 text-end text-xs text-success">
+                Community discount {quoted.community_discount_pct}% applied.
+              </p>
+            {/if}
+          {/if}
         </div>
       {/if}
 
-      {#if ladder.reachedPct > 0}
-        <p class="mb-2 text-xs text-success">
-          Volume discount {ladder.reachedPct}% applied.
-        </p>
-      {/if}
-      {#if ladder.next}
-        <p class="mb-3 text-xs text-muted">
-          {ladder.next.more} more and the discount is {ladder.next.discount_pct}%.
-        </p>
-      {/if}
-
-      <div class="mb-4 border-t border-line pt-3">
-        {#if total === null}
-          <p class="flex items-center gap-2 text-sm text-muted">
-            {#if quoting}
-              <Spinner size={14} />
-              Pricing your selection
-            {:else}
-              Waiting for a price.
-            {/if}
-          </p>
-        {:else}
-          <p class="flex items-baseline justify-between gap-2">
-            <span class="text-sm text-muted">Total</span>
-            <span class="font-mono text-xl font-semibold text-fg">
-              {formatCents(total, currency)}<span class="text-sm font-normal text-muted"
-                >{perLabel}</span
-              >
-            </span>
-          </p>
-          {#if quoted && quoted.volume_discount_cents > 0}
-            <p class="mt-1 text-end text-xs text-muted">
-              {formatCents(quoted.volume_discount_cents, currency)} off the list price.
-            </p>
-          {/if}
-          {#if quoted && quoted.community_discount_cents > 0}
-            <p class="mt-1 text-end text-xs text-success">
-              Community discount {quoted.community_discount_pct}% applied.
-            </p>
-          {/if}
-        {/if}
-      </div>
+      {#if notice}{@render notice()}{/if}
+      {#if actions}{@render actions({ skus: [...selected], total })}{/if}
     {/if}
-
-    {#if notice}{@render notice()}{/if}
-    {#if actions}{@render actions({ skus: [...selected], total })}{/if}
   </aside>
 </div>

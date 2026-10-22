@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `PluginCart` takes a `summary` snippet that draws the host's own summary in place of everything inside its aside: the heading, `error`, the list, the ladder, the total, `notice` and `actions`. It suits a host that prices more than the selection, such as a plan change or a discount code. The snippet receives the selection, the server total and a `remove` function that takes one capability out and reports it through `onchange`, as unticking its card does. The aside keeps its id, its stickiness and the bar that jumps to it on a narrow screen.
+- `PluginCart` takes a `heading` that names its aside and heads the default summary. It stays "Your selection" when unset.
+
 ## [0.41.1] - 2026-10-22
 
 ### Changed
