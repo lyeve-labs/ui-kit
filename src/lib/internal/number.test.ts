@@ -37,7 +37,11 @@ describe('formatCount against the runtime', () => {
    */
   it('builds one formatter, and names the locale it builds it with', async () => {
     const real = Intl.NumberFormat;
-    const built = vi.fn((locale?: string) => new real(locale));
+    // A function expression, because the module calls it with new and vitest 4
+    // refuses to construct through an arrow function.
+    const built = vi.fn(function (locale?: string) {
+      return new real(locale);
+    });
     vi.stubGlobal('Intl', { ...Intl, NumberFormat: built });
     vi.resetModules();
 
