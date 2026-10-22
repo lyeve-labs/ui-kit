@@ -70,7 +70,7 @@ ThemeToggle, Toaster (plus the `toast` service)
 - **Svelte 5.0** or newer
 - **Tailwind CSS v4** with the `@tailwindcss/vite` plugin
 - **`@lucide/svelte`** 0.511 or newer, below 2.0
-- **Node 20** or newer
+- **Node 24** or newer
 
 ## Install
 
@@ -384,6 +384,9 @@ const JOB_TONE: Record<JobState, StatusTone> = {
 ```
 
 ## Local development
+
+The kit is developed on Node 26 and installs with pnpm only. Applications that
+consume it need Node 24 or newer and may use any package manager.
 
 ```bash
 pnpm install            # install dependencies
