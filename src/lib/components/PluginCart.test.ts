@@ -238,6 +238,21 @@ describe('PluginCart', () => {
     expect(getByRole('complementary').textContent?.replace(/\s+/g, ' ')).toContain('$6.00/mo');
   });
 
+  it('prices each card as charged once for a one-time payment, and monthly otherwise', () => {
+    const cardPrice = (per?: 'once') => {
+      const { getByRole, unmount } = render(PluginCart, {
+        props: { plugins: PLUGINS, ...(per ? { per } : {}) },
+      });
+      const box = getByRole('checkbox', { name: 'GraphQL' });
+      const priceId = (box.getAttribute('aria-describedby') ?? '').split(' ')[0];
+      const text = document.getElementById(priceId)?.textContent?.replace(/\s+/g, ' ').trim();
+      unmount();
+      return text;
+    };
+    expect(cardPrice('once')).toBe('$8.00 once');
+    expect(cardPrice()).toBe('$8.00/mo');
+  });
+
   it('reads the review bar as the count and the total, spaced, with a button to the order', () => {
     const { container } = render(PluginCart, {
       props: {
