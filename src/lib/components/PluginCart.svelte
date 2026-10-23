@@ -204,6 +204,9 @@
     const charged = per ?? period;
     return charged === 'once' ? ' once' : charged === 'annual' ? '/yr' : '/mo';
   });
+  // A card shows the monthly list price. A one-time payment charges it once,
+  // so "/mo" there would promise a renewal.
+  const cardPerLabel = $derived(per === 'once' ? ' once' : '/mo');
 
   // The volume ladder drawn as a meter: the rungs that take something off,
   // placed along the count of the last one.
@@ -330,7 +333,7 @@
                 </span>
                 <span id="{id}-price" class="shrink-0 tabular-nums text-sm font-semibold text-fg">
                   {formatCents(plugin.price_cents, currency)}<span
-                    class="text-xs font-normal text-muted">/mo</span
+                    class="text-xs font-normal text-muted">{cardPerLabel}</span
                   >
                 </span>
               </span>

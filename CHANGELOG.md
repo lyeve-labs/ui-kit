@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.42.2] - 2026-10-23
+
+### Fixed
+
+- `PluginCart` with `per="once"` prices each plugin card as "$3.00 once". The cards read "$3.00/mo" and promised a renewal that a one-time payment never charges. Monthly and annual carts keep "/mo" on the cards.
+
 ## [0.42.1] - 2026-10-23
 
 ### Fixed
