@@ -54,6 +54,12 @@
     /** The period that quote was priced for. A monthly quote says nothing about a year. */
     quotePeriod?: BillingPeriod | null;
     period?: BillingPeriod;
+    /**
+     * What the total is charged per, when it differs from `period`. A
+     * one-time payment is quoted monthly and charged once, so its host passes
+     * `'once'` and the total reads "$6.00 once" rather than "$6.00/mo".
+     */
+    per?: BillingPeriod | 'once';
     /** True while a fresh price is in flight. */
     quoting?: boolean;
     /** The count the bill will carry, when the host knows better than the cart. */
@@ -117,6 +123,7 @@
     quote = null,
     quotePeriod = null,
     period = 'monthly',
+    per,
     quoting = false,
     billedSkus = null,
     currency = 'USD',
@@ -193,7 +200,10 @@
     ),
   );
 
-  const perLabel = $derived(period === 'annual' ? '/yr' : '/mo');
+  const perLabel = $derived.by(() => {
+    const charged = per ?? period;
+    return charged === 'once' ? ' once' : charged === 'annual' ? '/yr' : '/mo';
+  });
 
   // The volume ladder drawn as a meter: the rungs that take something off,
   // placed along the count of the last one.
@@ -318,7 +328,7 @@
                     >{plugin.name}</span
                   >
                 </span>
-                <span id="{id}-price" class="shrink-0 font-mono text-sm font-semibold text-fg">
+                <span id="{id}-price" class="shrink-0 tabular-nums text-sm font-semibold text-fg">
                   {formatCents(plugin.price_cents, currency)}<span
                     class="text-xs font-normal text-muted">/mo</span
                   >
@@ -350,13 +360,12 @@
           class="flex items-center justify-between gap-3 rounded-xl border border-brand bg-surface px-4 py-3 text-sm shadow-lg transition-colors hover:bg-surface-2"
         >
           <span class="text-fg">
-            <span class="font-semibold">{count}</span> picked{#if total !== null}<span
-                class="text-muted"
+            <span class="font-semibold">{count}</span> picked{#if total !== null}{' '}<span
+                class="text-muted">·</span
               >
-                ·
-              </span><span class="font-mono">{formatCents(total, currency)}{perLabel}</span>{/if}
+              <span class="tabular-nums">{formatCents(total, currency)}</span>{/if}
           </span>
-          <span class="font-semibold text-brand">Review</span>
+          <span class="font-semibold text-brand">Review order</span>
         </a>
       </div>
     {/if}
@@ -404,7 +413,7 @@
             <li class="flex items-center justify-between gap-2 text-xs">
               <span class="truncate text-fg">{p?.name ?? sku}</span>
               <span class="flex items-center gap-1">
-                <span class="font-mono text-muted"
+                <span class="tabular-nums text-muted"
                   >{formatCents(p?.price_cents ?? 0, currency)}</span
                 >
                 <Button
@@ -445,7 +454,7 @@
             <div class="relative mt-2 h-4 text-[10px] text-muted">
               {#each rungs as r (r.plugins)}
                 <span
-                  class="absolute -translate-x-1/2 whitespace-nowrap font-mono"
+                  class="absolute -translate-x-1/2 whitespace-nowrap tabular-nums"
                   style:left="{Math.min((r.plugins / ladderTop) * 100, 92)}%"
                 >
                   {r.plugins}+ · {r.discount_pct}%
@@ -479,7 +488,7 @@
           {:else}
             <p class="flex items-baseline justify-between gap-2">
               <span class="text-sm text-muted">Total</span>
-              <span class="font-mono text-xl font-semibold text-fg">
+              <span class="tabular-nums text-xl font-semibold text-fg">
                 {formatCents(total, currency)}<span class="text-sm font-normal text-muted"
                   >{perLabel}</span
                 >
