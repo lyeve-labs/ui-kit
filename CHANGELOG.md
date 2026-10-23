@@ -5,11 +5,17 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.42.1] - 2026-10-22
+## [0.42.1] - 2026-10-23
 
 ### Fixed
 
 - `Button` with an `href` calls its `onclick`. The link dropped the handler, so a host could not handle the click in place, such as choosing an item without leaving the page.
+- `PluginCart` takes `per`, what the total is charged per: `'monthly'`, `'annual'` or `'once'`. It defaults to `period`. A one-time payment is quoted monthly and charged once, so its total read "$6.00/mo" and promised a renewal. With `per="once"` it reads "$6.00 once".
+- `PluginCart`'s review bar on a narrow screen reads "2 picked · $6.00", spaced and in the body face, and its link reads "Review order".
+
+### Changed
+
+- `PluginCart` sets every price in the body face with tabular numerals instead of the monospace face, so the page keeps one typeface.
 
 ## [0.42.0] - 2026-10-22
 
