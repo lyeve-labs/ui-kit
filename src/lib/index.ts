@@ -23,6 +23,8 @@ export { default as Table } from './components/Table.svelte';
 export { default as DescriptionList } from './components/DescriptionList.svelte';
 export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
+export { default as SortableList } from './components/SortableList.svelte';
+export type { SortableItem, SortableMove } from './components/SortableList.svelte';
 export { default as SplitPane } from './components/SplitPane.svelte';
 export type { CellFit } from './components/Table.svelte';
 export type { SidebarState } from './components/AppShell.svelte';

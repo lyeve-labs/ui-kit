@@ -8,6 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/experimental-ct-svelte';
 import LowContrastStory from './LowContrastStory.svelte';
 import NoticeStory from './NoticeStory.svelte';
+import SortableListStory from './SortableListStory.svelte';
 import SplitPaneStory from './SplitPaneStory.svelte';
 import { styleWithKit } from './kit-css.js';
 
@@ -65,6 +66,20 @@ for (const theme of ['dark', 'light'] as const) {
     test('GateNotice, every state', async ({ mount, page }) => {
       const story = await mount(NoticeStory, { props: { part: 'gate' } });
       await expect(story.getByTestId('gate-notice')).toHaveCount(7);
+      await styled(page);
+      expect(await blocking(page)).toEqual([]);
+    });
+
+    test('SortableList', async ({ mount, page }) => {
+      await mount(SortableListStory, { props: { fields: true } });
+      await styled(page);
+      expect(await blocking(page)).toEqual([]);
+    });
+
+    test("SortableList, a handle's menu open", async ({ mount, page }) => {
+      const story = await mount(SortableListStory, { props: {} });
+      await story.getByRole('button', { name: 'Move Pricing' }).click();
+      await expect(story.getByRole('menu')).toBeVisible();
       await styled(page);
       expect(await blocking(page)).toEqual([]);
     });

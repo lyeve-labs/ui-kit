@@ -38,6 +38,7 @@ import RadioGroup from './components/RadioGroup.svelte';
 import SegmentedControl from './components/SegmentedControl.svelte';
 import Select from './components/Select.svelte';
 import SidebarNav from './components/SidebarNav.svelte';
+import SortableList from './components/SortableList.svelte';
 import Tabs from './components/Tabs.svelte';
 import Tag from './components/Tag.svelte';
 import ThemeToggle from './components/ThemeToggle.svelte';
@@ -672,6 +673,13 @@ describe('the controls that may grow take the control height', () => {
       props: { size: 'sm', 'aria-label': 'Delete', hint: false, children: text('x') },
     });
     expectGrows(container.querySelector('button'));
+  });
+
+  it('SortableList handles, which a finger rests on to lift a row', () => {
+    const { getByRole } = render(SortableList, {
+      props: { items: [{ id: 'hero', label: 'Hero' }], label: 'Sections', row: text('Hero') },
+    });
+    expectGrows(getByRole('button', { name: 'Move Hero' }));
   });
 
   it('Tabs', () => {
