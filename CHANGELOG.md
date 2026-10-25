@@ -5,6 +5,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.43.0] - 2026-10-25
+
+### Added
+
+- `SortableList` puts rows in order by dragging a row's handle or by pressing Alt with the up or down arrow. A mouse lifts a row after a few pixels of travel. A finger lifts it after resting a quarter of a second on the handle, so a swipe that starts there still scrolls the page. A line marks where the row will land, the box that scrolls the list scrolls near its edge, and Escape or a second finger puts the row back. Every move, and every move that cannot happen, is announced in the row's own words: "Hero moved to position 2 of 5." `canMove` refuses a move by returning the sentence to say instead, and the line turns to the danger tone over a refused place. The handle also opens a menu with Move up and Move down, from a click, a tap, Enter or an arrow, so a row moves without a drag or a chord. Alt with an arrow inside a text field stays with the field, where Option and an arrow move the caret on macOS, and so does Alt with an arrow that a control in the row takes for itself.
+- `ColorField` takes a color typed as hex, such as `#2F6FEB`, `2f6feb` or the short `#26E`, and stores six upper-case digits after a `#`. Text that reads as no color is refused when the reader leaves the field. With `swatches` it is a radio group whose value is the picked swatch's value, such as a theme token's name. A stored value that no swatch carries any longer is kept, named and sent with the form until the reader picks another. It never draws the browser's color input. `normalizeHex` is exported for a host that reads hex itself.
+- `DiffView` lists the changes between two versions, each labeled Added, Removed, Changed or Moved in words, and sets a changed value's old and new text one above the other. A value longer than 400 characters shows its first 400 and a Show all button, and the cut falls between characters a reader sees as whole. Each Show all names its value to a screen reader, and every value folds again when the caller passes other changes. An emptied value reads "Empty". Every label and value takes its direction from its own text. With no changes it says the versions are the same.
+
 ## [0.42.2] - 2026-10-23
 
 ### Fixed
