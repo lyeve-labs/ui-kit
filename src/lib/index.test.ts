@@ -22,6 +22,7 @@ const COMPONENTS = [
   'Collapsible',
   'Table',
   'DescriptionList',
+  'DiffView',
   'Toolbar',
   'TreeView',
   'SortableList',

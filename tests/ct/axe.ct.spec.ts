@@ -7,6 +7,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/experimental-ct-svelte';
 import ColorField from '../../src/lib/components/ColorField.svelte';
+import DiffView from '../../src/lib/components/DiffView.svelte';
 import LowContrastStory from './LowContrastStory.svelte';
 import NoticeStory from './NoticeStory.svelte';
 import SortableListStory from './SortableListStory.svelte';
@@ -19,6 +20,14 @@ const THEME = [
   { value: 'brand', label: 'Brand', color: '#2F6FEB' },
   { value: 'accent', label: 'Accent', color: '#F59E0B' },
   { value: 'surface', label: 'Surface', color: '#FFFFFF' },
+];
+
+const CHANGES = [
+  { kind: 'added', label: 'Subtitle', value: 'Light shoes for long days.' },
+  { kind: 'removed', label: 'Banner', value: 'Spring sale' },
+  { kind: 'changed', label: 'Title', before: 'Run far', after: '' },
+  { kind: 'moved', label: 'Pricing', value: 'From position 2 to 4' },
+  { kind: 'added', label: 'Body', value: 'Long enough to fold. '.repeat(30) },
 ];
 
 async function blocking(page: Page) {
@@ -111,6 +120,13 @@ for (const theme of ['dark', 'light'] as const) {
       await mount(ColorField, {
         props: { label: 'Background', swatches: THEME, value: 'brand-old' },
       });
+      await styled(page);
+      expect(await blocking(page)).toEqual([]);
+    });
+
+    test('DiffView, every kind of change', async ({ mount, page }) => {
+      const view = await mount(DiffView, { props: { changes: CHANGES } });
+      await expect(view.getByRole('button', { name: 'Show all' })).toBeVisible();
       await styled(page);
       expect(await blocking(page)).toEqual([]);
     });
