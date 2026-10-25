@@ -44,6 +44,7 @@ const FIELDS = [
   'Autocomplete',
   'MultiSelect',
   'DatePicker',
+  'ColorField',
 ];
 
 /**

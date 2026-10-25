@@ -21,8 +21,12 @@ export { default as AccordionItem } from './components/AccordionItem.svelte';
 export { default as Collapsible } from './components/Collapsible.svelte';
 export { default as Table } from './components/Table.svelte';
 export { default as DescriptionList } from './components/DescriptionList.svelte';
+export { default as DiffView } from './components/DiffView.svelte';
+export type { DiffChange } from './components/DiffView.svelte';
 export { default as Toolbar } from './components/Toolbar.svelte';
 export { default as TreeView } from './components/TreeView.svelte';
+export { default as SortableList } from './components/SortableList.svelte';
+export type { SortableItem, SortableMove } from './components/SortableList.svelte';
 export { default as SplitPane } from './components/SplitPane.svelte';
 export type { CellFit } from './components/Table.svelte';
 export type { SidebarState } from './components/AppShell.svelte';
@@ -42,6 +46,8 @@ export { default as Textarea } from './components/Textarea.svelte';
 export { default as NumberInput } from './components/NumberInput.svelte';
 export { default as SearchInput } from './components/SearchInput.svelte';
 export { default as FileInput } from './components/FileInput.svelte';
+export { default as ColorField } from './components/ColorField.svelte';
+export type { ColorSwatch } from './components/ColorField.svelte';
 export { default as Label } from './components/Label.svelte';
 // The field furniture as a component, for a consumer composing a control the
 // kit does not ship. internal/field.ts stays private, and a page that could

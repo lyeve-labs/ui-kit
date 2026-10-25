@@ -22,8 +22,10 @@ const COMPONENTS = [
   'Collapsible',
   'Table',
   'DescriptionList',
+  'DiffView',
   'Toolbar',
   'TreeView',
+  'SortableList',
   'SplitPane',
   // Forms & inputs
   'Button',
@@ -34,6 +36,7 @@ const COMPONENTS = [
   'NumberInput',
   'SearchInput',
   'FileInput',
+  'ColorField',
   'Label',
   'Field',
   'FormMessage',
