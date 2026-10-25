@@ -6,6 +6,7 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/experimental-ct-svelte';
+import ColorField from '../../src/lib/components/ColorField.svelte';
 import LowContrastStory from './LowContrastStory.svelte';
 import NoticeStory from './NoticeStory.svelte';
 import SortableListStory from './SortableListStory.svelte';
@@ -13,6 +14,12 @@ import SplitPaneStory from './SplitPaneStory.svelte';
 import { styleWithKit } from './kit-css.js';
 
 const INK = { dark: 'rgb(11, 20, 34)', light: 'rgb(246, 247, 249)' };
+
+const THEME = [
+  { value: 'brand', label: 'Brand', color: '#2F6FEB' },
+  { value: 'accent', label: 'Accent', color: '#F59E0B' },
+  { value: 'surface', label: 'Surface', color: '#FFFFFF' },
+];
 
 async function blocking(page: Page) {
   const { violations } = await new AxeBuilder({ page }).include('#root').analyze();
@@ -80,6 +87,30 @@ for (const theme of ['dark', 'light'] as const) {
       const story = await mount(SortableListStory, { props: {} });
       await story.getByRole('button', { name: 'Move Pricing' }).click();
       await expect(story.getByRole('menu')).toBeVisible();
+      await styled(page);
+      expect(await blocking(page)).toEqual([]);
+    });
+
+    test('ColorField, typed, with a refusal', async ({ mount, page }) => {
+      await mount(ColorField, {
+        props: { label: 'Brand', value: '#2F6FEB', error: 'This color is taken.' },
+      });
+      await styled(page);
+      expect(await blocking(page)).toEqual([]);
+    });
+
+    test('ColorField, from swatches', async ({ mount, page }) => {
+      await mount(ColorField, {
+        props: { label: 'Background', swatches: THEME, value: 'accent', hint: 'Pick a color.' },
+      });
+      await styled(page);
+      expect(await blocking(page)).toEqual([]);
+    });
+
+    test('ColorField, a stored color the theme lost', async ({ mount, page }) => {
+      await mount(ColorField, {
+        props: { label: 'Background', swatches: THEME, value: 'brand-old' },
+      });
       await styled(page);
       expect(await blocking(page)).toEqual([]);
     });

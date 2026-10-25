@@ -35,6 +35,7 @@ const COMPONENTS = [
   'NumberInput',
   'SearchInput',
   'FileInput',
+  'ColorField',
   'Label',
   'Field',
   'FormMessage',

@@ -28,7 +28,7 @@ No config file, no theme provider, no setup ceremony.
 
 ## What's in the box
 
-- **76 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
+- **77 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
 - **Two themes:** Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
 - **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token. The rest is just Tailwind.
 - **Svelte 5 native:** built on runes and snippets, fully typed end-to-end.
@@ -37,13 +37,13 @@ No config file, no theme provider, no setup ceremony.
 ## Component list
 
 <details>
-<summary>76 components, organized by purpose</summary>
+<summary>77 components, organized by purpose</summary>
 
 **Layout and structure**
 Card, Panel, AppShell, AuthShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, Toolbar, TreeView, SortableList, SplitPane
 
 **Forms and inputs**
-Button, ButtonGroup, Input, PasswordInput, CopyField, Textarea, NumberInput, SearchInput, FileInput, Label, Field, FormMessage, SegmentedControl, FilterChips, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
+Button, ButtonGroup, Input, PasswordInput, CopyField, Textarea, NumberInput, SearchInput, FileInput, ColorField, Label, Field, FormMessage, SegmentedControl, FilterChips, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
 
 **Navigation**
 Breadcrumb, Tabs, Pagination, StepIndicator, Dropdown, SidebarNav, AccountMenu
@@ -403,7 +403,7 @@ This repo is a single-purpose component library. Nothing but `src/lib/`.
 ```
 src/
 └── lib/                 # → published as @lyeve-labs/ui-kit
-    ├── components/      # 76 .svelte files
+    ├── components/      # 77 .svelte files
     ├── stores/          # toast.svelte.ts
     ├── styles/          # theme.css (the one stylesheet)
     ├── utils/           # cn.ts, theme.ts

@@ -44,6 +44,8 @@ export { default as Textarea } from './components/Textarea.svelte';
 export { default as NumberInput } from './components/NumberInput.svelte';
 export { default as SearchInput } from './components/SearchInput.svelte';
 export { default as FileInput } from './components/FileInput.svelte';
+export { default as ColorField } from './components/ColorField.svelte';
+export type { ColorSwatch } from './components/ColorField.svelte';
 export { default as Label } from './components/Label.svelte';
 // The field furniture as a component, for a consumer composing a control the
 // kit does not ship. internal/field.ts stays private, and a page that could

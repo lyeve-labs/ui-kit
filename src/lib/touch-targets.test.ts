@@ -23,6 +23,7 @@ import Breadcrumb from './components/Breadcrumb.svelte';
 import Button from './components/Button.svelte';
 import Checkbox from './components/Checkbox.svelte';
 import CheckboxGroup from './components/CheckboxGroup.svelte';
+import ColorField from './components/ColorField.svelte';
 import Collapsible from './components/Collapsible.svelte';
 import DatePicker from './components/DatePicker.svelte';
 import FilterChips from './components/FilterChips.svelte';
@@ -680,6 +681,16 @@ describe('the controls that may grow take the control height', () => {
       props: { items: [{ id: 'hero', label: 'Hero' }], label: 'Sections', row: text('Hero') },
     });
     expectGrows(getByRole('button', { name: 'Move Hero' }));
+  });
+
+  it('ColorField swatches, which were 28px', () => {
+    const { container } = render(ColorField, {
+      props: {
+        label: 'Background',
+        swatches: [{ value: 'brand', label: 'Brand', color: '#2F6FEB' }],
+      },
+    });
+    expectGrows(container.querySelector('label > span[aria-hidden="true"]'));
   });
 
   it('Tabs', () => {
