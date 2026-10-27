@@ -132,16 +132,40 @@ describe('Tabs on a screen too narrow for the strip', () => {
 
   it('brings the active tab into view when it changes', async () => {
     // A page that opens on its fifth tab must not open on a strip that hides
-    // it. jsdom has no scrollIntoView, so one is given to the tab.
-    const seen: string[] = [];
+    // it. jsdom lays nothing out, so the strip and the tabs are given boxes:
+    // the strip is 300px wide and each tab 100px.
     const { container, rerender } = render(Tabs, {
       props: { items: five, active: 'overview', onchange: vi.fn() },
     });
-    for (const tab of container.querySelectorAll<HTMLElement>('[role="tab"]')) {
-      tab.scrollIntoView = () => seen.push(tab.dataset.tab ?? '');
-    }
+    const list = strip(container);
+    layOut(list, 500, 300, 0);
+    list.getBoundingClientRect = () => new DOMRect(0, 0, 300, 40);
+    container.querySelectorAll<HTMLElement>('[role="tab"]').forEach((tab, i) => {
+      tab.getBoundingClientRect = () => new DOMRect(i * 100 - list.scrollLeft, 0, 100, 40);
+    });
     await rerender({ items: five, active: 'transcripts', onchange: vi.fn() });
-    expect(seen.at(-1)).toBe('transcripts');
+    expect(list.scrollLeft).toBe(200);
+    await rerender({ items: five, active: 'overview', onchange: vi.fn() });
+    expect(list.scrollLeft).toBe(0);
+  });
+
+  it('never scrolls the page to reach the strip', async () => {
+    // scrollIntoView moves every scroll box above the tab, the page among
+    // them, so a strip below the fold pulled the page down to it on open.
+    const moved: string[] = [];
+    const original = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = function (this: HTMLElement) {
+      moved.push(this.dataset.tab ?? this.tagName);
+    };
+    try {
+      const { rerender } = render(Tabs, {
+        props: { items: five, active: 'prices', onchange: vi.fn() },
+      });
+      await rerender({ items: five, active: 'transcripts', onchange: vi.fn() });
+    } finally {
+      HTMLElement.prototype.scrollIntoView = original;
+    }
+    expect(moved).toEqual([]);
   });
 
   it('draws the focus ring inside the tab, where the scroll box cannot clip it', () => {
