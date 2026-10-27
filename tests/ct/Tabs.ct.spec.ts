@@ -7,6 +7,7 @@
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
 import Tabs from '../../src/lib/components/Tabs.svelte';
+import TabsBelowFoldStory from './TabsBelowFoldStory.svelte';
 
 test.describe('Tabs', () => {
   const items = [
@@ -60,5 +61,11 @@ test.describe('Tabs', () => {
     await component.locator('[role="tab"]').nth(1).focus();
     await page.keyboard.press('Enter');
     expect(selected).toBe('2');
+  });
+
+  test('a strip below the fold leaves the page at the top', async ({ mount, page }) => {
+    await mount(TabsBelowFoldStory);
+    await expect(page.getByRole('tab')).toHaveAttribute('aria-selected', 'true');
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
   });
 });
