@@ -196,4 +196,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.43.0';
+export const VERSION = '0.44.0';
