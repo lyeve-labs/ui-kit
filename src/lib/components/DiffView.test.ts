@@ -97,7 +97,7 @@ describe('DiffView', () => {
   it('cuts a long value between characters a reader sees as whole', () => {
     // 399 letters, then a family emoji of five code points, then more: the
     // cut lands after the emoji, never inside it.
-    const family = '\u{1F468}‍\u{1F469}‍\u{1F467}';
+    const family = '\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}';
     const { container } = render(DiffView, {
       props: {
         changes: [
