@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Toaster`, `SortableList`, `CopyButton` and `CopyField` are heard in the Orca screen reader in Chrome and Firefox. `SortableList` and `CopyField` announce through a `div`, which Orca reads even when other events from the page come just before it. A paragraph lost the reorder sentence in Firefox that way.
 - `SortableList` speaks a move made with the keyboard or the handle's menu two frames after the handle takes the focus back. Firefox reports that focus as new, and Orca dropped a sentence that arrived just before it.
 - `FormMessage` is heard in Firefox. Its region was filled on the first frame, and Firefox saw it arrive already full.
+- `Tabs` scrolls only its own strip to show the active tab. It used `scrollIntoView`, which also moved the page, so a strip placed low on a long page pulled the page down to it as soon as it mounted.
+- `Logo` draws the bottom row of the mark. Its two lowest tips sat one unit past the view box and were cut off.
 
 ## [0.43.0] - 2026-10-25
 
