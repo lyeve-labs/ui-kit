@@ -351,7 +351,7 @@ describe('README against the library', () => {
    * and this file had 48 of them in the component list alone.
    */
   it('uses ascii punctuation', () => {
-    expect(readme).not.toMatch(/[–—‘’“”•·…]/);
+    expect(readme).not.toMatch(/[\u2013\u2014\u2018\u2019\u201c\u201d\u2022\u00b7\u2026]/);
   });
 });
 
