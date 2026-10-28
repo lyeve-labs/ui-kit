@@ -21,6 +21,13 @@ const titled = createRawSnippet((item: () => Row) => ({
   render: () => `<input aria-label="${item().label} title" value="${item().label}" />`,
 }));
 
+/** Two frames, which a landed move waits before it speaks. */
+const frames = () =>
+  new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+/** The live region every move is announced through. */
+const region = (container: HTMLElement) => container.querySelector('[aria-live]') as HTMLElement;
+
 function setup(
   props: Partial<{
     row: typeof plain;
@@ -36,7 +43,7 @@ function setup(
     onmove,
     order: () => [...result.container.querySelectorAll('li')].map((li) => li.textContent?.trim()),
     handle: (name: string) => result.getByRole('button', { name: `Move ${name}` }),
-    status: () => result.getByRole('status').textContent?.trim(),
+    status: () => region(result.container).textContent?.trim(),
   };
 }
 
@@ -65,6 +72,7 @@ describe('SortableList', () => {
     const { handle, order, status, onmove } = setup();
     await fireEvent.keyDown(handle('Hero'), alt('ArrowDown'));
     expect(order()).toEqual(['Features', 'Hero', 'Pricing', 'Footer']);
+    await frames();
     expect(status()).toBe('Hero moved to position 2 of 4.');
     expect(onmove).toHaveBeenCalledOnce();
     expect(onmove.mock.calls[0][0]).toMatchObject({ from: 0, to: 1, item: { id: 'hero' } });
@@ -80,7 +88,7 @@ describe('SortableList', () => {
     const { handle, order, status } = setup();
     handle('Pricing').focus();
     await fireEvent.keyDown(handle('Pricing'), alt('ArrowUp'));
-    await tick();
+    await frames();
     expect(order()).toEqual(['Hero', 'Pricing', 'Features', 'Footer']);
     expect(status()).toBe('Pricing moved to position 2 of 4.');
     expect(document.activeElement).toBe(handle('Pricing'));
@@ -97,13 +105,36 @@ describe('SortableList', () => {
   });
 
   it('speaks a repeated sentence again from a node of its own', async () => {
-    const { handle, getByRole } = setup();
+    const { handle, container } = setup();
     await fireEvent.keyDown(handle('Hero'), alt('ArrowUp'));
-    const first = getByRole('status').firstElementChild;
+    const first = region(container).firstElementChild;
     await fireEvent.keyDown(handle('Hero'), alt('ArrowUp'));
-    const second = getByRole('status').firstElementChild;
+    const second = region(container).firstElementChild;
     expect(second?.textContent).toBe(first?.textContent);
     expect(second).not.toBe(first);
+  });
+
+  it('says a landed move only after the focus has returned to its handle', async () => {
+    // Firefox reports the restored focus as a new one, and Orca drops a polite
+    // sentence still waiting when that focus arrives.
+    const { handle, status } = setup();
+    handle('Hero').focus();
+    await fireEvent.keyDown(handle('Hero'), alt('ArrowDown'));
+    await tick();
+    expect(document.activeElement).toBe(handle('Hero'));
+    expect(status()).toBe('');
+    await frames();
+    expect(status()).toBe('Hero moved to position 2 of 4.');
+  });
+
+  it('announces through a polite div that carries no status role', () => {
+    // Browsers expose role="status" as a status bar, and Orca speaks nothing
+    // inserted into one. Firefox exposes a paragraph as a paragraph, and Orca
+    // drops its text when the list's own events come just before it.
+    const live = region(setup().container);
+    expect(live.getAttribute('aria-live')).toBe('polite');
+    expect(live.hasAttribute('role')).toBe(false);
+    expect(live.tagName).toBe('DIV');
   });
 
   it("announces the check's refusal and moves nothing", async () => {
@@ -163,7 +194,7 @@ describe('SortableList', () => {
     const up = getByRole('menuitem', { name: 'Move up' }) as HTMLButtonElement;
     expect(up.disabled).toBe(true);
     await fireEvent.click(getByRole('menuitem', { name: 'Move down' }));
-    await tick();
+    await frames();
     expect(order()).toEqual(['Features', 'Hero', 'Pricing', 'Footer']);
     expect(status()).toBe('Hero moved to position 2 of 4.');
     expect(onmove).toHaveBeenCalledOnce();

@@ -57,7 +57,7 @@ test.describe('SortableList by pointer', () => {
     await expect(story.locator('li').nth(3)).toHaveClass(/after:bg-brand/);
     await page.mouse.up();
     await expect(story.getByTestId('order')).toHaveText('Features, Pricing, Quotes, Hero, Footer');
-    await expect(story.getByRole('status')).toHaveText('Hero moved to position 4 of 5.');
+    await expect(story.locator('[aria-live]')).toHaveText('Hero moved to position 4 of 5.');
     await expect(story.getByTestId('moves')).toHaveText('Hero 0 to 3');
   });
 
@@ -74,7 +74,7 @@ test.describe('SortableList by pointer', () => {
     );
     await page.mouse.up();
     await expect(story.getByTestId('order')).toHaveText(ORDER);
-    await expect(story.getByRole('status')).toHaveText('The footer stays last.');
+    await expect(story.locator('[aria-live]')).toHaveText('The footer stays last.');
     await expect(story.getByTestId('moves')).toHaveText('');
   });
 
@@ -126,7 +126,7 @@ test.describe('SortableList by keys', () => {
     await tabTo(page, handle);
     await page.keyboard.press('Alt+ArrowUp');
     await expect(story.getByTestId('order')).toHaveText('Hero, Pricing, Features, Quotes, Footer');
-    await expect(story.getByRole('status')).toHaveText('Pricing moved to position 2 of 5.');
+    await expect(story.locator('[aria-live]')).toHaveText('Pricing moved to position 2 of 5.');
     await expect(handle).toBeFocused();
     await page.keyboard.press('Alt+ArrowDown');
     await page.keyboard.press('Alt+ArrowDown');
@@ -138,10 +138,10 @@ test.describe('SortableList by keys', () => {
     const story = await mount(SortableListStory, { props: {} });
     await tabTo(page, story.getByRole('button', { name: 'Move Hero' }));
     await page.keyboard.press('Alt+ArrowUp');
-    await expect(story.getByRole('status')).toHaveText('Hero is already first.');
+    await expect(story.locator('[aria-live]')).toHaveText('Hero is already first.');
     await tabTo(page, story.getByRole('button', { name: 'Move Footer' }));
     await page.keyboard.press('Alt+ArrowDown');
-    await expect(story.getByRole('status')).toHaveText('Footer is already last.');
+    await expect(story.locator('[aria-live]')).toHaveText('Footer is already last.');
     await expect(story.getByTestId('order')).toHaveText(ORDER);
   });
 
@@ -157,13 +157,22 @@ test.describe('SortableList by keys', () => {
   test('moves a row of 500 within 50 ms at the 95th percentile', async ({ mount, page }) => {
     const story = await mount(SortableListStory, { props: { count: 500 } });
     await story.getByRole('button', { name: 'Move Hero' }).focus();
-    // Each move is timed from the key to the live region's new sentence,
-    // which Svelte writes after the rows have moved.
+    // Each move is timed from the key to the rows moving. The sentence follows
+    // two frames after the handle takes the focus back, and the next key
+    // waits for it.
     const times = await page.evaluate(async () => {
-      const status = document.querySelector('[role="status"]')!;
+      const status = document.querySelector('[aria-live]')!;
+      const list = document.querySelector('ul')!;
       const out: number[] = [];
       for (let i = 0; i < 50; i++) {
         const before = status.textContent;
+        const moved = new Promise<void>((resolve) => {
+          const watch = new MutationObserver(() => {
+            watch.disconnect();
+            resolve();
+          });
+          watch.observe(list, { childList: true });
+        });
         const said = new Promise<void>((resolve) => {
           const watch = new MutationObserver(() => {
             if (status.textContent === before) return;
@@ -176,8 +185,9 @@ test.describe('SortableList by keys', () => {
         document.activeElement!.dispatchEvent(
           new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, bubbles: true }),
         );
-        await said;
+        await moved;
         out.push(performance.now() - start);
+        await said;
         // The handle takes the focus back after the move, before the next key.
         await new Promise((resolve) => requestAnimationFrame(resolve));
       }
@@ -189,7 +199,7 @@ test.describe('SortableList by keys', () => {
       type: 'move-ms',
       description: `p50 ${sorted[24].toFixed(1)}, p95 ${p95.toFixed(1)}, max ${sorted[49].toFixed(1)}`,
     });
-    await expect(story.getByRole('status')).toHaveText('Hero moved to position 51 of 500.');
+    await expect(story.locator('[aria-live]')).toHaveText('Hero moved to position 51 of 500.');
     // Alt and an arrow move the row and never reach the handle's menu.
     await expect(story.getByRole('menu')).toHaveCount(0);
     expect(p95).toBeLessThanOrEqual(50);
@@ -269,7 +279,7 @@ test.describe("SortableList's handle menu", () => {
     await expect(story.getByRole('menuitem', { name: 'Move up' })).toBeDisabled();
     await story.getByRole('menuitem', { name: 'Move down' }).click();
     await expect(story.getByTestId('order')).toHaveText('Features, Hero, Pricing, Quotes, Footer');
-    await expect(story.getByRole('status')).toHaveText('Hero moved to position 2 of 5.');
+    await expect(story.locator('[aria-live]')).toHaveText('Hero moved to position 2 of 5.');
     await expect(handle).toBeFocused();
   });
 
@@ -325,7 +335,7 @@ test.describe('SortableList when the caller changes the rows mid-drag', () => {
       'New, Hero, Features, Quotes, Pricing, Footer',
     );
     await expect(story.getByTestId('moves')).toHaveText('Pricing 3 to 4');
-    await expect(story.getByRole('status')).toHaveText('Pricing moved to position 5 of 6.');
+    await expect(story.locator('[aria-live]')).toHaveText('Pricing moved to position 5 of 6.');
   });
 
   test('ends the drag when the lifted row is removed, and the keys work after', async ({

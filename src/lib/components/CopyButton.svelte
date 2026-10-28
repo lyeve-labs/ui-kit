@@ -73,7 +73,13 @@
   The live region is mounted for the life of the button and empty at rest.
   Rendering it only after a copy announces nothing: assistive technology watches
   an existing region for a change, and a region that arrives already holding its
-  text is not a change. Toaster carries the same rule for the same reason.
+  text is not a change. Toaster carries the same rule for the same reason. It
+  stays a span, so a CopyButton inside a paragraph keeps that paragraph whole.
+  It is never role="status", which browsers expose as a status bar and Orca
+  never speaks. It is role="generic": Firefox exposes a bare span as static
+  text, created only once it holds the message, and Orca drops a sentence
+  that comes within a tenth of a second of that arrival unless its region is
+  a section, which generic is.
 
   The gap exists only while there is a message, so an idle button is the width
   of its icon and a row of them lines up.
@@ -86,7 +92,7 @@
   {/if}
 
   <span
-    role="status"
+    role="generic"
     aria-live="polite"
     aria-atomic="true"
     class="text-xs {copier.status === 'failed' ? 'text-danger' : 'text-success'}">{message}</span

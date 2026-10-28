@@ -36,9 +36,13 @@ describe('Toaster', () => {
     // One live region for the app, not one per toast. A region that arrives
     // already holding its text is not a change, so assistive technology never
     // announced it. The container is mounted up front and the toasts land in it.
-    const { getByRole } = render(Toaster);
-    const live = getByRole('status');
+    const { container } = render(Toaster);
+    const live = container.querySelector('[aria-live]') as HTMLElement;
     expect(live.getAttribute('aria-live')).toBe('polite');
+    // Browsers expose role="status" as a status bar, and Orca speaks nothing
+    // inserted into one. A div is a section, which Orca reads in both browsers.
+    expect(live.hasAttribute('role')).toBe(false);
+    expect(live.tagName).toBe('DIV');
     expect(live.querySelectorAll('p')).toHaveLength(2);
   });
 

@@ -34,8 +34,10 @@
    *
    * A submit outcome has no such permanent host, because the page mounts this
    * component at the moment the submit resolves. So the region goes in empty
-   * and the message is placed inside it on the next frame, which is the same
-   * shape of change a toast makes.
+   * and the message is placed inside it two frames later, which is the same
+   * shape of change a toast makes. One frame is not enough: Firefox builds its
+   * accessibility tree after the frame's callbacks run, so a region filled on
+   * the first frame reaches it already full and Orca hears nothing.
    *
    * The server runs no effect and has no frames, so it renders the message
    * straight away: a page delivered without its client bundle still carries
@@ -44,7 +46,9 @@
   let filled = $state(typeof window === 'undefined');
 
   $effect(() => {
-    const frame = requestAnimationFrame(() => (filled = true));
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => (filled = true));
+    });
     return () => cancelAnimationFrame(frame);
   });
 </script>
@@ -54,12 +58,14 @@
   interrupts whatever the reader is doing, because the submit did not go
   through and the user has to act on it. A confirmation takes aria-live
   "polite" and waits for a pause, because the work is done and nothing is being
-  asked of anyone.
+  asked of anyone. It takes no role: browsers expose role="status" as a status
+  bar, and Orca speaks nothing inserted into one.
 -->
 <div
   class="flex items-start gap-2 text-sm {tones[tone]} {klass}"
-  role={tone === 'danger' ? 'alert' : 'status'}
+  role={tone === 'danger' ? 'alert' : undefined}
   aria-live={tone === 'danger' ? 'assertive' : 'polite'}
+  aria-atomic={tone === 'danger' ? undefined : 'true'}
 >
   {#if filled}
     <!-- Stroked SVG, not a literal cross or tick: a font glyph lands at

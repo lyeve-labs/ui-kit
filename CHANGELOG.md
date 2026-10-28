@@ -5,6 +5,24 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Alert` and `Banner` take `announce`, which reads a message out when it appears, and every change to it after, without clearing it. Pass it for a result that stays on screen, such as a confirmation that replaces a form or a status a poll updates.
+
+### Changed
+
+- No component carries `role="status"` any longer. `Toaster`, `SortableList`, `CopyButton`, `CopyField`, `FormMessage` on its success tone, and `Alert` and `Banner` that report an outcome are each a polite region with `aria-live="polite"` and no role. Chrome and Firefox expose a status role as a status bar, and the Orca screen reader speaks nothing inserted into one. A test that finds one of these regions by its role finds it by `aria-live` now.
+- `Alert` and `Banner` that neither clear themselves, take `announce`, nor report a failure or a warning state a standing condition and are no live region, so a page that shows one, on load or after a client-side navigation, reads nothing out. A failure and a warning keep `role="alert"`.
+- The text of an outcome arrives two frames after its region mounts, in `FormMessage` (one frame before) and in an `Alert` or `Banner` that clears itself or takes `announce`, and the region is atomic, as the status role made it. A page that renders an outcome inside `{#if form}` with its text already in it is then still a change a screen reader reads out. A consumer test that reads that text right after render waits for it with `findByText`.
+
+### Fixed
+
+- `Toaster`, `SortableList`, `CopyButton` and `CopyField` are heard in the Orca screen reader in Chrome and Firefox. `SortableList` and `CopyField` announce through a `div`, which Orca reads even when other events from the page come just before it. A paragraph lost the reorder sentence in Firefox that way.
+- `SortableList` speaks a move made with the keyboard or the handle's menu two frames after the handle takes the focus back. Firefox reports that focus as new, and Orca dropped a sentence that arrived just before it.
+- `FormMessage` is heard in Firefox. Its region was filled on the first frame, and Firefox saw it arrive already full.
+
 ## [0.43.0] - 2026-10-25
 
 ### Added

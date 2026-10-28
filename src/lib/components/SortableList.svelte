@@ -140,9 +140,9 @@
   }
 
   /** Lands a move, or says why it cannot. True when the order changed. */
-  function land(from: number, to: number): boolean {
+  function land(from: number, to: number, announce = say): boolean {
     const result = attempt(items, from, to, canMove);
-    say(result.text);
+    announce(result.text);
     if (!result.moved) return false;
     const item = items[from];
     items = result.items;
@@ -157,9 +157,15 @@
    */
   async function move(from: number, to: number) {
     const focused = document.activeElement;
-    if (!land(from, to)) return;
+    let text = '';
+    if (!land(from, to, (t) => (text = t))) return say(text);
     await tick();
     if (focused instanceof HTMLElement && document.activeElement !== focused) focused.focus();
+    // Firefox reports the restored focus as a new one, and Orca drops a polite
+    // sentence still waiting when focus arrives. The browser builds its
+    // accessibility tree after a frame's callbacks run, so the second frame is
+    // the first that reaches it after the focus.
+    requestAnimationFrame(() => requestAnimationFrame(() => say(text)));
   }
 
   function typing(target: EventTarget | null): boolean {
@@ -505,7 +511,10 @@
   <p id="{uid}-keys" class="sr-only">
     Press Alt with the up or down arrow to move a row, or Enter for a menu.
   </p>
-  <p role="status" class="sr-only">
+  <!-- A div with no role, because Orca speaks nothing inserted into a status
+       role, and in Firefox drops a paragraph's text that follows the list's
+       own events too closely. -->
+  <div aria-live="polite" class="sr-only">
     {#key spoken.n}<span>{spoken.text}</span>{/key}
-  </p>
+  </div>
 </div>
