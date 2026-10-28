@@ -180,16 +180,16 @@
 
   <!-- Mounted empty for the life of the field, so a copy is a change a screen
        reader announces rather than a region that arrives already full. The
-       check is the sighted confirmation. Only a failure is shown in words. -->
-  <p
-    role="status"
+       check is the sighted confirmation. Only a failure is shown in words. A
+       div with no role, as Toaster's is, so Orca speaks it. -->
+  <div
     aria-live="polite"
     aria-atomic="true"
     id={failed ? `${fieldId}-error` : undefined}
     class={failed ? FIELD_ERROR : 'sr-only'}
   >
     {copier.status === 'copied' ? copiedLabel : failed ? COPY_FAILED_MESSAGE : ''}
-  </p>
+  </div>
   {#if hint && !failed}
     <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
   {/if}

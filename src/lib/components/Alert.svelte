@@ -33,6 +33,14 @@
      * being true after five seconds.
      */
     autoDismiss?: number | boolean;
+    /**
+     * Announces the message when it appears, and every change to it after,
+     * without clearing it. For a result that stays on screen, such as a
+     * confirmation that replaces a form or a status that a poll updates.
+     * A message without this or `autoDismiss` states a standing condition
+     * and is read out by nobody, so a page load says nothing.
+     */
+    announce?: boolean;
     ondismiss?: () => void;
     class?: string;
     children?: Snippet;
@@ -43,6 +51,7 @@
     title = undefined,
     dismissible = false,
     autoDismiss = false,
+    announce = false,
     ondismiss = undefined,
     class: klass = '',
     children,
@@ -64,6 +73,8 @@
    * announced every tone assertively, so a green confirmation cut across
    * whatever was being read. An alert that also clears itself must not be
    * assertive: it would interrupt to say something and then take it away.
+   * The polite branch takes no role: browsers expose role="status" as a status
+   * bar, and Orca speaks nothing inserted into one.
    */
   const delay = $derived(autoDismiss === true ? DISMISS_AFTER : Number(autoDismiss) || 0);
 
@@ -71,6 +82,28 @@
 
   /** An alert that can close itself can also be closed by hand. */
   const closable = $derived(dismissible || delay > 0);
+
+  /**
+   * A live region reports a change to what it holds, and an outcome alert
+   * arrives inside `{#if form}` already holding its text, so nothing would be
+   * read out. An alert that reports an outcome, one that clears itself or
+   * takes `announce`, mounts without its text and takes it two frames later,
+   * as FormMessage does. It is atomic, as role="status" made it, so a change
+   * reads the whole message. One that states a standing condition is no live
+   * region at all: it must not be read out because the page loaded, and
+   * Chrome reads a polite region that a client-side navigation inserts. A
+   * failure or a warning that stays is the alert branch and is never deferred.
+   */
+  const outcome = $derived(!live && (delay > 0 || announce));
+  let filled = $state(typeof window === 'undefined');
+
+  $effect(() => {
+    if (!outcome) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => (filled = true));
+    });
+    return () => cancelAnimationFrame(frame);
+  });
 
   let closed = $state(false);
   /** The pointer is over the alert, or focus is inside it. */
@@ -101,8 +134,9 @@
   <div
     transition:motion.toast|global
     class="flex items-start gap-3 rounded-lg border px-4 py-3 {tones[t].wrap} {klass}"
-    role={live ? 'alert' : 'status'}
-    aria-live={live ? 'assertive' : 'polite'}
+    role={live ? 'alert' : undefined}
+    aria-live={live ? 'assertive' : outcome ? 'polite' : undefined}
+    aria-atomic={outcome ? 'true' : undefined}
     onmouseenter={closable ? () => (held = true) : undefined}
     onmouseleave={closable ? () => (held = false) : undefined}
     onfocusin={closable ? () => (held = true) : undefined}
@@ -127,12 +161,14 @@
         <path d={TONE_GLYPH[t]} />
       </svg>
     </span>
-    <div class="flex-1 min-w-0">
-      {#if title}<p class="text-sm font-semibold text-fg">{title}</p>{/if}
-      {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">
-          {@render children()}
-        </div>{/if}
-    </div>
+    {#if filled || !outcome}
+      <div class="flex-1 min-w-0">
+        {#if title}<p class="text-sm font-semibold text-fg">{title}</p>{/if}
+        {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">
+            {@render children()}
+          </div>{/if}
+      </div>
+    {/if}
     {#if closable}
       <button
         type="button"

@@ -135,6 +135,11 @@ describe('CopyButton live region', () => {
     expect(region).toBeTruthy();
     expect(region.textContent).toBe('');
     expect(region.getAttribute('aria-live')).toBe('polite');
+    // A status role reads as a status bar to Orca, which speaks nothing put
+    // into one. Generic is a section, which Orca reads even right after the
+    // region appears. A span keeps a paragraph that holds the button whole.
+    expect(region.getAttribute('role')).toBe('generic');
+    expect(region.tagName).toBe('SPAN');
 
     await fireEvent.click(getByRole('button'));
     await settle();

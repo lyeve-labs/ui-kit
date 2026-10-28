@@ -33,7 +33,12 @@ describe('FormMessage', () => {
     });
     await findByText('Settings saved');
     expect(region(container).getAttribute('aria-live')).toBe('polite');
-    expect(region(container).getAttribute('role')).toBe('status');
+    // Browsers expose role="status" as a status bar, and Orca speaks nothing
+    // inserted into one.
+    expect(region(container).hasAttribute('role')).toBe(false);
+    expect(region(container).tagName).toBe('DIV');
+    // Atomic, as role="status" made it, so the whole message is read.
+    expect(region(container).getAttribute('aria-atomic')).toBe('true');
     expect(container.querySelector('[role="alert"]')).toBeNull();
   });
 
@@ -74,6 +79,18 @@ describe('FormMessage', () => {
       expect(region(container)).toBe(live);
     },
   );
+
+  it('fills the region on the second frame, not the first', async () => {
+    // Firefox builds its accessibility tree after a frame's callbacks run, so
+    // a region filled on the first frame reaches it already full.
+    const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+    const { container, findByText } = render(FormMessage, {
+      props: { tone: 'success', children: text('Saved') },
+    });
+    await frame();
+    expect(region(container).textContent?.trim()).toBe('');
+    expect(await findByText('Saved')).toBeTruthy();
+  });
 
   it('marks the region and never the message', async () => {
     // Marking each toast role="status" instead of the container is what made
