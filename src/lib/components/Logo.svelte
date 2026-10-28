@@ -58,7 +58,7 @@
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <g transform="translate(6 4)">
+      <g transform="translate(6 3)">
         <polygon class="fill-mark-ink" points="0,14 14,7 14,40 0,47" />
         <polygon class="fill-mark-foot" points="0,47 14,40 14,54 0,61" />
         <polygon class="fill-mark-step" points="14,40 28,33 28,47 14,54" />

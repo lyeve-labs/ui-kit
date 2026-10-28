@@ -57,8 +57,10 @@
   /*
    * The tab for the active id is brought into view when the id changes, so a
    * page that opens on its fifth tab does not open on a strip that hides it.
-   * `nearest` on both axes moves the strip and nothing else. A test DOM has
-   * no layout and no scrollIntoView, and neither is an error here.
+   * Only the strip's own offset moves. scrollIntoView moves every scroll box
+   * above the tab, the page among them, so a strip below the fold pulled the
+   * page down to it as soon as it mounted. A test DOM lays nothing out, so
+   * every box is empty and nothing moves.
    */
   $effect(() => {
     const el = scroller;
@@ -67,9 +69,11 @@
     const tab = [...el.querySelectorAll<HTMLElement>('[role="tab"]')].find(
       (t) => t.dataset.tab === id,
     );
-    if (tab && typeof tab.scrollIntoView === 'function') {
-      tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    }
+    if (!tab) return;
+    const box = el.getBoundingClientRect();
+    const at = tab.getBoundingClientRect();
+    if (at.left < box.left) el.scrollLeft -= box.left - at.left;
+    else if (at.right > box.right) el.scrollLeft += at.right - box.right;
   });
 
   /*

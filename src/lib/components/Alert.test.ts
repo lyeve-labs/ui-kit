@@ -5,9 +5,8 @@ import Alert from './Alert.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
-/** The root carries one of the two live-region roles, never neither. */
-const root = (container: HTMLElement) =>
-  container.querySelector<HTMLElement>('[role="alert"], [role="status"]');
+/** The alert's own box, a live region or not. */
+const root = (container: HTMLElement) => container.firstElementChild as HTMLElement | null;
 
 describe('Alert', () => {
   it('renders children', () => {
@@ -69,17 +68,20 @@ describe('Alert', () => {
   });
 
   describe('which live region it is', () => {
-    // A failure and a warning interrupt. Anything else waits for a pause.
+    // A failure and a warning interrupt. Anything else states a standing
+    // condition and is no live region, so a page that shows it reads nothing
+    // out. An alert that clears itself is the polite case below.
     it.each([
       ['danger', 'alert', 'assertive'],
       ['warn', 'alert', 'assertive'],
-      ['success', 'status', 'polite'],
-      ['brand', 'status', 'polite'],
-      ['neutral', 'status', 'polite'],
-    ] as const)('%s takes role=%s', (tone, role, live) => {
+      ['success', null, null],
+      ['brand', null, null],
+      ['neutral', null, null],
+    ] as const)('%s takes role %s and aria-live %s', (tone, role, live) => {
       const { container } = render(Alert, { props: { children: text('x'), tone } });
-      expect(container.querySelector(`[role="${role}"]`)).toBeTruthy();
+      expect(root(container)?.getAttribute('role')).toBe(role);
       expect(root(container)?.getAttribute('aria-live')).toBe(live);
+      expect(root(container)?.tagName).toBe('DIV');
     });
 
     it('waits, whatever its tone, when it clears itself', () => {
@@ -90,7 +92,9 @@ describe('Alert', () => {
           const { container, unmount } = render(Alert, {
             props: { children: text('x'), tone, autoDismiss },
           });
-          expect(root(container)?.getAttribute('role'), tone).toBe('status');
+          // Browsers expose role="status" as a status bar, and Orca speaks
+          // nothing inserted into one.
+          expect(root(container)?.hasAttribute('role'), tone).toBe(false);
           expect(root(container)?.getAttribute('aria-live'), tone).toBe('polite');
           unmount();
         }
@@ -162,5 +166,59 @@ describe('Alert', () => {
       await vi.advanceTimersByTimeAsync(5_000);
       expect(root(container)).toBeTruthy();
     });
+  });
+});
+
+describe('an outcome is announced, a standing condition is not', () => {
+  // A page renders an outcome inside {#if form} with its text already in it,
+  // and a live region that arrives full is not read out. Firefox builds its
+  // accessibility tree after a frame's callbacks run, so the text waits two.
+  const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+  it('mounts an outcome without its text and fills it on the second frame', async () => {
+    const { container, findByText, queryByText } = render(Alert, {
+      props: { children: text('Email confirmed'), tone: 'success', autoDismiss: true },
+    });
+    const region = container.querySelector('[aria-live]');
+    expect(region?.getAttribute('aria-live')).toBe('polite');
+    // Atomic, as role="status" made it, so a change reads the whole message.
+    expect(region?.getAttribute('aria-atomic')).toBe('true');
+    expect(queryByText('Email confirmed')).toBeNull();
+    await frame();
+    expect(queryByText('Email confirmed')).toBeNull();
+    const message = await findByText('Email confirmed');
+    expect(region?.contains(message)).toBe(true);
+  });
+
+  it('announces a result that stays on screen when told to', async () => {
+    // A confirmation that replaces a form, or a status a poll updates, stays
+    // on screen and still has to be heard.
+    const { container, findByText, queryByText, queryByLabelText } = render(Alert, {
+      props: { children: text('Payment received'), tone: 'success', announce: true },
+    });
+    const region = container.querySelector('[aria-live]');
+    expect(region?.getAttribute('aria-live')).toBe('polite');
+    expect(region?.hasAttribute('role')).toBe(false);
+    expect(queryByText('Payment received')).toBeNull();
+    expect(region?.contains(await findByText('Payment received'))).toBe(true);
+    expect(queryByLabelText('Dismiss')).toBeNull();
+  });
+
+  it('keeps a failure that stays an alert, told to announce or not', () => {
+    const { container, getByText } = render(Alert, {
+      props: { children: text('Payment failed'), tone: 'danger', announce: true },
+    });
+    expect(container.querySelector('[role="alert"]')?.getAttribute('aria-live')).toBe('assertive');
+    expect(getByText('Payment failed')).toBeTruthy();
+  });
+
+  it('renders a standing condition whole and outside any live region', () => {
+    // Chrome reads a polite region that a client-side navigation inserts, so a
+    // standing condition would be read out because the page loaded.
+    const { container, getByText } = render(Alert, {
+      props: { children: text('Billing is active'), tone: 'success' },
+    });
+    expect(getByText('Billing is active')).toBeTruthy();
+    expect(container.querySelector('[aria-live]')).toBeNull();
   });
 });

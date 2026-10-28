@@ -44,8 +44,13 @@ describe('CopyField', () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     stubClipboard(writeText);
     const { getByRole, container } = render(CopyField, { props: { value: 'abc', label: 'Key' } });
-    const status = container.querySelector('[role="status"]') as HTMLElement;
+    const status = container.querySelector('[aria-live]') as HTMLElement;
     expect(status.textContent?.trim()).toBe('');
+    // A status role reads as a status bar to Orca, which speaks nothing put
+    // into one, and Firefox drops a paragraph's text that follows other events.
+    expect(status.getAttribute('aria-live')).toBe('polite');
+    expect(status.hasAttribute('role')).toBe(false);
+    expect(status.tagName).toBe('DIV');
     expect(glyph(container)).toBe('idle');
 
     await fireEvent.click(getByRole('button'));
@@ -67,7 +72,7 @@ describe('CopyField', () => {
     });
     await fireEvent.click(getByRole('button'));
     await settle();
-    const status = container.querySelector('[role="status"]') as HTMLElement;
+    const status = container.querySelector('[aria-live]') as HTMLElement;
     expect(status.textContent?.trim()).toBe('Copy failed');
     expect(status.className).toContain('text-danger');
     expect(glyph(container)).toBe('idle');

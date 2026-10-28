@@ -17,11 +17,11 @@
      app and empty most of the time. Marking each toast `role="status"` instead
      announced nothing: assistive technology watches an existing region for
      changes, and a region that arrives already holding its text is not a
-     change. -->
+     change. It carries `aria-live` and no `role="status"`: browsers expose a
+     status role as a status bar, and Orca speaks nothing inserted into one. -->
 <div
   data-print="hide"
   class="pointer-events-none fixed bottom-4 end-4 z-toast flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
-  role="status"
   aria-live="polite"
   aria-atomic="false"
 >
