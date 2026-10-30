@@ -60,6 +60,14 @@
      * `'once'` and the total reads "$6.00 once" rather than "$6.00/mo".
      */
     per?: BillingPeriod | 'once';
+    /**
+     * What the order charges, in cents, when the host prices more than the
+     * selection, such as a discount code. It stands in for the quote's total
+     * in the bar and the default summary, and is what `summary` and `actions`
+     * are handed. It counts only while `quote` describes the selection, so it
+     * never outlives the cart it was priced for.
+     */
+    charged?: number | null;
     /** True while a fresh price is in flight. */
     quoting?: boolean;
     /** The count the bill will carry, when the host knows better than the cart. */
@@ -124,6 +132,7 @@
     quotePeriod = null,
     period = 'monthly',
     per,
+    charged = null,
     quoting = false,
     billedSkus = null,
     currency = 'USD',
@@ -187,9 +196,8 @@
 
   const total = $derived(
     quoted
-      ? period === 'annual'
-        ? (quoted.annual_total_cents ?? null)
-        : quoted.total_cents
+      ? (charged ??
+          (period === 'annual' ? (quoted.annual_total_cents ?? null) : quoted.total_cents))
       : null,
   );
 
