@@ -266,6 +266,37 @@ describe('PluginCart', () => {
     expect(bar.textContent?.replace(/\s+/g, ' ').trim()).toBe('2 picked · $13.00 Review order');
   });
 
+  // A host that prices a discount code apart from the cart passes what the
+  // order charges. The bar sits over the order on a phone, and showing the
+  // price before the code there put two totals on one screen.
+  it('shows what the order charges in the review bar once the host prices a code', () => {
+    const { container } = render(PluginCart, {
+      props: {
+        plugins: PLUGINS,
+        selected: new Set(['plugin-graphql', 'plugin-audit']),
+        quote: quoteFor(['plugin-graphql', 'plugin-audit'], 1300),
+        quotePeriod: 'monthly',
+        charged: 0,
+      },
+    });
+    const bar = container.querySelector('a[href^="#"]') as HTMLAnchorElement;
+    expect(bar.textContent?.replace(/\s+/g, ' ').trim()).toBe('2 picked · $0.00 Review order');
+  });
+
+  it('withholds the charged price when the quote no longer describes the selection', () => {
+    const { container } = render(PluginCart, {
+      props: {
+        plugins: PLUGINS,
+        selected: new Set(['plugin-graphql', 'plugin-audit']),
+        quote: quoteFor(['plugin-graphql'], 800),
+        quotePeriod: 'monthly',
+        charged: 0,
+      },
+    });
+    const bar = container.querySelector('a[href^="#"]') as HTMLAnchorElement;
+    expect(bar.textContent?.replace(/\s+/g, ' ').trim()).toBe('2 picked Review order');
+  });
+
   // One typeface on the page: figures line up through tabular numerals, not
   // through a second, monospace face.
   it('sets every price in the body face with tabular numerals', () => {
