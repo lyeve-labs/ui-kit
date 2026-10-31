@@ -97,6 +97,15 @@ describe('Table', () => {
     expect(cls).toContain('[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_');
   });
 
+  it('fades the ring in with the row tint, on the motion tokens', () => {
+    // The tint fades on the row while the ring is a shadow on the cells, so
+    // the cells take the same transition or the ring snaps in ahead of it.
+    const { container } = render(Table, { props: { children: body } });
+    const cls = container.querySelector('table')?.className ?? '';
+    expect(cls).toContain('[&_tbody_tr]:transition-colors');
+    expect(cls).toContain('[&_tbody_tr>td]:transition-shadow');
+  });
+
   it('draws the ring on the cells and rounds the last row to the frame', () => {
     // A row takes no radius, so a ring on the row was a square inset in a
     // rounded frame and the frame's bottom arcs sat outside it. On the cells
