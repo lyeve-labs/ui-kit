@@ -191,3 +191,99 @@ describe('Tabs on a screen too narrow for the strip', () => {
     expect(strip(container).className).not.toContain('mb-4');
   });
 });
+
+/*
+ * The WAI-ARIA tabs pattern. The strip is one stop in the tab order, the
+ * arrows walk it and wrap, and Home and End go to the ends. A move only
+ * moves focus: two consoles navigate to another page when a tab is chosen,
+ * so a key that chose would leave the page under the reader's finger.
+ */
+describe('Tabs from the keyboard', () => {
+  const stops = (tabs: HTMLElement[]) => tabs.filter((t) => t.tabIndex === 0);
+
+  function mount(active = 'prices') {
+    const onchange = vi.fn();
+    const view = render(Tabs, { props: { items: five, active, onchange } });
+    const tabs = view.getAllByRole('tab') as HTMLElement[];
+    return { ...view, tabs, onchange };
+  }
+
+  it('takes one tab stop, on the selected tab', () => {
+    const { tabs } = mount('prompts');
+    expect(stops(tabs)).toEqual([tabs[2]]);
+    for (const tab of tabs) {
+      expect(tab.getAttribute('tabindex')).toBe(tab === tabs[2] ? '0' : '-1');
+    }
+  });
+
+  it('keeps one stop on the first tab when no tab is selected', () => {
+    const { tabs } = mount('missing');
+    expect(stops(tabs)).toEqual([tabs[0]]);
+  });
+
+  it.each([
+    ['ArrowRight', 1, 2],
+    ['ArrowLeft', 1, 0],
+    ['Home', 3, 0],
+    ['End', 1, 4],
+  ])('moves focus with %s from tab %i to tab %i', async (key, from, to) => {
+    const { tabs, onchange } = mount(five[from].id);
+    tabs[from].focus();
+    await fireEvent.keyDown(tabs[from], { key });
+    expect(document.activeElement).toBe(tabs[to]);
+    expect(stops(tabs)).toEqual([tabs[to]]);
+    expect(onchange).not.toHaveBeenCalled();
+  });
+
+  it('wraps from the last tab to the first and back', async () => {
+    const { tabs } = mount('transcripts');
+    tabs[4].focus();
+    await fireEvent.keyDown(tabs[4], { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(tabs[0]);
+    await fireEvent.keyDown(tabs[0], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(tabs[4]);
+  });
+
+  it('keeps the page still when a key moves along the strip', async () => {
+    const { tabs } = mount('overview');
+    tabs[0].focus();
+    const event = new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true });
+    tabs[0].dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('leaves other keys to the browser', async () => {
+    const { tabs, onchange } = mount('overview');
+    tabs[0].focus();
+    const event = new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true });
+    tabs[0].dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(tabs[0]);
+    expect(onchange).not.toHaveBeenCalled();
+  });
+
+  it('returns the stop to the selected tab when focus leaves the strip', async () => {
+    const { tabs } = mount('prices');
+    const outside = document.createElement('button');
+    document.body.append(outside);
+    try {
+      tabs[1].focus();
+      await fireEvent.keyDown(tabs[1], { key: 'ArrowRight' });
+      expect(stops(tabs)).toEqual([tabs[2]]);
+      outside.focus();
+      await fireEvent.focusOut(tabs[2], { relatedTarget: outside });
+      expect(stops(tabs)).toEqual([tabs[1]]);
+    } finally {
+      outside.remove();
+    }
+  });
+
+  it('chooses the focused tab on a press, never on a move', async () => {
+    const { tabs, onchange } = mount('overview');
+    tabs[0].focus();
+    await fireEvent.keyDown(tabs[0], { key: 'ArrowRight' });
+    expect(onchange).not.toHaveBeenCalled();
+    await fireEvent.click(document.activeElement as HTMLElement);
+    expect(onchange).toHaveBeenCalledExactlyOnceWith('prices');
+  });
+});
