@@ -94,7 +94,10 @@
 </script>
 
 <details bind:this={root} class="group relative {klass}">
+  <!-- The name beside the avatar is hidden below sm, and the avatar is paint,
+       so the trigger carries its name itself. -->
   <summary
+    aria-label="{name}, account menu"
     class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
   >
     <span

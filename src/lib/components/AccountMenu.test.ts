@@ -49,6 +49,13 @@ describe('AccountMenu', () => {
     expect(getByText('paid@example.com')).toBeTruthy();
   });
 
+  it('names its trigger when the name is hidden on a narrow screen', () => {
+    // Below the sm breakpoint the trigger shows only the avatar, which is
+    // hidden from the accessibility tree, so the summary needs a name of its own.
+    const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
+    expect(container.querySelector('summary')?.getAttribute('aria-label')).toBe('Paid Journey, account menu');
+  });
+
   it('hides the avatar from the accessible name', () => {
     // The initials are paint. Left readable they prefix the trigger's name
     // with two letters nobody would speak at it.
