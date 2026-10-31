@@ -220,9 +220,9 @@
     return label ? `${label} ${range}` : range;
   });
 
-  /** The target of a control, sanitized, or nothing when the step is unavailable. */
-  function linkTo(target: number, enabled: boolean): string | undefined {
-    return href && enabled ? safeHref(href(target)) : undefined;
+  /** The target of a control, sanitized, or nothing when the builder's URL is refused. */
+  function linkTo(target: number): string | undefined {
+    return href ? safeHref(href(target)) : undefined;
   }
 
   /**
@@ -250,16 +250,6 @@
   const btnRest = 'text-muted hover:text-fg hover:bg-surface-2 active:bg-line active:text-fg';
 
   const btnCurrent = 'bg-brand text-ink';
-
-  /**
-   * A link with nowhere to go.
-   *
-   * An anchor has no `disabled`, and `disabled:` never matches one, so the two
-   * states have to be painted rather than declared. Dropping the href is what
-   * takes it out of the tab order and stops activation. The class is only the
-   * part a reader can see, at the same 30% the disabled buttons use.
-   */
-  const linkInert = 'pointer-events-none opacity-30';
 </script>
 
 {#snippet arrow(d: string)}
@@ -281,14 +271,15 @@
 
 <!-- Previous and next, as a link when the caller builds hrefs and as a button
      when it hands over a callback. The two branches carry the same classes and
-     the same label, so the pager reads and sounds the same either way. -->
+     the same label, so the pager reads and sounds the same either way. A step
+     with nowhere to go is a disabled button in both: an anchor without an href
+     is a plain element, and the accessibility tree refuses a label on one. -->
 {#snippet step(target: number, label: string, enabled: boolean, d: string)}
-  {#if href}
+  {#if href && enabled}
     <a
-      href={linkTo(target, enabled)}
+      href={linkTo(target)}
       aria-label={label}
-      aria-disabled={enabled ? undefined : 'true'}
-      class="{btnBase} {btnRest} {enabled ? '' : linkInert}"
+      class="{btnBase} {btnRest}"
     >
       {@render arrow(d)}
     </a>
@@ -342,7 +333,7 @@
           </span>
         {:else if href}
           <a
-            href={linkTo(n, true)}
+            href={linkTo(n)}
             aria-current={safePage === n ? 'page' : undefined}
             class="{btnBase} {slot.only ? 'max-sm:coarse:hidden' : ''} {safePage === n
               ? btnCurrent

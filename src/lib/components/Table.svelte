@@ -77,6 +77,7 @@
     '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
     '[&_tbody_tr]:transition-colors',
+    '[&_tbody_tr>td]:transition-shadow',
   ].join(' ');
 
   let {

@@ -249,8 +249,12 @@ describe('Pagination as links', () => {
     });
     const prev = getByLabelText('Previous page');
     expect(prev.hasAttribute('href')).toBe(false);
-    expect(prev.getAttribute('aria-disabled')).toBe('true');
-    expect(prev.className).toContain('pointer-events-none');
+    // An anchor with no href is a plain element, and a name on it is a name
+    // the accessibility tree refuses. A disabled button is what it means.
+    expect(prev.tagName).toBe('BUTTON');
+    expect((prev as HTMLButtonElement).disabled).toBe(true);
+    expect(prev.hasAttribute('aria-disabled')).toBe(false);
+    expect(getByLabelText('Next page').tagName).toBe('A');
   });
 
   it('refuses a scheme that executes, wherever the builder got it', () => {
