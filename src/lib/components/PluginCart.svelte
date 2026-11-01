@@ -281,9 +281,22 @@
     {/if}
 
     {#if shown.length === 0}
-      <p class="rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted">
-        Nothing matches that search.
-      </p>
+      <div
+        class="flex flex-col items-center gap-3 rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted"
+      >
+        <p>No capabilities match these filters.</p>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onclick={() => {
+            query = '';
+            category = 'all';
+          }}
+        >
+          Clear filters
+        </Button>
+      </div>
     {:else}
       <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
         {#each shown as plugin (plugin.sku)}
@@ -415,7 +428,8 @@
 
       {#if count === 0}
         <p class="py-6 text-center text-sm text-muted">
-          Nothing picked yet. With none of these you are on the free tier, which needs no checkout.
+          No capabilities picked yet. Without any, you stay on the free tier, which needs no
+          checkout.
         </p>
       {:else}
         <ul class="mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
@@ -482,7 +496,7 @@
         {/if}
         {#if ladder.next}
           <p class="mb-3 text-xs text-muted">
-            {ladder.next.more} more and the discount is {ladder.next.discount_pct}%.
+            Add {ladder.next.more} more for a {ladder.next.discount_pct}% discount.
           </p>
         {/if}
 
