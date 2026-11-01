@@ -63,6 +63,33 @@ test.describe('Tabs', () => {
     expect(selected).toBe('2');
   });
 
+  test('takes one Tab press and walks by the arrows without choosing', async ({ mount, page }) => {
+    const chosen: string[] = [];
+    const three = [...items, { id: '3', label: 'Tab 3' }];
+    const component = await mount(Tabs, {
+      props: { items: three, active: '2', onchange: (id: string) => chosen.push(id) },
+    });
+    const tabs = component.locator('[role="tab"]');
+
+    await page.keyboard.press('Tab');
+    await expect(tabs.nth(1)).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(tabs.nth(2)).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(tabs.nth(0)).toBeFocused();
+    await page.keyboard.press('End');
+    await expect(tabs.nth(2)).toBeFocused();
+    await page.keyboard.press('Home');
+    await expect(tabs.nth(0)).toBeFocused();
+    expect(chosen).toEqual([]);
+
+    await page.keyboard.press('Enter');
+    expect(chosen).toEqual(['1']);
+
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => document.activeElement?.getAttribute('role'))).not.toBe('tab');
+  });
+
   test('a strip below the fold leaves the page at the top', async ({ mount, page }) => {
     await mount(TabsBelowFoldStory);
     await expect(page.getByRole('tab')).toHaveAttribute('aria-selected', 'true');

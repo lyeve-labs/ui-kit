@@ -9,6 +9,15 @@
   export interface SidebarState {
     rail: boolean;
   }
+
+  /**
+   * How long a pointer has to rest over the rail before it opens. This waits
+   * for the reader, not for an animation. A pointer crossing the 56px rail on
+   * its way to the page is still moving and never rests there, so the column
+   * does not open over the control it is heading for. One that stops on the
+   * rail means to read it.
+   */
+  export const RAIL_REST_MS = 100;
 </script>
 
 <script lang="ts">
@@ -161,15 +170,31 @@
    * The rail: the icon column, and the labels on demand.
    *
    * While the sidebar is the rail it is 56px wide and the nav is told so. A
-   * pointer over it, or focus inside it, opens it to the full column over the
-   * page rather than beside it, so the page keeps its width and the reader
-   * still gets every label. It closes when the pointer or the focus leaves.
+   * pointer at rest over it, or focus inside it, opens it to the full column
+   * over the page rather than beside it, so the page keeps its width and the
+   * reader still gets every label. It closes when the pointer or the focus
+   * leaves. A pointer that only passes over it leaves it the rail: the open
+   * column covers the start of the page, and opening under a pointer bound
+   * for a control there held the column open over that control.
    * State rather than a hover rule, because the nav snippet has to be told
    * the labels are wanted, and a stylesheet cannot tell it.
    */
   const railMode = $derived(!isMobile && !railHidden && (rail || isNarrow));
   let railOpen = $state(false);
   const railIcons = $derived(railMode && !railOpen);
+  let railRest: ReturnType<typeof setTimeout> | undefined;
+
+  /** Every move starts the rest again, so only a pointer that stops opens the column. */
+  function onRailPointerMove() {
+    if (railOpen) return;
+    clearTimeout(railRest);
+    railRest = setTimeout(() => (railOpen = true), RAIL_REST_MS);
+  }
+
+  function onRailPointerLeave() {
+    clearTimeout(railRest);
+    railOpen = false;
+  }
 
   $effect(() => {
     const mobile = window.matchMedia('(max-width: 767px)');
@@ -178,12 +203,14 @@
       isMobile = mobile.matches;
       isNarrow = narrow.matches && !mobile.matches;
       if (!mobile.matches) navOpen = false;
+      clearTimeout(railRest);
       railOpen = false;
     };
     sync();
     mobile.addEventListener('change', sync);
     narrow.addEventListener('change', sync);
     return () => {
+      clearTimeout(railRest);
       mobile.removeEventListener('change', sync);
       narrow.removeEventListener('change', sync);
     };
@@ -269,8 +296,9 @@
       data-testid="app-rail"
       role="presentation"
       class="relative hidden {APP_SIDEBAR_RAIL} shrink-0 md:block"
-      onpointerenter={() => (railOpen = true)}
-      onpointerleave={() => (railOpen = false)}
+      onpointerenter={onRailPointerMove}
+      onpointermove={onRailPointerMove}
+      onpointerleave={onRailPointerLeave}
       onfocusin={() => (railOpen = true)}
       onfocusout={onRailFocusOut}
     >

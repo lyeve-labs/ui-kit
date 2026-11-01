@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import AppShell from './AppShell.svelte';
+import AppShell, { RAIL_REST_MS } from './AppShell.svelte';
 import * as motion from '../motion.js';
 
 vi.mock('../motion.js', async (original) => {
@@ -282,8 +282,11 @@ describe('AppShell between md: and lg:', () => {
 
   it('opens to the full column over the page under a pointer, and closes when it leaves', async () => {
     width('tablet');
+    vi.useFakeTimers();
     const { container } = render(AppShell, { props: railBase });
     await fireEvent.pointerEnter(railBox(container));
+    await vi.advanceTimersByTimeAsync(RAIL_REST_MS);
+    vi.useRealTimers();
     expect(aside(container).className).toContain('w-sidebar');
     // Over the page, not beside it: the column keeps the rail's width so the
     // page does not move 168px on every pass of the pointer.
@@ -293,6 +296,42 @@ describe('AppShell between md: and lg:', () => {
 
     await fireEvent.pointerLeave(railBox(container));
     expect(aside(container).className).toContain('w-nav-rail');
+  });
+
+  describe('a pointer crossing the rail', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    it('stays the rail while the pointer passes over it, so the control past it takes the click', async () => {
+      // A pointer on its way to a toolbar button beside the rail crossed it,
+      // the column opened at once over the button, and the pointer, now over
+      // the column, held it open. The button took no click until the pointer
+      // went out and came back from the right.
+      width('tablet');
+      const { container } = render(AppShell, { props: railBase });
+      await fireEvent.pointerEnter(railBox(container));
+      for (let i = 0; i < 4; i++) {
+        await vi.advanceTimersByTimeAsync(16);
+        await fireEvent.pointerMove(railBox(container));
+      }
+      expect(aside(container).className).toContain('w-nav-rail');
+      await fireEvent.pointerLeave(railBox(container));
+      await vi.advanceTimersByTimeAsync(RAIL_REST_MS * 4);
+      expect(aside(container).className).toContain('w-nav-rail');
+    });
+
+    it('opens once the pointer comes to rest over the rail', async () => {
+      width('tablet');
+      const { container } = render(AppShell, { props: railBase });
+      await fireEvent.pointerEnter(railBox(container));
+      await vi.advanceTimersByTimeAsync(RAIL_REST_MS - 20);
+      await fireEvent.pointerMove(railBox(container));
+      await vi.advanceTimersByTimeAsync(RAIL_REST_MS - 20);
+      // Still moving: every move starts the rest again.
+      expect(aside(container).className).toContain('w-nav-rail');
+      await vi.advanceTimersByTimeAsync(20);
+      expect(aside(container).className).toContain('w-sidebar');
+    });
   });
 
   it('opens for the keyboard and stays open while focus moves inside it', async () => {

@@ -33,16 +33,16 @@ export function scrollEdges(el: ScrollMetrics): ScrollEdges {
 }
 
 /**
- * The fade itself: a dark gradient on the edge, outside the scroll box so it
- * does not scroll away with the content it describes. Dark rather than a
- * palette color, because the box sits on the page in one place and inside
- * a card in another and no surface token is the color to fade to. The
- * scrims use black at an alpha for the same reason and it reads in both
- * themes. The direction is logical, so a right-to-left page fades the other
+ * The fade itself: a wash of the foreground color on the edge, outside the
+ * scroll box so it does not scroll away with the content it describes. The
+ * foreground token inverts with the theme, so the fade darkens a light card
+ * and lightens a dark one. A black fade had nothing to darken on a dark card
+ * and read as no fade at all. No surface token is the color to fade to,
+ * because the box sits on the page in one place and inside a card in
+ * another. The direction is logical, so a right-to-left page fades the other
  * way.
  */
 export const SCROLL_EDGE = 'pointer-events-none absolute inset-y-px w-6';
 export const SCROLL_EDGE_START =
-  'start-0 bg-linear-to-r rtl:bg-linear-to-l from-black/25 to-transparent';
-export const SCROLL_EDGE_END =
-  'end-0 bg-linear-to-l rtl:bg-linear-to-r from-black/25 to-transparent';
+  'start-0 bg-linear-to-r rtl:bg-linear-to-l from-fg/25 to-transparent';
+export const SCROLL_EDGE_END = 'end-0 bg-linear-to-l rtl:bg-linear-to-r from-fg/25 to-transparent';

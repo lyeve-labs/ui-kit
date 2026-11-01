@@ -29,8 +29,8 @@
    *
    * The scrollbar is not drawn. A strip of tabs with a bar under it reads as
    * a second rule under the real one. The fades carry the same message, the
-   * tabs are buttons so the keyboard reaches every one, and the active tab
-   * is scrolled into view when it changes.
+   * arrow keys reach every tab, and the active tab is scrolled into view when
+   * it changes.
    */
   let scroller: HTMLElement | undefined = $state();
   let moreBefore = $state(false);
@@ -62,19 +62,80 @@
    * page down to it as soon as it mounted. A test DOM lays nothing out, so
    * every box is empty and nothing moves.
    */
-  $effect(() => {
+  function reveal(tab: HTMLElement) {
     const el = scroller;
-    const id = active;
     if (!el) return;
-    const tab = [...el.querySelectorAll<HTMLElement>('[role="tab"]')].find(
-      (t) => t.dataset.tab === id,
-    );
-    if (!tab) return;
     const box = el.getBoundingClientRect();
     const at = tab.getBoundingClientRect();
     if (at.left < box.left) el.scrollLeft -= box.left - at.left;
     else if (at.right > box.right) el.scrollLeft += at.right - box.right;
+  }
+
+  function tabAt(index: number): HTMLElement | undefined {
+    return scroller?.querySelectorAll<HTMLElement>('[role="tab"]')[index];
+  }
+
+  const activeIndex = $derived(items.findIndex((t) => t.id === active));
+
+  $effect(() => {
+    const tab = activeIndex === -1 ? undefined : tabAt(activeIndex);
+    if (tab) reveal(tab);
   });
+
+  /*
+   * The strip is one stop in the tab order. A strip of five tabs cost five
+   * presses of Tab to step over, and the arrows did nothing.
+   *
+   * Activation is manual: Left, Right, Home and End move focus and the stop
+   * with it, and Enter, Space or a click chooses. A caller may navigate to
+   * another page when a tab is chosen, and a strip that chose on every arrow
+   * would then load a page per key press and take the reader off the strip.
+   *
+   * While focus is inside the strip the stop follows it, by key or by
+   * pointer. When focus leaves, the stop goes back to the selected tab. A
+   * selection matching no item would leave every tab at -1 and drop the
+   * strip out of the tab order, so the first tab holds it then.
+   */
+  let roving: number | null = $state(null);
+  const tabStop = $derived(roving ?? (activeIndex === -1 ? 0 : activeIndex));
+
+  function moveTo(index: number) {
+    const tab = tabAt(index);
+    if (!tab) return;
+    // The strip is in view when a key reaches it, and focus() would scroll
+    // every box above the tab, the page among them.
+    tab.focus({ preventScroll: true });
+    reveal(tab);
+  }
+
+  function onTabKeydown(e: KeyboardEvent, index: number) {
+    const last = items.length - 1;
+    let next: number;
+    switch (e.key) {
+      case 'ArrowRight':
+        next = index === last ? 0 : index + 1;
+        break;
+      case 'ArrowLeft':
+        next = index === 0 ? last : index - 1;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = last;
+        break;
+      default:
+        return;
+    }
+    // The arrows scroll the strip and the page, and Home and End jump the page.
+    e.preventDefault();
+    moveTo(next);
+  }
+
+  function onStripFocusOut(e: FocusEvent) {
+    if (scroller && e.relatedTarget instanceof Node && scroller.contains(e.relatedTarget)) return;
+    roving = null;
+  }
 
   /*
    * The focus ring is inset: the tabs sit in a box that clips to scroll, and
@@ -92,17 +153,21 @@
   <div
     bind:this={scroller}
     onscroll={measure}
+    onfocusout={onStripFocusOut}
     role="tablist"
     data-testid="tabs-scroll"
     class="flex gap-0.5 overflow-x-auto border-b border-line [scrollbar-width:none]"
   >
-    {#each items as tab (tab.id)}
+    {#each items as tab, i (tab.id)}
       <button
         type="button"
         role="tab"
         data-tab={tab.id}
         aria-selected={active === tab.id}
+        tabindex={i === tabStop ? 0 : -1}
         onclick={() => onchange(tab.id)}
+        onfocus={() => (roving = i)}
+        onkeydown={(e) => onTabKeydown(e, i)}
         class="{TAB}
           {active === tab.id
           ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:rounded-t'
