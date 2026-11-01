@@ -5,6 +5,21 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.0] - 2026-11-01
+
+### Added
+
+- `PluginCart` takes `charged`, the price in cents the order will charge. A host that prices a discount code apart from the cart's quote passes it, and while the quote still describes the selection it stands in for the quote's total in the sticky bar and the default summary, and is the total the `summary` and `actions` snippets receive. Without it the cart reads the quote as before.
+
+### Fixed
+
+- `Tabs` is one stop in the tab order. The selected tab holds it, Left and Right move the focus along the strip and wrap at the ends, and Home and End go to the first and last tab. Moving does not choose a tab: Enter, Space or a click does.
+- Between the `md` and `lg` breakpoints the `AppShell` rail opens only once a pointer has rested on it for 100 ms, so a pointer crossing it toward a control beside it no longer opens the navigation column over that control. Focus still opens it at once.
+- The scroll edge fade on a table or tab strip takes the foreground token, so it lightens a dark card as it darkens a light one. In the dark theme it could not be seen.
+- `Pagination` built from links draws a step with nowhere to go as a disabled button, as the callback pager already did, instead of a link with no target that assistive technology could not name.
+- `AccountMenu` gives its trigger an accessible name, the person's name and the menu's. Below the `sm` breakpoint it shows only the avatar, which is hidden from assistive technology, so it had none.
+- `Table` fades a row's hover ring in with its tint, on the fast duration and the move curve. The ring appeared ahead of the tint.
+
 ## [0.44.0] - 2026-10-28
 
 ### Added
