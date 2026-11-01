@@ -5,18 +5,6 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.46.0] - 2026-11-01
-
-### Added
-
-- The plugin cart takes an optional charged price in cents from the host. While the quote still describes the selection, the sticky bar and the default summary show it in place of the quote's total, so a discount priced by the host shows one price in the bar and the order. Without it the cart reads the quote as before.
-
-### Fixed
-
-- A tab strip is now one tab stop. Left and Right move focus along the strip and wrap at the ends, Home and End go to the first and last tab, and Enter, Space or a click chooses.
-- Between the md and lg breakpoints, the navigation rail opened over the page the moment a pointer crossed it, so a click meant for a control beside it landed on the navigation. The rail now opens once the pointer rests on it for 100 ms, and focus still opens it at once.
-- The fade on the edge of a scrolling table or tab strip was a black wash that measured 1.07:1 against a dark card, so a table that continued past its edge looked complete in the dark theme. The fade now uses the foreground color and measures 2.06:1 in the dark theme and 1.73:1 in the light theme.
-
 ## [0.45.0] - 2026-11-01
 
 ### Added
