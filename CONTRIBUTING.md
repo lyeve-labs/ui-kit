@@ -131,8 +131,9 @@ One logical change per branch.
 ## Releases
 
 Releases are cut from `main` after the relevant changelog section is moved
-out of `[Unreleased]` and the version is bumped in `package.json`. Tag the
-commit `v<version>` and push. CI handles the npm publish.
+out of `[Unreleased]` and the version is bumped in `package.json`. A
+maintainer tags that commit `v<version>`, pushes the tag, and then publishes the
+package to npm from that tag.
 
 ## Questions
 
