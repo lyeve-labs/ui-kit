@@ -5,6 +5,28 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0] - 2026-11-03
+
+### Added
+
+- Depth tokens in both palettes, each with its Tailwind utility: the colors `highlight`, `shade`, `glow`, `halo` and `tint`, a shadow ramp from `shadow-raised` through `shadow-card` and `shadow-popover` to `shadow-overlay`, `shadow-glow`, `shadow-mark`, `shadow-primary` and `shadow-primary-hover`, the insets `inset-shadow-highlight`, `inset-shadow-bevel` and `inset-shadow-well`, `rounded-card`, `leading-title`, and the background images `bg-canvas`, `bg-sidebar`, `bg-card`, `bg-hero`, `bg-lift`, `bg-accent`, `bg-accent-y`, `bg-rule-end` and `bg-rule-y`.
+
+### Changed
+
+- Surfaces carry depth in the same palette. `Card`, `Panel`, `Stat` and `Table` sit on the card shadow with a lit top edge, the 20px card radius and a gentle gradient laid over their background color, so a background a page passes still shows. Menus, tooltips, toasts and a dragged `SortableList` row take the popover shadow, and `Drawer` and the dialogs the overlay shadow.
+- `AppShell` lights the top of its content column with a faint cyan and violet wash, gives the sidebar its own gradient and a right edge that fades at its ends, and draws the header over the wash with a rule that fades toward its end edge.
+- The primary `Button` has a vertical gradient, a bevel and a brand glow at rest that grows on hover. Every focus ring glows cyan, and fields and `SegmentedControl` sit in a shallow well.
+- The current `SidebarNav` row has the brand tint, the cyan to violet accent bar and a faint glow. The active tab in `Tabs` and the `Progress` fill carry the same accent, and every horizontal accent is mirrored in right-to-left layouts.
+- A `Stat` tile carries a 2px cyan to violet line along its top edge, and a `Table` header row and a hovered row take the brand tint. A `Badge` dot carries a soft halo of its own tone.
+- `EmptyState` and `AuthShell` sit on a hero wash of ink into a tenth of violet.
+- The `PageHeader` title is 32px on a 38px line, semibold with tighter tracking, and 24px below the `sm` breakpoint. Section eyebrows step up to the muted color and semibold.
+- Every addition is a shadow or a background image, so nothing changes size and nothing shifts. Forced colors and print drop the gradients, glows and shadows, and every text pair the change adds clears WCAG AA in both palettes.
+
+### Fixed
+
+- `Progress` stays visible in forced colors. The track draws a border and the fill paints in the system text color, where both used to vanish.
+- The primary, violet and danger buttons show their boundary in forced colors, with an outline that takes no space. They had none.
+
 ## [0.45.0] - 2026-11-01
 
 ### Added
