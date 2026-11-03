@@ -435,3 +435,33 @@ describe('SidebarNav pointer feedback', () => {
     for (const svg of closed) expect(svg.className.baseVal).toContain('rtl:rotate-180');
   });
 });
+
+describe('SidebarNav href', () => {
+  it('refuses an href a browser would run as script', () => {
+    const hostile: NavTree = [
+      { id: 'leaf', label: 'Leaf', href: 'javascript:alert(1)' },
+      {
+        id: 'group',
+        label: 'Group',
+        href: 'data:text/html,<script>alert(1)</script>',
+        children: [{ id: 'child', label: 'Child', href: '/child' }],
+      },
+    ];
+    const { container } = render(SidebarNav, {
+      props: { items: hostile, activePath: '/child' },
+    });
+    for (const a of container.querySelectorAll('a')) {
+      expect(a.getAttribute('href') ?? '').not.toMatch(/^(javascript|data):/i);
+    }
+  });
+
+  it('keeps a relative and an https href as given', () => {
+    const plain: NavTree = [
+      { id: 'local', label: 'Local', href: '/content/entries?page=2' },
+      { id: 'away', label: 'Away', href: 'https://lyeve.com/docs' },
+    ];
+    const { getByText } = render(SidebarNav, { props: { items: plain, activePath: '/' } });
+    expect(getByText('Local').closest('a')?.getAttribute('href')).toBe('/content/entries?page=2');
+    expect(getByText('Away').closest('a')?.getAttribute('href')).toBe('https://lyeve.com/docs');
+  });
+});

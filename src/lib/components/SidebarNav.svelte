@@ -1,5 +1,6 @@
 <script lang="ts">
   import { activeTrail, type NavNode, type NavTree } from '../internal/nav-tree.js';
+  import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
   import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
@@ -184,7 +185,7 @@
       -->
       <div class={collapsed ? 'flex flex-col items-start gap-1' : 'flex items-center gap-1'}>
         <a
-          href={node.href}
+          href={safeHref(node.href)}
           aria-current={current ? 'page' : undefined}
           class="{ROW} {paint} min-w-0 flex-1"
           style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
@@ -218,7 +219,7 @@
       </button>
     {:else if node.href}
       <a
-        href={node.href}
+        href={safeHref(node.href)}
         aria-current={current ? 'page' : undefined}
         class="{ROW} {paint}"
         style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
