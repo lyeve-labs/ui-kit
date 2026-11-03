@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
   let {
@@ -8,10 +9,6 @@
     items: { label: string; href?: string }[];
     class?: string;
   } = $props();
-
-  function safeUrl(url: string | undefined): string | undefined {
-    return url && !/^(javascript|data):/i.test(url) ? url : undefined;
-  }
 </script>
 
 <nav aria-label="Breadcrumb" class="flex items-center gap-1 text-xs {cls}">
@@ -38,7 +35,7 @@
            truncating itself: `truncate` clips overflow, and the hit box a
            finger gets is drawn outside the link's own edges. -->
       <a
-        href={safeUrl(item.href)}
+        href={safeHref(item.href)}
         class="{HIT_AREA} inline-flex min-w-0 text-muted hover:text-fg transition-colors"
       >
         <span class="min-w-0 truncate">{item.label}</span>
