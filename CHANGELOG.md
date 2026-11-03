@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `SidebarNav` refuses an item's href that a browser would run as script, such as a `javascript:` or `data:` URL, the way the kit's other link components do. The row still renders, without a link. A relative or `https` href renders as given.
+- `SidebarNav` and `Breadcrumb` refuse an item's href that a browser would run as script, the way the kit's other link components do. That covers a `javascript:`, `data:` or `vbscript:` URL, including one with leading whitespace or a tab or line break inside the scheme, where `Breadcrumb` used to catch only the first two written plainly. The item still renders, without a link. A relative or `https` href renders as given.
 
 ## [0.46.0] - 2026-11-03
 
