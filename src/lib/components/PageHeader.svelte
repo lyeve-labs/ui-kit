@@ -55,9 +55,15 @@
       a 390px screen is the ramp applied rather than adopted. 32px is the step
       the ramp does hold and the step this was already reaching for.
 
-      The weight stays at 700, which is the ramp's H1 weight, because this is
-      still the page's h1. Taking H2's 600 along with its size would move the
-      title twice for one decision.
+      The weight is H2's 600 with H2's -0.02em tracking, on a 38px line
+      (leading-title). A 700 title at 32px read heavy beside the semibold
+      card headings under it, and the tighter tracking is what makes a large
+      title read as set rather than typed.
+
+      Below the sm breakpoint it drops to the console's 24/32 step, which
+      keeps a long title to fewer lines on a phone. A media query is settled
+      before the first paint, so the title never changes size while the
+      reader watches.
 
       Each size token names its own leading and tracking. A `text-*` token
       built from `--text-*` alone sets font-size and leaves line-height to
@@ -71,7 +77,7 @@
       data-testid="page-title"
       class="[overflow-wrap:anywhere] {compact
         ? 'text-sm font-semibold text-fg'
-        : 'text-h2 leading-h2 tracking-h2 font-bold text-fg'}"
+        : 'text-2xl tracking-h2 font-semibold text-fg sm:text-h2 sm:leading-title'}"
     >
       {title}
     </h1>

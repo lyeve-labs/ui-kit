@@ -17,6 +17,7 @@
     SCROLL_EDGE_START,
     scrollEdges,
   } from '../internal/scroll-edges.js';
+  import { CARD_SURFACE } from '../internal/layout.js';
 
   interface Props {
     striped?: boolean;
@@ -71,7 +72,7 @@
    * start cell in either direction and the two agree in left-to-right text.
    */
   const HOVER_RING = [
-    '[&_tbody_tr:hover]:bg-surface-2/60',
+    '[&_tbody_tr:hover]:bg-tint',
     '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_var(--color-brand),inset_1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
@@ -240,10 +241,15 @@
 
 <!-- overflow-hidden on the frame, not only on the scroller: the hovered row's
      ring is square and the frame is not, and the last row's corners drew past
-     the frame's rounded ones. -->
+     the frame's rounded ones.
+
+     The frame is a card: the same surface, radius and shadows, so a table and
+     the cards above it sit at one depth. It paints its own surface rather than
+     showing the page through, which the shadow under it needs to read as a
+     raised sheet. -->
 <div
   data-testid="table-frame"
-  class="relative w-full overflow-hidden rounded-xl border border-line {cls}"
+  class="relative w-full overflow-hidden {CARD_SURFACE} {cls}"
 >
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
@@ -256,7 +262,7 @@
     onfocusin={reveal}
     data-print="unclip"
     data-testid="table-scroll"
-    class="w-full overflow-x-auto rounded-xl"
+    class="w-full overflow-x-auto rounded-card"
     {...scrollAttrs}
   >
     <!--
@@ -274,21 +280,25 @@
       which is why the lines moved down to the cells they were already drawn
       between. With border-spacing at zero the result is the same line in the
       same place.
+
+      The head row and a hovered row take the brand tint. It is one opaque
+      color, so the contrast suite measures the head's labels and a row's text
+      on it, and a hovered row is told apart by more than its ring.
     -->
     <table
       style="--cell-truncate: {truncateAt}"
       class="w-full border-separate border-spacing-0 text-sm text-start
       {fixed ? 'table-fixed' : ''}
       {CELL_FIT[cell]} {CELL_NAMED} {COLUMN_ALIGN} {HEAD_CONTROLS}
-      [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-surface-2/40
+      [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-tint
       [&_thead_th]:px-4 [&_thead_th]:py-3 [&_thead_th]:text-xs
         [&_thead_th]:font-medium [&_thead_th]:text-faint
         [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:whitespace-nowrap
       [&_tbody_td]:px-4 [&_tbody_td]:py-3 [&_tbody_td]:text-fg [&_tbody_td]:align-middle
       [&_tbody_td]:border-b [&_tbody_td]:border-line [&_tbody_tr:last-child_td]:border-0
       {striped ? '[&_tbody_tr:nth-child(even)]:bg-surface-2/40' : ''}
-      [&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]
-      [&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]
+      [&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-card)-1px)]
+      [&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-card)-1px)]
       {hoverable ? HOVER_RING : ''}"
     >
       {@render children()}
@@ -306,7 +316,7 @@
       aria-hidden="true"
       data-print="hide"
       data-testid="table-more-before"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-xl"
+      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-card"
     ></div>
   {/if}
   {#if moreAfter}
@@ -314,7 +324,7 @@
       aria-hidden="true"
       data-print="hide"
       data-testid="table-more-after"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-xl"
+      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-card"
     ></div>
   {/if}
 </div>

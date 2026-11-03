@@ -58,7 +58,7 @@ describe('Table', () => {
     const { getByTestId } = render(Table, { props: { children: body } });
     const frame = getByTestId('table-frame');
     expect(frame.className).toContain('overflow-hidden');
-    expect(frame.className).toContain('rounded-xl');
+    expect(frame.className).toContain('rounded-card');
   });
 
   it('puts the scroll box in the tab sequence', () => {
@@ -114,10 +114,10 @@ describe('Table', () => {
     const cls = container.querySelector('table')?.className ?? '';
     expect(cls).not.toMatch(/\[&_tbody_tr:hover\]:ring/);
     expect(cls).toContain(
-      '[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]',
+      '[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-card)-1px)]',
     );
     expect(cls).toContain(
-      '[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]',
+      '[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-card)-1px)]',
     );
     // A one-cell row is both ends and gets all four edges.
     expect(cls).toContain(

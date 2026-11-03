@@ -138,7 +138,7 @@
     aria-hidden={describe ? undefined : 'true'}
     style="top: {anchor.top}px; left: {anchor.left}px"
     class="fixed {pos[position]} z-tooltip w-max max-w-[min(16rem,calc(100vw-2rem))]
-      rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-xl
+      rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-popover inset-shadow-highlight
       transition {visible
       ? 'duration-base ease-enter'
       : 'invisible scale-[0.96] opacity-0 duration-fast ease-exit'}"

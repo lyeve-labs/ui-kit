@@ -136,7 +136,7 @@ describe('AuthShell outer element', () => {
     const { container } = render(AuthShell, { props: props() });
     const main = container.querySelector('main')!;
     expect(main.getAttribute('class')).toBe(
-      'flex min-h-screen items-center justify-center bg-ink px-4 py-10',
+      'flex min-h-screen items-center justify-center bg-ink bg-hero px-4 py-10',
     );
     expect(main.hasAttribute('style')).toBe(false);
   });

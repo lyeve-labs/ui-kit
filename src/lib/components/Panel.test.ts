@@ -67,7 +67,8 @@ describe('Panel', () => {
     expect(cls).toContain('border');
     expect(cls).toContain('border-line');
     expect(cls).toContain('bg-surface');
-    expect(cls).toContain('rounded-xl');
+    expect(cls).toContain('rounded-card');
+    expect(cls).toContain('shadow-card');
   });
 
   it('plain has no border', () => {
@@ -79,7 +80,8 @@ describe('Panel', () => {
     const cls = classesOf(rootOf(container));
     expect(cls.some((c) => c.startsWith('border'))).toBe(false);
     expect(cls).not.toContain('bg-surface');
-    expect(cls).not.toContain('rounded-xl');
+    expect(cls).not.toContain('rounded-card');
+    expect(cls.some((c) => c.startsWith('shadow-') || c.startsWith('inset-shadow-'))).toBe(false);
     // The heading survives the box being removed. That is the point of plain.
     expect(container.querySelector('h3')?.textContent?.trim()).toBe('Retention');
   });
@@ -212,7 +214,7 @@ describe('Panel', () => {
     });
     const cls = classesOf(rootOf(container));
     expect(cls.some((c) => c.startsWith('border') || c.startsWith('bg-'))).toBe(false);
-    expect(cls).not.toContain('rounded-xl');
+    expect(cls).not.toContain('rounded-card');
     expect(classesOf(container.querySelector('h3') as HTMLElement)).toContain('text-danger');
   });
 

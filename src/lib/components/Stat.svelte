@@ -8,6 +8,7 @@
    * use this one instead.
    */
   import type { StatusTone } from '../internal/tone.js';
+  import { CARD_SURFACE } from '../internal/layout.js';
 
   type Trend = 'up' | 'down' | 'flat';
   type Accent = 'brand' | 'violet' | 'success' | 'neutral';
@@ -74,8 +75,8 @@
 
   const pads: Record<Size, string> = { sm: 'p-4', md: 'p-5' };
   const values: Record<Size, string> = {
-    sm: 'mt-1 text-lg font-semibold',
-    md: 'mt-2 text-2xl font-bold',
+    sm: 'mt-1 text-lg font-semibold tracking-tight',
+    md: 'mt-2 text-2xl font-bold tracking-tight',
   };
 
   const valueColor = $derived(tone ? tones[tone] : accents[accent]);
@@ -84,7 +85,16 @@
   const trendMark = { up: '↑', down: '↓', flat: '→' } as const;
 </script>
 
-<div class="rounded-xl border border-line bg-surface {pads[size]} {klass}">
+<!-- A brand to violet line along the top edge, so a row of figures reads as a
+     set. It is a mark and carries nothing a reader needs, so where gradients
+     are not drawn it falls back to solid brand or to nothing at all. It is
+     mirrored under right-to-left, so cyan stays at the start edge.
+     overflow-hidden lets the card's corners trim it. -->
+<div
+  class="{CARD_SURFACE} relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-brand before:bg-accent rtl:before:-scale-x-100 {pads[
+    size
+  ]} {klass}"
+>
   <p class="text-xs font-medium uppercase tracking-wide text-faint">{label}</p>
   <p class="{values[size]} {valueColor} {mono ? 'font-mono tabular-nums' : ''}">{value}</p>
   <div class="mt-1 flex items-center gap-2">

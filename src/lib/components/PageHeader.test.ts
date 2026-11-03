@@ -70,18 +70,28 @@ describe('PageHeader', () => {
     // console whose table under this heading sets at 14px.
     const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
     const cls = (container.querySelector('h1') as HTMLElement).className;
-    expect(cls).toContain('text-h2');
-    expect(cls).toContain('leading-h2');
+    expect(cls).toContain('sm:text-h2');
+    expect(cls).toContain('sm:leading-title');
     expect(cls).toContain('tracking-h2');
     expect(cls).not.toContain('text-h1');
-    expect(cls).not.toMatch(/\btext-\dxl\b/);
   });
 
-  it('keeps the H1 weight of the ramp while it takes the H2 size', () => {
-    // Size and weight are two decisions. Taking 600 along with the 32px would
-    // have moved the page title twice for one of them.
+  it('steps down to the console scale below sm, and only there', () => {
+    // A phone gets the 24/32 step. Every other console size would be a size
+    // the theme file does not declare for a title.
     const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
-    expect((container.querySelector('h1') as HTMLElement).className).toContain('font-bold');
+    const cls = (container.querySelector('h1') as HTMLElement).className.split(/\s+/);
+    expect(cls).toContain('text-2xl');
+    expect(cls.filter((c) => /^text-(?:\dxl|h\d)$/.test(c))).toEqual(['text-2xl']);
+  });
+
+  it('sets the title semibold, the weight of the headings under it', () => {
+    // A 700 title at 32px read heavier than the semibold card headings under
+    // it. The weight moved to 600 with the tighter leading.
+    const { container } = render(PageHeader, { props: { title: 'Dashboard' } });
+    const cls = (container.querySelector('h1') as HTMLElement).className;
+    expect(cls).toContain('font-semibold');
+    expect(cls).not.toContain('font-bold');
   });
 });
 

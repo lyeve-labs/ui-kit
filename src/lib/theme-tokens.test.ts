@@ -67,6 +67,13 @@ const RECOGNIZED = [
   '--tracking-',
   '--radius-',
   '--shadow-',
+  // An inner shadow composes with a drop shadow only from this namespace:
+  // Tailwind keeps each in a variable of its own, and a second --shadow-*
+  // utility on one element replaces the first.
+  '--inset-shadow-',
+  // bg-* reads a background image from here, and the kit's gradients are
+  // tokens so a forced colors scheme and paper can switch each one off.
+  '--background-image-',
   '--breakpoint-',
   '--container-',
   '--z-index-',
@@ -491,6 +498,163 @@ describe('console type scale', () => {
     // the kit for a type scale.
     for (const step of TAILWIND.filter((s) => !(s in CONSOLE))) {
       expect(tokens, `--text-${step} is not the kit's to state`).not.toContain(`--text-${step}`);
+    }
+  });
+});
+
+/**
+ * Depth is shadows and background images, never a border or a size.
+ *
+ * A glow that grew a border, or a highlight drawn as one, would move every
+ * neighbor of the surface the moment it appeared, which is a layout shift the
+ * reader sees on every hover and every focus. These read the declarations
+ * rather than a rendered page, so a value that sneaks a length into the wrong
+ * property fails here before any page is drawn.
+ */
+/** A shadow list split at its top-level commas, so a color-mix stays whole. */
+function layers(list: string): string[] {
+  const out = [''];
+  let depth = 0;
+  for (const ch of list) {
+    if (ch === '(') depth += 1;
+    if (ch === ')') depth -= 1;
+    if (ch === ',' && depth === 0) out.push('');
+    else out[out.length - 1] += ch;
+  }
+  return out;
+}
+
+describe('depth', () => {
+  const block = themeBlock(css);
+  const value = (token: string) =>
+    new RegExp(`${token}:\\s*([^;]+);`).exec(block)?.[1].replace(/\s+/g, ' ').trim() ?? '';
+
+  it('declares the shadow ramp from a control to a dialog', () => {
+    expect(tokens.filter((t) => t.startsWith('--shadow-'))).toEqual([
+      '--shadow-raised',
+      '--shadow-card',
+      '--shadow-popover',
+      '--shadow-overlay',
+      '--shadow-glow',
+      '--shadow-primary',
+      '--shadow-primary-hover',
+      '--shadow-mark',
+    ]);
+  });
+
+  it('casts each rung of the ramp further than the one below it', () => {
+    // The largest blur on a rung, which is how far its shadow reaches. A menu
+    // that cast no further than the card it opened from would read as part of
+    // the card.
+    const reach = (token: string) =>
+      Math.max(...[...value(token).matchAll(/\b0 -?\d+px (\d+)px/g)].map((m) => Number(m[1])));
+    const ramp = ['--shadow-raised', '--shadow-card', '--shadow-popover', '--shadow-overlay'];
+    for (let i = 1; i < ramp.length; i += 1) {
+      expect(reach(ramp[i]), `${ramp[i]} against ${ramp[i - 1]}`).toBeGreaterThan(reach(ramp[i - 1]));
+    }
+  });
+
+  it('builds every shadow from the three depth colors, so each one follows the theme', () => {
+    for (const token of tokens.filter((t) => /^--(?:inset-)?shadow-/.test(t))) {
+      const colors = [...value(token).matchAll(/var\(--color-([a-z-]+)\)/g)].map((m) => m[1]);
+      // bevel is a white edge on a filled button's own color, the same in
+      // both themes, so it names no token. The primary button's pool is the
+      // halo, its own fill color under a name paper can switch off.
+      if (token === '--inset-shadow-bevel') continue;
+      const allowed = token.startsWith('--shadow-primary')
+        ? ['shade', 'glow', 'halo']
+        : ['highlight', 'shade', 'glow'];
+      expect(colors.length, `${token} names no depth color`).toBeGreaterThan(0);
+      expect(colors.every((c) => allowed.includes(c)), token).toBe(true);
+    }
+  });
+
+  it('draws the top light as a 1px line with no blur, so no text sits on it', () => {
+    expect(value('--inset-shadow-highlight')).toBe('inset 0 1px 0 0 var(--color-highlight)');
+  });
+
+  it('keeps every inner shadow inset, so it paints inside the border it sits on', () => {
+    for (const token of tokens.filter((t) => t.startsWith('--inset-shadow-'))) {
+      for (const layer of layers(value(token))) {
+        expect(layer.trim(), token).toMatch(/^inset /);
+      }
+    }
+  });
+
+  it('redeclares the depth colors in the light palette, the print block and forced colors', () => {
+    // A depth color left out of the light block keeps the dark one, and a
+    // black shade at half strength on a white card reads as a smudge.
+    const light = css.slice(css.indexOf("html[data-theme='light'] {"));
+    const print = css.slice(css.indexOf('@media print'));
+    // The canvas and the card add light in dark and cannot on white, so each
+    // is drawn again for the light palette rather than inherited.
+    for (const name of ['canvas', 'card']) {
+      expect(light.slice(0, light.indexOf('\n}')), `light ${name}`).toContain(`--background-image-${name}:`);
+    }
+    for (const name of ['highlight', 'shade', 'glow']) {
+      expect(light.slice(0, light.indexOf('}')), `light ${name}`).toContain(`--color-${name}:`);
+      expect(print, `print ${name}`).toMatch(new RegExp(`--color-${name}: transparent`));
+    }
+    const forced = css.slice(css.indexOf('@media (forced-colors: active)'));
+    expect(forced).toMatch(/--color-glow: transparent/);
+    // Print turns the brand black, so a pool built from the brand printed a
+    // black blur under the primary button. The pool has its own token, and
+    // paper and forced colors turn it off.
+    expect(value('--color-halo')).toBe('var(--color-brand)');
+    expect(print).toMatch(/--color-halo: transparent/);
+    expect(forced).toMatch(/--color-halo: transparent/);
+    for (const name of ['hero', 'accent', 'accent-y', 'canvas', 'sidebar', 'card', 'lift', 'rule-y', 'rule-end']) {
+      expect(forced, `forced ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
+      expect(print, `print ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
+    }
+  });
+
+  it('keeps focus visible as an outline where shadows are not drawn', () => {
+    // A field draws its focus as a ring, and a ring is a box shadow. Unlayered,
+    // so it wins over the outline-none the field carries.
+    const forced = css.slice(css.indexOf('@media (forced-colors: active)'));
+    const rule = forced.slice(forced.indexOf(':focus-visible'));
+    expect(rule).toMatch(/^:focus-visible \{\s*outline: 2px solid Highlight;/);
+    expect(css.indexOf('@media (forced-colors: active)')).toBeLessThan(css.indexOf('@layer base'));
+  });
+
+  it('puts no glow on a surface focused only from script', () => {
+    expect(css).toMatch(/:focus-visible:not\(\[tabindex='-1'\]\) \{\s*box-shadow: var\(--shadow-glow\);/);
+  });
+
+  it('runs the hero wash from ink into violet, and the accent from brand into violet', () => {
+    expect(value('--background-image-hero')).toMatch(
+      /color-mix\(in srgb, var\(--color-violet\) \d+%, var\(--color-ink\)\) 0%, var\(--color-ink\) 100%/,
+    );
+    expect(value('--background-image-accent')).toBe(
+      'linear-gradient(90deg, var(--color-brand), var(--color-violet))',
+    );
+    expect(value('--background-image-accent-y')).toBe(
+      'linear-gradient(180deg, var(--color-brand), var(--color-violet))',
+    );
+  });
+
+  it('paints the accent only on marks, never behind text', () => {
+    // A gradient behind a label has two contrast ratios and the reader gets
+    // the worse one. The accent is for an indicator a few pixels wide and a
+    // progress fill, and each sits on solid brand for where it is not drawn.
+    const users = componentPaths()
+      .map((p) => ({ name: p.split('/').pop()!, src: readFileSync(p, 'utf8') }))
+      .filter((f) => /\bbg-accent(?:-y)?\b/.test(f.src))
+      .map((f) => f.name)
+      .sort();
+    expect(users).toEqual(['Progress.svelte', 'SidebarNav.svelte', 'Stat.svelte', 'Tabs.svelte']);
+    for (const name of users) {
+      const src = readFileSync(join(__dirname, 'components', name), 'utf8');
+      for (const [cls] of src.matchAll(/\S*bg-accent(?:-y)?\b/g)) {
+        const prefix = cls.slice(0, cls.indexOf('bg-accent'));
+        expect(src, `${name} paints ${cls} with no solid brand under it`).toContain(`${prefix}bg-brand `);
+        // The horizontal accent runs from the start edge, so under
+        // right-to-left the mark is mirrored, as the header rule is.
+        if (!cls.endsWith('-y')) {
+          expect(src, `${name} does not mirror ${cls} under rtl`).toContain(`rtl:${prefix}-scale-x-100`);
+        }
+      }
     }
   });
 });

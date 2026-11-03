@@ -120,7 +120,7 @@
        rule are the card treatment, because lifted off the header it is a
        surface of its own. -->
   <div
-    class="absolute end-0 top-full z-dropdown mt-2 flex w-64 origin-top-right flex-col gap-1 rounded-xl border border-line bg-surface p-2 shadow-2xl animate-popover-in"
+    class="absolute end-0 top-full z-dropdown mt-2 flex w-64 origin-top-right flex-col gap-1 rounded-xl border border-line bg-surface p-2 shadow-popover inset-shadow-highlight animate-popover-in"
   >
     <div class="border-b border-line px-2 pb-2">
       <p class="truncate text-sm font-medium text-fg">{name}</p>

@@ -265,7 +265,7 @@
     onfocusout={linked ? onGroupFocusOut : undefined}
     class="inline-flex items-stretch rounded-lg border {error
       ? 'border-danger coarse:outline-danger'
-      : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {SIZES[
+      : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 inset-shadow-well p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {SIZES[
       size
     ].row} {disabled ? 'opacity-50' : ''}"
   >
@@ -276,7 +276,7 @@
         `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
         SIZES[size].segment +
         (selected
-          ? ' bg-surface text-brand shadow-sm ring-1 ring-inset ring-brand/40'
+          ? ' bg-surface text-brand shadow-raised inset-shadow-highlight ring-1 ring-inset ring-brand/40'
           : ' text-muted hover:text-fg active:bg-surface active:text-fg')}
       {#snippet content()}
         {#if Icon}

@@ -4,6 +4,11 @@ import { describe, expect, it, vi } from 'vitest';
 import PluginCart from './PluginCart.svelte';
 import type { CartQuote } from '../internal/pricing.js';
 
+const NEXT_RUNG = 'Add 1 more for a 5% discount.';
+const EMPTY_CART =
+  'No capabilities picked yet. Without any, you stay on the free tier, which needs no checkout.';
+const NO_MATCH = 'No capabilities match these filters.';
+
 const PLUGINS = [
   {
     sku: 'plugin-graphql',
@@ -148,7 +153,7 @@ describe('PluginCart', () => {
     const { getByText } = render(PluginCart, {
       props: { plugins: PLUGINS, brackets: BRACKETS, selected: new Set(['plugin-graphql']) },
     });
-    expect(getByText(/1 more and the discount is 5%/)).toBeTruthy();
+    expect(getByText(NEXT_RUNG)).toBeTruthy();
   });
 
   it('replaces the whole selection from a quick pick', async () => {
@@ -179,6 +184,20 @@ describe('PluginCart', () => {
     expect(queryByLabelText(/Audit/)).toBeTruthy();
   });
 
+  it('clears the search and category when nothing matches them', async () => {
+    const { getByRole, getByText, queryByText, getByLabelText } = render(PluginCart, {
+      props: { plugins: PLUGINS },
+    });
+    expect(queryByText(NO_MATCH)).toBeNull();
+    await fireEvent.input(getByRole('searchbox', { name: 'Search capabilities' }), {
+      target: { value: 'no such capability' },
+    });
+    expect(getByText(NO_MATCH)).toBeTruthy();
+    await fireEvent.click(getByRole('button', { name: 'Clear filters' }));
+    expect(queryByText(NO_MATCH)).toBeNull();
+    expect(getByLabelText(/GraphQL/)).toBeTruthy();
+  });
+
   it('shows the price apart from the description, and a beta plugin as a badge', () => {
     const plugins = [{ ...PLUGINS[0], blurb: 'A typed API. Beta.' }];
     const { getByRole, getByText } = render(PluginCart, { props: { plugins } });
@@ -204,7 +223,7 @@ describe('PluginCart', () => {
 
   it('tells an empty cart it is already on the free tier', () => {
     const { getByText } = render(PluginCart, { props: { plugins: PLUGINS } });
-    expect(getByText(/free tier, which needs no checkout/)).toBeTruthy();
+    expect(getByText(EMPTY_CART)).toBeTruthy();
   });
 
   // A one-time payment is charged once, for the monthly total. A "/mo" beside
@@ -348,7 +367,7 @@ describe('PluginCart', () => {
       });
       const aside = getByRole('complementary', { name: 'Your order' });
       expect(within(aside).getByTestId('handed').textContent).toBe('plugin-graphql|none');
-      expect(queryByText(/1 more and the discount is 5%/)).toBeNull();
+      expect(queryByText(NEXT_RUNG)).toBeNull();
       expect(queryByText(/Waiting for a price/)).toBeNull();
       expect(within(aside).queryByRole('button', { name: 'Buy' })).toBeNull();
     });

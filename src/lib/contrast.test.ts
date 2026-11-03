@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PANEL_DANGER_SURFACE } from './internal/layout.js';
+import { APP_HEADER, PANEL_DANGER_SURFACE } from './internal/layout.js';
 
 /**
  * The palette is the one place a defect reaches every surface at once, and it
@@ -239,7 +239,10 @@ describe('a chip on a row that highlights', () => {
 
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
-    const rule = css.slice(css.indexOf(':focus-visible'), css.indexOf(':focus:not('));
+    // Read from the base layer. The forced colors block above it states a
+    // focus outline of its own, in the system highlight.
+    const base = css.slice(css.indexOf('@layer base'));
+    const rule = base.slice(base.indexOf(':focus-visible'), base.indexOf(':focus:not('));
     expect(rule).toContain('outline: 2px solid var(--color-brand)');
     expect(rule).not.toContain('color-mix');
   });
@@ -267,6 +270,285 @@ describe('the danger panel surface', () => {
         ratio(tokens[name], ground),
         `${name} on the ${scope} danger panel`,
       ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
+/**
+ * Depth is drawn in translucent colors, so each one is measured where it
+ * lands: flattened over the surface it sits on, in both palettes. The three
+ * are read from the stylesheet the same way the hex tokens are.
+ */
+function depth(scope: 'dark' | 'light'): Record<string, { hex: string; alpha: number }> {
+  const marker = css.indexOf("html[data-theme='light'] {");
+  const region =
+    scope === 'dark' ? css.slice(0, marker) : css.slice(marker, css.indexOf('}', marker));
+  const out: Record<string, { hex: string; alpha: number }> = {};
+  for (const [, name, r, g, b, a] of region.matchAll(
+    /--color-(highlight|shade|glow):\s*rgb\((\d+) (\d+) (\d+) \/ ([0-9.]+)\);/g,
+  )) {
+    const hex = `#${[r, g, b].map((c) => Number(c).toString(16).padStart(2, '0')).join('')}`;
+    out[name] = { hex, alpha: Number(a) };
+  }
+  return out;
+}
+
+/** The share of violet in the hero wash, read from the token. */
+const heroShare = Number(
+  /--background-image-hero:[^;]*color-mix\(in srgb, var\(--color-violet\) (\d+)%, var\(--color-ink\)\)/.exec(
+    css,
+  )?.[1],
+);
+
+/**
+ * The share of the shade the field well paints. The text of a field sits on
+ * plain surface-2 below the band, which the palette suite measures, and
+ * wellReach below proves it stays below.
+ */
+const wellToken = /--inset-shadow-well:([^;]*);/.exec(css)?.[1] ?? '';
+const wellShare =
+  Number(/color-mix\(in srgb, var\(--color-shade\) (\d+)%, transparent\)/.exec(wellToken)?.[1]) / 100;
+
+describe('the field well', () => {
+  it('names the share of shade it paints', () => {
+    expect(wellShare).toBeGreaterThan(0);
+    expect(wellShare).toBeLessThanOrEqual(1);
+  });
+
+  it('darkens only a band above the line of text', () => {
+    // A 38px control with a 20px line leaves 9px above the text. The shadow
+    // reaches its offset plus its blur below the top edge, and has to end
+    // inside that gap, or the placeholder would sit on the darker ground.
+    const [, y, blur] = /inset 0 (\d+)px (\d+)px/.exec(wellToken) ?? [];
+    expect(Number(y) + Number(blur)).toBeLessThanOrEqual(9);
+  });
+});
+
+describe.each([
+  ['dark', dark],
+  ['light', light],
+] as const)('depth in the %s palette', (scope, tokens) => {
+  const d = depth(scope);
+  const flat = (name: 'highlight' | 'shade' | 'glow', ground: string) =>
+    over(d[name].hex, ground, d[name].alpha);
+
+  it('declares all three depth colors', () => {
+    expect(Object.keys(d).sort()).toEqual(['glow', 'highlight', 'shade']);
+  });
+
+  it.each(TEXT_TOKENS)('%s clears 4.5:1 at both ends of the hero wash', (name) => {
+    // A gradient has two grounds and the reader gets the worse one. An empty
+    // state and the sign-in page carry the title, the description, a link and
+    // a status line on it.
+    expect(heroShare).toBeGreaterThan(0);
+    const ends = { ink: tokens.ink, violet: over(tokens.violet, tokens.ink, heroShare / 100) };
+    for (const [end, ground] of Object.entries(ends)) {
+      expect(ratio(tokens[name], ground), `${name} on the ${end} end`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('keeps the field border at 3:1 against the darkest band of the well inside it', () => {
+    // The inner shadow darkens a band along the field's top edge, right
+    // against the border. The well paints the shade at a share of its
+    // strength, read from the token.
+    const ground = over(d.shade.hex, tokens['surface-2'], d.shade.alpha * wellShare);
+    expect(ratio(tokens['line-strong'], ground)).toBeGreaterThanOrEqual(3);
+  });
+
+  it('keeps the focus ring at 3:1 on top of its own glow', () => {
+    // The glow fills the gap between a control and its ring and spreads past
+    // it, so the ring is read against glow over the ground, not the ground.
+    for (const ground of GROUNDS) {
+      const halo = flat('glow', tokens[ground]);
+      expect(ratio(tokens.brand, halo), `ring over glow on ${ground}`).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('keeps the primary fill at 3:1 against the glow around it', () => {
+    // The button's boundary is its fill. Hovered, the fill sits in its glow.
+    for (const ground of GROUNDS) {
+      const halo = flat('glow', tokens[ground]);
+      expect(ratio(tokens['brand-light'], halo), `hovered fill on ${ground}`).toBeGreaterThanOrEqual(
+        3,
+      );
+    }
+  });
+
+  it.each(['brand', 'violet'])('draws the %s end of the accent at 3:1 on every ground', (name) => {
+    // The accent is a mark: the active tab and nav indicator on the page and
+    // the sidebar, and a progress fill on its surface-2 track. Each end has to
+    // clear the non-text floor wherever it lands.
+    for (const ground of GROUNDS) {
+      expect(ratio(tokens[name], tokens[ground]), `${name} on ${ground}`).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
+
+/**
+ * The surfaces' own gradients, measured at their stops. Each token is read
+ * from the block that declares it for that palette, a stop is evaluated to a
+ * color and an alpha, and every text token a surface carries is measured on
+ * every stop.
+ */
+type Paint = { hex: string; alpha: number };
+
+/** The top-level comma-separated arguments of a function's argument list. */
+function args(list: string): string[] {
+  const out = [''];
+  let depth = 0;
+  for (const ch of list) {
+    if (ch === '(') depth += 1;
+    if (ch === ')') depth -= 1;
+    if (ch === ',' && depth === 0) out.push('');
+    else out[out.length - 1] += ch;
+  }
+  return out.map((a) => a.trim());
+}
+
+function paint(expr: string, tokens: Record<string, string>): Paint {
+  const e = expr.trim();
+  if (e === 'transparent') return { hex: '#000000', alpha: 0 };
+  if (/^#[0-9a-f]{6}$/i.test(e)) return { hex: e.toLowerCase(), alpha: 1 };
+  const v = /^var\(--color-([a-z0-9-]+)\)$/.exec(e);
+  if (v) return { hex: tokens[v[1]], alpha: 1 };
+  const rgb = /^rgb\((\d+) (\d+) (\d+) \/ ([0-9.]+)\)$/.exec(e);
+  if (rgb) {
+    const hex = `#${rgb.slice(1, 4).map((c) => Number(c).toString(16).padStart(2, '0')).join('')}`;
+    return { hex, alpha: Number(rgb[4]) };
+  }
+  const mix = /^color-mix\(in srgb, (.+)\)$/.exec(e);
+  if (mix) {
+    const [a, b] = args(mix[1]);
+    const [, color, pct] = /^(.+) (\d+)%$/.exec(a) ?? [];
+    const share = Number(pct) / 100;
+    const first = paint(color, tokens);
+    const second = paint(b, tokens);
+    if (second.alpha === 0) return { hex: first.hex, alpha: first.alpha * share };
+    return { hex: over(first.hex, second.hex, share), alpha: 1 };
+  }
+  throw new Error(`cannot evaluate ${e}`);
+}
+
+/** A gradient's color stops, its position arguments and stop offsets dropped. */
+function stops(gradient: string, tokens: Record<string, string>): Paint[] {
+  const inner = /^[a-z-]+-gradient\(([\s\S]*)\)$/.exec(gradient.trim())?.[1] ?? '';
+  return args(inner)
+    .filter((a) => !/^(?:\d+deg|to |ellipse|circle|\d+% \d+px)/.test(a))
+    .map((a) => paint(a.replace(/\s+-?\d+(?:%|px)?$/, ''), tokens));
+}
+
+/** A background-image token as the given palette declares it, falling back to dark. */
+function image(scope: 'dark' | 'light', name: string): string {
+  const marker = css.indexOf("html[data-theme='light'] {");
+  const read = (region: string) =>
+    new RegExp(`--background-image-${name}:([^;]+);`).exec(region)?.[1].replace(/\s+/g, ' ').trim();
+  const light = css.slice(marker, css.indexOf('\n}', marker));
+  return (scope === 'light' ? read(light) : undefined) ?? read(css.slice(0, marker)) ?? '';
+}
+
+describe.each([
+  ['dark', dark],
+  ['light', light],
+] as const)('surface light in the %s palette', (scope, tokens) => {
+  const flatten = (p: Paint, ground: string) => over(p.hex, ground, p.alpha);
+  /** Both canvas pools at full strength over ink, where they overlap. */
+  const canvasPeak = () =>
+    args(image(scope, 'canvas'))
+      .map((g) => stops(g, tokens)[0])
+      .reduce((ground, pool) => flatten(pool, ground), tokens.ink);
+
+  it('reads every stop of the four surface gradients', () => {
+    expect(args(image(scope, 'canvas'))).toHaveLength(2);
+    for (const name of ['sidebar', 'card', 'lift']) {
+      expect(stops(image(scope, name), tokens).length, name).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it.each(TEXT_TOKENS)('%s clears 4.5:1 where the canvas light is brightest', (name) => {
+    // The page title, its description and the first row of content sit in
+    // the light at the top of the page.
+    expect(ratio(tokens[name], canvasPeak())).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(['fg', 'muted', 'faint', 'brand'])(
+    '%s clears 4.5:1 on the translucent header over the canvas light',
+    (name) => {
+      const share = Number(/bg-surface\/(\d+)/.exec(APP_HEADER)?.[1]) / 100;
+      expect(share).toBeGreaterThan(0);
+      const ground = over(tokens.surface, canvasPeak(), share);
+      expect(ratio(tokens[name], ground)).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
+  it.each(TEXT_TOKENS)('%s clears 4.5:1 at both ends of the sidebar and the card', (name) => {
+    for (const surface of ['sidebar', 'card']) {
+      for (const stop of stops(image(scope, surface), tokens)) {
+        const ground = flatten(stop, tokens.surface);
+        expect(ratio(tokens[name], ground), `${name} on the ${surface} at ${ground}`).toBeGreaterThanOrEqual(
+          4.5,
+        );
+      }
+    }
+  });
+
+  /** The tint as the stylesheet declares it. */
+  const tint = () => paint(/--color-tint: ([^;]+);/.exec(css)?.[1] ?? '', tokens).hex;
+
+  it.each(['fg', 'muted', 'faint', 'brand'])('%s clears 4.5:1 on the brand tint', (name) => {
+    // The table's head row carries faint labels, a hovered row fg and muted
+    // text, and the current nav row brand.
+    expect(ratio(tokens[name], tint())).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('lays the card light over the background color, never in place of it', () => {
+    // An opaque stop paints over a caller's bg-*, and a card passed a violet
+    // tint drew as a plain card. Every stop lets the color under it through.
+    for (const stop of stops(image(scope, 'card'), tokens)) {
+      expect(stop.alpha).toBeLessThan(1);
+    }
+  });
+
+  it.each(['brand', 'violet', 'success', 'warn', 'danger'])(
+    'keeps the %s badge at 4.5:1 on every lit ground it can land on',
+    (name) => {
+      // A badge is its tone at a tenth over whatever it sits in: a hovered or
+      // head row, either end of a card's light and either end of the hero.
+      const [heroTop] = stops(image(scope, 'hero'), tokens);
+      const grounds: Record<string, string> = {
+        tint: tint(),
+        heroTop: heroTop.hex,
+        heroFoot: tokens.ink,
+      };
+      for (const [i, stop] of stops(image(scope, 'card'), tokens).entries()) {
+        grounds[`card stop ${i}`] = flatten(stop, tokens.surface);
+      }
+      for (const [ground, hex] of Object.entries(grounds)) {
+        const chip = over(tokens[name], hex, 0.1);
+        expect(ratio(tokens[name], chip), `${name} badge on ${ground} ${hex}`).toBeGreaterThanOrEqual(4.5);
+      }
+    },
+  );
+
+  it.each(['brand', 'brand-light', 'brand-deep'])(
+    'keeps the primary label at 4.5:1 under the lift on %s',
+    (fill) => {
+      // The lift is brightest at the top of the button, over the resting,
+      // hovered and held colors alike.
+      const [top] = stops(image(scope, 'lift'), tokens);
+      expect(ratio(tokens.ink, flatten(top, tokens[fill]))).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
+  it('keeps the primary fill at 3:1 against its own resting and hovered pool', () => {
+    // The pool is brand at a share, read from each token. Measured at full
+    // share, which the blur never reaches, on every ground a button sits on.
+    const share = (token: string) =>
+      Number(new RegExp(`${token}:[^;]*var\\(--color-halo\\) (\\d+)%`).exec(css)?.[1]) / 100;
+    for (const ground of GROUNDS) {
+      const rest = over(tokens.brand, tokens[ground], share('--shadow-primary'));
+      const hover = over(tokens.brand, tokens[ground], share('--shadow-primary-hover'));
+      expect(ratio(tokens.brand, rest), `resting on ${ground}`).toBeGreaterThanOrEqual(3);
+      expect(ratio(tokens['brand-light'], hover), `hovered on ${ground}`).toBeGreaterThanOrEqual(3);
     }
   });
 });
