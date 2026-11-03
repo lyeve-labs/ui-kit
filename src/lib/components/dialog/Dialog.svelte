@@ -110,7 +110,7 @@
     use:overlay
     transition:motion.dialog|global
     class="relative w-full {sizeClass(entry.options.size ?? 'md')} mx-4
-			bg-surface border border-line rounded-xl shadow-2xl
+			bg-surface bg-card border border-line rounded-card shadow-overlay inset-shadow-highlight
 			transition-transform duration-slow
 			focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
     style="transform: scale({1 - offset * 0.03}) translateY({offset * 16}px);

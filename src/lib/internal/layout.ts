@@ -115,8 +115,16 @@ export const PAGE_STACK = 'flex flex-col gap-section';
  * children flush to the border. `overflow-hidden` is deliberately absent: the
  * focus ring sits 2px outside the element it belongs to, so a clipping surface
  * crops the ring of every button inside it down to whichever edge fits.
+ *
+ * The depth is a few percent of light at the top, a 1px light along the top
+ * edge and a soft drop under the card. The light is a translucent background
+ * image laid over the background color, so a caller who passes its own bg-*
+ * keeps that color under it. The rest are shadows, so the card is the same
+ * size with or without them and the 1px border stays the boundary a forced
+ * colors scheme keeps.
  */
-export const CARD_SURFACE = 'bg-surface border border-line rounded-xl';
+export const CARD_SURFACE =
+  'bg-surface bg-card border border-line rounded-card shadow-card inset-shadow-highlight';
 
 /**
  * The card surface in the danger tone, for a group of destructive actions.
@@ -127,7 +135,7 @@ export const CARD_SURFACE = 'bg-surface border border-line rounded-xl';
  * for. The contrast suite reads the share from this string.
  */
 export const PANEL_DANGER_SURFACE =
-  'bg-[color-mix(in_srgb,var(--color-danger)_5%,var(--color-surface))] border border-danger/40 rounded-xl';
+  'bg-[color-mix(in_srgb,var(--color-danger)_5%,var(--color-surface))] border border-danger/40 rounded-card shadow-card inset-shadow-highlight';
 
 /**
  * Card padding by name.
@@ -212,7 +220,11 @@ export const MODAL_PAD = 'px-card py-card-sm';
 export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'): string {
   // The eyebrow reads the same at both levels. It is a label for the band under
   // it rather than a title, so it does not take the level's size at all.
-  if (variant === 'eyebrow') return 'text-xs font-medium uppercase tracking-wide text-faint';
+  //
+  // It is muted and semibold rather than faint and medium. A band label in the
+  // faintest gray read as metadata beside the stronger page title, so it
+  // stepped up once in weight and once in color.
+  if (variant === 'eyebrow') return 'text-xs font-semibold uppercase tracking-wider text-muted';
   // Level 2 is the brand ramp's H3, which the guideline describes as the card
   // and group head this is. Its leading and tracking come with it: a --text-*
   // token sets font-size and nothing else, so the ratio has to be asked for by
@@ -239,9 +251,24 @@ export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'
  *
  * `border-e` and not `border-r`: the shell is the one place a right-to-left
  * locale flips, and a physical border leaves the rule on the wrong edge.
+ *
+ * The sidebar runs from the surface at the top a step toward ink at the foot,
+ * and its edge is a rule that fades in and out at its ends, drawn over a
+ * transparent border. The border keeps the column's width, and a forced
+ * colors scheme, which draws no gradient, paints that border in the system
+ * text color, so the edge is still there.
  */
 export const APP_SIDEBAR =
-  'h-full shrink-0 flex-col border-e border-line bg-surface transition-[width] duration-base ease-move';
+  'relative h-full shrink-0 flex-col border-e border-transparent bg-surface bg-sidebar ' +
+  'transition-[width] duration-base ease-move';
+
+/**
+ * The faded edge of the sidebar, a 1px line laid over its transparent
+ * border. It sets a width of its own, so it stays out of APP_SIDEBAR, which
+ * holds no width at all.
+ */
+export const APP_SIDEBAR_EDGE =
+  'after:pointer-events-none after:absolute after:inset-y-0 after:-end-px after:w-px after:bg-rule-y';
 
 /**
  * The sidebar's two widths. Expanded is the 224px column every authed screen
@@ -262,9 +289,17 @@ export const APP_SIDEBAR_RAIL = 'w-nav-rail';
 /**
  * The header bar. Its gutter is the page gutter, so the section name in the
  * header sits directly above the page title under it rather than 8px off.
+ *
+ * The surface is translucent, so the light at the top of the canvas carries
+ * up under it and the header reads as part of the page rather than a lid on
+ * it. Its rule fades out toward the end edge and stays solid where it meets
+ * the brand row's, so the two read as one line across the top. The rule sits
+ * over a transparent border, for the same reason as the sidebar's.
  */
 export const APP_HEADER =
-  'flex h-header shrink-0 items-center gap-2 border-b border-line bg-surface px-page-x';
+  'relative flex h-header shrink-0 items-center gap-2 border-b border-transparent bg-surface/70 px-page-x ' +
+  'after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-rule-end ' +
+  'rtl:after:-scale-x-100';
 
 /**
  * The sidebar's brand row. Exactly as tall as the header beside it: the two

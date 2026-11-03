@@ -91,6 +91,124 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 24px;
+  /* A role rather than a rung: the card, the table frame, the stat, the empty
+   * state and the dialog share it, so the surfaces that sit side by side on a
+   * page agree. One step past xl. The 2xl rung read as a toy at console
+   * density, where a card holds a 14px table rather than a hero. */
+  --radius-card: 20px;
+
+  /* -- Depth: what lifts a surface off the page ------------------- *
+   *  Three colors and a short ladder of shadows built from them. The
+   *  geometry is shared and the colors invert with the theme, so the
+   *  light palette gets the same layering without a second ladder:
+   *  in dark a surface is lit from above by a faint white line along
+   *  its top edge, and in light the white line disappears into the
+   *  white card and the hairline under it does the separating.
+   *
+   *    highlight  the 1px line along a raised surface's top edge
+   *    shade      every drop shadow, and the inner shadow of a well
+   *    glow       the cyan halo around focus and the primary action
+   *
+   *  Each is a shadow or a background image and never a border, so no
+   *  surface changes size when it gains or loses one, and a forced
+   *  colors scheme drops all of them without losing a boundary: every
+   *  surface keeps its 1px border.                                    */
+  --color-highlight: rgb(255 255 255 / 0.12);
+  --color-shade: rgb(2 6 14 / 0.5);
+  --color-glow: rgb(0 212 255 / 0.16);
+  /* The pool of light under the primary button, its own fill color. A token
+   * of its own so paper and a forced colors scheme can switch it off without
+   * touching the brand, which print turns black. */
+  --color-halo: var(--color-brand);
+  /* The place you are: a table's head row, a hovered row and the current nav
+   * row. Brand mixed into the surface rather than laid over it, so it is one
+   * opaque color the contrast suite can measure. Five percent, because a
+   * violet badge in a hovered row lays its own tint over this one, and at
+   * eight its label fell to 4.35:1. */
+  --color-tint: color-mix(in srgb, var(--color-brand) 5%, var(--color-surface));
+
+  /* The ramp, from a control to a dialog. Each rung casts further than the
+   * one below it, so a menu reads above the card it opened from and a dialog
+   * above both. A raised control sits closest. */
+  --shadow-raised: 0 1px 2px 0 var(--color-shade);
+  --shadow-card: 0 1px 2px 0 var(--color-shade), 0 8px 24px -12px var(--color-shade);
+  --shadow-popover: 0 4px 8px -2px var(--color-shade), 0 16px 32px -8px var(--color-shade);
+  --shadow-overlay: 0 12px 24px -6px var(--color-shade), 0 32px 64px -16px var(--color-shade);
+  /* A tight ring that fills the 2px gap between a control and its focus
+   * outline, and a soft halo past it. On a field it sits outside the border. */
+  --shadow-glow: 0 0 0 4px var(--color-glow), 0 0 20px 2px var(--color-glow);
+  /* The primary button glows at rest, a pool of its own color under it, and
+   * the pool grows under the pointer. Brand at a share small enough that the
+   * fill still clears 3:1 against the brightest part of its own halo. */
+  --shadow-primary:
+    0 1px 2px 0 var(--color-shade), 0 6px 18px -6px color-mix(in srgb, var(--color-halo) 30%, transparent);
+  --shadow-primary-hover:
+    0 1px 2px 0 var(--color-shade), 0 0 0 3px var(--color-glow),
+    0 10px 28px -6px color-mix(in srgb, var(--color-halo) 40%, transparent);
+  /* A few pixels of light around a mark, such as the current nav row's bar. */
+  --shadow-mark: 0 0 8px 1px var(--color-glow);
+
+  /* Inner shadows compose with the drop shadows above, because Tailwind keeps
+   * them in a variable of their own: a card is shadow-card and
+   * inset-shadow-highlight together. highlight is a 1px line with no blur,
+   * so it lights the top edge and never sits under a line of text. bevel is
+   * the brighter edge a filled
+   * button carries on its own color, so it does not change with the theme.
+   * well sinks a field into the surface it sits on, at half the shade, so the
+   * field's border still clears 3:1 against the darkest band inside it. */
+  --inset-shadow-highlight: inset 0 1px 0 0 var(--color-highlight);
+  --inset-shadow-bevel: inset 0 1px 0 0 rgb(255 255 255 / 0.22);
+  --inset-shadow-well: inset 0 1px 2px 0 color-mix(in srgb, var(--color-shade) 50%, transparent);
+
+  /* Two gradients and no more. hero is the wash behind a hero or an empty
+   * state: a tenth of violet mixed into the page's own ink, lit from the top
+   * center and falling off to plain ink, so text on it is measured against
+   * both ends. accent is cyan into violet for a mark a few
+   * pixels wide: the active tab and nav indicator and a progress fill. It never
+   * sits behind text. accent-y is the same mark standing upright. */
+  --background-image-hero: radial-gradient(
+    ellipse 90% 80% at 50% 0%,
+    color-mix(in srgb, var(--color-violet) 10%, var(--color-ink)) 0%,
+    var(--color-ink) 100%
+  );
+  --background-image-accent: linear-gradient(90deg, var(--color-brand), var(--color-violet));
+  --background-image-accent-y: linear-gradient(180deg, var(--color-brand), var(--color-violet));
+
+  /* The surfaces' own light, each redeclared for the light palette.
+   *
+   *   canvas   cyan and violet pooled at the top of the app shell's content,
+   *            gone within 400px, behind the page header
+   *   sidebar  the surface at the top, a step toward ink at the foot
+   *   card     a few percent of light at a card's top, fading to nothing,
+   *            laid over the card's own background color so a caller's
+   *            bg-* still shows through it
+   *   lift     white falling off down a filled button, over its own color, so
+   *            the hover and held colors still show through it
+   *   rule-y   a vertical rule that fades in and out at its ends
+   *   rule-end a horizontal rule that fades out toward its end edge
+   *
+   * Every one of them has text on it or beside it, so the contrast suite
+   * measures each text token at each end. The canvas pools are as strong as
+   * they can be while brand-deep and faint still clear 4.5:1 where the two
+   * overlap. */
+  --background-image-canvas:
+    radial-gradient(70% 400px at 15% 0, color-mix(in srgb, var(--color-brand) 6%, transparent), transparent),
+    radial-gradient(60% 400px at 85% 0, color-mix(in srgb, var(--color-violet) 7%, transparent), transparent);
+  --background-image-sidebar: linear-gradient(
+    180deg,
+    var(--color-surface),
+    color-mix(in srgb, var(--color-ink) 60%, var(--color-surface))
+  );
+  --background-image-card: linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent);
+  --background-image-lift: linear-gradient(180deg, rgb(255 255 255 / 0.18), transparent 70%);
+  --background-image-rule-y: linear-gradient(
+    180deg,
+    transparent,
+    var(--color-line) 15%,
+    var(--color-line) 85%,
+    transparent
+  );
+  --background-image-rule-end: linear-gradient(90deg, var(--color-line) 50%, transparent);
 
   /* -- Elevation: the stacking order of everything that floats --- *
    *  Every floating surface in the kit carried a bare z-50, so which
@@ -217,6 +335,10 @@
   --leading-body: 1.55;
   --leading-caption: 1.5;
   --leading-mono: 1.5;
+  /* The console's page title: 32px on a 38px line. H2's 1.15 is drawn for a
+   * marketing headline set in a column, and at 32px over a 14px page it sat
+   * the description too close under the title. */
+  --leading-title: 1.1875;
 
   --tracking-display: -0.04em;
   --tracking-h1: -0.025em;
@@ -424,6 +546,28 @@ html[data-theme='light'] {
   --color-success: #126c34;
   --color-warn: #904207;
   --color-danger: #ab1a1a;
+
+  /* Depth translated rather than copied. A white top line is invisible on a
+   * white card, so the highlight only brightens surface-2, and the shade is a
+   * cool gray at a sixth of the dark one's weight: in light a shadow
+   * separates, it does not darken. The glow is the mark's #0099c4 face, since
+   * the deep brand reads as a gray halo on white. */
+  --color-highlight: rgb(255 255 255 / 0.8);
+  --color-shade: rgb(16 24 40 / 0.08);
+  --color-glow: rgb(0 153 196 / 0.22);
+
+  /* A cool tint at the top of the page rather than a glow: on white, light
+   * cannot be added, so the wash darkens a little toward the brand. The card's
+   * layer darkens toward the page's ink at the foot, the same lit top,
+   * reached from the other side. */
+  --background-image-canvas:
+    radial-gradient(70% 400px at 15% 0, color-mix(in srgb, var(--color-brand) 6%, transparent), transparent),
+    radial-gradient(60% 400px at 85% 0, color-mix(in srgb, var(--color-violet) 5%, transparent), transparent);
+  --background-image-card: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--color-ink) 70%, transparent)
+  );
 }
 
 /*
@@ -437,6 +581,38 @@ html[data-theme='light'] {
     --color-mark-ink: CanvasText;
     --color-mark-foot: GrayText;
     --color-mark-step: GrayText;
+    /* The browser drops box shadows and gradients here already. Naming it
+     * keeps a browser that does not from painting the cyan halo or a wash
+     * that no longer matches the forced canvas. */
+    --color-glow: transparent;
+    --color-halo: transparent;
+    --background-image-hero: none;
+    --background-image-accent: none;
+    --background-image-accent-y: none;
+    --background-image-canvas: none;
+    --background-image-sidebar: none;
+    --background-image-card: none;
+    --background-image-lift: none;
+    --background-image-rule-y: none;
+    --background-image-rule-end: none;
+  }
+
+  /*
+   * A field, a menu row and a nav row show focus with a ring, and a ring is a
+   * box shadow, which a forced colors scheme removes. The reader was left with
+   * no focus indicator on exactly the controls typed into. An outline in the
+   * system highlight takes its place. Unlayered, so it wins over the
+   * outline-none those controls carry. A control that draws its ring inset
+   * does so because a scrolling box would clip anything outside it, so its
+   * outline sits inside too.
+   */
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  [class*='focus-visible:ring-inset']:focus-visible {
+    outline-offset: -2px;
   }
 }
 
@@ -510,6 +686,18 @@ html[data-theme='light'] {
   :focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;
+  }
+
+  /*
+   * The glow around the ring. It is a shadow, so the ring above stays the
+   * indicator that clears 3:1 and the glow only adds to it. Any box shadow a
+   * component states wins over this one, which is why a raised button and a
+   * field ask for the glow by name as well. A surface focused only from script
+   * (tabindex -1: a dialog, the main region after the skip link) is not a
+   * control and takes no halo.
+   */
+  :focus-visible:not([tabindex='-1']) {
+    box-shadow: var(--shadow-glow);
   }
 
   :focus:not(:focus-visible) {
@@ -614,6 +802,21 @@ html[data-theme='light'] {
     --color-success: #000000;
     --color-warn: #000000;
     --color-danger: #000000;
+    /* Paper has no light source, and a printer renders a soft shadow as a gray
+     * smear around every card. */
+    --color-highlight: transparent;
+    --color-shade: transparent;
+    --color-glow: transparent;
+    --color-halo: transparent;
+    --background-image-hero: none;
+    --background-image-accent: none;
+    --background-image-accent-y: none;
+    --background-image-canvas: none;
+    --background-image-sidebar: none;
+    --background-image-card: none;
+    --background-image-lift: none;
+    --background-image-rule-y: none;
+    --background-image-rule-end: none;
     color-scheme: light;
   }
 

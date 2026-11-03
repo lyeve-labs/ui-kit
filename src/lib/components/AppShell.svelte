@@ -51,6 +51,7 @@
     APP_HEADER,
     APP_SIDEBAR,
     APP_SIDEBAR_BAND,
+    APP_SIDEBAR_EDGE,
     APP_SIDEBAR_RAIL,
     APP_SIDEBAR_WIDE,
   } from '../internal/layout.js';
@@ -277,7 +278,7 @@
     <div
       data-print="hide"
       transition:motion.drawer|global={{ side: startSide() }}
-      class="fixed inset-y-0 start-0 z-drawer flex shadow-2xl"
+      class="fixed inset-y-0 start-0 z-drawer flex shadow-overlay"
       role="dialog"
       aria-modal="true"
       aria-label={drawerLabel}
@@ -304,7 +305,7 @@
     >
       <div
         class="absolute inset-y-0 start-0 z-dropdown flex transition-shadow {railOpen
-          ? 'shadow-2xl'
+          ? 'shadow-popover'
           : ''}"
       >
         {@render sidebar(isMobile, railIcons)}
@@ -316,7 +317,10 @@
     </div>
   {/if}
 
-  <div class="flex min-w-0 flex-1 flex-col">
+  <!-- The column carries the ink and the light pooled at its top, so the
+       translucent header and the page under it share one canvas. The main
+       region paints nothing of its own for that reason. -->
+  <div class="flex min-w-0 flex-1 flex-col bg-ink bg-canvas">
     {#if !barHidden}
       <header data-print="hide" class={APP_HEADER}>
         <div class="flex min-w-0 flex-1 items-center gap-2">
@@ -376,7 +380,7 @@
       id="content"
       tabindex="-1"
       data-print="unclip"
-      class="relative min-w-0 flex-1 overflow-auto bg-ink outline-none"
+      class="relative min-w-0 flex-1 overflow-auto outline-none"
     >
       {@render children()}
     </main>
@@ -391,7 +395,7 @@
     aria-label={sidebarLabel}
     data-print="hide"
     data-testid="app-sidebar"
-    class="{APP_SIDEBAR} {rail ? APP_SIDEBAR_RAIL : APP_SIDEBAR_WIDE} flex"
+    class="{APP_SIDEBAR} {APP_SIDEBAR_EDGE} {rail ? APP_SIDEBAR_RAIL : APP_SIDEBAR_WIDE} flex"
     inert={hidden}
     aria-hidden={hidden ? 'true' : undefined}
   >

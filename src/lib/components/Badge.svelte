@@ -23,13 +23,14 @@
     danger: 'bg-danger/10 text-danger border-danger/20',
   };
 
+  /** The dot carries a soft halo of its own tone. A ring is a shadow, so the dot and the label beside it do not move. */
   const dotColor: Record<AccentTone, string> = {
-    neutral: 'bg-muted',
-    brand: 'bg-brand',
-    violet: 'bg-violet',
-    success: 'bg-success',
-    warn: 'bg-warn',
-    danger: 'bg-danger',
+    neutral: 'bg-muted ring-2 ring-muted/20',
+    brand: 'bg-brand ring-2 ring-brand/25',
+    violet: 'bg-violet ring-2 ring-violet/25',
+    success: 'bg-success ring-2 ring-success/25',
+    warn: 'bg-warn ring-2 ring-warn/25',
+    danger: 'bg-danger ring-2 ring-danger/25',
   };
 
   const sizes: Record<Size, string> = {

@@ -447,7 +447,7 @@
     const mark = line?.index === index ? LINE[line.edge as 'before' | 'after'] : null;
     return cn(
       'relative flex items-center gap-1 rounded-lg',
-      drag?.id === id && 'z-dropdown bg-surface shadow-lg',
+      drag?.id === id && 'z-dropdown bg-surface shadow-popover',
       settling === id && 'transition-[translate] duration-base ease-move',
       mark && `${mark.shape} ${line?.refused ? mark.refused : mark.ok}`,
     );

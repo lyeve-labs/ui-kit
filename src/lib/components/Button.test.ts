@@ -149,6 +149,21 @@ describe('Button', () => {
   });
 });
 
+describe('Button in forced colors', () => {
+  it('gives every filled variant an outline that takes no space', () => {
+    // The fill is the boundary, and a forced colors scheme replaces it with
+    // the canvas. An outline inset by its width keeps the box the same size.
+    for (const variant of ['primary', 'violet', 'danger'] as const) {
+      const { getByRole, unmount } = render(Button, { props: { variant, children: text('Go') } });
+      const cls = getByRole('button').className;
+      expect(cls, variant).toContain('forced-colors:outline-[color:ButtonText]');
+      expect(cls, variant).toContain('forced-colors:-outline-offset-1');
+      expect(cls, variant).not.toMatch(/forced-colors:border\b/);
+      unmount();
+    }
+  });
+});
+
 describe('Button pressed state', () => {
   const variants = ['primary', 'secondary', 'danger', 'ghost', 'outline', 'violet'] as const;
 

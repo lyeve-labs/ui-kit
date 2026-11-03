@@ -44,6 +44,24 @@ describe('Progress', () => {
     expect(getByText('Uploading')).toBeTruthy();
   });
 
+  it('keeps the track and fill drawn where forced colors repaint backgrounds', () => {
+    // A forced colors scheme replaces every background color with the canvas,
+    // so the bar vanished. The track draws a border and the fill opts out to
+    // paint in the system text color. Neither adds a box outside forced colors.
+    const { container } = render(Progress, { props: { value: 40 } });
+    const track = container.querySelector('[role="progressbar"]') as HTMLElement;
+    const bar = track.firstElementChild as HTMLElement;
+    expect(track.className).toContain('forced-colors:border-[color:CanvasText]');
+    expect(bar.className).toContain('forced-colors:forced-color-adjust-none');
+    expect(bar.className).toContain('forced-colors:bg-[color:CanvasText]');
+  });
+
+  it('mirrors the fill under right-to-left, so the gradient starts where the bar does', () => {
+    const { container } = render(Progress, { props: { value: 40 } });
+    const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+    expect(bar.className).toContain('rtl:-scale-x-100');
+  });
+
   it('applies the violet tone class', () => {
     const { container } = render(Progress, { props: { value: 10, tone: 'violet' } });
     const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
