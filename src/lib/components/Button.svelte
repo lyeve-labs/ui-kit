@@ -82,15 +82,23 @@
    * below brand-light on the dark ramp and below it again on the light one, and
    * the filtered variants darken rather than brighten, so a press does not read
    * as one gesture in one theme and its opposite in the other.
+   *
+   * The filled and secondary variants are raised: a bright edge along the top
+   * and a short drop under them. The primary action alone glows when it is
+   * pointed at or held, so the one thing a surface wants done is the one thing
+   * that answers with light. The glow is a shadow, so it never moves the
+   * button or its neighbors, and the color change under it carries the state
+   * on its own where shadows are not drawn.
    */
   const variants: Record<Variant, string> = {
     primary:
-      'bg-brand text-ink hover:bg-brand-light active:bg-brand-deep shadow-sm shadow-brand/20',
+      'bg-brand text-ink hover:bg-brand-light active:bg-brand-deep inset-shadow-bevel shadow-raised hover:shadow-glow active:shadow-glow',
     violet:
-      'bg-violet text-ink hover:brightness-110 active:brightness-90 shadow-sm shadow-violet/20',
+      'bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised',
     secondary:
-      'bg-surface-2 text-fg border border-line-strong hover:bg-line active:bg-line-strong/30',
-    danger: 'bg-danger text-ink hover:brightness-110 active:brightness-90',
+      'bg-surface-2 text-fg border border-line-strong hover:bg-line active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
+    danger:
+      'bg-danger text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised',
     ghost: 'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg',
     outline:
       'border border-line-strong text-fg hover:border-brand hover:text-brand active:bg-brand/10',
@@ -125,7 +133,8 @@
    * button its icon plus 16px.
    */
   const cls = $derived(
-    `inline-flex items-center justify-center font-medium whitespace-nowrap transition-colors ` +
+    `inline-flex items-center justify-center font-medium whitespace-nowrap ` +
+      `transition-[color,background-color,border-color,box-shadow] focus-visible:shadow-glow ` +
       `disabled:opacity-50 disabled:cursor-not-allowed select-none ${TOUCH_GROW} ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );

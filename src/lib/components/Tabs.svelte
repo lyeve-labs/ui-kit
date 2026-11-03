@@ -158,6 +158,8 @@
     data-testid="tabs-scroll"
     class="flex gap-0.5 overflow-x-auto border-b border-line [scrollbar-width:none]"
   >
+    <!-- The active indicator is the cyan to violet accent, with solid brand
+         under it for wherever gradients are not drawn. -->
     {#each items as tab, i (tab.id)}
       <button
         type="button"
@@ -170,7 +172,7 @@
         onkeydown={(e) => onTabKeydown(e, i)}
         class="{TAB}
           {active === tab.id
-          ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:rounded-t'
+          ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:bg-accent after:rounded-t'
           : 'text-faint hover:text-fg'}"
       >
         {tab.label}

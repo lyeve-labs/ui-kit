@@ -83,10 +83,21 @@
    * inside `@media (hover: hover)` and never matches a finger. A sidebar is
    * mostly used on a phone as a drawer, where the tap that closed it was the
    * one gesture in the component with nothing on screen behind it.
+   *
+   * The current row's mark is a short cyan to violet bar laid over its start
+   * border, inset from the rounded corners, rather than the border itself: a
+   * gradient border cannot follow a radius. The border goes transparent under
+   * it and returns as the system text color in a forced colors scheme, which
+   * draws neither the bar nor the row's fill, so the row keeps a mark there.
    */
   function rowPaint(state: 'current' | 'ancestor' | 'rest'): string {
     if (state === 'current')
-      return 'border-brand bg-surface-2 font-medium text-brand hover:bg-line active:bg-line';
+      return (
+        'relative border-transparent forced-colors:border-[CanvasText] bg-surface-2 ' +
+        'inset-shadow-highlight font-medium text-brand hover:bg-line active:bg-line ' +
+        'after:absolute after:inset-y-1.5 after:-start-0.5 after:w-0.5 after:rounded-full ' +
+        'after:bg-brand after:bg-accent-y'
+      );
     if (state === 'ancestor') return 'border-brand text-fg hover:bg-surface-2 active:bg-line';
     return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';
   }

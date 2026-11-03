@@ -29,19 +29,25 @@
   }: Props = $props();
 </script>
 
+<!-- The hero wash: the page's ink into a tenth of violet, under a solid 1px
+     border. It was a dashed outline on a translucent surface, which read as a
+     slot left unfilled rather than as a place something will appear. The
+     medallion is a raised control in miniature, and its icon takes the brand
+     color. The contrast suite measures every text token against both ends of
+     the wash. -->
 <div
-  class="flex flex-col items-center justify-center text-center rounded-xl border border-dashed border-line bg-surface/40 px-6 py-12 {klass}"
+  class="flex flex-col items-center justify-center text-center rounded-card border border-line bg-ink bg-hero inset-shadow-card px-6 py-12 {klass}"
 >
   {#if iconSnippet}
     <div
-      class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-muted"
+      class="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface-2 text-brand inset-shadow-highlight shadow-raised"
       aria-hidden="true"
     >
       {@render iconSnippet()}
     </div>
   {:else if icon}
     <div
-      class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-2xl"
+      class="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface-2 text-2xl inset-shadow-highlight shadow-raised"
       aria-hidden="true"
     >
       {icon}

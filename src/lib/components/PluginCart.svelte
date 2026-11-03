@@ -381,7 +381,7 @@
       <div class="sticky bottom-3 lg:hidden" transition:motion.toast|global>
         <a
           href="#{summaryId}"
-          class="flex items-center justify-between gap-3 rounded-xl border border-brand bg-surface px-4 py-3 text-sm shadow-lg transition-colors hover:bg-surface-2"
+          class="flex items-center justify-between gap-3 rounded-xl border border-brand bg-surface px-4 py-3 text-sm shadow-popover inset-shadow-highlight transition-colors hover:bg-surface-2"
         >
           <span class="text-fg">
             <span class="font-semibold">{count}</span> picked{#if total !== null}{' '}<span
@@ -397,7 +397,7 @@
 
   <aside
     id={summaryId}
-    class="scroll-mt-20 self-start rounded-xl border border-line bg-surface p-5 lg:sticky"
+    class="scroll-mt-20 self-start rounded-card border border-line bg-surface p-5 shadow-card inset-shadow-card lg:sticky"
     style:top={stickyTop}
     aria-label={heading}
   >

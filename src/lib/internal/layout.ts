@@ -115,8 +115,14 @@ export const PAGE_STACK = 'flex flex-col gap-section';
  * children flush to the border. `overflow-hidden` is deliberately absent: the
  * focus ring sits 2px outside the element it belongs to, so a clipping surface
  * crops the ring of every button inside it down to whichever edge fits.
+ *
+ * The depth is two shadows: a faint light along the top edge that falls off
+ * inside the card, and a soft drop under it. Both are shadows, so the card is
+ * the same size with or without them and the 1px border stays the boundary a
+ * forced colors scheme keeps.
  */
-export const CARD_SURFACE = 'bg-surface border border-line rounded-xl';
+export const CARD_SURFACE =
+  'bg-surface border border-line rounded-card shadow-card inset-shadow-card';
 
 /**
  * The card surface in the danger tone, for a group of destructive actions.
@@ -127,7 +133,7 @@ export const CARD_SURFACE = 'bg-surface border border-line rounded-xl';
  * for. The contrast suite reads the share from this string.
  */
 export const PANEL_DANGER_SURFACE =
-  'bg-[color-mix(in_srgb,var(--color-danger)_5%,var(--color-surface))] border border-danger/40 rounded-xl';
+  'bg-[color-mix(in_srgb,var(--color-danger)_5%,var(--color-surface))] border border-danger/40 rounded-card shadow-card inset-shadow-card';
 
 /**
  * Card padding by name.
@@ -212,7 +218,11 @@ export const MODAL_PAD = 'px-card py-card-sm';
 export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'): string {
   // The eyebrow reads the same at both levels. It is a label for the band under
   // it rather than a title, so it does not take the level's size at all.
-  if (variant === 'eyebrow') return 'text-xs font-medium uppercase tracking-wide text-faint';
+  //
+  // It is muted and semibold rather than faint and medium. A band label in the
+  // faintest gray read as metadata beside the stronger page title, so it
+  // stepped up once in weight and once in color.
+  if (variant === 'eyebrow') return 'text-xs font-semibold uppercase tracking-wider text-muted';
   // Level 2 is the brand ramp's H3, which the guideline describes as the card
   // and group head this is. Its leading and tracking come with it: a --text-*
   // token sets font-size and nothing else, so the ratio has to be asked for by

@@ -239,7 +239,10 @@ describe('a chip on a row that highlights', () => {
 
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
-    const rule = css.slice(css.indexOf(':focus-visible'), css.indexOf(':focus:not('));
+    // Read from the base layer. The forced colors block above it states a
+    // focus outline of its own, in the system highlight.
+    const base = css.slice(css.indexOf('@layer base'));
+    const rule = base.slice(base.indexOf(':focus-visible'), base.indexOf(':focus:not('));
     expect(rule).toContain('outline: 2px solid var(--color-brand)');
     expect(rule).not.toContain('color-mix');
   });
@@ -267,6 +270,122 @@ describe('the danger panel surface', () => {
         ratio(tokens[name], ground),
         `${name} on the ${scope} danger panel`,
       ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
+/**
+ * Depth is drawn in translucent colors, so each one is measured where it
+ * lands: flattened over the surface it sits on, in both palettes. The three
+ * are read from the stylesheet the same way the hex tokens are.
+ */
+function depth(scope: 'dark' | 'light'): Record<string, { hex: string; alpha: number }> {
+  const marker = css.indexOf("html[data-theme='light'] {");
+  const region =
+    scope === 'dark' ? css.slice(0, marker) : css.slice(marker, css.indexOf('}', marker));
+  const out: Record<string, { hex: string; alpha: number }> = {};
+  for (const [, name, r, g, b, a] of region.matchAll(
+    /--color-(highlight|shade|glow):\s*rgb\((\d+) (\d+) (\d+) \/ ([0-9.]+)\);/g,
+  )) {
+    const hex = `#${[r, g, b].map((c) => Number(c).toString(16).padStart(2, '0')).join('')}`;
+    out[name] = { hex, alpha: Number(a) };
+  }
+  return out;
+}
+
+/** The share of violet in the hero wash, read from the token. */
+const heroShare = Number(
+  /--background-image-hero:[^;]*color-mix\(in srgb, var\(--color-violet\) (\d+)%, var\(--color-ink\)\)/.exec(
+    css,
+  )?.[1],
+);
+
+/**
+ * The share of the shade the field well paints. The text of a field sits on
+ * plain surface-2 below the band, which the palette suite measures, and
+ * wellReach below proves it stays below.
+ */
+const wellToken = /--inset-shadow-well:([^;]*);/.exec(css)?.[1] ?? '';
+const wellShare =
+  Number(/color-mix\(in srgb, var\(--color-shade\) (\d+)%, transparent\)/.exec(wellToken)?.[1]) / 100;
+
+describe('the field well', () => {
+  it('names the share of shade it paints', () => {
+    expect(wellShare).toBeGreaterThan(0);
+    expect(wellShare).toBeLessThanOrEqual(1);
+  });
+
+  it('darkens only a band above the line of text', () => {
+    // A 38px control with a 20px line leaves 9px above the text. The shadow
+    // reaches its offset plus its blur below the top edge, and has to end
+    // inside that gap, or the placeholder would sit on the darker ground.
+    const [, y, blur] = /inset 0 (\d+)px (\d+)px/.exec(wellToken) ?? [];
+    expect(Number(y) + Number(blur)).toBeLessThanOrEqual(9);
+  });
+});
+
+describe.each([
+  ['dark', dark],
+  ['light', light],
+] as const)('depth in the %s palette', (scope, tokens) => {
+  const d = depth(scope);
+  const flat = (name: 'highlight' | 'shade' | 'glow', ground: string) =>
+    over(d[name].hex, ground, d[name].alpha);
+
+  it('declares all three depth colors', () => {
+    expect(Object.keys(d).sort()).toEqual(['glow', 'highlight', 'shade']);
+  });
+
+  it.each(TEXT_TOKENS)('%s clears 4.5:1 at both ends of the hero wash', (name) => {
+    // A gradient has two grounds and the reader gets the worse one. An empty
+    // state and the sign-in page carry the title, the description, a link and
+    // a status line on it.
+    expect(heroShare).toBeGreaterThan(0);
+    const ends = { ink: tokens.ink, violet: over(tokens.violet, tokens.ink, heroShare / 100) };
+    for (const [end, ground] of Object.entries(ends)) {
+      expect(ratio(tokens[name], ground), `${name} on the ${end} end`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it.each(['fg', 'muted', 'faint'])('%s clears 4.5:1 under the light along a card top', (name) => {
+    // The sheen is brightest at the very top edge, where a card's heading sits.
+    const ground = flat('highlight', tokens.surface);
+    expect(ratio(tokens[name], ground), `${name} on the lit card top`).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('keeps the field border at 3:1 against the darkest band of the well inside it', () => {
+    // The inner shadow darkens a band along the field's top edge, right
+    // against the border. The well paints the shade at a share of its
+    // strength, read from the token.
+    const ground = over(d.shade.hex, tokens['surface-2'], d.shade.alpha * wellShare);
+    expect(ratio(tokens['line-strong'], ground)).toBeGreaterThanOrEqual(3);
+  });
+
+  it('keeps the focus ring at 3:1 on top of its own glow', () => {
+    // The glow fills the gap between a control and its ring and spreads past
+    // it, so the ring is read against glow over the ground, not the ground.
+    for (const ground of GROUNDS) {
+      const halo = flat('glow', tokens[ground]);
+      expect(ratio(tokens.brand, halo), `ring over glow on ${ground}`).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('keeps the primary fill at 3:1 against the glow around it', () => {
+    // The button's boundary is its fill. Hovered, the fill sits in its glow.
+    for (const ground of GROUNDS) {
+      const halo = flat('glow', tokens[ground]);
+      expect(ratio(tokens['brand-light'], halo), `hovered fill on ${ground}`).toBeGreaterThanOrEqual(
+        3,
+      );
+    }
+  });
+
+  it.each(['brand', 'violet'])('draws the %s end of the accent at 3:1 on every ground', (name) => {
+    // The accent is a mark: the active tab and nav indicator on the page and
+    // the sidebar, and a progress fill on its surface-2 track. Each end has to
+    // clear the non-text floor wherever it lands.
+    for (const ground of GROUNDS) {
+      expect(ratio(tokens[name], tokens[ground]), `${name} on ${ground}`).toBeGreaterThanOrEqual(3);
     }
   });
 });

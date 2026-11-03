@@ -55,9 +55,12 @@ import { TOUCH_GROW } from './touch.js';
  *
  * No vertical offset and no side. Both belong to placePanel, which measures
  * the room and puts the panel above the anchor when there is none below.
+ *
+ * shadow-popover is the rung above a card, so a menu opened from a card reads
+ * as lifted off it rather than as part of it.
  */
 export const PANEL_SURFACE =
-  'absolute z-dropdown overflow-hidden rounded-xl border border-line-strong bg-surface text-fg shadow-2xl';
+  'absolute z-dropdown overflow-hidden rounded-xl border border-line-strong bg-surface text-fg shadow-popover inset-shadow-highlight';
 
 /**
  * The scrolling region inside it.

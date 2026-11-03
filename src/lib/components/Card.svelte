@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Component, Snippet } from 'svelte';
-  import { sectionHeading } from '../internal/layout.js';
+  import { CARD_SURFACE, sectionHeading } from '../internal/layout.js';
 
   type Pad = 'none' | 'sm' | 'md' | 'lg';
 
@@ -81,11 +81,15 @@
 <!-- tabindex is only set alongside role="button" (when onclick is provided),
      so the element is interactive. The compiler can't narrow the dynamic role. -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<!-- The surface is the layout contract's, so a Card and a bordered Panel on
+     one page agree. A hover card lifts one rung up the shadow ramp as well as
+     taking its ring, and a clickable one glows on focus like a button: its own
+     shadow would otherwise hide the global focus glow. -->
 <div
   data-print="keep"
-  class="bg-surface border border-line rounded-xl overflow-hidden transition-colors {hover
-    ? 'hover:border-line/0 hover:ring-1 hover:ring-brand/30'
-    : ''} {onclick ? 'cursor-pointer' : ''} {klass}"
+  class="{CARD_SURFACE} overflow-hidden transition-[border-color,box-shadow] {hover
+    ? 'hover:border-line/0 hover:ring-1 hover:ring-brand/30 hover:shadow-popover'
+    : ''} {onclick ? 'cursor-pointer focus-visible:shadow-glow' : ''} {klass}"
   role={onclick ? 'button' : undefined}
   tabindex={onclick ? 0 : undefined}
   {onclick}

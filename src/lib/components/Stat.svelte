@@ -8,6 +8,7 @@
    * use this one instead.
    */
   import type { StatusTone } from '../internal/tone.js';
+  import { CARD_SURFACE } from '../internal/layout.js';
 
   type Trend = 'up' | 'down' | 'flat';
   type Accent = 'brand' | 'violet' | 'success' | 'neutral';
@@ -74,8 +75,8 @@
 
   const pads: Record<Size, string> = { sm: 'p-4', md: 'p-5' };
   const values: Record<Size, string> = {
-    sm: 'mt-1 text-lg font-semibold',
-    md: 'mt-2 text-2xl font-bold',
+    sm: 'mt-1 text-lg font-semibold tracking-tight',
+    md: 'mt-2 text-2xl font-bold tracking-tight',
   };
 
   const valueColor = $derived(tone ? tones[tone] : accents[accent]);
@@ -84,7 +85,7 @@
   const trendMark = { up: '↑', down: '↓', flat: '→' } as const;
 </script>
 
-<div class="rounded-xl border border-line bg-surface {pads[size]} {klass}">
+<div class="{CARD_SURFACE} {pads[size]} {klass}">
   <p class="text-xs font-medium uppercase tracking-wide text-faint">{label}</p>
   <p class="{values[size]} {valueColor} {mono ? 'font-mono tabular-nums' : ''}">{value}</p>
   <div class="mt-1 flex items-center gap-2">

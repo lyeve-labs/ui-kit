@@ -277,7 +277,7 @@
     <div
       data-print="hide"
       transition:motion.drawer|global={{ side: startSide() }}
-      class="fixed inset-y-0 start-0 z-drawer flex shadow-2xl"
+      class="fixed inset-y-0 start-0 z-drawer flex shadow-overlay"
       role="dialog"
       aria-modal="true"
       aria-label={drawerLabel}
@@ -304,7 +304,7 @@
     >
       <div
         class="absolute inset-y-0 start-0 z-dropdown flex transition-shadow {railOpen
-          ? 'shadow-2xl'
+          ? 'shadow-popover'
           : ''}"
       >
         {@render sidebar(isMobile, railIcons)}

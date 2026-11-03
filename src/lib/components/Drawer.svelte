@@ -115,7 +115,7 @@
     <div
       use:overlay
       transition:motion.drawer|global={{ side: edge() }}
-      class="relative flex h-full w-full flex-col {OVERLAY_WIDTH[rung]} bg-surface shadow-2xl
+      class="relative flex h-full w-full flex-col {OVERLAY_WIDTH[rung]} bg-surface shadow-overlay
         {side === 'right' ? 'border-s' : 'border-e'} border-line"
       role="dialog"
       aria-modal="true"

@@ -30,9 +30,15 @@
       : 0,
   );
 
+  /**
+   * The brand fill runs cyan into violet, the accent the kit keeps for a mark
+   * a few pixels wide. bg-brand stays under it, so where gradients are not
+   * drawn (forced colors, paper) the bar is still the solid brand it was, and
+   * both ends clear 3:1 against the track in both palettes.
+   */
   const tones: Record<AccentTone, string> = {
     neutral: 'bg-muted',
-    brand: 'bg-brand',
+    brand: 'bg-brand bg-accent',
     violet: 'bg-violet',
     success: 'bg-success',
     warn: 'bg-warn',
@@ -54,7 +60,7 @@
     </div>
   {/if}
   <div
-    class="w-full overflow-hidden rounded-full bg-surface-2 {sizes[size]}"
+    class="w-full overflow-hidden rounded-full bg-surface-2 inset-shadow-well {sizes[size]}"
     role="progressbar"
     aria-valuenow={value}
     aria-valuemin={0}

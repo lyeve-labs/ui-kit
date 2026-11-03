@@ -17,6 +17,7 @@
     SCROLL_EDGE_START,
     scrollEdges,
   } from '../internal/scroll-edges.js';
+  import { CARD_SURFACE } from '../internal/layout.js';
 
   interface Props {
     striped?: boolean;
@@ -240,10 +241,15 @@
 
 <!-- overflow-hidden on the frame, not only on the scroller: the hovered row's
      ring is square and the frame is not, and the last row's corners drew past
-     the frame's rounded ones. -->
+     the frame's rounded ones.
+
+     The frame is a card: the same surface, radius and shadows, so a table and
+     the cards above it sit at one depth. It paints its own surface rather than
+     showing the page through, which the shadow under it needs to read as a
+     raised sheet. -->
 <div
   data-testid="table-frame"
-  class="relative w-full overflow-hidden rounded-xl border border-line {cls}"
+  class="relative w-full overflow-hidden {CARD_SURFACE} {cls}"
 >
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
@@ -256,7 +262,7 @@
     onfocusin={reveal}
     data-print="unclip"
     data-testid="table-scroll"
-    class="w-full overflow-x-auto rounded-xl"
+    class="w-full overflow-x-auto rounded-card"
     {...scrollAttrs}
   >
     <!--
@@ -287,8 +293,8 @@
       [&_tbody_td]:px-4 [&_tbody_td]:py-3 [&_tbody_td]:text-fg [&_tbody_td]:align-middle
       [&_tbody_td]:border-b [&_tbody_td]:border-line [&_tbody_tr:last-child_td]:border-0
       {striped ? '[&_tbody_tr:nth-child(even)]:bg-surface-2/40' : ''}
-      [&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-xl)-1px)]
-      [&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-xl)-1px)]
+      [&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-card)-1px)]
+      [&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-card)-1px)]
       {hoverable ? HOVER_RING : ''}"
     >
       {@render children()}
@@ -306,7 +312,7 @@
       aria-hidden="true"
       data-print="hide"
       data-testid="table-more-before"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-xl"
+      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-card"
     ></div>
   {/if}
   {#if moreAfter}
@@ -314,7 +320,7 @@
       aria-hidden="true"
       data-print="hide"
       data-testid="table-more-after"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-xl"
+      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-card"
     ></div>
   {/if}
 </div>
