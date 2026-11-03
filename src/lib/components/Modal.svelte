@@ -87,7 +87,7 @@
       use:overlay
       transition:motion.dialog|global
       class="relative flex max-h-[calc(100dvh-2rem)] w-full {OVERLAY_WIDTH[rung]} flex-col
-             overflow-hidden rounded-card border border-line bg-surface shadow-overlay inset-shadow-card"
+             overflow-hidden rounded-card border border-line bg-surface bg-card shadow-overlay inset-shadow-highlight"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? headingId : undefined}

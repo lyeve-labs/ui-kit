@@ -36,7 +36,7 @@
      color. The contrast suite measures every text token against both ends of
      the wash. -->
 <div
-  class="flex flex-col items-center justify-center text-center rounded-card border border-line bg-ink bg-hero inset-shadow-card px-6 py-12 {klass}"
+  class="flex flex-col items-center justify-center text-center rounded-card border border-line bg-ink bg-hero inset-shadow-highlight px-6 py-12 {klass}"
 >
   {#if iconSnippet}
     <div

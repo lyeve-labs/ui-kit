@@ -72,7 +72,7 @@
    * start cell in either direction and the two agree in left-to-right text.
    */
   const HOVER_RING = [
-    '[&_tbody_tr:hover]:bg-surface-2/60',
+    '[&_tbody_tr:hover]:bg-tint',
     '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_var(--color-brand),inset_1px_-1px_var(--color-brand)]',
     '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
@@ -280,13 +280,17 @@
       which is why the lines moved down to the cells they were already drawn
       between. With border-spacing at zero the result is the same line in the
       same place.
+
+      The head row and a hovered row take the brand tint. It is one opaque
+      color, so the contrast suite measures the head's labels and a row's text
+      on it, and a hovered row is told apart by more than its ring.
     -->
     <table
       style="--cell-truncate: {truncateAt}"
       class="w-full border-separate border-spacing-0 text-sm text-start
       {fixed ? 'table-fixed' : ''}
       {CELL_FIT[cell]} {CELL_NAMED} {COLUMN_ALIGN} {HEAD_CONTROLS}
-      [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-surface-2/40
+      [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-tint
       [&_thead_th]:px-4 [&_thead_th]:py-3 [&_thead_th]:text-xs
         [&_thead_th]:font-medium [&_thead_th]:text-faint
         [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:whitespace-nowrap

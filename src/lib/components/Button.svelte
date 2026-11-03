@@ -84,15 +84,20 @@
    * as one gesture in one theme and its opposite in the other.
    *
    * The filled and secondary variants are raised: a bright edge along the top
-   * and a short drop under them. The primary action alone glows when it is
-   * pointed at or held, so the one thing a surface wants done is the one thing
-   * that answers with light. The glow is a shadow, so it never moves the
-   * button or its neighbors, and the color change under it carries the state
-   * on its own where shadows are not drawn.
+   * and a short drop under them. The primary action alone glows, softly at
+   * rest and more under the pointer or held, so the one thing a surface wants
+   * done is the one thing that answers with light. Its fill is lifted, white
+   * falling off from the top over the brand color, and the hover and held
+   * colors change under the lift. The glow is a shadow, so it never moves the
+   * button or its neighbors, and the color change carries the state on its
+   * own where shadows and gradients are not drawn. A disabled primary drops
+   * its glow, which would otherwise invite the click it refuses.
    */
   const variants: Record<Variant, string> = {
     primary:
-      'bg-brand text-ink hover:bg-brand-light active:bg-brand-deep inset-shadow-bevel shadow-raised hover:shadow-glow active:shadow-glow',
+      'bg-brand bg-lift text-ink hover:bg-brand-light active:bg-brand-deep inset-shadow-bevel ' +
+      'shadow-primary hover:shadow-primary-hover active:shadow-primary-hover ' +
+      'disabled:shadow-raised aria-disabled:shadow-raised',
     violet:
       'bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised',
     secondary:

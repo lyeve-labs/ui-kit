@@ -536,6 +536,9 @@ describe('depth', () => {
       '--shadow-popover',
       '--shadow-overlay',
       '--shadow-glow',
+      '--shadow-primary',
+      '--shadow-primary-hover',
+      '--shadow-mark',
     ]);
   });
 
@@ -555,11 +558,19 @@ describe('depth', () => {
     for (const token of tokens.filter((t) => /^--(?:inset-)?shadow-/.test(t))) {
       const colors = [...value(token).matchAll(/var\(--color-([a-z-]+)\)/g)].map((m) => m[1]);
       // bevel is a white edge on a filled button's own color, the same in
-      // both themes, so it names no token.
+      // both themes, so it names no token. The primary button's pool is its
+      // own brand color, which inverts with the theme as the fill does.
       if (token === '--inset-shadow-bevel') continue;
+      const allowed = token.startsWith('--shadow-primary')
+        ? ['shade', 'glow', 'brand']
+        : ['highlight', 'shade', 'glow'];
       expect(colors.length, `${token} names no depth color`).toBeGreaterThan(0);
-      expect(colors.every((c) => ['highlight', 'shade', 'glow'].includes(c)), token).toBe(true);
+      expect(colors.every((c) => allowed.includes(c)), token).toBe(true);
     }
+  });
+
+  it('draws the top light as a 1px line with no blur, so no text sits on it', () => {
+    expect(value('--inset-shadow-highlight')).toBe('inset 0 1px 0 0 var(--color-highlight)');
   });
 
   it('keeps every inner shadow inset, so it paints inside the border it sits on', () => {
@@ -575,13 +586,18 @@ describe('depth', () => {
     // black shade at half strength on a white card reads as a smudge.
     const light = css.slice(css.indexOf("html[data-theme='light'] {"));
     const print = css.slice(css.indexOf('@media print'));
+    // The canvas and the card add light in dark and cannot on white, so each
+    // is drawn again for the light palette rather than inherited.
+    for (const name of ['canvas', 'card']) {
+      expect(light.slice(0, light.indexOf('\n}')), `light ${name}`).toContain(`--background-image-${name}:`);
+    }
     for (const name of ['highlight', 'shade', 'glow']) {
       expect(light.slice(0, light.indexOf('}')), `light ${name}`).toContain(`--color-${name}:`);
       expect(print, `print ${name}`).toMatch(new RegExp(`--color-${name}: transparent`));
     }
     const forced = css.slice(css.indexOf('@media (forced-colors: active)'));
     expect(forced).toMatch(/--color-glow: transparent/);
-    for (const name of ['hero', 'accent', 'accent-y']) {
+    for (const name of ['hero', 'accent', 'accent-y', 'canvas', 'sidebar', 'card', 'lift', 'rule-y', 'rule-end']) {
       expect(forced, `forced ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
       expect(print, `print ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
     }
@@ -621,7 +637,7 @@ describe('depth', () => {
       .filter((f) => /\bbg-accent(?:-y)?\b/.test(f.src))
       .map((f) => f.name)
       .sort();
-    expect(users).toEqual(['Progress.svelte', 'SidebarNav.svelte', 'Tabs.svelte']);
+    expect(users).toEqual(['Progress.svelte', 'SidebarNav.svelte', 'Stat.svelte', 'Tabs.svelte']);
     for (const name of users) {
       const src = readFileSync(join(__dirname, 'components', name), 'utf8');
       for (const [cls] of src.matchAll(/\S*bg-accent(?:-y)?\b/g)) {

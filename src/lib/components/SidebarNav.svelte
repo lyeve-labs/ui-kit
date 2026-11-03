@@ -89,14 +89,16 @@
    * gradient border cannot follow a radius. The border goes transparent under
    * it and returns as the system text color in a forced colors scheme, which
    * draws neither the bar nor the row's fill, so the row keeps a mark there.
+   * The row's fill is the brand tint and the bar carries a few pixels of
+   * glow, so the row reads as the place you are rather than one more entry.
    */
   function rowPaint(state: 'current' | 'ancestor' | 'rest'): string {
     if (state === 'current')
       return (
-        'relative border-transparent forced-colors:border-[CanvasText] bg-surface-2 ' +
+        'relative border-transparent forced-colors:border-[CanvasText] bg-tint ' +
         'inset-shadow-highlight font-medium text-brand hover:bg-line active:bg-line ' +
         'after:absolute after:inset-y-1.5 after:-start-0.5 after:w-0.5 after:rounded-full ' +
-        'after:bg-brand after:bg-accent-y'
+        'after:bg-brand after:bg-accent-y after:shadow-mark'
       );
     if (state === 'ancestor') return 'border-brand text-fg hover:bg-surface-2 active:bg-line';
     return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';

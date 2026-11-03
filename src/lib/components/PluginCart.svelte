@@ -397,7 +397,7 @@
 
   <aside
     id={summaryId}
-    class="scroll-mt-20 self-start rounded-card border border-line bg-surface p-5 shadow-card inset-shadow-card lg:sticky"
+    class="scroll-mt-20 self-start rounded-card border border-line bg-surface bg-card p-5 shadow-card inset-shadow-highlight lg:sticky"
     style:top={stickyTop}
     aria-label={heading}
   >

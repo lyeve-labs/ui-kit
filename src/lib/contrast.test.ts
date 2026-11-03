@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PANEL_DANGER_SURFACE } from './internal/layout.js';
+import { APP_HEADER, PANEL_DANGER_SURFACE } from './internal/layout.js';
 
 /**
  * The palette is the one place a defect reaches every surface at once, and it
@@ -347,12 +347,6 @@ describe.each([
     }
   });
 
-  it.each(['fg', 'muted', 'faint'])('%s clears 4.5:1 under the light along a card top', (name) => {
-    // The sheen is brightest at the very top edge, where a card's heading sits.
-    const ground = flat('highlight', tokens.surface);
-    expect(ratio(tokens[name], ground), `${name} on the lit card top`).toBeGreaterThanOrEqual(4.5);
-  });
-
   it('keeps the field border at 3:1 against the darkest band of the well inside it', () => {
     // The inner shadow darkens a band along the field's top edge, right
     // against the border. The well paints the shade at a share of its
@@ -386,6 +380,145 @@ describe.each([
     // clear the non-text floor wherever it lands.
     for (const ground of GROUNDS) {
       expect(ratio(tokens[name], tokens[ground]), `${name} on ${ground}`).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
+
+/**
+ * The surfaces' own gradients, measured at their stops. Each token is read
+ * from the block that declares it for that palette, a stop is evaluated to a
+ * color and an alpha, and every text token a surface carries is measured on
+ * every stop.
+ */
+type Paint = { hex: string; alpha: number };
+
+/** The top-level comma-separated arguments of a function's argument list. */
+function args(list: string): string[] {
+  const out = [''];
+  let depth = 0;
+  for (const ch of list) {
+    if (ch === '(') depth += 1;
+    if (ch === ')') depth -= 1;
+    if (ch === ',' && depth === 0) out.push('');
+    else out[out.length - 1] += ch;
+  }
+  return out.map((a) => a.trim());
+}
+
+function paint(expr: string, tokens: Record<string, string>): Paint {
+  const e = expr.trim();
+  if (e === 'transparent') return { hex: '#000000', alpha: 0 };
+  if (/^#[0-9a-f]{6}$/i.test(e)) return { hex: e.toLowerCase(), alpha: 1 };
+  const v = /^var\(--color-([a-z0-9-]+)\)$/.exec(e);
+  if (v) return { hex: tokens[v[1]], alpha: 1 };
+  const rgb = /^rgb\((\d+) (\d+) (\d+) \/ ([0-9.]+)\)$/.exec(e);
+  if (rgb) {
+    const hex = `#${rgb.slice(1, 4).map((c) => Number(c).toString(16).padStart(2, '0')).join('')}`;
+    return { hex, alpha: Number(rgb[4]) };
+  }
+  const mix = /^color-mix\(in srgb, (.+)\)$/.exec(e);
+  if (mix) {
+    const [a, b] = args(mix[1]);
+    const [, color, pct] = /^(.+) (\d+)%$/.exec(a) ?? [];
+    const share = Number(pct) / 100;
+    const first = paint(color, tokens);
+    const second = paint(b, tokens);
+    if (second.alpha === 0) return { hex: first.hex, alpha: first.alpha * share };
+    return { hex: over(first.hex, second.hex, share), alpha: 1 };
+  }
+  throw new Error(`cannot evaluate ${e}`);
+}
+
+/** A gradient's color stops, its position arguments and stop offsets dropped. */
+function stops(gradient: string, tokens: Record<string, string>): Paint[] {
+  const inner = /^[a-z-]+-gradient\(([\s\S]*)\)$/.exec(gradient.trim())?.[1] ?? '';
+  return args(inner)
+    .filter((a) => !/^(?:\d+deg|to |ellipse|circle|\d+% \d+px)/.test(a))
+    .map((a) => paint(a.replace(/\s+-?\d+(?:%|px)?$/, ''), tokens));
+}
+
+/** A background-image token as the given palette declares it, falling back to dark. */
+function image(scope: 'dark' | 'light', name: string): string {
+  const marker = css.indexOf("html[data-theme='light'] {");
+  const read = (region: string) =>
+    new RegExp(`--background-image-${name}:([^;]+);`).exec(region)?.[1].replace(/\s+/g, ' ').trim();
+  const light = css.slice(marker, css.indexOf('\n}', marker));
+  return (scope === 'light' ? read(light) : undefined) ?? read(css.slice(0, marker)) ?? '';
+}
+
+describe.each([
+  ['dark', dark],
+  ['light', light],
+] as const)('surface light in the %s palette', (scope, tokens) => {
+  const flatten = (p: Paint, ground: string) => over(p.hex, ground, p.alpha);
+  /** Both canvas pools at full strength over ink, where they overlap. */
+  const canvasPeak = () =>
+    args(image(scope, 'canvas'))
+      .map((g) => stops(g, tokens)[0])
+      .reduce((ground, pool) => flatten(pool, ground), tokens.ink);
+
+  it('reads every stop of the four surface gradients', () => {
+    expect(args(image(scope, 'canvas'))).toHaveLength(2);
+    for (const name of ['sidebar', 'card', 'lift']) {
+      expect(stops(image(scope, name), tokens).length, name).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it.each(TEXT_TOKENS)('%s clears 4.5:1 where the canvas light is brightest', (name) => {
+    // The page title, its description and the first row of content sit in
+    // the light at the top of the page.
+    expect(ratio(tokens[name], canvasPeak())).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(['fg', 'muted', 'faint', 'brand'])(
+    '%s clears 4.5:1 on the translucent header over the canvas light',
+    (name) => {
+      const share = Number(/bg-surface\/(\d+)/.exec(APP_HEADER)?.[1]) / 100;
+      expect(share).toBeGreaterThan(0);
+      const ground = over(tokens.surface, canvasPeak(), share);
+      expect(ratio(tokens[name], ground)).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
+  it.each(TEXT_TOKENS)('%s clears 4.5:1 at both ends of the sidebar and the card', (name) => {
+    for (const surface of ['sidebar', 'card']) {
+      for (const stop of stops(image(scope, surface), tokens)) {
+        const ground = flatten(stop, tokens.surface);
+        expect(ratio(tokens[name], ground), `${name} on the ${surface} at ${ground}`).toBeGreaterThanOrEqual(
+          4.5,
+        );
+      }
+    }
+  });
+
+  it.each(['fg', 'muted', 'faint', 'brand'])('%s clears 4.5:1 on the brand tint', (name) => {
+    // The table's head row carries faint labels, a hovered row fg and muted
+    // text, and the current nav row brand.
+    const tint = paint('color-mix(in srgb, var(--color-brand) 8%, var(--color-surface))', tokens);
+    expect(css).toContain('--color-tint: color-mix(in srgb, var(--color-brand) 8%, var(--color-surface));');
+    expect(ratio(tokens[name], tint.hex)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(['brand', 'brand-light', 'brand-deep'])(
+    'keeps the primary label at 4.5:1 under the lift on %s',
+    (fill) => {
+      // The lift is brightest at the top of the button, over the resting,
+      // hovered and held colors alike.
+      const [top] = stops(image(scope, 'lift'), tokens);
+      expect(ratio(tokens.ink, flatten(top, tokens[fill]))).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
+  it('keeps the primary fill at 3:1 against its own resting and hovered pool', () => {
+    // The pool is brand at a share, read from each token. Measured at full
+    // share, which the blur never reaches, on every ground a button sits on.
+    const share = (token: string) =>
+      Number(new RegExp(`${token}:[^;]*var\\(--color-brand\\) (\\d+)%`).exec(css)?.[1]) / 100;
+    for (const ground of GROUNDS) {
+      const rest = over(tokens.brand, tokens[ground], share('--shadow-primary'));
+      const hover = over(tokens.brand, tokens[ground], share('--shadow-primary-hover'));
+      expect(ratio(tokens.brand, rest), `resting on ${ground}`).toBeGreaterThanOrEqual(3);
+      expect(ratio(tokens['brand-light'], hover), `hovered on ${ground}`).toBeGreaterThanOrEqual(3);
     }
   });
 });

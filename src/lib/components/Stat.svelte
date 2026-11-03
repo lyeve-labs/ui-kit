@@ -85,7 +85,15 @@
   const trendMark = { up: '↑', down: '↓', flat: '→' } as const;
 </script>
 
-<div class="{CARD_SURFACE} {pads[size]} {klass}">
+<!-- A brand to violet line along the top edge, so a row of figures reads as a
+     set. It is a mark and carries nothing a reader needs, so where gradients
+     are not drawn it falls back to solid brand or to nothing at all.
+     overflow-hidden lets the card's corners trim it. -->
+<div
+  class="{CARD_SURFACE} relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-brand before:bg-accent {pads[
+    size
+  ]} {klass}"
+>
   <p class="text-xs font-medium uppercase tracking-wide text-faint">{label}</p>
   <p class="{values[size]} {valueColor} {mono ? 'font-mono tabular-nums' : ''}">{value}</p>
   <div class="mt-1 flex items-center gap-2">
