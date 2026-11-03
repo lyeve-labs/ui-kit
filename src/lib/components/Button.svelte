@@ -92,18 +92,28 @@
    * button or its neighbors, and the color change carries the state on its
    * own where shadows and gradients are not drawn. A disabled primary drops
    * its glow, which would otherwise invite the click it refuses.
+   *
+   * A filled button's boundary is its fill, and a forced colors scheme
+   * replaces the fill with the canvas, so the button read as loose text.
+   * There it draws an outline in the button text color, inset by its own
+   * width. An outline takes no space, so nothing moves, and the focus
+   * outline in theme.css replaces it while the button has focus.
    */
+  const FILLED_EDGE =
+    'forced-colors:outline-solid forced-colors:outline-1 forced-colors:-outline-offset-1 ' +
+    'forced-colors:outline-[color:ButtonText] forced-colors:disabled:outline-[color:GrayText]';
+
   const variants: Record<Variant, string> = {
     primary:
       'bg-brand bg-lift text-ink hover:bg-brand-light active:bg-brand-deep inset-shadow-bevel ' +
       'shadow-primary hover:shadow-primary-hover active:shadow-primary-hover ' +
-      'disabled:shadow-raised aria-disabled:shadow-raised',
+      `disabled:shadow-raised aria-disabled:shadow-raised ${FILLED_EDGE}`,
     violet:
-      'bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised',
+      `bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     secondary:
       'bg-surface-2 text-fg border border-line-strong hover:bg-line active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
     danger:
-      'bg-danger text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised',
+      `bg-danger text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     ghost: 'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg',
     outline:
       'border border-line-strong text-fg hover:border-brand hover:text-brand active:bg-brand/10',

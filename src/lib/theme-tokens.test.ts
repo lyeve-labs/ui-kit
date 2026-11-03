@@ -558,11 +558,11 @@ describe('depth', () => {
     for (const token of tokens.filter((t) => /^--(?:inset-)?shadow-/.test(t))) {
       const colors = [...value(token).matchAll(/var\(--color-([a-z-]+)\)/g)].map((m) => m[1]);
       // bevel is a white edge on a filled button's own color, the same in
-      // both themes, so it names no token. The primary button's pool is its
-      // own brand color, which inverts with the theme as the fill does.
+      // both themes, so it names no token. The primary button's pool is the
+      // halo, its own fill color under a name paper can switch off.
       if (token === '--inset-shadow-bevel') continue;
       const allowed = token.startsWith('--shadow-primary')
-        ? ['shade', 'glow', 'brand']
+        ? ['shade', 'glow', 'halo']
         : ['highlight', 'shade', 'glow'];
       expect(colors.length, `${token} names no depth color`).toBeGreaterThan(0);
       expect(colors.every((c) => allowed.includes(c)), token).toBe(true);
@@ -597,6 +597,12 @@ describe('depth', () => {
     }
     const forced = css.slice(css.indexOf('@media (forced-colors: active)'));
     expect(forced).toMatch(/--color-glow: transparent/);
+    // Print turns the brand black, so a pool built from the brand printed a
+    // black blur under the primary button. The pool has its own token, and
+    // paper and forced colors turn it off.
+    expect(value('--color-halo')).toBe('var(--color-brand)');
+    expect(print).toMatch(/--color-halo: transparent/);
+    expect(forced).toMatch(/--color-halo: transparent/);
     for (const name of ['hero', 'accent', 'accent-y', 'canvas', 'sidebar', 'card', 'lift', 'rule-y', 'rule-end']) {
       expect(forced, `forced ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
       expect(print, `print ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
@@ -643,6 +649,11 @@ describe('depth', () => {
       for (const [cls] of src.matchAll(/\S*bg-accent(?:-y)?\b/g)) {
         const prefix = cls.slice(0, cls.indexOf('bg-accent'));
         expect(src, `${name} paints ${cls} with no solid brand under it`).toContain(`${prefix}bg-brand `);
+        // The horizontal accent runs from the start edge, so under
+        // right-to-left the mark is mirrored, as the header rule is.
+        if (!cls.endsWith('-y')) {
+          expect(src, `${name} does not mirror ${cls} under rtl`).toContain(`rtl:${prefix}-scale-x-100`);
+        }
       }
     }
   });

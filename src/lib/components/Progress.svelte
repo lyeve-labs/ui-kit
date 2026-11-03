@@ -32,9 +32,15 @@
 
   /**
    * The brand fill runs cyan into violet, the accent the kit keeps for a mark
-   * a few pixels wide. bg-brand stays under it, so where gradients are not
-   * drawn (forced colors, paper) the bar is still the solid brand it was, and
-   * both ends clear 3:1 against the track in both palettes.
+   * a few pixels wide, and both ends clear 3:1 against the track in both
+   * palettes. bg-brand stays under it for paper, which draws no gradient. It
+   * runs from the start edge, so under right-to-left the fill is mirrored and
+   * its cyan end still sits where the bar starts.
+   *
+   * A forced colors scheme replaces every background color with the canvas,
+   * which erased the track and the fill alike. There the track draws a border
+   * and the fill opts out of the forced palette to paint in the system text
+   * color, so the value is still there to read.
    */
   const tones: Record<AccentTone, string> = {
     neutral: 'bg-muted',
@@ -60,7 +66,8 @@
     </div>
   {/if}
   <div
-    class="w-full overflow-hidden rounded-full bg-surface-2 inset-shadow-well {sizes[size]}"
+    class="w-full overflow-hidden rounded-full bg-surface-2 inset-shadow-well {sizes[size]}
+      forced-colors:border forced-colors:border-[color:CanvasText]"
     role="progressbar"
     aria-valuenow={value}
     aria-valuemin={0}
@@ -68,7 +75,8 @@
     aria-label={label}
   >
     <div
-      class="h-full rounded-full transition-[width] duration-progress
+      class="h-full rounded-full transition-[width] duration-progress rtl:-scale-x-100
+        forced-colors:forced-color-adjust-none forced-colors:bg-[color:CanvasText]
         {tones[tone]}
         {animated ? 'animate-pulse' : ''}"
       style="width: {pct}%"

@@ -172,7 +172,7 @@
         onkeydown={(e) => onTabKeydown(e, i)}
         class="{TAB}
           {active === tab.id
-          ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:bg-accent after:rounded-t'
+          ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:bg-accent after:rounded-t rtl:after:-scale-x-100'
           : 'text-faint hover:text-fg'}"
       >
         {tab.label}

@@ -491,13 +491,43 @@ describe.each([
     }
   });
 
+  /** The tint as the stylesheet declares it. */
+  const tint = () => paint(/--color-tint: ([^;]+);/.exec(css)?.[1] ?? '', tokens).hex;
+
   it.each(['fg', 'muted', 'faint', 'brand'])('%s clears 4.5:1 on the brand tint', (name) => {
     // The table's head row carries faint labels, a hovered row fg and muted
     // text, and the current nav row brand.
-    const tint = paint('color-mix(in srgb, var(--color-brand) 8%, var(--color-surface))', tokens);
-    expect(css).toContain('--color-tint: color-mix(in srgb, var(--color-brand) 8%, var(--color-surface));');
-    expect(ratio(tokens[name], tint.hex)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(tokens[name], tint())).toBeGreaterThanOrEqual(4.5);
   });
+
+  it('lays the card light over the background color, never in place of it', () => {
+    // An opaque stop paints over a caller's bg-*, and a card passed a violet
+    // tint drew as a plain card. Every stop lets the color under it through.
+    for (const stop of stops(image(scope, 'card'), tokens)) {
+      expect(stop.alpha).toBeLessThan(1);
+    }
+  });
+
+  it.each(['brand', 'violet', 'success', 'warn', 'danger'])(
+    'keeps the %s badge at 4.5:1 on every lit ground it can land on',
+    (name) => {
+      // A badge is its tone at a tenth over whatever it sits in: a hovered or
+      // head row, either end of a card's light and either end of the hero.
+      const [heroTop] = stops(image(scope, 'hero'), tokens);
+      const grounds: Record<string, string> = {
+        tint: tint(),
+        heroTop: heroTop.hex,
+        heroFoot: tokens.ink,
+      };
+      for (const [i, stop] of stops(image(scope, 'card'), tokens).entries()) {
+        grounds[`card stop ${i}`] = flatten(stop, tokens.surface);
+      }
+      for (const [ground, hex] of Object.entries(grounds)) {
+        const chip = over(tokens[name], hex, 0.1);
+        expect(ratio(tokens[name], chip), `${name} badge on ${ground} ${hex}`).toBeGreaterThanOrEqual(4.5);
+      }
+    },
+  );
 
   it.each(['brand', 'brand-light', 'brand-deep'])(
     'keeps the primary label at 4.5:1 under the lift on %s',
@@ -513,7 +543,7 @@ describe.each([
     // The pool is brand at a share, read from each token. Measured at full
     // share, which the blur never reaches, on every ground a button sits on.
     const share = (token: string) =>
-      Number(new RegExp(`${token}:[^;]*var\\(--color-brand\\) (\\d+)%`).exec(css)?.[1]) / 100;
+      Number(new RegExp(`${token}:[^;]*var\\(--color-halo\\) (\\d+)%`).exec(css)?.[1]) / 100;
     for (const ground of GROUNDS) {
       const rest = over(tokens.brand, tokens[ground], share('--shadow-primary'));
       const hover = over(tokens.brand, tokens[ground], share('--shadow-primary-hover'));

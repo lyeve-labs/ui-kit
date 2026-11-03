@@ -116,11 +116,12 @@ export const PAGE_STACK = 'flex flex-col gap-section';
  * focus ring sits 2px outside the element it belongs to, so a clipping surface
  * crops the ring of every button inside it down to whichever edge fits.
  *
- * The depth is a fill a few percent lighter at the top, a 1px light along the
- * top edge and a soft drop under the card. The fill is a background image over
- * bg-surface, which is what shows where images are not drawn, and the rest
- * are shadows, so the card is the same size with or without them and the 1px
- * border stays the boundary a forced colors scheme keeps.
+ * The depth is a few percent of light at the top, a 1px light along the top
+ * edge and a soft drop under the card. The light is a translucent background
+ * image laid over the background color, so a caller who passes its own bg-*
+ * keeps that color under it. The rest are shadows, so the card is the same
+ * size with or without them and the 1px border stays the boundary a forced
+ * colors scheme keeps.
  */
 export const CARD_SURFACE =
   'bg-surface bg-card border border-line rounded-card shadow-card inset-shadow-highlight';
