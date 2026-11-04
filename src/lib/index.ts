@@ -86,6 +86,7 @@ export { default as StepIndicator } from './components/StepIndicator.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
 export { default as SidebarNav } from './components/SidebarNav.svelte';
 export { default as AccountMenu } from './components/AccountMenu.svelte';
+export { default as AccountMenuItem } from './components/AccountMenuItem.svelte';
 export type { NavNode, NavTree } from './internal/nav-tree.js';
 
 // ── Overlays ───────────────────────────────────────────────────────────────

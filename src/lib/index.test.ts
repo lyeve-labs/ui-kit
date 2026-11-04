@@ -61,6 +61,7 @@ const COMPONENTS = [
   'Dropdown',
   'SidebarNav',
   'AccountMenu',
+  'AccountMenuItem',
   // Overlays
   'Modal',
   'Drawer',

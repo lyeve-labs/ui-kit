@@ -74,4 +74,29 @@ describe('AccountMenu', () => {
     expect(panel.className).toContain('top-full');
     expect(panel.className).toContain('end-0');
   });
+
+  it('draws the footer after a rule, below the rows', () => {
+    const footer = createRawSnippet(() => ({
+      render: () => `<form method="POST" action="/logout"><button type="submit">Sign out</button></form>`,
+    }));
+    const { container } = render(AccountMenu, {
+      props: { name: 'Paid Journey', children: items, footer },
+    });
+    const form = container.querySelector('form[action="/logout"]')!;
+    const rule = form.parentElement!;
+    expect(rule.className).toContain('border-t');
+    expect(rule.className).toContain('border-line');
+    const link = container.querySelector('a[href="/settings"]')!;
+    expect(link.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('draws no rule when there is no footer', () => {
+    const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
+    expect(container.querySelector('details > div .border-t')).toBeNull();
+  });
+
+  it('keeps the trigger lit while its panel is open', () => {
+    const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
+    expect(container.querySelector('summary')?.className).toContain('group-open:bg-surface-2');
+  });
 });
