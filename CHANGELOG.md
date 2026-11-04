@@ -5,6 +5,17 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `AccountMenuItem`, one row of `AccountMenu`, drawn like a resting `SidebarNav` row: an optional 16px icon in its own column and a muted label that turns to full text color on a surface-2 fill under the pointer, with no border, shadow or fill at rest. With `href` it is a link and passes `target` and `rel` through. Without one it is a button, `type="submit"` for a sign-out form. `loading` disables the button, marks it busy and shows a spinner in place of the icon.
+- `AccountMenu` takes an optional `footer` snippet, drawn under a rule after the rows, for the form that ends the session. The rows and the footer are spaced like the sidebar's rows.
+
+### Changed
+
+- The `AccountMenu` trigger keeps its hover fill while its panel is open, so the panel reads as coming from it.
+
 ## [0.49.0] - 2026-11-04
 
 ### Changed

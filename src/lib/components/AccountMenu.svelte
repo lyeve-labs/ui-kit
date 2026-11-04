@@ -15,6 +15,11 @@
    * links and a form post, and both have to keep working when hydration fails
    * or never runs, which is exactly the moment somebody most needs to be able
    * to sign out.
+   *
+   * The rows are AccountMenuItem, painted as resting sidebar rows, so the menu
+   * reads as the same kind of list as the nav beside it rather than a stack of
+   * boxed buttons. Sign out goes in `footer`, under a rule, because it ends
+   * the session where every row above it only moves within it.
    */
   import type { Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
@@ -34,8 +39,10 @@
     /** The avatar's accent. Follows the app, not the person. */
     tone?: AccentTone;
     class?: string;
-    /** The menu itself: links, and the form that ends the session. */
+    /** The menu itself: AccountMenuItem rows. */
     children: Snippet;
+    /** Under a rule after the rows: the form that ends the session. */
+    footer?: Snippet;
   }
 
   let {
@@ -45,6 +52,7 @@
     tone = 'brand',
     class: klass = '',
     children,
+    footer = undefined,
   }: Props = $props();
 
   // Splitting on the @ as well as on spaces: an account with no display name
@@ -95,10 +103,11 @@
 
 <details bind:this={root} class="group relative {klass}">
   <!-- The name beside the avatar is hidden below sm, and the avatar is paint,
-       so the trigger carries its name itself. -->
+       so the trigger carries its name itself. While the panel is open the
+       trigger keeps its hover fill, so the panel reads as coming from it. -->
   <summary
     aria-label="{name}, account menu"
-    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 group-open:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
   >
     <span
       class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold {AVATAR_TONE[
@@ -126,6 +135,10 @@
       <p class="truncate text-sm font-medium text-fg">{name}</p>
       {#if secondary}<p class="truncate text-xs text-muted">{secondary}</p>{/if}
     </div>
-    {@render children()}
+    <!-- gap-0.5 is the sidebar's row gap, so the two lists space alike. -->
+    <div class="flex flex-col gap-0.5">{@render children()}</div>
+    {#if footer}
+      <div class="flex flex-col gap-0.5 border-t border-line pt-1">{@render footer()}</div>
+    {/if}
   </div>
 </details>
