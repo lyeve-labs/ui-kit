@@ -76,11 +76,11 @@
   ].join(' ');
 
   /*
-   * The card's surface, border, radius and shadows, without the card's top
-   * wash. The head row is opaque and covers the top edge where the wash reads
-   * on a card. Under the head the wash only made the first body rows lighter
-   * than the rows below, so the rows were not one color at rest and a hover
-   * showed unevenly down the table.
+   * The card's surface, border, radius and shadows, without the card's
+   * gradient. In light the gradient darkens a card toward its foot, so the
+   * last rows would be darker than the first, the rows would not be one color
+   * at rest, and a hover would show unevenly down the table. A dark card has
+   * no gradient.
    */
   const FRAME_SURFACE = CARD_SURFACE.split(' ')
     .filter((c) => c !== 'bg-card')
