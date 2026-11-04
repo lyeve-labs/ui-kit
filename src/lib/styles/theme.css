@@ -120,12 +120,15 @@
    * component reads it now. It stays for a consumer that does, and paper and
    * a forced colors scheme still switch it off. */
   --color-halo: var(--color-brand);
-  /* The place you are: a table's head row, a hovered row and the current nav
-   * row. Brand mixed into the surface rather than laid over it, so it is one
-   * opaque color the contrast suite can measure. Five percent, because a
-   * violet badge in a hovered row lays its own tint over this one, and at
-   * eight its label fell to 4.35:1. */
+  /* The place you are: the current nav row. Brand mixed into the surface
+   * rather than laid over it, so it is one opaque color the contrast suite
+   * can measure. Five percent, because a badge in the row lays its own tint
+   * over this one, and at eight the violet label fell to 4.35:1. */
   --color-tint: color-mix(in srgb, var(--color-brand) 5%, var(--color-surface));
+  /* A table's head row. Eight percent, a step past the tint, because a
+   * hovered row is surface-2 and at five the dark head sat too close to it
+   * to read as a different row. */
+  --color-band: color-mix(in srgb, var(--color-brand) 8%, var(--color-surface));
 
   /* The ramp, from a control to a dialog. Each rung casts further than the
    * one below it, so a menu reads above the card it opened from and a dialog

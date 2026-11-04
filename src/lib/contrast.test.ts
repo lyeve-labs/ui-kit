@@ -491,13 +491,20 @@ describe.each([
     }
   });
 
-  /** The tint as the stylesheet declares it. */
-  const tint = () => paint(/--color-tint: ([^;]+);/.exec(css)?.[1] ?? '', tokens).hex;
+  /** A brand mix as the stylesheet declares it. */
+  const mix = (token: string) =>
+    paint(new RegExp(`--color-${token}: ([^;]+);`).exec(css)?.[1] ?? '', tokens).hex;
+  const tint = () => mix('tint');
+  const band = () => mix('band');
 
   it.each(['fg', 'muted', 'faint', 'brand'])('%s clears 4.5:1 on the brand tint', (name) => {
-    // The table's head row carries faint labels, a hovered row fg and muted
-    // text, and the current nav row brand.
+    // The current nav row carries brand, and its badges and labels the rest.
     expect(ratio(tokens[name], tint())).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(['fg', 'muted', 'faint', 'brand'])('%s clears 4.5:1 on the head band', (name) => {
+    // The table's head row carries faint labels and a caller's sort control.
+    expect(ratio(tokens[name], band())).toBeGreaterThanOrEqual(4.5);
   });
 
   it('lays the card light over the background color, never in place of it', () => {
@@ -511,11 +518,13 @@ describe.each([
   it.each(['brand', 'violet', 'success', 'warn', 'danger'])(
     'keeps the %s badge at 4.5:1 on every lit ground it can land on',
     (name) => {
-      // A badge is its tone at a tenth over whatever it sits in: a hovered or
-      // head row, either end of a card's light and either end of the hero.
+      // A badge is its tone at a tenth over whatever it sits in: the current
+      // nav row, a hovered table row, either end of a card's light and either
+      // end of the hero. The head band holds labels, never a badge.
       const [heroTop] = stops(image(scope, 'hero'), tokens);
       const grounds: Record<string, string> = {
         tint: tint(),
+        'hovered row': tokens['surface-2'],
         heroTop: heroTop.hex,
         heroFoot: tokens.ink,
       };
