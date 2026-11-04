@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The dark palette's raised layers are gray instead of navy, so a card no longer reads violet. `surface` is `#11171d`, `surface-2` is `#191e25` and `line` is `#222931`. Each keeps the lightness it had, and `ink`, the brand colors and the light palette are unchanged. A hovered table row still reads apart from the head row and from a resting row, and every text and control border pair still clears WCAG AA.
+
 ## [0.48.0] - 2026-11-04
 
 ### Changed
