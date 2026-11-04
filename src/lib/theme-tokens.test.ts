@@ -598,8 +598,9 @@ describe('depth', () => {
     // black shade at half strength on a white card reads as a smudge.
     const light = css.slice(css.indexOf("html[data-theme='light'] {"));
     const print = css.slice(css.indexOf('@media print'));
-    // The canvas and the card add light in dark and cannot on white, so each
-    // is drawn again for the light palette rather than inherited.
+    // The canvas adds light in dark and cannot on white, and the dark card
+    // draws no layer, so each is drawn again for the light palette rather
+    // than inherited.
     for (const name of ['canvas', 'card']) {
       expect(light.slice(0, light.indexOf('\n}')), `light ${name}`).toContain(`--background-image-${name}:`);
     }

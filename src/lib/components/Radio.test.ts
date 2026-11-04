@@ -81,7 +81,7 @@ describe('Radio', () => {
   });
 
   it('marks its ring with the stronger border, not the divider color', () => {
-    // `line` is 1.25:1 against the surface, and the ring is the only thing
+    // `line` is 1.23:1 against the surface, and the ring is the only thing
     // identifying an unselected radio as a control.
     const { container } = render(Radio, { props: { value: 'a', group: 'b', label: 'x' } });
     const ring = container.querySelector('input + span') as HTMLElement;
