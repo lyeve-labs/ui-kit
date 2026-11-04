@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.2] - 2026-11-04
+
+### Changed
+
+- The dark palette's raised layers mix 2% of the dark blue (`#003366`) into the navy, in place of the 5% of 0.51.1, for a softer blue. `surface` is `#0c1728`, `surface-2` is `#121e30` and `line` is `#192a3d`. The line sits one step above the exact mix so it stays 1.23:1 against the surface. `ink`, the brand colors and the light palette are unchanged, and every text and control border pair still clears WCAG AA.
+
 ## [0.51.1] - 2026-11-04
 
 ### Changed
