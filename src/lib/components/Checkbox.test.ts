@@ -84,7 +84,7 @@ describe('Checkbox', () => {
   });
 
   it('marks its box with the stronger border, not the divider color', () => {
-    // `line` is 1.25:1 against the surface. A control whose border is the only
+    // `line` is 1.23:1 against the surface. A control whose border is the only
     // thing identifying it needs line-strong to clear SC 1.4.11.
     const { container } = render(Checkbox, { props: { checked: false, label: 'x' } });
     const box = container.querySelector('input + span') as HTMLElement;

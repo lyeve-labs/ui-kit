@@ -5,6 +5,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The dark palette's raised layers are darker, so a card no longer reads gray against the page. `surface` is `#0c1627`, `surface-2` is `#121e2f` and `line` is `#1a293c`. A hovered table row still reads apart from the head row and from a resting row, and every text and control border pair still clears WCAG AA.
+- The dark card no longer carries a white wash at its top. `bg-card` is `none` in the dark palette, so a card is its plain surface color. The light palette's card is unchanged.
+- The `highlight` along a raised surface's top edge is half as bright in the dark palette, white at 6% instead of 12%.
+
 ## [0.47.0] - 2026-11-04
 
 ### Fixed

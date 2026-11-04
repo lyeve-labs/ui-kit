@@ -134,7 +134,7 @@ describe.each([
   });
 
   it('draws an interactive border at 3:1 or better', () => {
-    // SC 1.4.11 again. `line` is 1.25:1 and stays the divider color. A control
+    // SC 1.4.11 again. `line` is 1.23:1 on surface and stays the divider color. A control
     // whose boundary is the only thing identifying it uses line-strong.
     for (const ground of ['surface', 'surface-2'] as const) {
       expect(
@@ -451,17 +451,29 @@ describe.each([
   ['light', light],
 ] as const)('surface light in the %s palette', (scope, tokens) => {
   const flatten = (p: Paint, ground: string) => over(p.hex, ground, p.alpha);
+  /**
+   * What a card's text sits on: each stop of the card's layer over the
+   * surface. The dark card has no layer, so its text sits on the plain
+   * surface.
+   */
+  const cardGrounds = () =>
+    image(scope, 'card') === 'none'
+      ? [tokens.surface]
+      : stops(image(scope, 'card'), tokens).map((stop) => flatten(stop, tokens.surface));
   /** Both canvas pools at full strength over ink, where they overlap. */
   const canvasPeak = () =>
     args(image(scope, 'canvas'))
       .map((g) => stops(g, tokens)[0])
       .reduce((ground, pool) => flatten(pool, ground), tokens.ink);
 
-  it('reads every stop of the four surface gradients', () => {
+  it('reads every stop of the surface gradients', () => {
     expect(args(image(scope, 'canvas'))).toHaveLength(2);
-    for (const name of ['sidebar', 'card', 'lift']) {
+    for (const name of ['sidebar', 'lift']) {
       expect(stops(image(scope, name), tokens).length, name).toBeGreaterThanOrEqual(2);
     }
+    // A white wash over the dark card read as a gray card, so dark draws none.
+    if (scope === 'dark') expect(image(scope, 'card')).toBe('none');
+    else expect(stops(image(scope, 'card'), tokens).length).toBeGreaterThanOrEqual(2);
   });
 
   it.each(TEXT_TOKENS)('%s clears 4.5:1 where the canvas light is brightest', (name) => {
@@ -481,9 +493,13 @@ describe.each([
   );
 
   it.each(TEXT_TOKENS)('%s clears 4.5:1 at both ends of the sidebar and the card', (name) => {
-    for (const surface of ['sidebar', 'card']) {
-      for (const stop of stops(image(scope, surface), tokens)) {
-        const ground = flatten(stop, tokens.surface);
+    const grounds = {
+      sidebar: stops(image(scope, 'sidebar'), tokens).map((stop) => flatten(stop, tokens.surface)),
+      card: cardGrounds(),
+    };
+    for (const [surface, list] of Object.entries(grounds)) {
+      expect(list.length, surface).toBeGreaterThan(0);
+      for (const ground of list) {
         expect(ratio(tokens[name], ground), `${name} on the ${surface} at ${ground}`).toBeGreaterThanOrEqual(
           4.5,
         );
@@ -509,8 +525,10 @@ describe.each([
 
   it('lays the card light over the background color, never in place of it', () => {
     // An opaque stop paints over a caller's bg-*, and a card passed a violet
-    // tint drew as a plain card. Every stop lets the color under it through.
-    for (const stop of stops(image(scope, 'card'), tokens)) {
+    // tint drew as a plain card. Every stop lets the color under it through,
+    // and a card with no layer paints nothing over it.
+    const layer = image(scope, 'card');
+    for (const stop of layer === 'none' ? [] : stops(layer, tokens)) {
       expect(stop.alpha).toBeLessThan(1);
     }
   });
@@ -528,8 +546,8 @@ describe.each([
         heroTop: heroTop.hex,
         heroFoot: tokens.ink,
       };
-      for (const [i, stop] of stops(image(scope, 'card'), tokens).entries()) {
-        grounds[`card stop ${i}`] = flatten(stop, tokens.surface);
+      for (const [i, hex] of cardGrounds().entries()) {
+        grounds[`card stop ${i}`] = hex;
       }
       for (const [ground, hex] of Object.entries(grounds)) {
         const chip = over(tokens[name], hex, 0.1);
