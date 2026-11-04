@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The dark palette's raised layers are a muted blue instead of gray. They hold less color than the navy of 0.48.0 and lean further from violet. `surface` is `#0b1723`, `surface-2` is `#121f2b` and `line` is `#1c2938`. Each keeps the lightness it had, and `ink`, the brand colors and the light palette are unchanged. Every text and control border pair still clears WCAG AA.
+
 ## [0.50.0] - 2026-11-04
 
 ### Added
