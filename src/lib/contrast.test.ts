@@ -237,6 +237,31 @@ describe('a chip on a row that highlights', () => {
   });
 });
 
+describe('an account menu row', () => {
+  // The row rests muted on the panel's surface, turns fg on surface-2 under
+  // the pointer and fg on line while held. Line is no ground for text
+  // anywhere else, so the held step is measured here.
+  const src = readFileSync(join(__dirname, 'components/AccountMenuItem.svelte'), 'utf8');
+  const paints = [
+    ['muted', 'surface', 'text-muted'],
+    ['fg', 'surface-2', 'hover:bg-surface-2 hover:text-fg'],
+    ['fg', 'line', 'active:bg-line active:text-fg'],
+  ] as const;
+
+  it('paints the three steps measured below', () => {
+    for (const [, , classes] of paints) expect(src).toContain(classes);
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('clears 4.5:1 at every step in the %s palette', (_scope, tokens) => {
+    for (const [text, ground] of paints) {
+      expect(ratio(tokens[text], tokens[ground]), `${text} on ${ground}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
     // Read from the base layer. The forced colors block above it states a

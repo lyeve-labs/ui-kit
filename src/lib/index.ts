@@ -86,6 +86,7 @@ export { default as StepIndicator } from './components/StepIndicator.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
 export { default as SidebarNav } from './components/SidebarNav.svelte';
 export { default as AccountMenu } from './components/AccountMenu.svelte';
+export { default as AccountMenuItem } from './components/AccountMenuItem.svelte';
 export type { NavNode, NavTree } from './internal/nav-tree.js';
 
 // ── Overlays ───────────────────────────────────────────────────────────────
@@ -196,4 +197,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // ── Version ────────────────────────────────────────────────────────────────
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.49.0';
+export const VERSION = '0.50.0';
