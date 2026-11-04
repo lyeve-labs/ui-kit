@@ -60,12 +60,12 @@
   on some pages, a theme control on others, and one class that named no
   token at all. Stated once here, the way AppShell states the signed-in frame.
 
-  The ground is the hero wash, ink into a tenth of violet, because this page
-  is the first one a reader sees. bg-ink stays under it for wherever the wash
+  The ground is the app shell's ink and canvas light, so a reader who signs
+  in stays on the same color. bg-ink stays under it for wherever the canvas
   is not drawn.
 -->
 <main
-  class={cn('flex min-h-screen items-center justify-center bg-ink bg-hero px-4 py-10', klass)}
+  class={cn('flex min-h-screen items-center justify-center bg-ink bg-canvas px-4 py-10', klass)}
   {style}
 >
   <div class="w-full {widths[width]}">

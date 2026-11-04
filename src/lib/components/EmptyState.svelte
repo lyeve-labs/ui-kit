@@ -29,7 +29,7 @@
   }: Props = $props();
 </script>
 
-<!-- The hero wash: the page's ink into a tenth of violet, under a solid 1px
+<!-- The hero wash: the page's ink into 5% of violet, under a solid 1px
      border. It was a dashed outline on a translucent surface, which read as a
      slot left unfilled rather than as a place something will appear. The
      medallion is a raised control in miniature, and its icon takes the brand
