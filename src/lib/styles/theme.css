@@ -33,9 +33,9 @@
 /* ── Soft Dark · default palette ─────────────────────────────────────────── */
 @theme {
   --color-ink: #0b1422;
-  --color-surface: #0b1723;
-  --color-surface-2: #121f2b;
-  --color-line: #1c2938;
+  --color-surface: #0b172a;
+  --color-surface-2: #111f32;
+  --color-line: #192a3f;
   /* line reads 1.23:1 against surface. That is fine for a divider, which
    * carries no information, and fails SC 1.4.11 for anything whose boundary
    * is the only thing identifying it as a control. Inputs, selects,
@@ -46,13 +46,13 @@
   --color-muted: #9aa1ad;
   /* #525866 failed WCAG AA against surface/ink (~2.5:1). Every caption and
    * metadata label uses faint, so one token fix clears the systemic
-   * violation. #8b94a7 reads 5.94:1 on surface and 6.06:1 on ink. */
+   * violation. #8b94a7 reads 5.89:1 on surface and 6.06:1 on ink. */
   --color-faint: #8b94a7;
 
   --color-brand: #00d4ff;
   --color-brand-light: #5fd9f4;
   --color-brand-deep: #0099c4;
-  /* #7c6aef reads 4.45:1 on surface and 4.02:1 inside its own bg-violet/10
+  /* #7c6aef reads 4.41:1 on surface and 3.97:1 inside its own bg-violet/10
    * badge, both under the 4.5:1 floor. #9587f2 clears every surface the kit
    * paints it on and the badge as well. */
   --color-violet: #9587f2;
@@ -79,7 +79,7 @@
    * cannot work as a foreground on a dark surface.
    *
    * One token serves both roles because it inverts with `ink`. As text on a
-   * dark surface #f87171 reads 6.54:1. As the fill behind a `text-ink` label
+   * dark surface #f87171 reads 6.49:1. As the fill behind a `text-ink` label
    * on a filled destructive button it reads 6.67:1. The light palette does
    * the same in reverse with a dark red and a near-white ink. */
   --color-danger: #f87171;
@@ -124,8 +124,8 @@
   /* The place you are: the current nav row. Brand mixed into the surface
    * rather than laid over it, so it is one opaque color the contrast suite
    * can measure. Five percent, because a badge in the row lays its own tint
-   * over this one, and at eight the violet label sits at 4.52:1, a hair
-   * over the floor. */
+   * over this one, and at eight the violet label sits at 4.48:1, under
+   * the floor. */
   --color-tint: color-mix(in srgb, var(--color-brand) 5%, var(--color-surface));
   /* A table's head row. Eight percent, a step past the tint, because a
    * hovered row is surface-2 and at five the dark head sat too close to it
