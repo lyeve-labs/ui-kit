@@ -560,13 +560,25 @@ describe('depth', () => {
       // bevel is a white edge on a filled button's own color, the same in
       // both themes, so it names no token. The primary button's pool is the
       // halo, its own fill color under a name paper can switch off.
-      if (token === '--inset-shadow-bevel') continue;
-      const allowed = token.startsWith('--shadow-primary')
-        ? ['shade', 'glow', 'halo']
-        : ['highlight', 'shade', 'glow'];
+      // The primary button's two tokens are the raised rung by name.
+      if (token === '--inset-shadow-bevel' || token.startsWith('--shadow-primary')) continue;
+      const allowed = ['highlight', 'shade', 'glow'];
       expect(colors.length, `${token} names no depth color`).toBeGreaterThan(0);
       expect(colors.every((c) => allowed.includes(c)), token).toBe(true);
     }
+  });
+
+  it('casts the raised shadow under the primary button at rest and under the pointer', () => {
+    // A pool of brand light under the one bright button on a screen read as
+    // glare. The tokens stay for a consumer that reads them, at the raised value.
+    expect(value('--shadow-primary')).toBe('var(--shadow-raised)');
+    expect(value('--shadow-primary-hover')).toBe('var(--shadow-raised)');
+  });
+
+  it('lifts the primary fill with white at 8%', () => {
+    expect(value('--background-image-lift')).toBe(
+      'linear-gradient(180deg, rgb(255 255 255 / 0.08), transparent 70%)',
+    );
   });
 
   it('draws the top light as a 1px line with no blur, so no text sits on it', () => {
@@ -618,8 +630,13 @@ describe('depth', () => {
     expect(css.indexOf('@media (forced-colors: active)')).toBeLessThan(css.indexOf('@layer base'));
   });
 
-  it('puts no glow on a surface focused only from script', () => {
-    expect(css).toMatch(/:focus-visible:not\(\[tabindex='-1'\]\) \{\s*box-shadow: var\(--shadow-glow\);/);
+  it('draws focus as the outline alone, with no glow around it', () => {
+    // Every rule whose selector names :focus-visible, read up to its close.
+    const rules = [...css.matchAll(/([^{};]*:focus-visible[^{]*)\{([^}]*)\}/g)];
+    expect(rules.length).toBeGreaterThan(0);
+    for (const [, selector, body] of rules) {
+      expect(body, selector.trim()).not.toMatch(/box-shadow/);
+    }
   });
 
   it('runs the hero wash from ink into violet, and the accent from brand into violet', () => {

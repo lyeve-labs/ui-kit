@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `SidebarNav` and `Breadcrumb` refuse an item's href that a browser would run as script, the way the kit's other link components do. That covers a `javascript:`, `data:` or `vbscript:` URL, including one with leading whitespace or a tab or line break inside the scheme, where `Breadcrumb` used to catch only the first two written plainly. The item still renders, without a link. A relative or `https` href renders as given.
 
+### Changed
+
+- Focus no longer glows. A focused button, link, card, tab or menu row shows its 2px brand outline or ring and nothing around it.
+- A focused text field shows its brand border with a soft ring inside it, at 35% of the brand, and no glow outside it. A date or time segment and an icon button inside a field keep the full brand ring, because nothing else marks their focus. The file drop target now turns its border brand on focus, as the other fields do.
+- The primary button no longer sits in a pool of light or grows a glow on hover, press or focus. It keeps its fill, its hover and press colors and its top bevel, casts the same small shadow as the other filled buttons in every state, and the light over its fill is fainter. The glow and primary shadow tokens stay defined, and the two primary ones now hold the raised shadow.
+- A clickable card answers the pointer with its brand border alone, with no glow.
+
 ## [0.46.0] - 2026-11-03
 
 ### Added

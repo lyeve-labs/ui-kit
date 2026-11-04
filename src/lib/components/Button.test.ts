@@ -18,6 +18,17 @@ describe('Button', () => {
     expect(btn?.getAttribute('type')).toBe('button');
   });
 
+  it('casts the raised shadow on the primary button at rest, under the pointer and on focus', () => {
+    const { container } = render(Button, { props: { children: text('x') } });
+    const classes = container.querySelector('button')!.className.split(/\s+/);
+    expect(classes).toContain('shadow-raised');
+    for (const cls of classes) {
+      expect(cls).not.toMatch(/shadow-(?:glow|primary)/);
+      expect(cls).not.toMatch(/^(?:hover|active|focus-visible):shadow-/);
+    }
+    expect(classes).toContain('transition-colors');
+  });
+
   it('applies the primary variant class by default', () => {
     const { container } = render(Button, { props: { children: text('x') } });
     expect(container.querySelector('button')?.className).toContain('bg-brand');

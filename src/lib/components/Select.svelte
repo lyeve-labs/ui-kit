@@ -370,7 +370,7 @@
               {...box.triggerAttrs}
               class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
                   text-sm text-fg outline-none transition-colors
-                  placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                  placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35"
             />
           </div>
         {/if}
