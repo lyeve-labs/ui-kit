@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The dark palette's raised layers are navy with 5% of a dark blue (`#003366`) mixed in, in place of the muted blue of 0.51.0, which leaned toward cyan. `surface` is `#0b172a`, `surface-2` is `#111f32` and `line` is `#192a3f`. They keep the lightness of the navy in 0.48.0 with the hue moved slightly away from violet. `ink`, the brand colors and the light palette are unchanged, and every text and control border pair still clears WCAG AA. 0.51.0 was not published to npm.
+
 ## [0.51.0] - 2026-11-04
 
 ### Changed
