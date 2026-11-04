@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { activeTrail, type NavNode, type NavTree } from '../internal/nav-tree.js';
+  import { activeTrail, flattenNav, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
@@ -47,19 +47,34 @@
   const onTrail = $derived(new Set(trail));
   /** The tail of the trail is the page itself. Everything above it is an ancestor. */
   const currentId = $derived(trail.length > 0 ? trail[trail.length - 1] : undefined);
+  const disabledIds = $derived(
+    new Set(flattenNav(items).flatMap(({ node }) => (node.disabled ? [node.id] : []))),
+  );
+  /**
+   * The one row that shows where you are. While every section above the page
+   * is open it is the page's own row. Once a reader closes one, the page's row
+   * is out of sight, so the outermost closed section carries the same mark.
+   * aria-current stays on the page's link either way, because the section is
+   * not the page.
+   */
+  const markId = $derived(
+    trail.find((id) => id !== currentId && (!expansion.isExpanded(id) || disabledIds.has(id))) ??
+      currentId,
+  );
 
   function listId(id: string): string {
     return `${uid}-${id}-group`;
   }
 
   /**
-   * The row, without the colors any one state paints.
+   * The row, without the colors any one state paints. Every row at every depth
+   * takes exactly these classes: a nested row is indented by its list, not by
+   * its own padding, so its fill, radius and current bar start where its own
+   * label does rather than in its parent's column.
    *
-   * The rail is a start border on every row, not one added when the branch is
-   * active, so marking a branch cannot shift its rows two pixels sideways. Its
-   * color is a ternary rather than a second border utility: two color
-   * utilities on one element resolve in the order Tailwind emits them, not the
-   * order they are written.
+   * The start border is on every row and transparent in every state, so the
+   * current page's mark cannot shift its row two pixels sideways. It shows only
+   * in a forced colors scheme, on the current row.
    *
    * The focus ring is inset and stated once, outside every state branch. A
    * sidebar scrolls, and a scrolling box crops the 2px the global outline sits
@@ -67,7 +82,7 @@
    * stray line or as nothing at all.
    */
   const ROW =
-    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 pe-2 text-sm text-start ` +
+    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 ps-inline pe-2 text-sm text-start ` +
     'transition-colors outline-none ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
 
@@ -92,16 +107,23 @@
    * draws neither the bar nor the row's fill, so the row keeps a mark there.
    * The row's fill is the brand tint and the bar carries a few pixels of
    * glow, so the row reads as the place you are rather than one more entry.
+   * The fill has no edge of its own, so the current row's box matches a
+   * hovered row's.
+   *
+   * One row carries the mark at a time, the one markId names. An open section
+   * that holds the current page shows it by being open, with its label in full
+   * text color. A second mark of another shape on the section read as two
+   * places you are.
    */
   function rowPaint(state: 'current' | 'ancestor' | 'rest'): string {
     if (state === 'current')
       return (
         'relative border-transparent forced-colors:border-[CanvasText] bg-tint ' +
-        'inset-shadow-highlight font-medium text-brand hover:bg-line active:bg-line ' +
+        'font-medium text-brand hover:bg-line active:bg-line ' +
         'after:absolute after:inset-y-1.5 after:-start-0.5 after:w-0.5 after:rounded-full ' +
         'after:bg-brand after:bg-accent-y after:shadow-mark'
       );
-    if (state === 'ancestor') return 'border-brand text-fg hover:bg-surface-2 active:bg-line';
+    if (state === 'ancestor') return 'border-transparent text-fg hover:bg-surface-2 active:bg-line';
     return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';
   }
 
@@ -141,26 +163,18 @@
 >
   <ul class="flex flex-col gap-0.5">
     {#each items as node (node.id)}
-      {@render row(node, 0)}
+      {@render row(node)}
     {/each}
   </ul>
 </nav>
 
-{#snippet row(node: NavNode, depth: number)}
+{#snippet row(node: NavNode)}
   {@const children = node.children ?? []}
   {@const branch = children.length > 0}
   {@const current = node.id === currentId}
   {@const ancestor = onTrail.has(node.id) && !current}
-  {@const paint = rowPaint(current ? 'current' : ancestor ? 'ancestor' : 'rest')}
+  {@const paint = rowPaint(node.id === markId ? 'current' : ancestor ? 'ancestor' : 'rest')}
   {@const open = expansion.isExpanded(node.id)}
-  <!--
-    Indentation reads a token through a style attribute. A class built from the
-    depth, pl-{depth * 4}, matches no candidate in Tailwind's scan of the
-    source, so no rule is generated and every level renders flush against the
-    edge. A collapsed rail has no room to indent, so its levels all start at
-    the same inset.
-  -->
-  {@const level = collapsed ? 0 : depth}
   <li>
     {#if node.disabled}
       <!--
@@ -168,11 +182,7 @@
         with one still navigates, so a disabled entry that keeps its anchor is
         either invisible to the keyboard or not disabled at all.
       -->
-      <span
-        class="{ROW} {ROW_DISABLED}"
-        style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
-        aria-disabled="true"
-      >
+      <span class="{ROW} {ROW_DISABLED}" aria-disabled="true">
         {@render body(node)}
       </span>
     {:else if node.href && branch}
@@ -188,7 +198,6 @@
           href={safeHref(node.href)}
           aria-current={current ? 'page' : undefined}
           class="{ROW} {paint} min-w-0 flex-1"
-          style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
         >
           {@render body(node)}
         </a>
@@ -208,7 +217,6 @@
       <button
         type="button"
         class="{ROW} {paint}"
-        style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
         aria-expanded={open}
         aria-controls={listId(node.id)}
         aria-current={ancestor ? 'true' : undefined}
@@ -222,15 +230,11 @@
         href={safeHref(node.href)}
         aria-current={current ? 'page' : undefined}
         class="{ROW} {paint}"
-        style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
       >
         {@render body(node)}
       </a>
     {:else}
-      <span
-        class="{ROW} {paint}"
-        style="padding-inline-start: calc(var(--spacing-nav-indent) * {level} + var(--spacing-inline))"
-      >
+      <span class="{ROW} {paint}">
         {@render body(node)}
       </span>
     {/if}
@@ -258,9 +262,18 @@
           : 'grid-rows-[0fr]'}"
       >
         <div class="overflow-hidden">
-          <ul id={listId(node.id)} inert={!shown} class="mt-0.5 flex flex-col gap-0.5">
+          <!--
+            Each level of nesting indents its list by one step, so a row never
+            knows its depth and draws the same at every level. A collapsed rail
+            has no room to indent, so its levels all start at the same inset.
+          -->
+          <ul
+            id={listId(node.id)}
+            inert={!shown}
+            class="mt-0.5 flex flex-col gap-0.5 {collapsed ? '' : 'ms-nav-indent'}"
+          >
             {#each children as child (child.id)}
-              {@render row(child, depth + 1)}
+              {@render row(child)}
             {/each}
           </ul>
         </div>

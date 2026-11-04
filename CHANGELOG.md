@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A focused text field shows its brand border with a soft ring inside it, at 35% of the brand, and no glow outside it. A date or time segment and an icon button inside a field keep the full brand ring, because nothing else marks their focus. The file drop target now turns its border brand on focus, as the other fields do.
 - The primary button no longer sits in a pool of light or grows a glow on hover, press or focus. It keeps its fill, its hover and press colors and its top bevel, casts the same small shadow as the other filled buttons in every state, and the light over its fill is fainter. The glow and primary shadow tokens stay defined, and the two primary ones now hold the raised shadow.
 - A clickable card answers the pointer with its brand border alone, with no glow.
+- A nested sidebar row is drawn exactly like a top-level row at rest, under the pointer, on focus and as the current page. Its fill and its current bar now start at its own indent instead of in its section's column, and the current row no longer carries an edge a hovered row lacks. One row is marked at a time. While the section that holds the current page is open, the page's row carries the mark, and the section shows its label in full text color with no bar of its own. Once you close that section, the section carries the page's mark until you open it again.
 
 ## [0.46.0] - 2026-11-03
 
