@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `SidebarNav` and `Breadcrumb` refuse an item's href that a browser would run as script, the way the kit's other link components do. That covers a `javascript:`, `data:` or `vbscript:` URL, including one with leading whitespace or a tab or line break inside the scheme, where `Breadcrumb` used to catch only the first two written plainly. The item still renders, without a link. A relative or `https` href renders as given.
+- A hovered `Table` row takes `surface-2`, so it no longer reads as a second head row and is no longer outlined by a ring that crossed the frame's rounded corners. A row of header cells only takes no hover.
 
 ### Changed
 
@@ -18,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The primary button no longer sits in a pool of light or grows a glow on hover, press or focus. It keeps its fill, its hover and press colors and its top bevel, casts the same small shadow as the other filled buttons in every state, and the light over its fill is fainter. The glow and primary shadow tokens stay defined, and the two primary ones now hold the raised shadow.
 - A clickable card answers the pointer with its brand border alone, with no glow.
 - A nested sidebar row is drawn exactly like a top-level row at rest, under the pointer, on focus and as the current page. Its fill and its current bar now start at its own indent instead of in its section's column, and the current row no longer carries an edge a hovered row lacks. One row is marked at a time. While the section that holds the current page is open, the page's row carries the mark, and the section shows its label in full text color with no bar of its own. Once you close that section, the section carries the page's mark until you open it again.
+- A `Table`'s head row takes the new `band` token, the brand at 8% in the surface, slightly deeper than before.
+- The `Table` frame drops the card's top wash, so its rows are one color at rest.
 
 ## [0.46.0] - 2026-11-03
 
