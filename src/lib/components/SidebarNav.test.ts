@@ -143,6 +143,36 @@ describe('SidebarNav current page', () => {
     },
   );
 
+  it('moves the one mark to the section a reader closes, and back when it opens', async () => {
+    const { container, getByRole } = mount({ activePath: '/content/media' });
+    const media = getByRole('link', { name: 'Media' });
+    const section = getByRole('link', { name: /Content/ });
+    const pageClasses = media.className;
+    expect(marked(container)).toEqual([media]);
+
+    await fireEvent.click(getByRole('button', { name: /Collapse Content/ }));
+    expect(marked(container)).toEqual([section]);
+    // Every class the page's row carries. The section's link adds only the two
+    // that let it share its line with the disclosure.
+    expect(section.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(pageClasses.split(/\s+/)),
+    );
+    expect(section.getAttribute('aria-current')).toBeNull();
+    expect(media.getAttribute('aria-current')).toBe('page');
+
+    await fireEvent.click(getByRole('button', { name: /Expand Content/ }));
+    expect(marked(container)).toEqual([media]);
+    expect(section.className.split(/\s+/)).not.toContain('bg-tint');
+  });
+
+  it('marks only the outermost section a reader closes', async () => {
+    const { container, getByRole } = mount({ activePath: '/settings/billing/invoices' });
+    await fireEvent.click(getByRole('button', { name: /Billing/ }));
+    expect(marked(container)).toEqual([getByRole('button', { name: /Billing/ })]);
+    await fireEvent.click(getByRole('button', { name: /Settings/ }));
+    expect(marked(container)).toEqual([getByRole('button', { name: /Settings/ })]);
+  });
+
   it('draws a nested current row with exactly the classes of a top-level one', () => {
     const current = (activePath: string) =>
       mount({ activePath }).container.querySelector('[aria-current="page"]')!;

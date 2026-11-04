@@ -66,6 +66,21 @@ for (const theme of ['dark', 'light'] as const) {
       expect(current.shadow).toBe(rest.shadow);
     });
 
+    test('moves the mark to the section while it is closed', async ({ mount, page }) => {
+      const nav = await mount(SidebarNavNestedStory, {
+        props: { activePath: '/customers/deletions' },
+      });
+      await styleWithKit(page, theme, SOURCES);
+      await nav.getByRole('button', { name: 'Collapse Customers' }).click();
+      await page.mouse.move(0, 0);
+      await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+      await nav.screenshot({ path: test.info().outputPath(`closed-${theme}.png`) });
+      const section = await geometry(nav.getByRole('link', { name: 'Customers' }));
+      expect(section.barLeft).toBeGreaterThanOrEqual(section.left - 2);
+      await expect(nav.locator('.bg-tint')).toHaveCount(1);
+      await expect(nav.getByRole('link', { name: 'Customers' })).toHaveClass(/\bbg-tint\b/);
+    });
+
     test('draws a top-level current page the same way', async ({ mount, page }) => {
       const nav = await mount(SidebarNavNestedStory, { props: { activePath: '/' } });
       await styleWithKit(page, theme, SOURCES);

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { activeTrail, type NavNode, type NavTree } from '../internal/nav-tree.js';
+  import { activeTrail, flattenNav, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
@@ -47,6 +47,20 @@
   const onTrail = $derived(new Set(trail));
   /** The tail of the trail is the page itself. Everything above it is an ancestor. */
   const currentId = $derived(trail.length > 0 ? trail[trail.length - 1] : undefined);
+  const disabledIds = $derived(
+    new Set(flattenNav(items).flatMap(({ node }) => (node.disabled ? [node.id] : []))),
+  );
+  /**
+   * The one row that shows where you are. While every section above the page
+   * is open it is the page's own row. Once a reader closes one, the page's row
+   * is out of sight, so the outermost closed section carries the same mark.
+   * aria-current stays on the page's link either way, because the section is
+   * not the page.
+   */
+  const markId = $derived(
+    trail.find((id) => id !== currentId && (!expansion.isExpanded(id) || disabledIds.has(id))) ??
+      currentId,
+  );
 
   function listId(id: string): string {
     return `${uid}-${id}-group`;
@@ -96,9 +110,10 @@
    * The fill has no edge of its own, so the current row's box matches a
    * hovered row's.
    *
-   * Only the current page carries a mark. A section that holds it shows that by
-   * being open, with its label in full text color. A second mark of another
-   * shape on the section read as two places you are.
+   * One row carries the mark at a time, the one markId names. An open section
+   * that holds the current page shows it by being open, with its label in full
+   * text color. A second mark of another shape on the section read as two
+   * places you are.
    */
   function rowPaint(state: 'current' | 'ancestor' | 'rest'): string {
     if (state === 'current')
@@ -158,7 +173,7 @@
   {@const branch = children.length > 0}
   {@const current = node.id === currentId}
   {@const ancestor = onTrail.has(node.id) && !current}
-  {@const paint = rowPaint(current ? 'current' : ancestor ? 'ancestor' : 'rest')}
+  {@const paint = rowPaint(node.id === markId ? 'current' : ancestor ? 'ancestor' : 'rest')}
   {@const open = expansion.isExpanded(node.id)}
   <li>
     {#if node.disabled}
