@@ -84,14 +84,13 @@
    * as one gesture in one theme and its opposite in the other.
    *
    * The filled and secondary variants are raised: a bright edge along the top
-   * and a short drop under them. The primary action alone glows, softly at
-   * rest and more under the pointer or held, so the one thing a surface wants
-   * done is the one thing that answers with light. Its fill is lifted, white
-   * falling off from the top over the brand color, and the hover and held
-   * colors change under the lift. The glow is a shadow, so it never moves the
-   * button or its neighbors, and the color change carries the state on its
-   * own where shadows and gradients are not drawn. A disabled primary drops
-   * its glow, which would otherwise invite the click it refuses.
+   * and a short drop under them. The primary action is marked by its fill
+   * alone, with no pool of light around it: a glow under the one bright
+   * button on a screen read as glare. Its fill is lifted, white falling off
+   * faintly from the top over the brand color, and the hover and held colors
+   * change under the lift. The shadow stays the same in every state, so the
+   * color change carries the state, which also holds where shadows and
+   * gradients are not drawn.
    *
    * A filled button's boundary is its fill, and a forced colors scheme
    * replaces the fill with the canvas, so the button read as loose text.
@@ -106,8 +105,7 @@
   const variants: Record<Variant, string> = {
     primary:
       'bg-brand bg-lift text-ink hover:bg-brand-light active:bg-brand-deep inset-shadow-bevel ' +
-      'shadow-primary hover:shadow-primary-hover active:shadow-primary-hover ' +
-      `disabled:shadow-raised aria-disabled:shadow-raised ${FILLED_EDGE}`,
+      `shadow-raised ${FILLED_EDGE}`,
     violet:
       `bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     secondary:
@@ -149,7 +147,7 @@
    */
   const cls = $derived(
     `inline-flex items-center justify-center font-medium whitespace-nowrap ` +
-      `transition-[color,background-color,border-color,box-shadow] focus-visible:shadow-glow ` +
+      `transition-colors ` +
       `disabled:opacity-50 disabled:cursor-not-allowed select-none ${TOUCH_GROW} ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );

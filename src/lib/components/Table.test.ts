@@ -49,16 +49,27 @@ describe('Table', () => {
 
   it('is hoverable by default', () => {
     const { container } = render(Table, { props: { children: body } });
-    expect(container.querySelector('table')?.className).toContain('tr:hover');
+    expect(container.querySelector('table')?.className).toContain('tr:has(>td):hover');
   });
 
   it('clips the rows to its rounded frame', () => {
-    // The hovered row's ring is square and the frame is not. On the last row
+    // The hovered row's fill is square and the frame is not. On the last row
     // the corners drew past the frame.
     const { getByTestId } = render(Table, { props: { children: body } });
     const frame = getByTestId('table-frame');
     expect(frame.className).toContain('overflow-hidden');
     expect(frame.className).toContain('rounded-card');
+  });
+
+  it('keeps the card surface on its frame without the top wash', () => {
+    // Under an opaque head row the wash only lightened the first body rows,
+    // so the rows were not one color at rest.
+    const { getByTestId } = render(Table, { props: { children: body } });
+    const cls = getByTestId('table-frame').className.split(/\s+/);
+    expect(cls).toEqual(
+      expect.arrayContaining(['bg-surface', 'border', 'border-line', 'shadow-card']),
+    );
+    expect(cls).not.toContain('bg-card');
   });
 
   it('puts the scroll box in the tab sequence', () => {
@@ -84,51 +95,50 @@ describe('Table', () => {
     expect(box.getAttribute('tabindex')).toBe('0');
   });
 
-  it('marks the hovered row with a ring and not with a tint alone', () => {
-    // The hover tint reads 1.017:1 against a striped row on the dark palette,
-    // which is not a state anyone can see. The panels answer this with a brand
-    // ring. The table uses the same one.
+  it('fills a hovered row with surface-2 and the head row with the band', () => {
+    // The head row and a hovered row both took the brand tint, so a hovered
+    // first row read as a second head row.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
-    expect(cls).toContain(
-      '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
-    );
-    expect(cls).toContain('[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_');
-    expect(cls).toContain('[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_');
+    expect(cls).toContain('[&_tbody_tr:has(>td):hover]:bg-surface-2');
+    expect(cls).toContain('[&_thead]:bg-band');
+    expect(cls).not.toContain('bg-tint');
   });
 
-  it('fades the ring in with the row tint, on the motion tokens', () => {
-    // The tint fades on the row while the ring is a shadow on the cells, so
-    // the cells take the same transition or the ring snaps in ahead of it.
+  it('lights only a row that holds data cells', () => {
+    // A group label is a row of header cells. It is not a row a reader acts
+    // on, so it must not light up under the pointer.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
+    expect(cls).not.toContain('[&_tbody_tr:hover]');
+  });
+
+  it('draws no ring, brand or shadow on a hovered row', () => {
+    const { container } = render(Table, { props: { children: body } });
+    const cls = container.querySelector('table')?.className ?? '';
+    expect(cls).not.toMatch(/hover[^ ]*:(?:shadow|ring)/);
+    expect(cls).not.toContain('--color-brand');
+    expect(cls).not.toContain('transition-shadow');
     expect(cls).toContain('[&_tbody_tr]:transition-colors');
-    expect(cls).toContain('[&_tbody_tr>td]:transition-shadow');
   });
 
-  it('draws the ring on the cells and rounds the last row to the frame', () => {
-    // A row takes no radius, so a ring on the row was a square inset in a
-    // rounded frame and the frame's bottom arcs sat outside it. On the cells
-    // the shadow follows the corner the outer cells are given.
+  it('rounds the last row to the frame', () => {
+    // A row takes no radius, so a filled last row painted a square corner
+    // over the frame's arc. The outer cells take the frame's inner radius.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
-    expect(cls).not.toMatch(/\[&_tbody_tr:hover\]:ring/);
     expect(cls).toContain(
       '[&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-card)-1px)]',
     );
     expect(cls).toContain(
       '[&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-card)-1px)]',
     );
-    // A one-cell row is both ends and gets all four edges.
-    expect(cls).toContain(
-      '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
-    );
   });
 
-  it('separates its borders so the hover ring is painted at all', () => {
-    // No browser paints a box-shadow on a table row while the table collapses
-    // its borders, so the ring above depends on this and on the separators
-    // sitting on the cells.
+  it('separates its borders so a cell takes a radius', () => {
+    // A cell takes no border-radius while the table collapses its borders,
+    // so the rounded last row depends on this and on the separators sitting
+    // on the cells.
     const { container } = render(Table, { props: { children: body } });
     const cls = container.querySelector('table')?.className ?? '';
     expect(cls).toContain('border-separate');
@@ -137,9 +147,9 @@ describe('Table', () => {
     expect(cls).not.toContain('[&_tbody_tr]:border-b');
   });
 
-  it('drops the hover ring when hoverable=false', () => {
+  it('drops the hover fill when hoverable=false', () => {
     const { container } = render(Table, { props: { children: body, hoverable: false } });
-    expect(container.querySelector('table')?.className).not.toContain('ring-brand');
+    expect(container.querySelector('table')?.className).not.toContain(':hover');
   });
 
   it('advertises nothing while the table fits', async () => {

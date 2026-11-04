@@ -110,13 +110,87 @@ describe('SidebarNav current page', () => {
     expect(getByRole('link', { name: /Content/ }).getAttribute('aria-current')).toBeNull();
   });
 
-  it('marks the ancestor branch with a visible left rail', () => {
-    // An expanded group whose active child has scrolled out of view still has
-    // to say where the reader is.
+  it('shows the section that holds the current page as open, in full text color, with no mark', () => {
+    // The section drew a curved rail of its own beside the page's bar, so two
+    // rows of two shapes each said where the reader was.
     const { getByRole } = mount({ activePath: '/content/media' });
     const disclosure = getByRole('button', { name: /Content/ });
     expect(disclosure.getAttribute('aria-current')).toBe('true');
-    expect(getByRole('link', { name: /Content/ }).getAttribute('class')).toContain('border-brand');
+    expect(disclosure.getAttribute('aria-expanded')).toBe('true');
+    const section = getByRole('link', { name: /Content/ }).className.split(/\s+/);
+    expect(section).toContain('text-fg');
+    expect(section).toContain('border-transparent');
+    expect(section.filter((c) => /^(?:bg-|after:)/.test(c))).toEqual([]);
+  });
+
+  /** Every row that carries a current mark: the tint or the accent bar. */
+  function marked(container: HTMLElement): Element[] {
+    return [...container.querySelectorAll('[class]')].filter((el) =>
+      (el.getAttribute('class') ?? '')
+        .split(/\s+/)
+        .some((c) => c === 'bg-tint' || c.startsWith('after:bg-accent')),
+    );
+  }
+
+  it.each(['/', '/content/media', '/settings/billing/invoices'])(
+    'carries exactly one current mark in the whole tree at %s',
+    (activePath) => {
+      const { container } = mount({ activePath });
+      const rows = marked(container);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].getAttribute('aria-current')).toBe('page');
+      expect(container.innerHTML).not.toMatch(/\bborder-brand\b/);
+    },
+  );
+
+  it('moves the one mark to the section a reader closes, and back when it opens', async () => {
+    const { container, getByRole } = mount({ activePath: '/content/media' });
+    const media = getByRole('link', { name: 'Media' });
+    const section = getByRole('link', { name: /Content/ });
+    const pageClasses = media.className;
+    expect(marked(container)).toEqual([media]);
+
+    await fireEvent.click(getByRole('button', { name: /Collapse Content/ }));
+    expect(marked(container)).toEqual([section]);
+    // Every class the page's row carries. The section's link adds only the two
+    // that let it share its line with the disclosure.
+    expect(section.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(pageClasses.split(/\s+/)),
+    );
+    expect(section.getAttribute('aria-current')).toBeNull();
+    expect(media.getAttribute('aria-current')).toBe('page');
+
+    await fireEvent.click(getByRole('button', { name: /Expand Content/ }));
+    expect(marked(container)).toEqual([media]);
+    expect(section.className.split(/\s+/)).not.toContain('bg-tint');
+  });
+
+  it('marks only the outermost section a reader closes', async () => {
+    const { container, getByRole } = mount({ activePath: '/settings/billing/invoices' });
+    await fireEvent.click(getByRole('button', { name: /Billing/ }));
+    expect(marked(container)).toEqual([getByRole('button', { name: /Billing/ })]);
+    await fireEvent.click(getByRole('button', { name: /Settings/ }));
+    expect(marked(container)).toEqual([getByRole('button', { name: /Settings/ })]);
+  });
+
+  it('draws a nested current row with exactly the classes of a top-level one', () => {
+    const current = (activePath: string) =>
+      mount({ activePath }).container.querySelector('[aria-current="page"]')!;
+    const top = current('/');
+    const nested = current('/settings/billing/invoices');
+    expect(top.textContent?.trim()).toBe('Dashboard');
+    expect(nested.textContent?.trim()).toBe('Invoices');
+    expect(nested.className).toBe(top.className);
+    expect(nested.getAttribute('style')).toBe(top.getAttribute('style'));
+  });
+
+  it('puts no border or edge on the current row that a row at rest lacks', () => {
+    const { getByRole } = mount({ activePath: '/content/media' });
+    const edges = (name: string) =>
+      getByRole('link', { name })
+        .className.split(/\s+/)
+        .filter((c) => /^(?:border|inset-shadow|ring|shadow)/.test(c));
+    expect(edges('Media')).toEqual(edges('Entries'));
   });
 
   it('marks a leaf that sits on the same path as its group', () => {
@@ -265,14 +339,21 @@ describe('SidebarNav expansion state', () => {
 });
 
 describe('SidebarNav indentation', () => {
-  it('states the indent as a style attribute reading a token', () => {
+  it('indents each nested list by one token step, and no row by its own padding', () => {
+    // A row padded by its depth kept its box, its fill and its bar in its
+    // parent's column while its label moved in.
     const { getByRole } = mount({ activePath: '/settings/billing/invoices' });
-    expect(getByRole('link', { name: 'Dashboard' }).getAttribute('style')).toContain(
-      'calc(var(--spacing-nav-indent) * 0 + var(--spacing-inline))',
-    );
-    expect(getByRole('link', { name: 'Invoices' }).getAttribute('style')).toContain(
-      'calc(var(--spacing-nav-indent) * 2 + var(--spacing-inline))',
-    );
+    const invoices = getByRole('link', { name: 'Invoices' });
+    expect(invoices.getAttribute('style')).toBeNull();
+    const lists = [];
+    for (
+      let el = invoices.closest('ul');
+      el && el.tagName === 'UL';
+      el = el.parentElement?.closest('ul') ?? null
+    ) {
+      lists.push(el.className.split(/\s+/).includes('ms-nav-indent'));
+    }
+    expect(lists).toEqual([true, true, false]);
   });
 
   it('renders no class containing a brace', () => {
@@ -311,10 +392,22 @@ describe('SidebarNav collapsed rail', () => {
   });
 
   it('drops the indent, which a rail has no room for', () => {
-    const { getByRole } = mount({ collapsed: true, activePath: '/settings/billing/invoices' });
-    expect(getByRole('link', { name: 'Invoices' }).getAttribute('style')).toContain(
-      'calc(var(--spacing-nav-indent) * 0 + var(--spacing-inline))',
-    );
+    const { container } = mount({ collapsed: true, activePath: '/settings/billing/invoices' });
+    expect(container.querySelectorAll('.ms-nav-indent')).toHaveLength(0);
+  });
+
+  it('marks a nested current page on the rail as it marks a top-level one', () => {
+    const current = (activePath: string) => {
+      const rows = mount({ collapsed: true, activePath }).container.querySelectorAll(
+        '[aria-current="page"]',
+      );
+      expect(rows).toHaveLength(1);
+      return rows[0];
+    };
+    const top = current('/');
+    const nested = current('/settings/billing/invoices');
+    expect(nested.textContent?.trim()).toBe('Invoices');
+    expect(nested.className).toBe(top.className);
   });
 
   describe('a group that is a page as well', () => {
@@ -433,5 +526,35 @@ describe('SidebarNav pointer feedback', () => {
     );
     expect(closed.length).toBeGreaterThan(0);
     for (const svg of closed) expect(svg.className.baseVal).toContain('rtl:rotate-180');
+  });
+});
+
+describe('SidebarNav href', () => {
+  it('refuses an href a browser would run as script', () => {
+    const hostile: NavTree = [
+      { id: 'leaf', label: 'Leaf', href: 'javascript:alert(1)' },
+      {
+        id: 'group',
+        label: 'Group',
+        href: 'data:text/html,<script>alert(1)</script>',
+        children: [{ id: 'child', label: 'Child', href: '/child' }],
+      },
+    ];
+    const { container } = render(SidebarNav, {
+      props: { items: hostile, activePath: '/child' },
+    });
+    for (const a of container.querySelectorAll('a')) {
+      expect(a.getAttribute('href') ?? '').not.toMatch(/^(javascript|data):/i);
+    }
+  });
+
+  it('keeps a relative and an https href as given', () => {
+    const plain: NavTree = [
+      { id: 'local', label: 'Local', href: '/content/entries?page=2' },
+      { id: 'away', label: 'Away', href: 'https://lyeve.com/docs' },
+    ];
+    const { getByText } = render(SidebarNav, { props: { items: plain, activePath: '/' } });
+    expect(getByText('Local').closest('a')?.getAttribute('href')).toBe('/content/entries?page=2');
+    expect(getByText('Away').closest('a')?.getAttribute('href')).toBe('https://lyeve.com/docs');
   });
 });

@@ -45,6 +45,16 @@ describe('Card', () => {
     expect(onclick).toHaveBeenCalledOnce();
   });
 
+  it('answers the pointer and focus with a border color, never a glow', () => {
+    const { container } = render(Card, { props: { children: text('x'), onclick: vi.fn() } });
+    const classes = (container.querySelector('[role="button"]') as HTMLElement).className.split(
+      /\s+/,
+    );
+    expect(classes).toContain('hover:border-brand/50');
+    expect(classes).toContain('transition-colors');
+    for (const cls of classes) expect(cls).not.toMatch(/shadow-glow|box-shadow/);
+  });
+
   it('activates on Enter and Space when it is clickable', async () => {
     // The card takes role="button" and tabindex from onclick alone, so it
     // entered the tab order and then ignored the two keys a button answers to.

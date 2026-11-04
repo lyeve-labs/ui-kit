@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { CONTROL_BASE, CONTROL_MULTILINE, CONTROL_SEGMENT, countFields } from './field';
+import {
+  CONTROL_BASE,
+  CONTROL_MULTILINE,
+  CONTROL_SEGMENT,
+  CONTROL_SEGMENTED,
+  countFields,
+} from './field';
 
 // theme.css declares a global :focus-visible outline, chosen for its contrast,
 // and a utility beats the base layer. outline-none without a replacement
@@ -18,6 +24,29 @@ describe('control bases keep a focus indicator', () => {
       expect(cls, `${name} names a ring color`).toContain('focus-visible:ring-brand');
     });
   }
+});
+
+// A focused field showed a brand border, a full brand ring inside it and a
+// glow outside it, which read as 3px of glare. The border is the indicator
+// that clears 3:1, so the ring beside it is soft and nothing glows.
+describe('a focused field', () => {
+  const classes = (cls: string) => cls.split(/\s+/);
+
+  for (const [name, cls] of Object.entries({ CONTROL_BASE, CONTROL_MULTILINE })) {
+    it(`${name} draws a 35% ring and no glow`, () => {
+      expect(classes(cls)).toContain('focus-visible:ring-brand/35');
+      expect(classes(cls)).not.toContain('focus-visible:ring-brand');
+      expect(cls).not.toMatch(/shadow-glow/);
+    });
+  }
+
+  it('keeps the full brand on a segment, where nothing else marks focus', () => {
+    expect(classes(CONTROL_SEGMENT)).toContain('focus-visible:ring-brand');
+  });
+
+  it('puts no glow on a segmented wrapper', () => {
+    expect(CONTROL_SEGMENTED).not.toMatch(/shadow-glow/);
+  });
 });
 
 describe('countFields', () => {

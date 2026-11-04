@@ -64,22 +64,27 @@
   }
 
   /**
-   * The hover ring, as inset shadows on the cells of the hovered row: top
-   * and bottom on every cell, the start edge on the first, the end edge on
-   * the last, so the four lines meet as one rectangle and the two outer
-   * cells of the last row carry it round the frame's corner. The shadow
-   * offsets are physical, which is what a shadow is. The first cell is the
-   * start cell in either direction and the two agree in left-to-right text.
+   * The hovered row: surface-2, the fill every kit row takes under the
+   * pointer, and nothing else. The head row is the brand band, so the two
+   * never share a color and a hovered first row cannot read as a second head
+   * row. A row of header cells only, such as a group label, is not a row a
+   * reader acts on, so `:has(>td)` keeps it out.
    */
-  const HOVER_RING = [
-    '[&_tbody_tr:hover]:bg-tint',
-    '[&_tbody_tr:hover>td]:shadow-[inset_0_1px_var(--color-brand),inset_0_-1px_var(--color-brand)]',
-    '[&_tbody_tr:hover>td:first-child]:shadow-[inset_1px_1px_var(--color-brand),inset_1px_-1px_var(--color-brand)]',
-    '[&_tbody_tr:hover>td:last-child]:shadow-[inset_-1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
-    '[&_tbody_tr:hover>td:first-child:last-child]:shadow-[inset_1px_1px_var(--color-brand),inset_-1px_-1px_var(--color-brand)]',
+  const HOVER_FILL = [
+    '[&_tbody_tr:has(>td):hover]:bg-surface-2',
     '[&_tbody_tr]:transition-colors',
-    '[&_tbody_tr>td]:transition-shadow',
   ].join(' ');
+
+  /*
+   * The card's surface, border, radius and shadows, without the card's top
+   * wash. The head row is opaque and covers the top edge where the wash reads
+   * on a card. Under the head the wash only made the first body rows lighter
+   * than the rows below, so the rows were not one color at rest and a hover
+   * showed unevenly down the table.
+   */
+  const FRAME_SURFACE = CARD_SURFACE.split(' ')
+    .filter((c) => c !== 'bg-card')
+    .join(' ');
 
   let {
     striped = false,
@@ -240,16 +245,17 @@
 </script>
 
 <!-- overflow-hidden on the frame, not only on the scroller: the hovered row's
-     ring is square and the frame is not, and the last row's corners drew past
+     fill is square and the frame is not, and the last row's corners drew past
      the frame's rounded ones.
 
      The frame is a card: the same surface, radius and shadows, so a table and
-     the cards above it sit at one depth. It paints its own surface rather than
+     the cards above it sit at one depth. It leaves out the card's top wash,
+     for the reason at FRAME_SURFACE. It paints its own surface rather than
      showing the page through, which the shadow under it needs to read as a
      raised sheet. -->
 <div
   data-testid="table-frame"
-  class="relative w-full overflow-hidden {CARD_SURFACE} {cls}"
+  class="relative w-full overflow-hidden {FRAME_SURFACE} {cls}"
 >
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
@@ -268,29 +274,25 @@
     <!--
       border-separate with no spacing, and the row separators on the cells.
 
-      The last row's outer cells are rounded to the frame's inner radius. A
-      row takes no radius, so a ring drawn on it was a square inset in a
-      rounded frame and the frame's bottom arcs sat outside it. The ring is
-      drawn on the cells now (see HOVER_RING) and follows the corner.
+      The last row's outer cells are rounded to the frame's inner radius,
+      which a cell takes only in the separate model. A row takes no radius,
+      so a hovered last row painted a square corner over the frame's arc.
 
-      The hovered row draws a ring, and a ring is a box-shadow: a browser paints
-      no box-shadow on a table row while the table collapses its borders, so the
-      same row treatment the panels use would have rendered nothing at all here.
-      The separate model paints it. Borders on a row are ignored in that model,
-      which is why the lines moved down to the cells they were already drawn
-      between. With border-spacing at zero the result is the same line in the
-      same place.
+      Borders on a row are ignored in that model, which is why the lines sit
+      on the cells they are drawn between. With border-spacing at zero the
+      result is the same line in the same place.
 
-      The head row and a hovered row take the brand tint. It is one opaque
-      color, so the contrast suite measures the head's labels and a row's text
-      on it, and a hovered row is told apart by more than its ring.
+      The head row takes the band, the brand mixed into the surface a step
+      stronger than the tint. It is one opaque color, so the contrast suite
+      measures the head's labels on it, and it stays apart from a hovered
+      row, which is surface-2.
     -->
     <table
       style="--cell-truncate: {truncateAt}"
       class="w-full border-separate border-spacing-0 text-sm text-start
       {fixed ? 'table-fixed' : ''}
       {CELL_FIT[cell]} {CELL_NAMED} {COLUMN_ALIGN} {HEAD_CONTROLS}
-      [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-tint
+      [&_thead_th]:border-b [&_thead_th]:border-line [&_thead]:bg-band
       [&_thead_th]:px-4 [&_thead_th]:py-3 [&_thead_th]:text-xs
         [&_thead_th]:font-medium [&_thead_th]:text-faint
         [&_thead_th]:uppercase [&_thead_th]:tracking-wider [&_thead_th]:whitespace-nowrap
@@ -299,7 +301,7 @@
       {striped ? '[&_tbody_tr:nth-child(even)]:bg-surface-2/40' : ''}
       [&_tbody_tr:last-child>td:first-child]:rounded-es-[calc(var(--radius-card)-1px)]
       [&_tbody_tr:last-child>td:last-child]:rounded-ee-[calc(var(--radius-card)-1px)]
-      {hoverable ? HOVER_RING : ''}"
+      {hoverable ? HOVER_FILL : ''}"
     >
       {@render children()}
     </table>
