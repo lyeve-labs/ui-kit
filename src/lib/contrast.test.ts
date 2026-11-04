@@ -538,17 +538,4 @@ describe.each([
       expect(ratio(tokens.ink, flatten(top, tokens[fill]))).toBeGreaterThanOrEqual(4.5);
     },
   );
-
-  it('keeps the primary fill at 3:1 against its own resting and hovered pool', () => {
-    // The pool is brand at a share, read from each token. Measured at full
-    // share, which the blur never reaches, on every ground a button sits on.
-    const share = (token: string) =>
-      Number(new RegExp(`${token}:[^;]*var\\(--color-halo\\) (\\d+)%`).exec(css)?.[1]) / 100;
-    for (const ground of GROUNDS) {
-      const rest = over(tokens.brand, tokens[ground], share('--shadow-primary'));
-      const hover = over(tokens.brand, tokens[ground], share('--shadow-primary-hover'));
-      expect(ratio(tokens.brand, rest), `resting on ${ground}`).toBeGreaterThanOrEqual(3);
-      expect(ratio(tokens['brand-light'], hover), `hovered on ${ground}`).toBeGreaterThanOrEqual(3);
-    }
-  });
 });

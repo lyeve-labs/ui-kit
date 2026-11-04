@@ -49,13 +49,20 @@ export const FIELD_ERROR = 'text-xs text-danger';
 
 /**
  * The depth every field shares: an inner shadow along the top edge that sinks
- * it into the surface, and the cyan glow around the focus ring. Both are
- * shadows, so the field keeps its height and its border, and the ring stays
- * the indicator that clears 3:1. The glow appears with the ring rather than
- * easing in, because a focus indicator that fades is late for the key press
- * that moved it.
+ * it into the surface. It is a shadow, so the field keeps its height and its
+ * border. Focus draws no glow around the field.
  */
-const CONTROL_DEPTH = 'inset-shadow-well focus-visible:shadow-glow';
+const CONTROL_DEPTH = 'inset-shadow-well';
+
+/**
+ * The ring inside a focused field. The brand border is the indicator that
+ * clears 3:1, so the ring beside it only has to soften the edge, and at full
+ * brand the two together read as 3px of glare. It appears with the border
+ * rather than easing in, because a focus indicator that fades is late for the
+ * key press that moved it.
+ */
+export const CONTROL_FOCUS_RING =
+  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35';
 
 /**
  * Everything a single-line control needs except its border color.
@@ -76,16 +83,14 @@ const CONTROL_DEPTH = 'inset-shadow-well focus-visible:shadow-glow';
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +
   'placeholder:text-faint transition-colors outline-none ' +
-  `${CONTROL_DEPTH} ` +
-  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
+  `${CONTROL_DEPTH} ${CONTROL_FOCUS_RING} ` +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /** As CONTROL_BASE, for controls whose height is driven by their content. */
 export const CONTROL_MULTILINE =
   'w-full min-h-control rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg ' +
   'placeholder:text-faint transition-colors outline-none ' +
-  `${CONTROL_DEPTH} ` +
-  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
+  `${CONTROL_DEPTH} ${CONTROL_FOCUS_RING} ` +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /**
@@ -138,7 +143,7 @@ export function describedBy(
  */
 export const CONTROL_SEGMENTED =
   'inline-flex h-control items-center gap-0.5 rounded-lg bg-surface-2 border px-3 ' +
-  'text-sm text-fg transition-colors inset-shadow-well has-[:focus-visible]:shadow-glow';
+  'text-sm text-fg transition-colors inset-shadow-well';
 
 /** As controlBorder, for a wrapper that is only ever focused through a child. */
 export function segmentedBorder(error: boolean): string {
@@ -158,7 +163,8 @@ export function segmentedBorder(error: boolean): string {
  *
  * The focus ring is inset. The segment sits flush inside the wrapper's border,
  * so the global 2px outset outline would be drawn over that border and clipped
- * by the wrapper's own rounding.
+ * by the wrapper's own rounding. It keeps the full brand rather than the
+ * field's softer ring, because nothing else marks which segment has focus.
  */
 export const CONTROL_SEGMENT =
   'shrink-0 rounded-sm border-0 bg-transparent p-0 text-center text-sm text-fg tabular-nums ' +

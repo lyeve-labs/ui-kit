@@ -193,7 +193,7 @@
       class="relative flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 coarse:gap-x-2 coarse:gap-y-6 rounded-lg
         border bg-surface-2 py-1.5 coarse:py-2.75 ps-2.5 pe-7 text-start text-sm transition-colors
         has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
-        has-[[role=combobox]:focus-visible]:ring-brand
+        has-[[role=combobox]:focus-visible]:ring-brand/35
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
         {error ? 'border-danger' : 'border-line-strong has-[[role=combobox]:focus]:border-brand'}"
     >
@@ -305,7 +305,7 @@
               {...box.triggerAttrs}
               class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
                 text-sm text-fg outline-none transition-colors
-                placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+                placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35"
             />
           </div>
         {/if}

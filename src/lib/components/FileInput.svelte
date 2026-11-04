@@ -58,16 +58,18 @@
        hover is full-strength brand, because a focus-adjacent color dropped to
        half alpha reads as a weaker affordance for no reason a user can infer.
        The input is sr-only, so the ring the browser draws on it lands on a
-       clipped 1px box nobody sees. The drop target draws it instead. -->
+       clipped 1px box nobody sees. The drop target draws it instead: its
+       border turns brand, as a field's does, and that border is the
+       indicator that clears 3:1, so the ring beside it is soft. -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
       border-2 border-dashed px-4 py-8 text-center transition-colors
-      has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand
+      has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand/35
       {error
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver
         ? 'border-brand bg-brand/8'
-        : 'border-line-strong bg-surface-2/40 hover:border-brand hover:bg-brand/5'}
+        : 'border-line-strong bg-surface-2/40 hover:border-brand hover:bg-brand/5 has-[input:focus-visible]:border-brand'}
       {disabled ? 'cursor-not-allowed opacity-50' : ''}"
     ondragover={(e) => {
       e.preventDefault();

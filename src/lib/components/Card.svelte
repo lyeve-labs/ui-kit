@@ -83,14 +83,13 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <!-- The surface is the layout contract's, so a Card and a bordered Panel on
      one page agree. A hover card, and any clickable one, takes a cyan border
-     and the focus glow under the pointer, so it answers the way a button does.
-     A clickable card glows on focus too: its own shadow would otherwise hide
-     the global focus glow. -->
+     under the pointer, so it answers the way a button does. Its shadow never
+     changes, and focus is the global outline alone. -->
 <div
   data-print="keep"
-  class="{CARD_SURFACE} overflow-hidden transition-[border-color,box-shadow] {hover || onclick
-    ? 'hover:border-brand/50 hover:shadow-glow'
-    : ''} {onclick ? 'cursor-pointer focus-visible:shadow-glow' : ''} {klass}"
+  class="{CARD_SURFACE} overflow-hidden transition-colors {hover || onclick
+    ? 'hover:border-brand/50'
+    : ''} {onclick ? 'cursor-pointer' : ''} {klass}"
   role={onclick ? 'button' : undefined}
   tabindex={onclick ? 0 : undefined}
   {onclick}
