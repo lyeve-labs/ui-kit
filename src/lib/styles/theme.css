@@ -163,14 +163,14 @@
   --inset-shadow-well: inset 0 1px 2px 0 color-mix(in srgb, var(--color-shade) 50%, transparent);
 
   /* Two gradients and no more. hero is the wash behind a hero or an empty
-   * state: a tenth of violet mixed into the page's own ink, lit from the top
+   * state: 5% of violet mixed into the page's own ink, lit from the top
    * center and falling off to plain ink, so text on it is measured against
    * both ends. accent is cyan into violet for a mark a few
    * pixels wide: the active tab and nav indicator and a progress fill. It never
    * sits behind text. accent-y is the same mark standing upright. */
   --background-image-hero: radial-gradient(
     ellipse 90% 80% at 50% 0%,
-    color-mix(in srgb, var(--color-violet) 10%, var(--color-ink)) 0%,
+    color-mix(in srgb, var(--color-violet) 5%, var(--color-ink)) 0%,
     var(--color-ink) 100%
   );
   --background-image-accent: linear-gradient(90deg, var(--color-brand), var(--color-violet));
@@ -178,8 +178,9 @@
 
   /* The surfaces' own light, each redeclared for the light palette.
    *
-   *   canvas   cyan and violet pooled at the top of the app shell's content,
-   *            gone within 400px, behind the page header
+   *   canvas   cyan and violet pooled at the top of the app shell's content
+   *            and of a sign-in page, gone within 400px, behind the page
+   *            header
    *   sidebar  the surface at the top, a step toward ink at the foot
    *   card     none in dark, because white over a dark card reads as gray.
    *            In light, a darkening toward the foot, laid over the

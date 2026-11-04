@@ -338,8 +338,7 @@ describe.each([
 
   it.each(TEXT_TOKENS)('%s clears 4.5:1 at both ends of the hero wash', (name) => {
     // A gradient has two grounds and the reader gets the worse one. An empty
-    // state and the sign-in page carry the title, the description, a link and
-    // a status line on it.
+    // state carries its title, its description and an action on it.
     expect(heroShare).toBeGreaterThan(0);
     const ends = { ink: tokens.ink, violet: over(tokens.violet, tokens.ink, heroShare / 100) };
     for (const [end, ground] of Object.entries(ends)) {
