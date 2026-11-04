@@ -61,6 +61,17 @@ describe('Table', () => {
     expect(frame.className).toContain('rounded-card');
   });
 
+  it('keeps the card surface on its frame without the top wash', () => {
+    // Under an opaque head row the wash only lightened the first body rows,
+    // so the rows were not one color at rest.
+    const { getByTestId } = render(Table, { props: { children: body } });
+    const cls = getByTestId('table-frame').className.split(/\s+/);
+    expect(cls).toEqual(
+      expect.arrayContaining(['bg-surface', 'border', 'border-line', 'shadow-card']),
+    );
+    expect(cls).not.toContain('bg-card');
+  });
+
   it('puts the scroll box in the tab sequence', () => {
     // A wide table scrolls sideways and holds nothing focusable, so without
     // this a keyboard alone cannot reach the columns past the right edge.

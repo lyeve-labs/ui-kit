@@ -75,6 +75,17 @@
     '[&_tbody_tr]:transition-colors',
   ].join(' ');
 
+  /*
+   * The card's surface, border, radius and shadows, without the card's top
+   * wash. The head row is opaque and covers the top edge where the wash reads
+   * on a card. Under the head the wash only made the first body rows lighter
+   * than the rows below, so the rows were not one color at rest and a hover
+   * showed unevenly down the table.
+   */
+  const FRAME_SURFACE = CARD_SURFACE.split(' ')
+    .filter((c) => c !== 'bg-card')
+    .join(' ');
+
   let {
     striped = false,
     hoverable = true,
@@ -238,12 +249,13 @@
      the frame's rounded ones.
 
      The frame is a card: the same surface, radius and shadows, so a table and
-     the cards above it sit at one depth. It paints its own surface rather than
+     the cards above it sit at one depth. It leaves out the card's top wash,
+     for the reason at FRAME_SURFACE. It paints its own surface rather than
      showing the page through, which the shadow under it needs to read as a
      raised sheet. -->
 <div
   data-testid="table-frame"
-  class="relative w-full overflow-hidden {CARD_SURFACE} {cls}"
+  class="relative w-full overflow-hidden {FRAME_SURFACE} {cls}"
 >
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
