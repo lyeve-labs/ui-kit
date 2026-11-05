@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `SidebarNav` opens a group the current page moved into, and shuts one it left, in one frame. Only a group the reader opens or shuts slides, so a page change no longer moves the rows under the pointer.
 - A page printed in the light theme kept an app's own colors whenever the app set its light palette in a rule after the stylesheet, as the kit's docs show. The print palette's values are now important, so such a page prints black on white.
 - The README's palette override set only the dark theme, so a light page kept the kit's colors. It now sets both, with colors that pass `checkPalette`.
 

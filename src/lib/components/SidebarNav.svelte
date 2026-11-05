@@ -254,12 +254,17 @@
         row of an open section came back as a serious axe violation. Grouping
         semantics belong to a tree, where the parent is a treeitem. This is a
         nav of plain links and the disclosure already says what it controls.
+
+        Only a group the reader opened or shut slides. A group that follows the
+        page opens or shuts in the frame the new page arrives in, because a
+        slide there moved every row below it, the one under the pointer
+        included, on each page change into or out of the group.
       -->
       {@const shown = open && !node.disabled}
       <div
-        class="grid transition-[grid-template-rows] duration-base {shown
-          ? 'grid-rows-[1fr]'
-          : 'grid-rows-[0fr]'}"
+        class="grid {expansion.isDecided(node.id)
+          ? 'transition-[grid-template-rows] duration-base'
+          : ''} {shown ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
       >
         <div class="overflow-hidden">
           <!--

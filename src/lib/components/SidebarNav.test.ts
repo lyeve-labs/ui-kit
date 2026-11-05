@@ -259,6 +259,30 @@ describe('SidebarNav disclosure', () => {
     expect(list.parentElement!.parentElement!.getAttribute('class')).toContain('grid-rows-[0fr]');
   });
 
+  // A slide on a group that follows the page moved every row below it, the
+  // one under the pointer included, on each page change into or out of it.
+  it('slides a group the reader opens, and switches one that follows the page in one frame', async () => {
+    const { getByRole, container, rerender } = mount();
+    const rowOf = (name: RegExp) => {
+      const id = getByRole('button', { name }).getAttribute('aria-controls')!;
+      return container.querySelector(`[id="${id}"]`)!.parentElement!.parentElement!;
+    };
+
+    await rerender({ items, activePath: '/settings' });
+    expect(rowOf(/Settings/).getAttribute('class')).toContain('grid-rows-[1fr]');
+    expect(rowOf(/Settings/).getAttribute('class')).not.toContain('transition');
+
+    await rerender({ items, activePath: '/' });
+    expect(rowOf(/Settings/).getAttribute('class')).toContain('grid-rows-[0fr]');
+    expect(rowOf(/Settings/).getAttribute('class')).not.toContain('transition');
+
+    await fireEvent.click(getByRole('button', { name: /Content/ }));
+    expect(rowOf(/Content/).getAttribute('class')).toContain('grid-rows-[1fr]');
+    expect(rowOf(/Content/).getAttribute('class')).toContain(
+      'transition-[grid-template-rows] duration-base',
+    );
+  });
+
   it('gives every button an inset focus ring', () => {
     // A sidebar scrolls, and a scrolling box crops the ring that sits outside
     // the element it belongs to.
