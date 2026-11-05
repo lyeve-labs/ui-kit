@@ -246,10 +246,16 @@ function merge(theme: Theme, colors: Partial<Palette>): Palette {
  * Every pair in a custom palette that falls below its floor, dark first. An
  * empty list means the palette passes every rule the kit's own palettes pass.
  *
- *     checkPalette({ light: { brand: '#b41655', 'brand-light': '#9d134a' } });
+ *     checkPalette({ light: { brand: '#b51758', 'brand-light': '#9f144d', 'brand-deep': '#8b1244' } });
  *
- * The sidebar and the light card wash between ink and surface, so the two
- * ends bound them and they need no grounds of their own.
+ * The canvas is measured at the center of each pool, where its light is
+ * strongest: the pools fade out before either reaches the other's center.
+ *
+ * The sidebar and the light card wash between ink and surface, and the two
+ * ends bound every point between them when one of the two is at least as
+ * light as the other in red, green and blue, as the kit's are. Two grounds of
+ * opposing hues can make the middle of a light wash a little darker than
+ * either end.
  */
 export function checkPalette(overrides: PaletteOverrides = {}): PaletteProblem[] {
   for (const key of Object.keys(overrides)) {
@@ -261,16 +267,21 @@ export function checkPalette(overrides: PaletteOverrides = {}): PaletteProblem[]
   for (const theme of ['dark', 'light'] as const) {
     const p = merge(theme, overrides[theme] ?? {});
     const depth = KIT_DEPTH[theme];
-    const canvas = depth.canvas.reduce((ground, [token, a]) => mix(p[token], ground, a), p.ink);
+    const pools = depth.canvas.map(([token, a]) => [token, mix(p[token], p.ink, a)] as const);
     const glowOver = (ground: string) => mix(depth.glow.hex, ground, depth.glow.alpha);
     const grounds = Object.fromEntries(GROUNDS.map((g) => [g, p[g]])) as Record<string, string>;
     const lit: Record<string, string> = {
       ...grounds,
       hero: mix(p.violet, p.ink, HERO_SHARE),
-      canvas,
+      ...Object.fromEntries(pools.map(([token, hex]) => [`${token} pool`, hex])),
     };
     const rows: Record<string, string> = {
-      header: mix(p.surface, canvas, HEADER_SHARE),
+      ...Object.fromEntries(
+        pools.map(([token, hex]) => [
+          `header over the ${token} pool`,
+          mix(p.surface, hex, HEADER_SHARE),
+        ]),
+      ),
       tint: mix(p.brand, p.surface, TINT_SHARE),
       band: mix(p.brand, p.surface, BAND_SHARE),
     };

@@ -13,6 +13,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { compile } from 'svelte/compiler';
 import vitestConfig from '../../vitest.config.js';
+import { checkPalette, type PaletteOverrides } from './utils/palette.js';
 
 /**
  * The build gates are configuration, and configuration fails silently. Each of
@@ -344,6 +345,30 @@ describe('README against the library', () => {
     ).map((line) => line.replace(/^export \{ default as /, '').replace(/ \}$/, ''));
     const missing = names.filter((n) => !new RegExp(`\\b${n}\\b`).test(readme));
     expect(missing).toEqual([]);
+  });
+
+  /*
+   * The Theming section gives an app rules to copy and says they pass the
+   * check, so the rules and the snippet that checks them are read back here.
+   */
+  it('shows a custom palette that passes the check it documents', () => {
+    const theming = readme.slice(readme.indexOf('## Theming'), readme.indexOf('## Motion'));
+    const colors = (from: string, pair: RegExp) => {
+      const start = theming.indexOf(from);
+      expect(start, from).toBeGreaterThan(-1);
+      const body = theming.slice(start, theming.indexOf('}', start));
+      return Object.fromEntries([...body.matchAll(pair)].map(([, token, hex]) => [token, hex]));
+    };
+    const css = /--color-([a-z-]+): (#[0-9a-f]+);/gi;
+    const ts = /'?([a-z-]+)'?: '(#[0-9a-f]+)'/gi;
+    const rules: PaletteOverrides = {
+      dark: colors('@theme {', css),
+      light: colors("html[data-theme='light'] {", css),
+    };
+    expect(Object.keys(rules.dark ?? {}).length).toBeGreaterThan(0);
+    expect(Object.keys(rules.light ?? {}).length).toBeGreaterThan(0);
+    expect({ dark: colors('dark: {', ts), light: colors('light: {', ts) }).toEqual(rules);
+    expect(checkPalette(rules)).toEqual([]);
   });
 
   /*

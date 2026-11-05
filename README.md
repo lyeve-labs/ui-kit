@@ -175,17 +175,16 @@ html[data-theme='light'] {
   --color-brand: #b51758;
   --color-brand-light: #9f144d;
   --color-brand-deep: #8b1244;
-  --color-faint: #606673;
 }
 ```
 
-Colors interact. The light at the top of a page mixes in a little of the
-brand, and this pink leaves the kit's light `faint` at 4.48:1 there, so the
-example darkens it a step. `checkPalette` finds pairs like that. It runs the
-contrast rules the kit's own palettes pass over your colors, on every ground
-and fill the kit paints from them, and returns each pair below its WCAG 2.2
-floor with the theme, where it is painted, the two tokens, the ratio and the
-floor. An empty list means the palette passes:
+Colors interact. In the light theme a filled button's label is near white,
+and the primary button lays a faint white lift over its fill, so a bright
+hover color fails there: `#e91e63` as the light `brand-light` leaves the
+label at 3.77:1. `checkPalette` finds pairs like that. It runs the contrast
+rules the kit's own palettes pass over your colors and returns each pair
+below its WCAG 2.2 floor with the theme, where it is painted, the two
+tokens, the ratio and the floor. An empty list means the palette passes:
 
 ```ts
 import { checkPalette } from '@lyeve-labs/ui-kit';
@@ -193,12 +192,7 @@ import { checkPalette } from '@lyeve-labs/ui-kit';
 expect(
   checkPalette({
     dark: { brand: '#ff5e9c', 'brand-light': '#ff85b3', 'brand-deep': '#f0508f' },
-    light: {
-      brand: '#b51758',
-      'brand-light': '#9f144d',
-      'brand-deep': '#8b1244',
-      faint: '#606673',
-    },
+    light: { brand: '#b51758', 'brand-light': '#9f144d', 'brand-deep': '#8b1244' },
   }),
 ).toEqual([]);
 ```

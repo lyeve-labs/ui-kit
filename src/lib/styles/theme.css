@@ -192,9 +192,9 @@
    *   rule-end a horizontal rule that fades out toward its end edge
    *
    * Every one of them has text on it or beside it, so the contrast suite
-   * measures each text token at each end. The canvas pools are as strong as
-   * they can be while brand-deep and faint still clear 4.5:1 where the two
-   * overlap. */
+   * measures each text token at each end. The canvas pools fade out before
+   * either reaches the other's center, so the suite measures each at its
+   * center, where its light is strongest. */
   --background-image-canvas:
     radial-gradient(70% 400px at 15% 0, color-mix(in srgb, var(--color-brand) 6%, transparent), transparent),
     radial-gradient(60% 400px at 85% 0, color-mix(in srgb, var(--color-violet) 7%, transparent), transparent);
