@@ -159,8 +159,8 @@ stylesheets.
 Want to bend the palette to your own brand? Override individual tokens after
 the import, once for each theme. The `@theme` block sets the dark palette. The
 light palette is its own rule, and yours outranks the kit's because it comes
-after the import. A token you leave out keeps the kit's value, and a printed
-page stays black on white whatever you set.
+after the import. A token you leave out keeps the kit's value, and a page
+printed under these rules stays black on white.
 
 ```css
 @import '@lyeve-labs/ui-kit/styles.css';
@@ -197,8 +197,9 @@ expect(
 ).toEqual([]);
 ```
 
-It reads hex colors, and it throws on any other format, on a token it does not
-check and on a theme other than `dark` and `light`, so a typo cannot pass.
+It reads `#rgb` and `#rrggbb`, and it throws on any other format, on a token
+it does not check and on a theme other than `dark` and `light`, so a typo
+cannot pass.
 
 ## Motion
 
