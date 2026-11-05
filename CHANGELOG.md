@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A page printed in the light theme kept an app's own colors whenever the app set its light palette in a rule after the stylesheet, as the kit's docs show. The print palette's values are now important, so paper is black on white whatever palette an app sets.
 - The README's palette override set only the dark theme, so a light page kept the kit's colors. It now sets both, with example colors that pass `checkPalette`.
 
 ## [0.51.2] - 2026-11-04

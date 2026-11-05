@@ -769,46 +769,50 @@ html[data-theme='light'] {
    * The status hues collapse to black rather than to a print-safe tint. A
    * color that carries meaning on screen carries none through a mono printer,
    * and a legible black label beats an unreadable colored one.
+   *
+   * Every value is important. An app sets its own palette in a rule after
+   * this file with the same selector, and without the flag that later rule
+   * put the app's colors on paper.
    */
   html,
   html[data-theme='light'] {
-    --color-ink: #ffffff;
-    --color-surface: #ffffff;
-    --color-surface-2: #ffffff;
-    --color-line: #999999;
-    --color-line-strong: #666666;
-    --color-fg: #000000;
-    --color-muted: #000000;
-    --color-faint: #000000;
-    --color-brand: #000000;
-    --color-brand-light: #000000;
-    --color-brand-deep: #000000;
-    --color-violet: #000000;
+    --color-ink: #ffffff !important;
+    --color-surface: #ffffff !important;
+    --color-surface-2: #ffffff !important;
+    --color-line: #999999 !important;
+    --color-line-strong: #666666 !important;
+    --color-fg: #000000 !important;
+    --color-muted: #000000 !important;
+    --color-faint: #000000 !important;
+    --color-brand: #000000 !important;
+    --color-brand-light: #000000 !important;
+    --color-brand-deep: #000000 !important;
+    --color-violet: #000000 !important;
     /* The mark keeps its light-theme faces: in black every face is one
      * shape and the L is gone. Printing from the dark theme would otherwise
      * put a white column on white paper. */
-    --color-mark-ink: #0a0e14;
-    --color-mark-top: #0099c4;
-    --color-mark-side: #006a8a;
-    --color-mark-face: #007ea6;
-    --color-success: #000000;
-    --color-warn: #000000;
-    --color-danger: #000000;
+    --color-mark-ink: #0a0e14 !important;
+    --color-mark-top: #0099c4 !important;
+    --color-mark-side: #006a8a !important;
+    --color-mark-face: #007ea6 !important;
+    --color-success: #000000 !important;
+    --color-warn: #000000 !important;
+    --color-danger: #000000 !important;
     /* Paper has no light source, and a printer renders a soft shadow as a gray
      * smear around every card. */
-    --color-highlight: transparent;
-    --color-shade: transparent;
-    --color-glow: transparent;
-    --color-halo: transparent;
-    --background-image-hero: none;
-    --background-image-accent: none;
-    --background-image-accent-y: none;
-    --background-image-canvas: none;
-    --background-image-sidebar: none;
-    --background-image-card: none;
-    --background-image-lift: none;
-    --background-image-rule-y: none;
-    --background-image-rule-end: none;
+    --color-highlight: transparent !important;
+    --color-shade: transparent !important;
+    --color-glow: transparent !important;
+    --color-halo: transparent !important;
+    --background-image-hero: none !important;
+    --background-image-accent: none !important;
+    --background-image-accent-y: none !important;
+    --background-image-canvas: none !important;
+    --background-image-sidebar: none !important;
+    --background-image-card: none !important;
+    --background-image-lift: none !important;
+    --background-image-rule-y: none !important;
+    --background-image-rule-end: none !important;
     color-scheme: light;
   }
 

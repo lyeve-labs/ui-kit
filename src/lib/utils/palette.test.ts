@@ -38,6 +38,17 @@ describe('checkPalette', () => {
     expect(share('band')).toBe(BAND_SHARE);
   });
 
+  it('prints black on white whatever palette an app sets', () => {
+    // An app's light rule comes after the stylesheet with the same selector,
+    // so only an important declaration keeps the paper palette above it.
+    const print = css.slice(css.search(/^@media print/m));
+    const rule = print.slice(print.indexOf('{', print.indexOf("html[data-theme='light']")));
+    const block = rule.slice(0, rule.indexOf('}'));
+    const declarations = [...block.matchAll(/^\s+(--[a-z0-9-]+):([^;]+);/gm)];
+    expect(declarations.length).toBeGreaterThan(20);
+    for (const [, name, value] of declarations) expect(value, name).toMatch(/!important$/);
+  });
+
   it("passes the kit's own palettes", () => {
     expect(checkPalette()).toEqual([]);
   });
