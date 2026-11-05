@@ -157,7 +157,10 @@ Import `themeBootScript` from `@lyeve-labs/ui-kit` and inline it in `<head>` bef
 stylesheets.
 
 Want to bend the palette to your own brand? Override individual tokens after
-the import:
+the import, once for each theme. The `@theme` block sets the dark palette. The
+light palette is its own rule, and yours outranks the kit's because it comes
+after the import. A token you leave out keeps the kit's value, and a page
+printed under these rules stays black on white.
 
 ```css
 @import '@lyeve-labs/ui-kit/styles.css';
@@ -165,8 +168,38 @@ the import:
 @theme {
   --color-brand: #ff5e9c;
   --color-brand-light: #ff85b3;
+  --color-brand-deep: #f0508f;
+}
+
+html[data-theme='light'] {
+  --color-brand: #b51758;
+  --color-brand-light: #9f144d;
+  --color-brand-deep: #8b1244;
 }
 ```
+
+Colors interact. In the light theme a filled button's label is near white,
+and the primary button lays a faint white lift over its fill, so a bright
+hover color fails there: `#e91e63` as the light `brand-light` leaves the
+label at 3.77:1. `checkPalette` finds pairs like that. It runs the contrast
+rules the kit's own palettes pass over your colors and returns each pair
+below its WCAG 2.2 floor with the theme, where it is painted, the two
+tokens, the ratio and the floor. An empty list means the palette passes:
+
+```ts
+import { checkPalette } from '@lyeve-labs/ui-kit';
+
+expect(
+  checkPalette({
+    dark: { brand: '#ff5e9c', 'brand-light': '#ff85b3', 'brand-deep': '#f0508f' },
+    light: { brand: '#b51758', 'brand-light': '#9f144d', 'brand-deep': '#8b1244' },
+  }),
+).toEqual([]);
+```
+
+It reads `#rgb` and `#rrggbb`, and it throws on any other format, on a token
+it does not check and on a theme other than `dark` and `light`, so a typo
+cannot pass.
 
 ## Motion
 
@@ -211,6 +244,23 @@ lets the exit play when a parent block removes the surface, so keep it. Do not
 write `duration-150`, `ease-out` or `transition-all` beside a kit class: they
 are a fifth speed and a fourth curve, and the kit's own test suite refuses
 them.
+
+A page is a parent block too. When the router replaces it, every exit on it
+plays, and the page stays on screen with the new page below it until the last
+one ends. Call `motion.swapPage()` just before the router swaps the page, and
+the presets play in no time until the next frame, so the new page takes the
+old one's place at once:
+
+```svelte
+<script>
+  import { onNavigate } from '$app/navigation';
+  import { motion } from '@lyeve-labs/ui-kit';
+
+  onNavigate((navigation) => {
+    if (navigation.from?.url.pathname !== navigation.to?.url.pathname) motion.swapPage();
+  });
+</script>
+```
 
 ## Sizing
 

@@ -110,6 +110,7 @@ const FUNCTIONS = [
   'themeBootScript',
   'watchSystemTheme',
   'watchThemePreference',
+  'checkPalette',
   'openDialog',
   'closeDialog',
   'dismissDialog',

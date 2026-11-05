@@ -484,14 +484,23 @@ describe.each([
     image(scope, 'card') === 'none'
       ? [tokens.surface]
       : stops(image(scope, 'card'), tokens).map((stop) => flatten(stop, tokens.surface));
-  /** Both canvas pools at full strength over ink, where they overlap. */
-  const canvasPeak = () =>
-    args(image(scope, 'canvas'))
-      .map((g) => stops(g, tokens)[0])
-      .reduce((ground, pool) => flatten(pool, ground), tokens.ink);
+  /**
+   * Each canvas pool at full strength over ink, at its center. The pools fade
+   * out before either reaches the other's center, so the light on the page is
+   * strongest at the center of one of them.
+   */
+  const canvasPools = () =>
+    args(image(scope, 'canvas')).map((g) => flatten(stops(g, tokens)[0], tokens.ink));
 
   it('reads every stop of the surface gradients', () => {
     expect(args(image(scope, 'canvas'))).toHaveLength(2);
+    // A pool that reached the other's center would stack on it there, and
+    // the suite measures them one at a time.
+    const [a, b] = args(image(scope, 'canvas')).map((g) => {
+      const [, radius, center] = /^radial-gradient\((\d+)% \d+px at (\d+)% /.exec(g) ?? [];
+      return { radius: Number(radius), center: Number(center) };
+    });
+    expect(Math.abs(a.center - b.center)).toBeGreaterThanOrEqual(Math.max(a.radius, b.radius));
     for (const name of ['sidebar', 'lift']) {
       expect(stops(image(scope, name), tokens).length, name).toBeGreaterThanOrEqual(2);
     }
@@ -503,7 +512,9 @@ describe.each([
   it.each(TEXT_TOKENS)('%s clears 4.5:1 where the canvas light is brightest', (name) => {
     // The page title, its description and the first row of content sit in
     // the light at the top of the page.
-    expect(ratio(tokens[name], canvasPeak())).toBeGreaterThanOrEqual(4.5);
+    for (const pool of canvasPools()) {
+      expect(ratio(tokens[name], pool), `${name} on ${pool}`).toBeGreaterThanOrEqual(4.5);
+    }
   });
 
   it.each(['fg', 'muted', 'faint', 'brand'])(
@@ -511,8 +522,10 @@ describe.each([
     (name) => {
       const share = Number(/bg-surface\/(\d+)/.exec(APP_HEADER)?.[1]) / 100;
       expect(share).toBeGreaterThan(0);
-      const ground = over(tokens.surface, canvasPeak(), share);
-      expect(ratio(tokens[name], ground)).toBeGreaterThanOrEqual(4.5);
+      for (const pool of canvasPools()) {
+        const ground = over(tokens.surface, pool, share);
+        expect(ratio(tokens[name], ground), `${name} on ${ground}`).toBeGreaterThanOrEqual(4.5);
+      }
     },
   );
 

@@ -12,6 +12,7 @@ import {
   popover,
   scrim,
   still,
+  swapPage,
   toast,
 } from './motion.js';
 
@@ -236,6 +237,26 @@ describe('the presets', () => {
     const exit = resolve(scrim(node), 'out');
     vi.unstubAllGlobals();
     expect(exit.css!(0.5, 0.5)).toBe('opacity: 0.5');
+  });
+
+  it('play in no time from a page swap until the next frame', () => {
+    // A page swap removes the page being left, and every exit on it would
+    // hold it on screen. tests/ct/PageSwap.ct.spec.ts shows that in a browser.
+    let frame: FrameRequestCallback = () => {};
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      frame = callback;
+      return 1;
+    });
+    vi.stubGlobal('cancelAnimationFrame', () => {});
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const motion = toast(animatable());
+    swapPage();
+    const during = { enter: resolve(motion, 'in'), exit: resolve(motion, 'out') };
+    frame(0);
+    const after = resolve(motion, 'out');
+    vi.unstubAllGlobals();
+    expect(during).toEqual({ enter: { duration: 0 }, exit: { duration: 0 } });
+    expect(after.duration).toBe(FALLBACK.duration.fast);
   });
 
   it('moves only opacity and transform', () => {
