@@ -6,8 +6,11 @@ import {
   BADGE_SHARE,
   BAND_SHARE,
   DANGER_PANEL_SHARE,
+  FILTERED_FILLS,
   HEADER_SHARE,
+  HELD_BRIGHTNESS,
   HERO_SHARE,
+  HOVER_BRIGHTNESS,
   KIT_DEPTH,
   KIT_PALETTES,
   LIFT_ALPHA,
@@ -115,6 +118,21 @@ describe('checkPalette measures what the kit paints', () => {
     expect(fills).toEqual(AVATAR_FILLS);
   });
 
+  it('brightens and dims the buttons it measures by the filters they carry', () => {
+    // Its comments name filters it does not paint.
+    const button = source('Button')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/<!--[\s\S]*?-->/g, '');
+    const filtered = [
+      ...button.matchAll(/bg-([a-z-]+) text-ink hover:brightness-(\d+) active:brightness-(\d+)/g),
+    ].map(([, fill, hover, held]) => [fill, Number(hover) / 100, Number(held) / 100]);
+    expect(filtered).toEqual(
+      FILTERED_FILLS.map((fill) => [fill, HOVER_BRIGHTNESS, HELD_BRIGHTNESS]),
+    );
+    // A variant filtered some other way would go unmeasured.
+    expect(button.match(/(?:hover|active):brightness-\d/g)).toHaveLength(FILTERED_FILLS.length * 2);
+  });
+
   it('reads the shares the shell, the danger panel and the row chips paint', () => {
     expect(HEADER_SHARE).toBeGreaterThan(0);
     expect(HEADER_SHARE).toBeLessThan(1);
@@ -189,6 +207,20 @@ describe('checkPalette', () => {
       ratio: 3.7,
       minimum: 4.5,
     });
+  });
+
+  it('measures a filtered button with its label dimmed alongside the fill', () => {
+    // At rest the label reads 5.37:1. Held, the filter darkens both.
+    expect(checkPalette({ dark: { violet: '#f614e2' } })).toEqual([
+      {
+        theme: 'dark',
+        use: 'button label',
+        foreground: 'ink',
+        background: 'violet held at 90% brightness',
+        ratio: 4.48,
+        minimum: 4.5,
+      },
+    ]);
   });
 
   it("measures a hovered primary's edge against its glow", () => {

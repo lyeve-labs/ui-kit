@@ -195,6 +195,13 @@ const TEXT = [
 const TONES = ['brand', 'violet', 'success', 'warn', 'danger'] as const;
 /** Every filled button labels in ink, at rest, under the pointer and held. */
 const FILLS = ['brand', 'brand-light', 'brand-deep', 'violet', 'danger'] as const;
+/**
+ * These buttons brighten under the pointer and dim when held, and the filter
+ * scales the label with the fill.
+ */
+export const FILTERED_FILLS = ['violet', 'danger'] as const;
+export const HOVER_BRIGHTNESS = 1.1;
+export const HELD_BRIGHTNESS = 0.9;
 
 const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
@@ -221,6 +228,14 @@ function mix(top: string, ground: string, share: number): string {
   const [t, g] = [channels(top), channels(ground)];
   return `#${t
     .map((c, i) => Math.round(c * share + g[i] * (1 - share)))
+    .map((c) => c.toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+/** A brightness filter, which multiplies each channel and clips at white. */
+function brighten(hex: string, amount: number): string {
+  return `#${channels(hex)
+    .map((c) => Math.min(255, Math.round(c * amount)))
     .map((c) => c.toString(16).padStart(2, '0'))
     .join('')}`;
 }
@@ -291,8 +306,9 @@ export function checkPalette(overrides: PaletteOverrides = {}): PaletteProblem[]
       background: string,
       ground: string,
       minimum: number,
+      color = p[foreground],
     ) => {
-      const ratio = contrast(p[foreground], ground);
+      const ratio = contrast(color, ground);
       if (ratio < minimum) {
         problems.push({
           theme,
@@ -344,6 +360,16 @@ export function checkPalette(overrides: PaletteOverrides = {}): PaletteProblem[]
     for (const fill of ['brand', 'brand-light', 'brand-deep'] as const) {
       const lifted = mix('#ffffff', p[fill], LIFT_ALPHA);
       check('button label', 'ink', `${fill} under the lift`, lifted, 4.5);
+    }
+    for (const fill of FILTERED_FILLS) {
+      for (const [state, amount] of [
+        ['hovered', HOVER_BRIGHTNESS],
+        ['held', HELD_BRIGHTNESS],
+      ] as const) {
+        const background = `${fill} ${state} at ${Math.round(amount * 100)}% brightness`;
+        const label = brighten(p.ink, amount);
+        check('button label', 'ink', background, brighten(p[fill], amount), 4.5, label);
+      }
     }
     for (const ground of GROUNDS) {
       check('button edge', 'brand-light', `glow over ${ground}`, glowOver(p[ground]), 3);
