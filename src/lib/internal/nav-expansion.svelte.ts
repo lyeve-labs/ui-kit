@@ -32,6 +32,8 @@ export interface NavExpansionOptions {
 
 export interface NavExpansion {
   readonly isExpanded: (id: string) => boolean;
+  /** Whether the reader opened or shut this group, rather than the page. */
+  readonly isDecided: (id: string) => boolean;
   toggle(id: string): void;
   expand(id: string): void;
   collapse(id: string): void;
@@ -167,5 +169,9 @@ export function createNavExpansion(options: NavExpansionOptions): NavExpansion {
     }
   }
 
-  return { isExpanded, toggle, expand, collapse };
+  function isDecided(id: string): boolean {
+    return Object.prototype.hasOwnProperty.call(overrides, id);
+  }
+
+  return { isExpanded, isDecided, toggle, expand, collapse };
 }

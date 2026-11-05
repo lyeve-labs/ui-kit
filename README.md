@@ -245,6 +245,23 @@ write `duration-150`, `ease-out` or `transition-all` beside a kit class: they
 are a fifth speed and a fourth curve, and the kit's own test suite refuses
 them.
 
+A page is a parent block too. When the router replaces it, every exit on it
+plays, and the page stays on screen with the new page below it until the last
+one ends. Call `motion.swapPage()` just before the router swaps the page, and
+the presets play in no time until the next frame, so the new page takes the
+old one's place at once:
+
+```svelte
+<script>
+  import { onNavigate } from '$app/navigation';
+  import { motion } from '@lyeve-labs/ui-kit';
+
+  onNavigate((navigation) => {
+    if (navigation.from?.url.pathname !== navigation.to?.url.pathname) motion.swapPage();
+  });
+</script>
+```
+
 ## Sizing
 
 Two ladders, both declared as tokens and both read by name.

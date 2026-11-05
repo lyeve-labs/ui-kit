@@ -21,12 +21,13 @@
  * below are the fallback for a document that has not loaded the stylesheet,
  * and a test holds them equal to the tokens.
  *
- * Two cases return no duration at all. A reader who asked for reduced motion
+ * Three cases return no duration at all. A reader who asked for reduced motion
  * gets the state change and none of the travel. The reduced-motion block in
  * theme.css cannot reach these, because Svelte drives them through the Web
- * Animations API and not through a stylesheet. And a document with no
+ * Animations API and not through a stylesheet. A document with no
  * `Element.animate`, which is every jsdom test, mounts and unmounts at once,
- * exactly as it did before the exits existed.
+ * exactly as it did before the exits existed. And a page swap, which
+ * `swapPage` marks, replaces the page in one frame.
  *
  * This is the one module that may import `svelte/animate`, `svelte/easing`
  * or `svelte/transition`. A component that reaches for them directly has
@@ -158,6 +159,26 @@ function composeTransform(frame: string, own: string): string {
   );
 }
 
+/** The frame a page swap lasts until, or 0 outside one. */
+let swapFrame = 0;
+
+/**
+ * Swaps the page in one frame. Call it just before a router replaces the
+ * page, as SvelteKit's `onNavigate` does. Every preset plays when an ancestor
+ * removes its surface, and the page is an ancestor too. Without this, the page
+ * being left stays on screen until its last exit has played, such as an
+ * `Alert`'s, with the new page waiting below it. Until the next frame every
+ * preset runs in no time, so the old page goes and the new one arrives with
+ * its surfaces in the frame the router swaps them.
+ */
+export function swapPage(): void {
+  if (typeof requestAnimationFrame !== 'function') return;
+  cancelAnimationFrame(swapFrame);
+  swapFrame = requestAnimationFrame(() => {
+    swapFrame = 0;
+  });
+}
+
 /**
  * One transition from the rung its entrance runs at and the frame it draws.
  * The exit is derived, never chosen: one rung faster, on the exit curve.
@@ -168,6 +189,7 @@ function surface(rung: Rung, css: (t: number, u: number) => string) {
   return (node: Element): Motion => {
     if (still(node)) return { duration: 0 };
     return ({ direction } = { direction: 'in' }) => {
+      if (swapFrame) return { duration: 0 };
       const leaving = direction === 'out';
       const own = (node as HTMLElement).style?.transform ?? '';
       return {
