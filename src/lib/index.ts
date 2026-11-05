@@ -185,6 +185,16 @@ export {
   type Theme,
   type ThemePreference,
 } from './utils/theme.js';
+// The contrast rules the kit's own palettes pass, for an app that sets its
+// own colors. An empty list means the palette passes.
+export {
+  checkPalette,
+  type Palette,
+  type PaletteOverrides,
+  type PaletteProblem,
+  type PaletteToken,
+  type PaletteUse,
+} from './utils/palette.js';
 
 // ── Motion ─────────────────────────────────────────────────────────────────
 // The entrances and exits as Svelte transitions, for a surface a consumer

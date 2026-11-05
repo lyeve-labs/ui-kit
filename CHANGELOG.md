@@ -5,6 +5,17 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `checkPalette`, which runs the contrast rules the kit's own palettes pass over an app's own colors. It takes the tokens an app overrides for each theme, lays them over the kit's values and returns every pair below its WCAG 2.2 floor. It measures text on the grounds the kit paints, from the center of each canvas pool and the hero to the current, head and held rows and the danger panel. It measures badges, avatars and row chips, and a filled button's label at rest, hovered, held and under its lift. At 3:1 it measures the focus ring, a control's border and a hovered button's edge. Each result names the theme, where the pair is painted, the two tokens, the ratio and the floor, and an empty list means the palette passes. It reads `#rgb` and `#rrggbb`, and it throws on any other format, an unknown token and an unknown theme.
+
+### Fixed
+
+- A page printed in the light theme kept an app's own colors whenever the app set its light palette in a rule after the stylesheet, as the kit's docs show. The print palette's values are now important, so such a page prints black on white.
+- The README's palette override set only the dark theme, so a light page kept the kit's colors. It now sets both, with colors that pass `checkPalette`.
+
 ## [0.51.2] - 2026-11-04
 
 ### Changed
