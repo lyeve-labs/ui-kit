@@ -157,7 +157,9 @@ Import `themeBootScript` from `@lyeve-labs/ui-kit` and inline it in `<head>` bef
 stylesheets.
 
 Want to bend the palette to your own brand? Override individual tokens after
-the import:
+the import, once for each theme. The `@theme` block sets the dark palette. The
+light palette is its own rule, and yours outranks the kit's because it comes
+after the import. A token you leave out keeps the kit's value.
 
 ```css
 @import '@lyeve-labs/ui-kit/styles.css';
@@ -165,8 +167,34 @@ the import:
 @theme {
   --color-brand: #ff5e9c;
   --color-brand-light: #ff85b3;
+  --color-brand-deep: #f0508f;
+}
+
+html[data-theme='light'] {
+  --color-brand: #b41655;
+  --color-brand-light: #9d134a;
+  --color-brand-deep: #87103f;
 }
 ```
+
+Then check the same colors against the contrast rules the kit's own palettes
+pass. `checkPalette` returns every pair below its WCAG 2.2 floor, with the
+theme, where the pair is painted, the ratio and the floor, and an empty list
+when the palette passes:
+
+```ts
+import { checkPalette } from '@lyeve-labs/ui-kit';
+
+expect(
+  checkPalette({
+    dark: { brand: '#ff5e9c', 'brand-light': '#ff85b3', 'brand-deep': '#f0508f' },
+    light: { brand: '#b41655', 'brand-light': '#9d134a', 'brand-deep': '#87103f' },
+  }),
+).toEqual([]);
+```
+
+It reads hex colors, and it throws on any other format and on a token it does
+not check, so a typo cannot pass.
 
 ## Motion
 
