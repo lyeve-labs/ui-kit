@@ -1,41 +1,134 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { BAND_SHARE, KIT_PALETTES, TINT_SHARE, checkPalette, type Palette } from './palette.js';
+import {
+  AVATAR_FILLS,
+  BADGE_SHARE,
+  BAND_SHARE,
+  DANGER_PANEL_SHARE,
+  HEADER_SHARE,
+  HERO_SHARE,
+  KIT_DEPTH,
+  KIT_PALETTES,
+  LIFT_ALPHA,
+  ROW_CHIPS,
+  TINT_SHARE,
+  WELL_SHARE,
+  checkPalette,
+  type Palette,
+} from './palette.js';
 
 const css = readFileSync(join(__dirname, '../styles/theme.css'), 'utf8');
+const source = (name: string) =>
+  readFileSync(join(__dirname, `../components/${name}.svelte`), 'utf8');
 
 /** The dark palette is everything before the light block, the light one that block alone. */
-function declared(scope: 'dark' | 'light'): Record<string, string> {
+function region(scope: 'dark' | 'light'): string {
   const marker = css.indexOf("html[data-theme='light'] {");
-  const region =
-    scope === 'dark' ? css.slice(0, marker) : css.slice(marker, css.indexOf('}', marker));
-  const out: Record<string, string> = {};
-  for (const [, name, value] of region.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-f]{6})\s*;/gi)) {
-    out[name] = value.toLowerCase();
-  }
-  return out;
+  return scope === 'dark' ? css.slice(0, marker) : css.slice(marker, css.indexOf('\n}', marker));
 }
 
-describe('checkPalette', () => {
-  it.each(['dark', 'light'] as const)('measures the %s values the stylesheet declares', (scope) => {
+const percent = (pattern: RegExp, text: string) => Number(pattern.exec(text)?.[1]) / 100;
+
+describe('checkPalette measures what the kit paints', () => {
+  it.each(['dark', 'light'] as const)('reads the %s palette the stylesheet declares', (scope) => {
     // The check lays an app's colors over these, so a value that drifted
     // from the stylesheet would measure a palette nobody ships.
-    const sheet = declared(scope);
+    const declared: Record<string, string> = {};
+    for (const [, name, value] of region(scope).matchAll(
+      /--color-([a-z0-9-]+):\s*(#[0-9a-f]{6})\s*;/gi,
+    )) {
+      declared[name] = value.toLowerCase();
+    }
     for (const [token, value] of Object.entries(KIT_PALETTES[scope])) {
-      expect(sheet[token], `--color-${token}`).toBe(value);
+      expect(declared[token], `--color-${token}`).toBe(value);
     }
   });
 
-  it('mixes the tint and the band at the shares the stylesheet declares', () => {
-    const share = (token: string) =>
-      Number(
+  it.each(['dark', 'light'] as const)('reads the %s depth the stylesheet declares', (scope) => {
+    const paint = (name: string) => {
+      const [, r, g, b, a] =
+        new RegExp(`--color-${name}:\\s*rgb\\((\\d+) (\\d+) (\\d+) \\/ ([0-9.]+)\\);`).exec(
+          region(scope),
+        ) ?? [];
+      const hex = `#${[r, g, b].map((c) => Number(c).toString(16).padStart(2, '0')).join('')}`;
+      return { hex, alpha: Number(a) };
+    };
+    expect(paint('glow')).toEqual(KIT_DEPTH[scope].glow);
+    expect(paint('shade')).toEqual(KIT_DEPTH[scope].shade);
+
+    // The light block declares a canvas of its own, and dark reads the theme's.
+    const canvas = /--background-image-canvas:([^;]+);/.exec(region(scope))?.[1] ?? '';
+    const pools = [
+      ...canvas.matchAll(/color-mix\(in srgb, var\(--color-([a-z-]+)\) (\d+)%, transparent\)/g),
+    ].map(([, token, pct]) => [token, Number(pct) / 100]);
+    expect(pools).toEqual(KIT_DEPTH[scope].canvas);
+  });
+
+  it('mixes each ground at the share the stylesheet declares', () => {
+    const brandInSurface = (token: string) =>
+      percent(
         new RegExp(
           `--color-${token}: color-mix\\(in srgb, var\\(--color-brand\\) (\\d+)%, var\\(--color-surface\\)\\);`,
-        ).exec(css)?.[1],
-      ) / 100;
-    expect(share('tint')).toBe(TINT_SHARE);
-    expect(share('band')).toBe(BAND_SHARE);
+        ),
+        css,
+      );
+    expect(brandInSurface('tint')).toBe(TINT_SHARE);
+    expect(brandInSurface('band')).toBe(BAND_SHARE);
+    expect(
+      percent(
+        /--background-image-hero:[^;]*color-mix\(in srgb, var\(--color-violet\) (\d+)%, var\(--color-ink\)\)/,
+        css,
+      ),
+    ).toBe(HERO_SHARE);
+    expect(
+      percent(
+        /--inset-shadow-well:[^;]*color-mix\(in srgb, var\(--color-shade\) (\d+)%, transparent\)/,
+        css,
+      ),
+    ).toBe(WELL_SHARE);
+    // One lift for both themes: the light block declares none of its own.
+    expect(region('light')).not.toContain('--background-image-lift');
+    expect(
+      Number(
+        /--background-image-lift: linear-gradient\(180deg, rgb\(255 255 255 \/ ([0-9.]+)\)/.exec(
+          css,
+        )?.[1],
+      ),
+    ).toBe(LIFT_ALPHA);
+  });
+
+  it('paints badges, tags and tab counts at the share it measures', () => {
+    for (const name of ['Badge', 'Tag', 'Tabs']) {
+      const shares = [
+        ...source(name).matchAll(/bg-(?:brand|violet|success|warn|danger)\/(\d+) text-/g),
+      ].map(([, pct]) => Number(pct) / 100);
+      expect(shares.length, name).toBeGreaterThan(0);
+      for (const share of shares) expect(share, name).toBe(BADGE_SHARE);
+    }
+  });
+
+  it('paints every avatar fill it measures', () => {
+    const fills = [...source('Avatar').matchAll(/'bg-([a-z-]+)(?:\/(\d+))? text-([a-z-]+)'/g)].map(
+      ([, fill, pct, text]) => [fill, pct === undefined ? 1 : Number(pct) / 100, text],
+    );
+    expect(fills).toEqual(AVATAR_FILLS);
+  });
+
+  it('reads the shares the shell, the danger panel and the row chips paint', () => {
+    expect(HEADER_SHARE).toBeGreaterThan(0);
+    expect(HEADER_SHARE).toBeLessThan(1);
+    expect(DANGER_PANEL_SHARE).toBeGreaterThan(0);
+    expect(DANGER_PANEL_SHARE).toBeLessThan(1);
+    expect(ROW_CHIPS.map((c) => c.hue).sort()).toEqual(
+      ['brand', 'danger', 'success', 'violet', 'warn'].sort(),
+    );
+    for (const chip of ROW_CHIPS) {
+      expect(chip.share, chip.hue).toBeGreaterThan(0);
+      expect(chip.share, chip.hue).toBeLessThan(1);
+      expect(KIT_PALETTES.dark[chip.base], chip.base).toBeTruthy();
+      expect(KIT_PALETTES.dark[chip.text], chip.text).toBeTruthy();
+    }
   });
 
   it('prints black on white whatever palette an app sets', () => {
@@ -48,7 +141,9 @@ describe('checkPalette', () => {
     expect(declarations.length).toBeGreaterThan(20);
     for (const [, name, value] of declarations) expect(value, name).toMatch(/!important$/);
   });
+});
 
+describe('checkPalette', () => {
   it("passes the kit's own palettes", () => {
     expect(checkPalette()).toEqual([]);
   });
@@ -64,32 +159,42 @@ describe('checkPalette', () => {
       ratio: 1.77,
       minimum: 3,
     });
-    expect(problems.map((p) => p.use)).toEqual(
-      expect.arrayContaining(['text', 'badge', 'button label', 'current row', 'head row']),
+    expect(new Set(problems.map((p) => p.use))).toEqual(
+      new Set(['text', 'badge', 'avatar', 'row chip', 'button label', 'focus ring']),
     );
   });
 
-  it('catches the pairs a palette written by eye misses', () => {
-    // The brand reads on every bare ground. It fails only inside its own
-    // badge on a hovered row, and the hovered fill under the button's label.
-    expect(checkPalette({ light: { brand: '#c2185b', 'brand-light': '#e91e63' } })).toEqual([
-      {
-        theme: 'light',
-        use: 'badge',
-        foreground: 'brand',
-        background: 'brand at 10% over surface-2',
-        ratio: 4.08,
-        minimum: 4.5,
-      },
+  it('measures the label at the top of a hovered button, under the lift', () => {
+    // The bare fill clears 4.5:1. On light the lift brightens the fill
+    // toward the pale label, and that is where the label reads.
+    const problems = checkPalette({ light: { 'brand-light': '#9a5792' } });
+    expect(problems).toEqual([
       {
         theme: 'light',
         use: 'button label',
         foreground: 'ink',
-        background: 'brand-light',
+        background: 'brand-light under the lift',
         ratio: 4.05,
         minimum: 4.5,
       },
     ]);
+  });
+
+  it('measures avatar initials on a tinted fill', () => {
+    expect(checkPalette({ light: { fg: '#485a91' } })).toContainEqual({
+      theme: 'light',
+      use: 'avatar',
+      foreground: 'fg',
+      background: 'brand at 25% over surface-2',
+      ratio: 3.7,
+      minimum: 4.5,
+    });
+  });
+
+  it("measures a hovered primary's edge against its glow", () => {
+    expect(checkPalette({ dark: { 'brand-light': '#70883c' } })).toContainEqual(
+      expect.objectContaining({ theme: 'dark', use: 'button edge', ratio: 2.98, minimum: 3 }),
+    );
   });
 
   it('keeps each theme to its own overrides', () => {
@@ -115,8 +220,11 @@ describe('checkPalette', () => {
     expect(() => checkPalette({ dark: { brand: '#00d4ff80' } })).toThrow(TypeError);
   });
 
-  it('refuses a token it does not read rather than ignoring it', () => {
+  it('refuses a token or a theme it does not read rather than ignoring it', () => {
     const misspelled = { 'brand-ligth': '#5fd9f4' } as unknown as Partial<Palette>;
     expect(() => checkPalette({ dark: misspelled })).toThrow('brand-ligth is not a token');
+    expect(() => checkPalette({ ligth: { brand: '#00d4ff' } } as never)).toThrow(
+      'ligth is not a theme',
+    );
   });
 });
