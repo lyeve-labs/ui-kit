@@ -5,17 +5,6 @@ import type { DialogEntry } from './types.js';
 import Dialog from './Dialog.svelte';
 import { HIT_AREA } from '../../internal/touch.js';
 
-// Mock dialog-manager for lifecycle assertions
-const mockLockBodyScroll = vi.fn();
-const mockUnlockBodyScroll = vi.fn();
-
-vi.mock('./dialog-manager.svelte', () => ({
-  _lockBodyScroll: () => mockLockBodyScroll(),
-  _unlockBodyScroll: () => mockUnlockBodyScroll(),
-  closeDialog: vi.fn(),
-  dismissDialog: vi.fn(),
-}));
-
 function makeEntry(overrides: Partial<DialogEntry> = {}): DialogEntry {
   return {
     id: 'test-dialog',
@@ -32,7 +21,7 @@ describe('Dialog', () => {
     vi.clearAllMocks();
   });
 
-  // ── Rendering ──────────────────────────────────────────
+  // Rendering
 
   it('renders a dialog with role="dialog" and aria-modal', () => {
     const entry = makeEntry();
@@ -123,7 +112,7 @@ describe('Dialog', () => {
     expect(getByText('OK')).toBeTruthy();
   });
 
-  // ── ARIA label ─────────────────────────────────────────
+  // ARIA label
 
   it('uses the string title as aria-label', () => {
     const entry = makeEntry({ options: { id: 'a', title: 'Settings' } });
@@ -137,7 +126,7 @@ describe('Dialog', () => {
     expect(container.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe('Dialog');
   });
 
-  // ── Lifecycle (onMount) ────────────────────────────────
+  // Lifecycle (onMount)
 
   it('locks body scroll on mount and unlocks on destroy', () => {
     // Asserted through the page rather than through a spy on the lock helper:
@@ -166,7 +155,7 @@ describe('Dialog', () => {
     opener.remove();
   });
 
-  // ── Stacking (depth) ───────────────────────────────────
+  // Stacking (depth)
 
   it('applies higher z-index for deeper dialogs', () => {
     const entry = makeEntry({ depth: 3 });
@@ -190,7 +179,7 @@ describe('Dialog', () => {
     expect(outerDiv.style.zIndex).not.toMatch(/\b50\b/);
   });
 
-  // ── Title Snippet ──────────────────────────────────────
+  // Title Snippet
 
   it('renders a title snippet when provided', () => {
     const entry = makeEntry({

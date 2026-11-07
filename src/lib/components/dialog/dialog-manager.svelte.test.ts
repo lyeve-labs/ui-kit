@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { lockBodyScroll, unlockBodyScroll } from '../../internal/overlay.js';
 import {
-  _lockBodyScroll,
-  _unlockBodyScroll,
   closeDialog,
   confirm,
   dismissAllDialogs,
@@ -155,11 +154,11 @@ describe('dialog-manager', () => {
       // releases it when it unmounts, so clearing the dialog stack must not
       // release a lock a Modal or Drawer behind it still holds. Zeroing the
       // count here let the page scroll underneath an overlay that was still up.
-      _lockBodyScroll();
+      lockBodyScroll();
       expect(document.body.style.overflow).toBe('hidden');
       dismissAllDialogs();
       expect(document.body.style.overflow).toBe('hidden');
-      _unlockBodyScroll();
+      unlockBodyScroll();
       expect(document.body.style.overflow).toBe('');
     });
   });
@@ -226,21 +225,21 @@ describe('dialog-manager', () => {
 
   describe('body scroll lock', () => {
     it('counts nested locks and only unlocks at zero', () => {
-      _lockBodyScroll();
-      _lockBodyScroll();
+      lockBodyScroll();
+      lockBodyScroll();
       expect(document.body.style.overflow).toBe('hidden');
-      _unlockBodyScroll();
+      unlockBodyScroll();
       expect(document.body.style.overflow).toBe('hidden');
-      _unlockBodyScroll();
+      unlockBodyScroll();
       expect(document.body.style.overflow).toBe('');
     });
 
     it('clamps the counter so an extra unlock never underflows', () => {
-      _unlockBodyScroll();
+      unlockBodyScroll();
       expect(document.body.style.overflow).toBe('');
-      _lockBodyScroll();
+      lockBodyScroll();
       expect(document.body.style.overflow).toBe('hidden');
-      _unlockBodyScroll();
+      unlockBodyScroll();
       expect(document.body.style.overflow).toBe('');
     });
   });

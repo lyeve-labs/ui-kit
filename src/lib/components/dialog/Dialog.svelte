@@ -1,18 +1,13 @@
 <script lang="ts">
   /**
-   * Dialog - modal frame component.
-   *
-   * Handles: focus trap, ESC to close, click-outside to close, the entrance
-   * and exit through the kit's motion presets, stacked z-indexing, portal to
-   * body.
-   *
-   * Rendered by DialogContainer for each entry in the dialog stack.
-   * Not meant to be used directly - use openDialog() from dialog-manager.
+   * The frame each entry of the dialog stack renders in. DialogContainer
+   * renders one per entry, so a page opens a dialog with openDialog() or
+   * confirm() rather than rendering this.
    */
   import { X } from '@lucide/svelte';
   import type { Snippet } from 'svelte';
   import type { DialogEntry } from './types.js';
-  import { sizeClass } from './types.js';
+  import { OVERLAY_WIDTH } from '../../internal/layout.js';
   import { overlay } from '../../internal/overlay.js';
   import { HIT_AREA } from '../../internal/touch.js';
   import * as motion from '../../motion.js';
@@ -30,25 +25,11 @@
   // Stacked offset: each deeper dialog shrinks, shifts back and rises
   let offset = $derived(entry.depth);
 
-  // ──────────────────────────────────────────────────────
-  // DOM refs
-  // ──────────────────────────────────────────────────────
-
-  let dialogEl = $state<HTMLDivElement>();
-
-  // ──────────────────────────────────────────────────────
-  // Lifecycle
-  // ──────────────────────────────────────────────────────
-
   // Focus entry, the Tab trap, the body scroll lock and focus restore all come
   // from `use:overlay` on the panel below, which is the same implementation
   // Modal and Drawer use. The entrance and the exit are the same presets too:
   // removing the entry from the stack plays the exit before the element goes,
   // so nothing here waits on a timer to match a duration written elsewhere.
-
-  // ──────────────────────────────────────────────────────
-  // Handlers
-  // ──────────────────────────────────────────────────────
 
   function handleBackdropClick(e: MouseEvent) {
     // Only close if clicking the backdrop itself (not the dialog panel)
@@ -97,19 +78,15 @@
     transition:motion.scrim|global
     class="absolute inset-0 bg-black/60 backdrop-blur-sm"
     onclick={handleBackdropClick}
-    onkeydown={(e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !entry.options.persistent) handleDismiss();
-    }}
     role="presentation"
   ></div>
 
   <!-- Dialog panel -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
-    bind:this={dialogEl}
     use:overlay
     transition:motion.dialog|global
-    class="relative w-full {sizeClass(entry.options.size ?? 'md')} mx-4
+    class="relative w-full {OVERLAY_WIDTH[entry.options.size ?? 'md']} mx-4
 			bg-surface bg-card border border-line rounded-card shadow-overlay inset-shadow-highlight
 			transition-transform duration-slow
 			focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
