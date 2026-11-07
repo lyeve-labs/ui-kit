@@ -174,7 +174,7 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const { getByLabelText } = render(Alert, {
       props: { children: text('x'), dismissible: true, ondismiss: () => {} },
     });
-    expectHitArea(getByLabelText('Dismiss'));
+    expectHitArea(getByLabelText('Close'));
   });
 
   it('SegmentedControl segments, which were 26px small and 38px at the default size', () => {

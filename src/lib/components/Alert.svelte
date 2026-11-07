@@ -174,7 +174,7 @@
         type="button"
         onclick={close}
         class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-        aria-label="Dismiss"
+        aria-label="Close"
       >
         <svg
           width="16"

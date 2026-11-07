@@ -140,7 +140,7 @@
       <button
         type="button"
         onclick={dismiss}
-        aria-label="Dismiss"
+        aria-label="Close"
         class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
       >
         <svg
