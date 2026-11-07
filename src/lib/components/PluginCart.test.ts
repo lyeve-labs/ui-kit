@@ -5,7 +5,7 @@ import PluginCart from './PluginCart.svelte';
 import type { CartQuote } from '../internal/pricing.js';
 
 const NEXT_RUNG = 'Add 1 more for a 5% discount.';
-const EMPTY_CART = 'No capabilities picked yet. With none, you stay on the free tier.';
+const EMPTY_CART = 'No capabilities chosen yet. With none, you stay on the Free plan.';
 const NO_MATCH = 'No capabilities match these filters.';
 
 const PLUGINS = [

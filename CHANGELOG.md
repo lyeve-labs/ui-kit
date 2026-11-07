@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default placeholders are plain words without an ellipsis: "Search" on `Autocomplete` and `SearchInput`, "None selected" on `MultiSelect` and "Choose a date" on `DatePicker`, whose dialog is also named "Choose a date".
 - `FileInput` reads "Choose a file or drop it here", or "Choose files or drop them here" when it takes several, in place of "Click to upload or drag & drop".
 - The `AppShell` rail toggle reads "Expand navigation" and "Collapse navigation" in place of "Show sidebar" and "Hide sidebar".
-- `PluginCart` reads "No capabilities picked yet. With none, you stay on the free tier." when nothing is picked, names each remove button "Remove" and the capability, and shows "Waiting for a price" without a period.
+- `PluginCart` reads "No capabilities chosen yet. With none, you stay on the Free plan." when nothing is chosen, names each remove button "Remove" and the capability, and shows "Waiting for a price" without a period.
 - A copy that fails says "Could not copy. Try again." on `CopyButton`, in place of "Copy failed". `CopyField` says "Could not copy. Select the value and copy it yourself.", or "Could not copy. Show the value, then select it and copy it yourself." while its value is masked.
 - `DatePicker` shows the chosen date as "Sep 3, 2024" in every browser, where it followed the browser's locale, and its month grid always holds six weeks, so the panel keeps its height from month to month.
 - `Dropdown`, `AccountMenu` and `DatePicker` close when a press lands outside them, on pointer down rather than on click, and listen for it only while open.
