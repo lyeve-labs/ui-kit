@@ -5,6 +5,37 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `StepIndicator` takes `label`, the list's accessible name, which defaults to "Progress". Name each list when a page holds two.
+
+### Changed
+
+- The close button on `Alert`, `Banner` and each toast is named "Close" instead of "Dismiss".
+- Default labels name what a control acts on. With a `label`, the clear button on `Autocomplete` reads "Clear" and the label, the `NumberInput` steppers read "Decrease" and "Increase" and the label, and `CopyField` keeps an acronym such as "API key" in its button name rather than lowercasing it. Without one they keep the bare verb.
+- Default placeholders are plain words without an ellipsis: "Search" on `Autocomplete` and `SearchInput`, "None selected" on `MultiSelect` and "Choose a date" on `DatePicker`, whose dialog is also named "Choose a date".
+- `FileInput` reads "Choose a file or drop it here", or "Choose files or drop them here" when it takes several, in place of "Click to upload or drag & drop".
+- The `AppShell` rail toggle reads "Expand navigation" and "Collapse navigation" in place of "Show sidebar" and "Hide sidebar".
+- `PluginCart` reads "No capabilities picked yet. With none, you stay on the free tier." when nothing is picked, names each remove button "Remove" and the capability, and shows "Waiting for a price" without a period.
+- A copy that fails says "Could not copy. Try again." on `CopyButton`, in place of "Copy failed". `CopyField` says "Could not copy. Select the value and copy it yourself.", or "Could not copy. Show the value, then select it and copy it yourself." while its value is masked.
+- `DatePicker` shows the chosen date as "Sep 3, 2024" in every browser, where it followed the browser's locale, and its month grid always holds six weeks, so the panel keeps its height from month to month.
+- `Dropdown`, `AccountMenu` and `DatePicker` close when a press lands outside them, on pointer down rather than on click, and listen for it only while open.
+- `Label` draws the same label as every field: sentence case at the body size, where it was small uppercase.
+- The `Card` footer takes the header's 16px vertical inset, where it had 12px.
+- `Stat` draws its trend arrow as an icon and says "Up", "Down" or "Unchanged" to a screen reader. `Button`'s spinner is 14px or 16px, the icon sizes beside its text, in place of 15px or 18px. The cross on a removable `Tag` is 12px, where it was 10px.
+- The close and chevron marks across the kit are drawn from `@lucide/svelte`.
+- The count on a `Collapsible` is drawn as a `Badge`, so it gains a border and medium weight.
+- The `Drawer` close button sits 2px lower, level with the `Modal` one.
+- `AppShell`, `GateNotice`, `SectionHeading`, `Table` and `Tabs` no longer carry the `data-testid` values `app-section`, `app-sidebar-toggle`, `gate-notice`, `section-actions`, `table-frame`, `table-scroll` and `tabs-scroll`. Select those elements by role or name.
+
+### Fixed
+
+- A `FileInput` with no `id` gets one of its own, so its label names the input.
+- The `Drawer` close button draws the same rounded focus ring as the `Modal` one.
+- `SortableList` listens for pointer events on the window only while a row is pressed or dragged.
+
 ## [0.52.0] - 2026-11-05
 
 ### Added
