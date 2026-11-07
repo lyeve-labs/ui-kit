@@ -8,7 +8,7 @@
    * use this one instead.
    */
   import type { StatusTone } from '../internal/tone.js';
-  import { CARD_SURFACE } from '../internal/layout.js';
+  import { CARD_PAD, CARD_SURFACE } from '../internal/layout.js';
 
   type Trend = 'up' | 'down' | 'flat';
   type Accent = 'brand' | 'violet' | 'success' | 'neutral';
@@ -73,7 +73,6 @@
     danger: 'text-danger',
   };
 
-  const pads: Record<Size, string> = { sm: 'p-4', md: 'p-5' };
   const values: Record<Size, string> = {
     sm: 'mt-1 text-lg font-semibold tracking-tight',
     md: 'mt-2 text-2xl font-bold tracking-tight',
@@ -91,7 +90,7 @@
      mirrored under right-to-left, so cyan stays at the start edge.
      overflow-hidden lets the card's corners trim it. -->
 <div
-  class="{CARD_SURFACE} relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-brand before:bg-accent rtl:before:-scale-x-100 {pads[
+  class="{CARD_SURFACE} relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-brand before:bg-accent rtl:before:-scale-x-100 {CARD_PAD[
     size
   ]} {klass}"
 >

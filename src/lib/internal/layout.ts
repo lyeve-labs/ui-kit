@@ -127,6 +127,14 @@ export const CARD_SURFACE =
   'bg-surface bg-card border border-line rounded-card shadow-card inset-shadow-highlight';
 
 /**
+ * The card surface without the card's gradient, for a frame around rows. In
+ * light the gradient darkens a card toward its foot, so the last rows would be
+ * darker than the first and a hover would show unevenly down the table.
+ */
+export const CARD_FRAME =
+  'bg-surface border border-line rounded-card shadow-card inset-shadow-highlight';
+
+/**
  * The card surface in the danger tone, for a group of destructive actions.
  *
  * The fill is danger mixed into surface rather than a translucent tint, so it

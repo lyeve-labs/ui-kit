@@ -1,6 +1,12 @@
 <script lang="ts">
   import type { Component, Snippet } from 'svelte';
-  import { CARD_SURFACE, sectionHeading } from '../internal/layout.js';
+  import {
+    CARD_FOOTER,
+    CARD_HEADER,
+    CARD_PAD,
+    CARD_SURFACE,
+    sectionHeading,
+  } from '../internal/layout.js';
 
   type Pad = 'none' | 'sm' | 'md' | 'lg';
 
@@ -62,13 +68,6 @@
     e.preventDefault();
     (e.currentTarget as HTMLElement).click();
   }
-
-  const pads: Record<Pad, string> = {
-    none: '',
-    sm: 'p-4',
-    md: 'p-5',
-    lg: 'p-6',
-  };
 </script>
 
 <!-- tabindex is only set alongside role="button" (when onclick is provided),
@@ -89,7 +88,7 @@
   onkeydown={onclick ? activate : onkeydown}
 >
   {#if header || heading || title}
-    <div class="px-5 py-4 border-b border-line">
+    <div class={CARD_HEADER}>
       {#if header}
         {@render header()}
       {:else if heading}
@@ -116,12 +115,12 @@
     </div>
   {/if}
 
-  <div class={pads[pad]}>
+  <div class={CARD_PAD[pad]}>
     {@render children()}
   </div>
 
   {#if footer}
-    <div class="px-5 py-3 border-t border-line bg-surface-2/40">
+    <div class={CARD_FOOTER}>
       {@render footer()}
     </div>
   {/if}

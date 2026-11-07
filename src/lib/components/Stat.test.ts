@@ -76,11 +76,11 @@ describe('Stat', () => {
     // div at body size. One component now covers both densities.
     const md = render(Stat, { props: { label: 'Users', value: 42 } });
     expect(within(md.container).getByText('42').className).toContain('text-2xl');
-    expect(md.container.querySelector('.p-5')).toBeTruthy();
+    expect(md.container.querySelector('.p-card')).toBeTruthy();
 
     const sm = render(Stat, { props: { label: 'Users', value: 42, size: 'sm' } });
     expect(within(sm.container).getByText('42').className).toContain('text-lg');
-    expect(sm.container.querySelector('.p-4')).toBeTruthy();
+    expect(sm.container.querySelector('.p-card-sm')).toBeTruthy();
   });
 
   it.each([

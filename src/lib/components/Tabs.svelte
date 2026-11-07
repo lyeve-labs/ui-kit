@@ -1,10 +1,6 @@
 <script lang="ts">
-  import {
-    SCROLL_EDGE,
-    SCROLL_EDGE_END,
-    SCROLL_EDGE_START,
-    scrollEdges,
-  } from '../internal/scroll-edges.js';
+  import { createScrollFades } from '../internal/scroll-fades.svelte.js';
+  import ScrollFades from '../internal/ScrollFades.svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
 
   let {
@@ -35,26 +31,7 @@
    * it changes.
    */
   let scroller: HTMLElement | undefined = $state();
-  let moreBefore = $state(false);
-  let moreAfter = $state(false);
-
-  function measure() {
-    const el = scroller;
-    if (!el) return;
-    const edges = scrollEdges(el);
-    moreBefore = edges.before;
-    moreAfter = edges.after;
-  }
-
-  $effect(() => {
-    const el = scroller;
-    if (!el) return;
-    measure();
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  });
+  const fades = createScrollFades();
 
   /*
    * The tab for the active id is brought into view when the id changes, so a
@@ -154,7 +131,7 @@
 <div class="relative {cls}">
   <div
     bind:this={scroller}
-    onscroll={measure}
+    use:fades.track
     onfocusout={onStripFocusOut}
     role="tablist"
     data-testid="tabs-scroll"
@@ -196,23 +173,5 @@
     {/each}
   </div>
 
-  <!-- Outside the scroll box and out of the accessibility tree: a picture of
-       the scrollbar the phone will not draw, saying nothing the tablist has
-       not already said. -->
-  {#if moreBefore}
-    <div
-      aria-hidden="true"
-      data-print="hide"
-      data-testid="tabs-more-before"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_START}"
-    ></div>
-  {/if}
-  {#if moreAfter}
-    <div
-      aria-hidden="true"
-      data-print="hide"
-      data-testid="tabs-more-after"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_END}"
-    ></div>
-  {/if}
+  <ScrollFades before={fades.before} after={fades.after} testId="tabs" />
 </div>

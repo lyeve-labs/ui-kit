@@ -11,13 +11,9 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import {
-    SCROLL_EDGE,
-    SCROLL_EDGE_END,
-    SCROLL_EDGE_START,
-    scrollEdges,
-  } from '../internal/scroll-edges.js';
-  import { CARD_SURFACE } from '../internal/layout.js';
+  import { createScrollFades } from '../internal/scroll-fades.svelte.js';
+  import ScrollFades from '../internal/ScrollFades.svelte';
+  import { CARD_FRAME } from '../internal/layout.js';
 
   interface Props {
     /** Tints every other body row. */
@@ -64,17 +60,6 @@
     '[&_tbody_tr]:transition-colors',
   ].join(' ');
 
-  /*
-   * The card's surface, border, radius and shadows, without the card's
-   * gradient. In light the gradient darkens a card toward its foot, so the
-   * last rows would be darker than the first, the rows would not be one color
-   * at rest, and a hover would show unevenly down the table. A dark card has
-   * no gradient.
-   */
-  const FRAME_SURFACE = CARD_SURFACE.split(' ')
-    .filter((c) => c !== 'bg-card')
-    .join(' ');
-
   let {
     striped = false,
     hoverable = true,
@@ -116,32 +101,7 @@
    * overflows, and only on the side the content continues on, so it reads as a
    * property of this table rather than as decoration every table wears.
    */
-  let scroller: HTMLElement | undefined = $state();
-  let moreBefore = $state(false);
-  let moreAfter = $state(false);
-
-  function measure() {
-    const el = scroller;
-    if (!el) return;
-    const edges = scrollEdges(el);
-    moreBefore = edges.before;
-    moreAfter = edges.after;
-  }
-
-  $effect(() => {
-    const el = scroller;
-    if (!el) return;
-    measure();
-    // The width that matters changes without a scroll and without a resize of
-    // the window: a column added, a filter applied, a sidebar collapsed. Both
-    // boxes are watched because either one moving changes whether the other
-    // overflows.
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    if (el.firstElementChild) observer.observe(el.firstElementChild);
-    return () => observer.disconnect();
-  });
+  const fades = createScrollFades();
 
   /*
    * The table-wide treatment, applied only to cells that did not ask for their
@@ -239,17 +199,16 @@
 
      The frame is a card: the same surface, radius and shadows, so a table and
      the cards above it sit at one depth. It leaves out the card's top wash,
-     for the reason at FRAME_SURFACE. It paints its own surface rather than
+     for the reason at CARD_FRAME. It paints its own surface rather than
      showing the page through, which the shadow under it needs to read as a
      raised sheet. -->
-<div data-testid="table-frame" class="relative w-full overflow-hidden {FRAME_SURFACE} {cls}">
+<div data-testid="table-frame" class="relative w-full overflow-hidden {CARD_FRAME} {cls}">
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.
   -->
   <div
-    bind:this={scroller}
-    onscroll={measure}
+    use:fades.track
     onpointerover={reveal}
     onfocusin={reveal}
     data-print="unclip"
@@ -293,26 +252,5 @@
     </table>
   </div>
 
-  <!--
-    aria-hidden and outside the scroll box. It is a picture of the scrollbar
-    the phone will not draw, it says nothing a screen reader has not already
-    been told by the region, and a child of the box would scroll away with the
-    content it is describing.
-  -->
-  {#if moreBefore}
-    <div
-      aria-hidden="true"
-      data-print="hide"
-      data-testid="table-more-before"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-card"
-    ></div>
-  {/if}
-  {#if moreAfter}
-    <div
-      aria-hidden="true"
-      data-print="hide"
-      data-testid="table-more-after"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-card"
-    ></div>
-  {/if}
+  <ScrollFades before={fades.before} after={fades.after} testId="table" rounded />
 </div>
