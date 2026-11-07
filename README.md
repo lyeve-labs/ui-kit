@@ -152,6 +152,9 @@ The kit ships two themes, and one attribute switches between them:
 <html>
   <!-- dark mode (default) -->
 </html>
+<html data-theme="system">
+  <!-- light or dark, as the operating system asks, with no script -->
+</html>
 ```
 
 Or use the helpers, which also store the reader's choice:
@@ -162,6 +165,10 @@ import { setThemePreference, getTheme } from '@lyeve-labs/ui-kit';
 setThemePreference('light'); // 'dark', 'light' or 'system', returns the theme applied
 getTheme(); // 'dark' | 'light'
 ```
+
+The helpers write `light` or `dark` to the attribute and resolve the `system`
+preference when they run. Only markup names `system`, for a page that runs no
+script.
 
 To keep the first paint in the reader's theme, inline the output of
 `themeBootScript()` from `@lyeve-labs/ui-kit` in the `<head>` of your
@@ -186,6 +193,20 @@ html[data-theme='light'] {
   --color-brand: #b51758;
   --color-brand-light: #9f144d;
   --color-brand-deep: #8b1244;
+}
+```
+
+A page that names `system` takes its light palette from a copy of that rule
+inside `@media (prefers-color-scheme: light)`, so its light overrides go there
+too:
+
+```css
+@media (prefers-color-scheme: light) {
+  html[data-theme='system'] {
+    --color-brand: #b51758;
+    --color-brand-light: #9f144d;
+    --color-brand-deep: #8b1244;
+  }
 }
 ```
 
