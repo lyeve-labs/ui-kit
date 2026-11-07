@@ -44,7 +44,11 @@ function kitCompiler() {
  * file in `sources` adds every word it holds as a candidate, the way Tailwind
  * scans a consumer's files, and a word that is no class builds nothing.
  */
-export async function styleWithKit(page: Page, theme: 'dark' | 'light', sources: string[] = []) {
+export async function styleWithKit(
+  page: Page,
+  theme: 'dark' | 'light' | 'system',
+  sources: string[] = [],
+) {
   const classes = await page.evaluate(() => [
     ...new Set([...document.querySelectorAll('*')].flatMap((el) => [...el.classList])),
   ]);
@@ -54,7 +58,7 @@ export async function styleWithKit(page: Page, theme: 'dark' | 'light', sources:
   const css = (await kitCompiler()).build(classes);
   await page.addStyleTag({ content: css });
   await page.evaluate((t) => {
-    if (t === 'light') document.documentElement.dataset.theme = 'light';
-    else delete document.documentElement.dataset.theme;
+    if (t === 'dark') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = t;
   }, theme);
 }

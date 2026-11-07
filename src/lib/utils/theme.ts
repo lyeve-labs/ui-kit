@@ -7,8 +7,9 @@
  *
  * Two vocabularies, and the distinction is the whole point:
  *
- *   Theme            what is painted. `dark` or `light`, and it is what
- *                    `data-theme` holds and what every palette rule keys off.
+ *   Theme            what is painted. `dark` or `light`. `data-theme` holds
+ *                    one of the two, or `system` on a page that runs no
+ *                    script, which the stylesheet resolves with a media query.
  *   ThemePreference  what the reader asked for. `dark`, `light`, or `system`,
  *                    which is a standing instruction to follow the operating
  *                    system rather than a color.
@@ -117,10 +118,17 @@ export function getThemePreference(): ThemePreference {
   }
 }
 
-/** Read the current theme. SSR-safe. Returns `'dark'` on the server. */
+/**
+ * Read the current theme. SSR-safe. Returns `'dark'` on the server.
+ *
+ * `system` reads as what the operating system asks for, which is what the
+ * stylesheet paints for it.
+ */
 export function getTheme(): Theme {
   if (typeof document === 'undefined') return 'dark';
-  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const attribute = document.documentElement.getAttribute('data-theme');
+  if (attribute === 'system') return systemTheme();
+  return attribute === 'light' ? 'light' : 'dark';
 }
 
 /**

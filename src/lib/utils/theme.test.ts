@@ -174,6 +174,17 @@ describe('theme utils', () => {
       expect(localStorage.getItem('lyeve-theme')).toBe('system');
     });
 
+    it('reads data-theme="system" as the theme the OS asks for', () => {
+      // A page that runs no script names system and lets the stylesheet
+      // resolve it. Read as dark, the first toggle on a light desktop set
+      // light, which was already on screen.
+      const os = stubSystem(true);
+      document.documentElement.setAttribute('data-theme', 'system');
+      expect(getTheme()).toBe('light');
+      os.flip(false);
+      expect(getTheme()).toBe('dark');
+    });
+
     it('applies what system resolves to, in both directions', () => {
       const os = stubSystem(true);
       expect(setThemePreference('system')).toBe('light');
