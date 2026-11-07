@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ICON_LADDER, type IconPx } from './internal/icon.js';
+import { CHIP_TONE } from './internal/tone.js';
 
 /**
  * The library drifted because nothing measured it. Every component was correct
@@ -830,11 +831,15 @@ describe('tone vocabulary', () => {
   const ACCENT = ['neutral', 'brand', 'success', 'warn', 'danger', 'violet'];
   const STATUS = ['neutral', 'brand', 'success', 'warn', 'danger'];
 
-  it.each(['Badge', 'Tag', 'Indicator', 'Progress'])('%s covers every accent tone', (name) => {
+  it.each(['Badge', 'Indicator', 'Progress'])('%s covers every accent tone', (name) => {
     const src = files.find((f) => f.name === name)!.src;
     for (const tone of ACCENT) {
       expect(src, `${name} has no ${tone} tone`).toMatch(new RegExp(`\\b${tone}:`));
     }
+  });
+
+  it('covers every accent tone in the chip map Badge and Tag share', () => {
+    expect(Object.keys(CHIP_TONE).sort()).toEqual([...ACCENT].sort());
   });
 
   it.each(['Alert', 'Banner', 'Toaster'])('%s covers every status tone', (name) => {

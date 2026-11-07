@@ -38,7 +38,7 @@
    */
   import { cn } from '../utils/cn.js';
   import { describedBy, joinIds } from '../internal/field.js';
-  import { safeHref } from '../internal/href.js';
+  import { assertLinked, safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
   interface Props {
@@ -91,15 +91,7 @@
    * beside two links would report a choice that the URL never learns about,
    * and the caller has no way to see that from the screen.
    */
-  const linked = $derived.by(() => {
-    const count = options.filter((o) => o.href !== undefined).length;
-    if (count !== 0 && count !== options.length) {
-      throw new Error(
-        `FilterChips: every option carries href or none does, ${count} of ${options.length} did`,
-      );
-    }
-    return count !== 0;
-  });
+  const linked = $derived(assertLinked(options, 'FilterChips'));
 
   /*
    * $props.id() and not Math.random(), so the message ids match between the

@@ -124,7 +124,7 @@
     icon: 'p-2 rounded-lg',
   };
 
-  const spinnerSize = $derived(size === 'lg' ? 18 : 15);
+  const spinnerSize = $derived(size === 'lg' ? 16 : 14);
   /*
    * whitespace-nowrap: a label never breaks inside itself. Under a Table's
    * `overflow-wrap: anywhere` a two-word ghost button in a flex row rendered

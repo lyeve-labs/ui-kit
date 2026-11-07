@@ -1,6 +1,6 @@
 <script lang="ts">
   import { X } from '@lucide/svelte';
-  import type { AccentTone } from '../internal/tone.js';
+  import { CHIP_TONE, type AccentTone } from '../internal/tone.js';
   import { HIT_AREA } from '../internal/touch.js';
 
   interface Props {
@@ -20,15 +20,6 @@
     onremove = undefined,
     class: cls = '',
   }: Props = $props();
-
-  const tones: Record<AccentTone, string> = {
-    neutral: 'bg-surface-2 text-muted border-line',
-    brand: 'bg-brand/10 text-brand border-brand/20',
-    violet: 'bg-violet/10 text-violet border-violet/20',
-    success: 'bg-success/10 text-success border-success/20',
-    warn: 'bg-warn/10 text-warn border-warn/20',
-    danger: 'bg-danger/10 text-danger border-danger/20',
-  };
 </script>
 
 <!--
@@ -42,7 +33,7 @@
 -->
 <span
   class="inline-flex items-center self-center gap-1 rounded-md border px-2 py-0.5
-    text-xs font-medium {removable ? 'coarse:my-2.75 coarse:me-2' : ''} {tones[tone]} {cls}"
+    text-xs font-medium {removable ? 'coarse:my-2.75 coarse:me-2' : ''} {CHIP_TONE[tone]} {cls}"
 >
   {label}
   {#if removable}

@@ -319,3 +319,15 @@ export const APP_BRAND = 'flex h-header shrink-0 items-center gap-2 border-b bor
 
 /** A band at the foot of the sidebar, on the nav's own inset. */
 export const APP_SIDEBAR_BAND = 'shrink-0 border-t border-line px-inline py-3';
+
+/**
+ * A row in a navigation list: SidebarNav's entries and AccountMenu's. Each
+ * adds its own inline padding. The focus ring is inset because both lists sit
+ * in a box that clips or scrolls, which crops a ring drawn outside the row.
+ */
+export const NAV_ROW =
+  'flex w-full items-center gap-2.5 rounded-lg py-2 text-sm text-start transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+
+/** A navigation row at rest, which answers the pointer and a held finger. */
+export const NAV_ROW_REST =
+  'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';

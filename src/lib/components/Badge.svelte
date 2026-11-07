@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { AccentTone } from '../internal/tone.js';
+  import { CHIP_TONE, type AccentTone } from '../internal/tone.js';
   import type { Snippet } from 'svelte';
 
   type Size = 'sm' | 'md';
@@ -14,15 +14,6 @@
   }
 
   let { tone = 'neutral', size = 'sm', dot = false, class: klass = '', children }: Props = $props();
-
-  const tones: Record<AccentTone, string> = {
-    neutral: 'bg-surface-2 text-muted border-line',
-    brand: 'bg-brand/10 text-brand border-brand/20',
-    violet: 'bg-violet/10 text-violet border-violet/20',
-    success: 'bg-success/10 text-success border-success/20',
-    warn: 'bg-warn/10 text-warn border-warn/20',
-    danger: 'bg-danger/10 text-danger border-danger/20',
-  };
 
   /** The dot carries a soft halo of its own tone. A ring is a shadow, so the dot and the label beside it do not move. */
   const dotColor: Record<AccentTone, string> = {
@@ -53,7 +44,7 @@
      ellipsis, which is the thing the span exists for, so the icon goes back to
      being inline and sits on the text's optical center. -->
 <span
-  class="inline-flex max-w-full items-center font-medium whitespace-nowrap rounded-full border {tones[
+  class="inline-flex max-w-full items-center font-medium whitespace-nowrap rounded-full border {CHIP_TONE[
     tone
   ]} {sizes[size]} {klass}"
 >

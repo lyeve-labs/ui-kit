@@ -15,6 +15,7 @@
    */
   import type { Component, Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
+  import Badge from './Badge.svelte';
 
   interface Props {
     open?: boolean;
@@ -95,9 +96,7 @@
     <span class="truncate">{label}</span>
 
     {#if badge !== undefined}
-      <span class="ms-auto shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">
-        {badge}
-      </span>
+      <Badge class="ms-auto shrink-0">{badge}</Badge>
     {/if}
   </button>
 

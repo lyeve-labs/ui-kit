@@ -14,6 +14,7 @@
    */
   import type { Component, Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
+  import { NAV_ROW, NAV_ROW_REST } from '../internal/layout.js';
   import { safeHref } from '../internal/href.js';
   import Spinner from './Spinner.svelte';
 
@@ -45,12 +46,8 @@
     children,
   }: Props = $props();
 
-  // SidebarNav's ROW and its resting paint, with the inline padding noted
-  // above. The ring is inset for the same reason as there: the panel clips.
-  const ROW =
-    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-start ` +
-    'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg ' +
-    'transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  // SidebarNav's row and its resting paint, with the inline padding noted above.
+  const ROW = `${TOUCH_GROW} ${NAV_ROW} px-2 ${NAV_ROW_REST}`;
 </script>
 
 {#snippet body()}

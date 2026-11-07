@@ -1,5 +1,6 @@
 <script lang="ts">
   import { brokenImage } from '../utils/broken-image.js';
+  import { AVATAR_SIZE } from '../internal/avatar.js';
 
   let {
     name,
@@ -12,14 +13,6 @@
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     class?: string;
   } = $props();
-
-  const sizes: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', { wrap: string; text: string }> = {
-    xs: { wrap: 'w-6 h-6', text: 'text-[9px]' },
-    sm: { wrap: 'w-7 h-7', text: 'text-[10px]' },
-    md: { wrap: 'w-8 h-8', text: 'text-xs' },
-    lg: { wrap: 'w-10 h-10', text: 'text-sm' },
-    xl: { wrap: 'w-14 h-14', text: 'text-base' },
-  };
 
   /*
    * Each fill names the text it carries. Initials in ink on a translucent hue
@@ -42,7 +35,7 @@
   let imgError = $state(false);
 
   let initials = $derived(
-    (name ?? '')
+    name
       .trim()
       .split(/\s+/)
       .slice(0, 2)
@@ -51,7 +44,7 @@
   );
 
   let hue = $derived(hues[(name.charCodeAt(0) || 0) % hues.length]);
-  let s = $derived(sizes[size]);
+  let s = $derived(AVATAR_SIZE[size]);
 </script>
 
 <span

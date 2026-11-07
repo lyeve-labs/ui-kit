@@ -7,6 +7,7 @@
    * bare div at body size. `size`, `tone` and `mono` are what let both of them
    * use this one instead.
    */
+  import { ArrowDown, ArrowRight, ArrowUp } from '@lucide/svelte';
   import type { StatusTone } from '../internal/tone.js';
   import { CARD_PAD, CARD_SURFACE } from '../internal/layout.js';
 
@@ -81,7 +82,9 @@
   const valueColor = $derived(tone ? tones[tone] : accents[accent]);
 
   const trendColor = { up: 'text-success', down: 'text-danger', flat: 'text-muted' } as const;
-  const trendMark = { up: '↑', down: '↓', flat: '→' } as const;
+  const trendIcon = { up: ArrowUp, down: ArrowDown, flat: ArrowRight } as const;
+  /** The arrow is drawn, so its direction is said in words for a screen reader. */
+  const trendWord = { up: 'Up', down: 'Down', flat: 'Unchanged' } as const;
 </script>
 
 <!-- A brand to violet line along the top edge, so a row of figures reads as a
@@ -98,7 +101,11 @@
   <p class="{values[size]} {valueColor} {mono ? 'font-mono tabular-nums' : ''}">{value}</p>
   <div class="mt-1 flex items-center gap-2">
     {#if trend && change}
-      <span class="text-xs font-medium {trendColor[trend]}">{trendMark[trend]} {change}</span>
+      {@const Icon = trendIcon[trend]}
+      <span class="inline-flex items-center gap-0.5 text-xs font-medium {trendColor[trend]}"
+        ><Icon size={12} aria-hidden="true" /><span class="sr-only">{trendWord[trend]}</span>
+        {change}</span
+      >
     {/if}
     {#if sub}<span class="text-xs text-muted">{sub}</span>{/if}
   </div>

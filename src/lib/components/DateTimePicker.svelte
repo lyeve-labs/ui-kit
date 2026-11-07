@@ -49,7 +49,7 @@
   import { compareDates, parseISODate, toISODate } from '../internal/calendar.js';
   import type { CalendarDate } from '../internal/calendar.js';
   import { FIELD_WRAP, describedBy } from '../internal/field.js';
-  import { parseISOTime, toISOTime } from '../internal/time.js';
+  import { parseISOTime, secondsOf, toISOTime } from '../internal/time.js';
   import type { TimeParts } from '../internal/time.js';
   import DatePicker from './DatePicker.svelte';
   import TimePicker from './TimePicker.svelte';
@@ -114,19 +114,12 @@
   const MIDNIGHT: TimeParts = { h: 0, mi: 0, s: 0 };
   const LAST_SECOND: TimeParts = { h: 23, mi: 59, s: 59 };
 
-  const SECONDS_PER_MINUTE = 60;
-  const SECONDS_PER_HOUR = 3600;
-
-  /** The whole clock reading as one number, so a comparison cannot compare the minute first. */
-  function secondsOfDay(time: TimeParts): number {
-    return time.h * SECONDS_PER_HOUR + time.mi * SECONDS_PER_MINUTE + time.s;
-  }
-
+  /** Orders by day, then by the second of the day, so a comparison cannot compare the minute first. */
   function compareMoments(a: Moment, b: Moment): number {
     const byDay = compareDates(a.date, b.date);
     if (byDay !== 0) return byDay;
-    const at = secondsOfDay(a.time);
-    const bt = secondsOfDay(b.time);
+    const at = secondsOf(a.time);
+    const bt = secondsOf(b.time);
     if (at === bt) return 0;
     return at < bt ? -1 : 1;
   }

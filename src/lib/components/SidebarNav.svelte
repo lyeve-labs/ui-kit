@@ -3,6 +3,7 @@
   import { activeTrail, flattenNav, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
+  import { NAV_ROW, NAV_ROW_REST } from '../internal/layout.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
   import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
 
@@ -85,10 +86,7 @@
    * outside its element, so an outer ring on a row near the edge shows as a
    * stray line or as nothing at all.
    */
-  const ROW =
-    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 ps-inline pe-2 text-sm text-start ` +
-    'transition-colors outline-none ' +
-    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  const ROW = `${TOUCH_GROW} ${NAV_ROW} border-s-2 ps-inline pe-2`;
 
   /**
    * Exactly one border color, one background and one text color per state.
@@ -128,7 +126,7 @@
         'after:bg-brand after:bg-accent-y after:shadow-mark'
       );
     if (state === 'ancestor') return 'border-transparent text-fg hover:bg-surface-2 active:bg-line';
-    return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';
+    return `border-transparent ${NAV_ROW_REST}`;
   }
 
   const ROW_DISABLED = 'cursor-not-allowed border-transparent text-muted opacity-50';

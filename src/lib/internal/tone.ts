@@ -39,6 +39,16 @@ export const TONE_GLYPH: Record<StatusTone, string> = {
   danger: 'M18 6L6 18M6 6l12 12',
 };
 
+/** The tinted fill, text and border of a Badge or a Tag, by tone. */
+export const CHIP_TONE: Record<AccentTone, string> = {
+  neutral: 'bg-surface-2 text-muted border-line',
+  brand: 'bg-brand/10 text-brand border-brand/20',
+  violet: 'bg-violet/10 text-violet border-violet/20',
+  success: 'bg-success/10 text-success border-success/20',
+  warn: 'bg-warn/10 text-warn border-warn/20',
+  danger: 'bg-danger/10 text-danger border-danger/20',
+};
+
 /**
  * A tinted chip that sits on a row which paints its own highlight: a
  * SidebarNav badge, the AccountMenu initials.

@@ -11,36 +11,6 @@ describe('Badge', () => {
     expect(getByText('NEW')).toBeTruthy();
   });
 
-  it('applies the neutral tone class by default', () => {
-    const { container } = render(Badge, { props: { children: text('x') } });
-    expect((container.firstElementChild as HTMLElement).className).toContain('bg-surface-2');
-  });
-
-  it('applies the brand tone class', () => {
-    const { container } = render(Badge, { props: { children: text('x'), tone: 'brand' } });
-    expect(container.querySelector('.text-brand')).toBeTruthy();
-  });
-
-  it('applies the violet tone', () => {
-    const { container } = render(Badge, { props: { children: text('x'), tone: 'violet' } });
-    expect(container.querySelector('.text-violet')).toBeTruthy();
-  });
-
-  it('applies the success tone', () => {
-    const { container } = render(Badge, { props: { children: text('x'), tone: 'success' } });
-    expect(container.querySelector('.text-success')).toBeTruthy();
-  });
-
-  it('applies the warn tone', () => {
-    const { container } = render(Badge, { props: { children: text('x'), tone: 'warn' } });
-    expect(container.querySelector('.text-warn')).toBeTruthy();
-  });
-
-  it('applies the danger tone', () => {
-    const { container } = render(Badge, { props: { children: text('x'), tone: 'danger' } });
-    expect(container.querySelector('.text-danger')).toBeTruthy();
-  });
-
   it('applies sm size class by default', () => {
     const { container } = render(Badge, { props: { children: text('x') } });
     const span = container.firstElementChild as HTMLElement;

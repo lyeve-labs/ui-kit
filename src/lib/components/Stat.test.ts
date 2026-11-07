@@ -21,7 +21,8 @@ describe('Stat', () => {
       props: { label: 'Sales', value: 10, trend: 'up', change: '12%' },
     });
     const el = getByText(/12%/);
-    expect(el.textContent).toContain('↑');
+    expect(el.textContent).toContain('Up');
+    expect(el.querySelector('svg.lucide-arrow-up')?.getAttribute('aria-hidden')).toBe('true');
     expect(el.className).toContain('text-success');
   });
 
@@ -37,7 +38,8 @@ describe('Stat', () => {
       props: { label: 'Bounce', value: 42, trend: 'down', change: '5%' },
     });
     const el = getByText(/5%/);
-    expect(el.textContent).toContain('↓');
+    expect(el.textContent).toContain('Down');
+    expect(el.querySelector('svg.lucide-arrow-down')?.getAttribute('aria-hidden')).toBe('true');
     expect(el.className).toContain('text-danger');
   });
 
@@ -46,7 +48,8 @@ describe('Stat', () => {
       props: { label: 'Stable', value: 0, trend: 'flat', change: '0%' },
     });
     const el = getByText(/0%/);
-    expect(el.textContent).toContain('→');
+    expect(el.textContent).toContain('Unchanged');
+    expect(el.querySelector('svg.lucide-arrow-right')?.getAttribute('aria-hidden')).toBe('true');
     expect(el.className).toContain('text-muted');
   });
 
