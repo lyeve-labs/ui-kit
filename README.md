@@ -166,6 +166,10 @@ setThemePreference('light'); // 'dark', 'light' or 'system', returns the theme a
 getTheme(); // 'dark' | 'light'
 ```
 
+The helpers write `light` or `dark` to the attribute and resolve the `system`
+preference when they run. Only markup names `system`, for a page that runs no
+script.
+
 To keep the first paint in the reader's theme, inline the output of
 `themeBootScript()` from `@lyeve-labs/ui-kit` in the `<head>` of your
 `app.html`, before any stylesheet.
