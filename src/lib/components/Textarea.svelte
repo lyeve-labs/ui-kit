@@ -45,9 +45,8 @@
     error?: string;
     hint?: string;
     /**
-     * Monospace for the control alone: code, JSON, a key. Passing `font-mono`
-     * as a class reached the wrapper, so the label and the hint turned
-     * monospace with it.
+     * Monospace for the control alone: code, JSON, a key. `class` lands on the
+     * wrapper, so it cannot do this.
      */
     mono?: boolean;
     class?: string;

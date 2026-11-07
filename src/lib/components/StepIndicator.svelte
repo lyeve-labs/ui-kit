@@ -5,8 +5,11 @@
   }
 
   interface Props {
+    /** The steps in order. `description` shows under the label. */
     steps: Step[];
-    current: number; // 1-based
+    /** One-based position of the step in progress. Steps before it show a check. */
+    current: number;
+    /** A row across the page or a column down it. */
     orientation?: 'horizontal' | 'vertical';
     /** The list's accessible name. Name each list when a page holds two. */
     label?: string;

@@ -32,11 +32,6 @@
      * aria-label, so an icon-only button names itself to a sighted reader the
      * way it already does to a screen reader. A string replaces those words,
      * and `false` keeps the button silent.
-     *
-     * Thirty-five icon-only actions across one console had a name and no
-     * hint, so a pointer user learned what the trash can did by pressing it.
-     * The hint lives here rather than on each caller because the rule that
-     * makes a row action icon-only is the kit's, and so is the fix.
      */
     hint?: string | false;
     class?: string;
@@ -106,12 +101,10 @@
     primary:
       'bg-brand bg-lift text-ink hover:bg-brand-light active:bg-brand-deep inset-shadow-bevel ' +
       `shadow-raised ${FILLED_EDGE}`,
-    violet:
-      `bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+    violet: `bg-violet text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     secondary:
       'bg-surface-2 text-fg border border-line-strong hover:bg-line active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
-    danger:
-      `bg-danger text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+    danger: `bg-danger text-ink hover:brightness-110 active:brightness-90 inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     ghost: 'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg',
     outline:
       'border border-line-strong text-fg hover:border-brand hover:text-brand active:bg-brand/10',

@@ -1,19 +1,8 @@
 <script lang="ts">
   /**
-   * ConfirmDialog - confirm/cancel pattern with async loading state.
-   *
-   * Renders a warning icon + message + Cancel/Confirm buttons.
-   * The confirm button shows a loading spinner during async actions.
-   *
-   * Usage (from DialogContainer):
-   *   <Dialog {entry}>
-   *     <ConfirmDialog {entry} />
-   *   </Dialog>
-   *
-   * Programmatic usage:
-   *   import { confirm } from '@lyeve-labs/ui-kit';
-   *   const ok = await confirm('Delete this item?', 'This action cannot be undone.');
-   *   if (ok) { await deleteItem(); }
+   * Asks the reader to confirm an action. The confirm button shows a spinner
+   * while `onConfirm` runs. `confirm()` opens it, and Dialog renders it from
+   * the entry's meta.
    */
   import { TriangleAlert } from '@lucide/svelte';
   import { closeDialog, dismissDialog } from './dialog-manager.svelte';
@@ -22,7 +11,7 @@
 
   let {
     entry,
-    /** If provided, called on confirm. Return false/throw to prevent close. */
+    /** Runs when the reader confirms. Return false or throw to keep the dialog open. */
     onConfirm,
   }: {
     entry: DialogEntry<boolean>;

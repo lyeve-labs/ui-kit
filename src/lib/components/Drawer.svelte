@@ -18,11 +18,6 @@
     /**
      * A rung of the shared overlay ladder, or `auto` to take the one the body
      * needs: `md` up to four fields, `lg` past four, `xl` past eight.
-     *
-     * `auto` is the default because the caller was the wrong one to ask. Every
-     * drawer in three consoles asked for the widest rung the kit had, which is
-     * what a ladder that stops too early looks like from the outside, and the
-     * body is the only thing that knows whether it is two fields or twelve.
      */
     size?: Size | 'auto';
     onclose?: () => void;

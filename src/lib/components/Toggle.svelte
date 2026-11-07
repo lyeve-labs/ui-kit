@@ -12,7 +12,9 @@
     onchange,
   }: {
     checked?: boolean;
+    /** The switch's visible label and accessible name. Always pass one. */
     label?: string;
+    /** One sentence under the label on what turning it on does. */
     hint?: string;
     disabled?: boolean;
     size?: 'sm' | 'md';

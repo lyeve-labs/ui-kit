@@ -39,9 +39,8 @@
     id?: string;
     name?: string;
     /**
-     * Monospace for the control alone: a slug, a key, a locale tag. Passing
-     * `font-mono` as a class reached the wrapper, so the label and the hint
-     * turned monospace with it.
+     * Monospace for the control alone: a slug, a key, a locale tag. `class`
+     * lands on the wrapper, so it cannot do this.
      */
     mono?: boolean;
     class?: string;

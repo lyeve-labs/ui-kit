@@ -61,14 +61,7 @@
     section?: string;
     /** Bindable so the app router can close the drawer after a navigation. */
     navOpen?: boolean;
-    /**
-     * Offers a control that puts the sidebar away above md:.
-     *
-     * Opt-in rather than on by default: three products render this shell, and
-     * a new button in every header of all three is a decision each of them
-     * makes for itself. A page that owns the viewport - a canvas, a split pane
-     * - is the case it exists for.
-     */
+    /** Offers a control that puts the sidebar away above md:. */
     collapsible?: boolean;
     /**
      * Whether the sidebar is put away. Desktop only: below md: the sidebar is
@@ -90,13 +83,10 @@
      */
     headerHidden?: boolean;
     /**
-     * Narrows the sidebar to the icon rail at every width above md:.
-     *
-     * The rail is automatic between md: and lg:, where the 224px column left a
-     * 768px window 496px for the page. A page that owns the viewport - a
-     * canvas, a split pane - asks for it at every width with this. The labels
-     * still come back under a pointer or the keyboard. Below md: the sidebar
-     * is the drawer whatever this says.
+     * Narrows the sidebar to the icon rail at every width above md:. The rail
+     * is automatic between md: and lg: either way. The labels still come back
+     * under a pointer or the keyboard, and below md: the sidebar is the drawer
+     * whatever this says.
      */
     rail?: boolean;
     /** The sidebar landmark's accessible name. */

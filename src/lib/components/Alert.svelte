@@ -20,8 +20,11 @@
   const DISMISS_AFTER = 5000;
 
   interface Props {
+    /** The status the message reports, which picks its color and glyph. */
     tone?: StatusToneInput;
+    /** A bold first line above the message. */
     title?: string;
+    /** Draws a close button. `autoDismiss` draws one too. */
     dismissible?: boolean;
     /**
      * Milliseconds before the alert closes itself, or `true` for the default.

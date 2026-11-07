@@ -3,13 +3,16 @@
   import { HIT_AREA_POSITIONED } from '../internal/touch.js';
 
   interface Props {
+    /** The query. Bindable. */
     value?: string;
+    /** The field's label, drawn above it. */
     label?: string;
     placeholder?: string;
     disabled?: boolean;
     id?: string;
     name?: string;
     class?: string;
+    /** Runs on every keystroke and when the clear button empties the field. */
     oninput?: (value: string) => void;
   }
 

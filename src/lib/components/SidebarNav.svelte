@@ -13,8 +13,11 @@
     label?: string;
     /** Icon-only rail. */
     collapsed?: boolean;
+    /** Opens the groups the current page sits in. On by default. */
     expandActive?: boolean;
+    /** Keeps one group open at a time: opening one closes the others. */
     exclusive?: boolean;
+    /** The localStorage key the open groups are remembered under. Without it they reset on reload. */
     storageKey?: string;
     class?: string;
   }

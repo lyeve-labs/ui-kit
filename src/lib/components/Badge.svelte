@@ -7,6 +7,7 @@
   interface Props {
     tone?: AccentTone;
     size?: Size;
+    /** Draws a dot of the badge's tone before the label. */
     dot?: boolean;
     class?: string;
     children: Snippet;

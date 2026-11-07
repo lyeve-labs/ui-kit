@@ -4,6 +4,7 @@
 
   interface Props {
     tone?: AccentTone;
+    /** Adds a ring that pulses outward, for a live or running state. */
     pulse?: boolean;
     size?: Size;
     class?: string;

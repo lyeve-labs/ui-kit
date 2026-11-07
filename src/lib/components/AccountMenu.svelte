@@ -31,10 +31,7 @@
     name: string;
     /** Under it. The email when the name is a name, otherwise a role or a plan. */
     secondary?: string;
-    /**
-     * The avatar's letters. Derived from `name` when absent, which is right far
-     * more often than it is wrong.
-     */
+    /** The avatar's letters. Derived from `name` when absent. */
     initials?: string;
     /** The avatar's accent. Follows the app, not the person. */
     tone?: AccentTone;

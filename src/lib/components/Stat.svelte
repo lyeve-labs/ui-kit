@@ -17,20 +17,20 @@
   interface Props {
     label: string;
     value: string | number;
+    /** A line under the value, such as the period it covers. */
     sub?: string;
+    /** The direction of `change`, which picks its arrow and color. */
     trend?: Trend;
+    /** The difference from the previous period, in the caller's words, such as "+12%". */
     change?: string;
+    /** A decorative color for the value. `tone` wins over it. */
     accent?: Accent;
     /** `sm` for a dense row of figures, `md` for a card of its own. */
     size?: Size;
     /**
-     * The status the figure reports, which colors the value.
-     *
-     * Wins over `accent` when it is set. `accent` is the decorative vocabulary
-     * and has no warn or danger, so a number that is over its quota could only
-     * be stated in prose beside it. Only the canonical spellings are accepted:
-     * the tone vocabulary keeps `info` as an alias for the components that
-     * already shipped it, and this prop never shipped anything to keep working.
+     * The status the figure reports, which colors the value. Wins over
+     * `accent`, which has no warn or danger. Takes `success`, `warn` and
+     * `danger` only.
      */
     tone?: StatusTone;
     /**

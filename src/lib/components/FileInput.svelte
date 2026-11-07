@@ -10,13 +10,16 @@
   interface Props {
     id?: string;
     name?: string;
+    /** The file types to offer, as the input's `accept` attribute. Listed under the prompt in plain words. */
     accept?: string;
+    /** Takes more than one file. */
     multiple?: boolean;
     disabled?: boolean;
     error?: string;
     hint?: string;
     label?: string;
     class?: string;
+    /** Runs with the chosen or dropped files. */
     onchange?: (files: FileList | null) => void;
   }
 

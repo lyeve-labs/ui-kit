@@ -10,6 +10,7 @@
 
   interface Props {
     users: User[];
+    /** How many avatars show. The rest collapse into one "+n" chip. */
     max?: number;
     size?: AvatarSize;
     class?: string;

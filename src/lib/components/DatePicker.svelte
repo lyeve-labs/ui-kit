@@ -27,12 +27,16 @@
     class: cls = '',
     onchange = undefined,
   }: {
+    /** The chosen day as `YYYY-MM-DD`, or the empty string. Bindable. */
     value?: string;
     label?: string;
     hint?: string;
     error?: string;
+    /** Shown on the trigger until a day is chosen. */
     placeholder?: string;
+    /** The earliest day that can be chosen, as `YYYY-MM-DD`. Earlier days are disabled. */
     min?: string;
+    /** The latest day that can be chosen, as `YYYY-MM-DD`. Later days are disabled. */
     max?: string;
     disabled?: boolean;
     required?: boolean;

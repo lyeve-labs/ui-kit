@@ -13,7 +13,9 @@
     class: cls = '',
     onchange,
   }: {
+    /** The tabs in order. `count` draws a number after the label. */
     items: { id: string; label: string; count?: number }[];
+    /** The id of the selected tab. */
     active: string;
     class?: string;
     onchange: (id: string) => void;

@@ -20,8 +20,11 @@
   import { CARD_SURFACE } from '../internal/layout.js';
 
   interface Props {
+    /** Tints every other body row. */
     striped?: boolean;
+    /** Fills the row under the pointer. On by default. */
     hoverable?: boolean;
+    /** Uses the fixed table layout, so columns take the widths the head sets rather than their content's. */
     fixed?: boolean;
     /**
      * Names the scroll box, so a screen reader announces what the region it
@@ -31,25 +34,11 @@
      */
     label?: string;
     /**
-     * What a body cell does with content too wide for its column.
-     *
-     * `wrap` by default, and the default is not `auto`. A table constrained
-     * nothing: one cell holding an unbroken token - an API key, a signed URL,
-     * a base64 payload - has no break opportunity in it, so the auto table
-     * algorithm sizes the column to the whole string and the table grows to
-     * whatever that comes to. One measured page took its container from no
-     * overflow at all to 3,086px of it, and the audit log overran its own
-     * container by 419px at 390px wide.
-     *
-     * `wrap` fixes exactly that and nothing else. It is `overflow-wrap:
-     * anywhere`, which is the one value that shrinks the column's min-content
-     * width, so a paragraph still breaks at its spaces and only a token with
-     * no spaces in it is broken mid-string. Prose in a cell renders as it
-     * always did.
-     *
-     * The default wraps rather than truncates because wrapping is the choice
-     * that cannot lose anything. Truncation hides, and a table that hides is
-     * worse than one that scrolls, so it is opted into.
+     * What a body cell does with content too wide for its column. `wrap` by
+     * default: it breaks a token with no spaces (an API key, a signed URL)
+     * mid-string and leaves prose breaking at its spaces, so no column can
+     * grow the table past its container. `truncate` hides, so it is opted
+     * into.
      */
     cell?: CellFit;
     /**
@@ -253,10 +242,7 @@
      for the reason at FRAME_SURFACE. It paints its own surface rather than
      showing the page through, which the shadow under it needs to read as a
      raised sheet. -->
-<div
-  data-testid="table-frame"
-  class="relative w-full overflow-hidden {FRAME_SURFACE} {cls}"
->
+<div data-testid="table-frame" class="relative w-full overflow-hidden {FRAME_SURFACE} {cls}">
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.

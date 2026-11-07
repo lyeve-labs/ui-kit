@@ -30,7 +30,9 @@
     class: cls = '',
     trigger,
   }: {
+    /** The menu's rows. A `danger` row takes the danger tone, and a disabled row is skipped by the arrows. */
     items: DropdownItem[];
+    /** Which edge of the trigger the menu lines up with. */
     align?: 'left' | 'right';
     class?: string;
     trigger: Snippet<[{ open: boolean; toggle: () => void }]>;

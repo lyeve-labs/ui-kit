@@ -3,12 +3,16 @@
   type Size = 'xs' | 'sm' | 'md';
 
   interface Props {
+    /** How far along, out of `max`. Clamped to the bar. */
     value: number;
+    /** The value that fills the bar. */
     max?: number;
     tone?: AccentTone;
     size?: Size;
     label?: string;
+    /** Shows the percentage beside the label. */
     showValue?: boolean;
+    /** Pulses the fill, for a value that is still moving. */
     animated?: boolean;
     class?: string;
   }

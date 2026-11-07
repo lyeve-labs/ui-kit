@@ -12,8 +12,11 @@
 
   interface Props {
     value?: number;
+    /** The lowest value. The decrease button is disabled at it. */
     min?: number;
+    /** The highest value. The increase button is disabled at it. */
     max?: number;
+    /** How far each button moves the value. */
     step?: number;
     disabled?: boolean;
     required?: boolean;

@@ -5,7 +5,9 @@
   interface Props {
     label: string;
     tone?: AccentTone;
+    /** Draws a remove button named "Remove <label>". */
     removable?: boolean;
+    /** Runs when the remove button is pressed. */
     onremove?: () => void;
     class?: string;
   }

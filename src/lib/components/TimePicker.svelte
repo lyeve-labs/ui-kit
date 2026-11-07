@@ -48,6 +48,7 @@
   type DigitSegment = Exclude<TimeSegment, 'meridiem'>;
 
   interface Props {
+    /** The time as 24-hour `HH:MM`, or `HH:MM:SS` with `seconds`, or the empty string. Bindable. */
     value?: string;
     id?: string;
     name?: string;
@@ -60,7 +61,9 @@
     hour12?: boolean;
     /** Minute and second step. Arrow keys move by this. */
     step?: number;
+    /** The earliest time, in the `value` format. An earlier entry is moved up to it. */
     min?: string;
+    /** The latest time, in the `value` format. A later entry is moved down to it. */
     max?: string;
     required?: boolean;
     disabled?: boolean;

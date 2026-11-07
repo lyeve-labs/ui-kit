@@ -16,9 +16,8 @@
     /** 2 under a page title, 3 inside a card. The element, not the treatment. */
     level?: 2 | 3;
     /**
-     * `eyebrow` is the small uppercase label the consoles head a band with. It
-     * is separate from the level because an eyebrow appears at both, and it was
-     * unnamed here while thirty of them shipped hand rolled across two apps.
+     * `eyebrow` is the small uppercase label above a band. It is separate from
+     * `level` because an eyebrow appears at both.
      */
     variant?: SectionVariant;
     actions?: Snippet;

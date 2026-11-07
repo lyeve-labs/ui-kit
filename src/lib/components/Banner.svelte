@@ -12,7 +12,9 @@
   const DISMISS_AFTER = 5000;
 
   interface Props {
+    /** The status the message reports, which picks its color. */
     tone?: StatusToneInput;
+    /** Draws a close button. `autoDismiss` draws one too. */
     dismissible?: boolean;
     /**
      * Milliseconds before the banner closes itself, or `true` for the default.
@@ -34,6 +36,7 @@
     ondismiss?: () => void;
     class?: string;
     children: Snippet;
+    /** A control at the end of the banner, such as a button that fixes the condition. */
     action?: Snippet;
   }
 
