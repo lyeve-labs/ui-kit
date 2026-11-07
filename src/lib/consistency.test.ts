@@ -16,19 +16,27 @@ import { ICON_LADDER, type IconPx } from './internal/icon.js';
  */
 
 const COMPONENTS = join(__dirname, 'components');
+const INTERNAL = join(__dirname, 'internal');
 
+/**
+ * Every component, and every internal piece of markup the components render,
+ * so moving a header or a glyph into internal/ does not move it out from
+ * under these checks. An internal file is named `internal/<name>`.
+ */
 function componentFiles(): { name: string; path: string; src: string }[] {
   const walk = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)],
     );
-  return walk(COMPONENTS)
-    .filter((p) => p.endsWith('.svelte'))
-    .map((path) => ({
-      name: path.slice(COMPONENTS.length + 1).replace(/\.svelte$/, ''),
-      path,
-      src: readFileSync(path, 'utf8'),
-    }));
+  const read = (root: string, prefix: string) =>
+    walk(root)
+      .filter((p) => p.endsWith('.svelte'))
+      .map((path) => ({
+        name: prefix + path.slice(root.length + 1).replace(/\.svelte$/, ''),
+        path,
+        src: readFileSync(path, 'utf8'),
+      }));
+  return [...read(COMPONENTS, ''), ...read(INTERNAL, 'internal/')];
 }
 
 const files = componentFiles();
@@ -485,8 +493,9 @@ describe('component consistency', () => {
   );
 
   it('lets the consumer position anything that is not a portalled overlay', () => {
+    // An internal piece is placed by the component that renders it, never by a consumer.
     const offenders = files
-      .filter((f) => !PORTALLED.includes(f.name))
+      .filter((f) => !PORTALLED.includes(f.name) && !f.name.startsWith('internal/'))
       .filter((f) => !/class:\s*(klass|cls)\b/.test(f.src))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
@@ -512,8 +521,11 @@ describe('component consistency', () => {
     // container with overflow-hidden crops it. On the accordion that showed as
     // a stray colored line under the open header: three edges clipped, one
     // left. A component that clips must draw its focus ring inset instead.
+    // A scrim button with tabindex="-1" never takes focus, so it has no ring to clip.
     const offenders = files
-      .filter((f) => f.src.includes('overflow-hidden') && f.src.includes('<button'))
+      .filter(
+        (f) => f.src.includes('overflow-hidden') && /<button(?![^>]*tabindex="-1")/.test(f.src),
+      )
       .filter((f) => !f.src.includes('focus-visible:ring-inset'))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
