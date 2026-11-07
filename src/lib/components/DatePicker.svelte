@@ -4,7 +4,12 @@
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { HIT_AREA } from '../internal/touch.js';
   import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
-  import { PANEL_LIST_UNCAPPED, PANEL_SURFACE, placePanel } from '../internal/panel.js';
+  import {
+    PANEL_LIST_UNCAPPED,
+    PANEL_SURFACE,
+    dismissOnOutside,
+    placePanel,
+  } from '../internal/panel.js';
   import * as motion from '../motion.js';
   import {
     addMonths,
@@ -77,7 +82,6 @@
   const calendarId = $derived(`${fieldId}-calendar`);
 
   let open = $state(false);
-  let containerEl: HTMLDivElement | undefined = $state();
 
   const today = todayLocal();
   const todayISO = toISODate(today);
@@ -122,26 +126,13 @@
     if (p) view = { ...p, d: 1 };
     open = true;
   }
-
-  function handleOutside(e: MouseEvent) {
-    if (containerEl && !containerEl.contains(e.target as Node)) open = false;
-  }
-  function handleKey(e: KeyboardEvent) {
-    if (e.key === 'Escape') open = false;
-  }
-  $effect(() => {
-    if (open) {
-      document.addEventListener('click', handleOutside, { capture: true });
-      document.addEventListener('keydown', handleKey);
-    }
-    return () => {
-      document.removeEventListener('click', handleOutside, { capture: true });
-      document.removeEventListener('keydown', handleKey);
-    };
-  });
 </script>
 
-<div data-field class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
+<div
+  data-field
+  class="{FIELD_WRAP} {cls}"
+  use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: () => (open = false) }}
+>
   {#if label}
     <FieldLabel for={fieldId} text={label} {required} />
   {/if}

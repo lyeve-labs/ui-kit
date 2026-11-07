@@ -365,3 +365,59 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     },
   };
 }
+
+export interface DismissOptions {
+  /** Listens only while this is true, so a closed menu costs the document nothing. */
+  open: boolean;
+  /** A press that starts outside the node. */
+  onoutside: () => void;
+  /** Escape, wherever focus is. */
+  onescape: () => void;
+}
+
+/**
+ * Closes a menu or a popover on a press outside it and on Escape.
+ *
+ * pointerdown rather than click, as the listboxes do: a press that starts
+ * outside has already closed the panel by the time the click lands, so the
+ * click reaches what the reader aimed at, and every kind of menu closes on the
+ * same event.
+ */
+export function dismissOnOutside(
+  node: HTMLElement,
+  options: DismissOptions,
+): { update(next: DismissOptions): void; destroy(): void } {
+  let current = options;
+  let listening = false;
+
+  function press(event: PointerEvent): void {
+    if (!node.contains(event.target as Node)) current.onoutside();
+  }
+  function key(event: KeyboardEvent): void {
+    if (event.key === 'Escape') current.onescape();
+  }
+  function sync(): void {
+    const want = current.open && typeof document !== 'undefined';
+    if (want === listening) return;
+    if (want) {
+      document.addEventListener('pointerdown', press, true);
+      document.addEventListener('keydown', key);
+    } else {
+      document.removeEventListener('pointerdown', press, true);
+      document.removeEventListener('keydown', key);
+    }
+    listening = want;
+  }
+
+  sync();
+  return {
+    update(next) {
+      current = next;
+      sync();
+    },
+    destroy() {
+      current = { ...current, open: false };
+      sync();
+    },
+  };
+}

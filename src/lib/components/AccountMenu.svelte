@@ -25,6 +25,7 @@
   import { TOUCH_GROW } from '../internal/touch.js';
   import { ChevronDown } from '@lucide/svelte';
   import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
+  import { dismissOnOutside } from '../internal/panel.js';
 
   interface Props {
     /** The line people recognize themselves by: a display name, or the email. */
@@ -71,34 +72,26 @@
   };
 
   let root = $state<HTMLDetailsElement | null>(null);
+  let open = $state(false);
 
-  /**
-   * A `details` closes on its own summary and on nothing else, so without this
-   * the panel stays open behind whatever the reader does next. Escape and an
-   * outside click are both what a menu owes. They are enhancement, and the
-   * disclosure still works without either.
+  /*
+   * A `details` closes on its own summary and on nothing else, so without the
+   * dismissal below the panel stays open behind whatever the reader does next.
+   * Escape and an outside press are both what a menu owes. They are
+   * enhancement, and the disclosure still works without either.
    */
-  $effect(() => {
-    function onPointerDown(event: MouseEvent) {
-      if (!root?.open) return;
-      if (root.contains(event.target as Node)) return;
-      root.open = false;
-    }
-    function onKeydown(event: KeyboardEvent) {
-      if (event.key !== 'Escape' || !root?.open) return;
-      root.open = false;
-      root.querySelector('summary')?.focus();
-    }
-    document.addEventListener('click', onPointerDown, { capture: true });
-    document.addEventListener('keydown', onKeydown);
-    return () => {
-      document.removeEventListener('click', onPointerDown, { capture: true });
-      document.removeEventListener('keydown', onKeydown);
-    };
-  });
+  function closeAndReturn(): void {
+    open = false;
+    root?.querySelector('summary')?.focus();
+  }
 </script>
 
-<details bind:this={root} class="group relative {klass}">
+<details
+  bind:this={root}
+  bind:open
+  use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: closeAndReturn }}
+  class="group relative {klass}"
+>
   <!-- The name beside the avatar is hidden below sm, and the avatar is paint,
        so the trigger carries its name itself. While the panel is open the
        trigger keeps its hover fill, so the panel reads as coming from it. -->

@@ -221,7 +221,7 @@ describe('the menu keyboard contract', () => {
     const outside = document.createElement('button');
     document.body.append(outside);
     try {
-      await fireEvent.click(outside);
+      await fireEvent.pointerDown(outside);
       expect(container.querySelector('[role="menu"]')).toBeNull();
       expect(document.activeElement).not.toBe(container.querySelector('button'));
     } finally {

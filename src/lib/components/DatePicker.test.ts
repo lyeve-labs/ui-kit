@@ -33,6 +33,16 @@ describe('DatePicker', () => {
     }
   });
 
+  it('closes the calendar on a press outside it and on Escape', async () => {
+    const { getByRole, queryByRole } = render(DatePicker, { props: { value: '2024-06-15' } });
+    await fireEvent.click(getByRole('combobox'));
+    await fireEvent.pointerDown(document.body);
+    expect(queryByRole('dialog')).toBeNull();
+    await fireEvent.click(getByRole('combobox'));
+    await fireEvent.keyDown(document, { key: 'Escape' });
+    expect(queryByRole('dialog')).toBeNull();
+  });
+
   it('disables the days outside min and max and keeps the bounds themselves', async () => {
     const { getByRole } = render(DatePicker, {
       props: { value: '2024-06-15', min: '2024-06-10', max: '2024-06-20' },

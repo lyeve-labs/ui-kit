@@ -13,7 +13,7 @@
    */
   import type { Component, Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
-  import { PANEL_LIST, PANEL_SURFACE, placePanel } from '../internal/panel.js';
+  import { PANEL_LIST, PANEL_SURFACE, dismissOnOutside, placePanel } from '../internal/panel.js';
   import * as motion from '../motion.js';
 
   interface DropdownItem {
@@ -137,19 +137,12 @@
     item.onclick();
   }
 
-  function handleOutsideClick(e: MouseEvent) {
-    // No focus is returned here. The pointer has already chosen where to go.
-    if (containerEl && !containerEl.contains(e.target as Node)) closeMenu();
-  }
-
-  /**
-   * The last resort for Escape, for the case where focus has left the menu
-   * without closing it. The handler below consumes the key whenever focus is
-   * still inside, so the two never both fire.
+  /*
+   * An outside press returns no focus: the pointer has already chosen where to
+   * go. The document's Escape is the last resort, for the case where focus has
+   * left the menu without closing it. The handler below consumes the key
+   * whenever focus is still inside, so the two never both fire.
    */
-  function handleDocumentKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') closeAndReturn();
-  }
 
   function onKeydown(event: KeyboardEvent) {
     if (!open) {
@@ -221,17 +214,6 @@
     };
   }
 
-  $effect(() => {
-    if (open) {
-      document.addEventListener('click', handleOutsideClick, { capture: true });
-      document.addEventListener('keydown', handleDocumentKeydown);
-    }
-    return () => {
-      document.removeEventListener('click', handleOutsideClick, { capture: true });
-      document.removeEventListener('keydown', handleDocumentKeydown);
-    };
-  });
-
   /*
    * Roving focus, as real focus rather than as aria-activedescendant: the rows
    * are buttons the user activates with Enter and Space, and a button that is
@@ -243,7 +225,12 @@
   });
 </script>
 
-<div bind:this={containerEl} use:keys class="relative inline-block {cls}">
+<div
+  bind:this={containerEl}
+  use:keys
+  use:dismissOnOutside={{ open, onoutside: closeMenu, onescape: closeAndReturn }}
+  class="relative inline-block {cls}"
+>
   {@render trigger({ open, toggle })}
 
   {#if open}
