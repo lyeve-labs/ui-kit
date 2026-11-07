@@ -428,8 +428,7 @@
 
       {#if count === 0}
         <p class="py-6 text-center text-sm text-muted">
-          No capabilities picked yet. Without any, you stay on the free tier, which needs no
-          checkout.
+          No capabilities picked yet. With none, you stay on the free tier.
         </p>
       {:else}
         <ul class="mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
@@ -446,7 +445,7 @@
                   variant="ghost"
                   size="sm"
                   onclick={() => toggle(sku)}
-                  aria-label={`Take ${p?.name ?? sku} out of your selection`}
+                  aria-label={`Remove ${p?.name ?? sku}`}
                 >
                   <X size={12} />
                 </Button>
@@ -507,7 +506,7 @@
                 <Spinner size={14} />
                 Pricing your selection
               {:else}
-                Waiting for a price.
+                Waiting for a price
               {/if}
             </p>
           {:else}

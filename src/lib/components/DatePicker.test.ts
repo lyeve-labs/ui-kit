@@ -116,7 +116,7 @@ describe('DatePicker trigger wiring', () => {
     expect(queryByRole('dialog')).toBeNull();
 
     await fireEvent.click(trigger);
-    const calendar = getByRole('dialog', { name: 'Choose date' });
+    const calendar = getByRole('dialog', { name: 'Choose a date' });
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(trigger.getAttribute('aria-controls')).toBe(calendar.id);
   });
@@ -154,7 +154,7 @@ describe('DatePicker: calendar placement', () => {
     const { getByRole, trigger } = mountIn([0, 800], [100, 140]);
     await fireEvent.click(trigger);
 
-    const surface = getByRole('dialog', { name: 'Choose date' });
+    const surface = getByRole('dialog', { name: 'Choose a date' });
     expect(surface.className).toMatch(/\btop-full\b|\bbottom-full\b/);
     expect(surface.className).not.toMatch(/\btop-full\b.*\bbottom-full\b/);
     const region = surface.querySelector('[data-panel-list]') as HTMLElement;
@@ -166,7 +166,7 @@ describe('DatePicker: calendar placement', () => {
     const { getByRole, trigger } = mountIn([100, 500], [400, 440]);
     await fireEvent.click(trigger);
 
-    const surface = getByRole('dialog', { name: 'Choose date' });
+    const surface = getByRole('dialog', { name: 'Choose a date' });
     expect(surface.className).toContain('bottom-full');
     expect(surface.className).not.toContain('top-full');
     // 400 - 100 - 8, the room alone: the list token is shorter than six weeks
@@ -179,7 +179,7 @@ describe('DatePicker: calendar placement', () => {
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(290);
     const { getByRole, trigger, anchor, clip } = mountIn([100, 500], [400, 440]);
     await fireEvent.click(trigger);
-    const surface = getByRole('dialog', { name: 'Choose date' });
+    const surface = getByRole('dialog', { name: 'Choose a date' });
     expect(surface.className).toContain('bottom-full');
 
     anchor.getBoundingClientRect = () => rect(120, 160);

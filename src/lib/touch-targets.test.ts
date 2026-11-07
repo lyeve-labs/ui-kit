@@ -533,7 +533,7 @@ describe('the small controls keep their visual and grow their hit box', () => {
     // The steppers narrow under a finger and keep a 44px target, so the number
     // between them keeps its room. A mouse still sees the control-wide caps.
     const { getByLabelText } = render(NumberInput, { props: { label: 'Seats', value: 3 } });
-    for (const name of ['Decrease', 'Increase']) {
+    for (const name of ['Decrease seats', 'Increase seats']) {
       const stepper = getByLabelText(name);
       expectHitArea(stepper);
       expect(classes(stepper)).toContain('coarse:w-8');
@@ -547,7 +547,10 @@ describe('the small controls keep their visual and grow their hit box', () => {
     // Each box is pinned to the edge the stepper shares with the number and
     // grows outward. Logical sides, so a right-to-left page mirrors it.
     const { getByLabelText } = render(NumberInput, { props: { label: 'Seats', value: 3 } });
-    const pinned = { Decrease: ['start-auto', 'end-0'], Increase: ['start-0', 'end-auto'] };
+    const pinned = {
+      'Decrease seats': ['start-auto', 'end-0'],
+      'Increase seats': ['start-0', 'end-auto'],
+    };
     for (const [name, sides] of Object.entries(pinned)) {
       const list = classes(getByLabelText(name));
       for (const side of sides) expect(list).toContain(`coarse:before:${side}`);
@@ -586,7 +589,7 @@ describe('the small controls keep their visual and grow their hit box', () => {
     const { getByLabelText } = render(Autocomplete, {
       props: { label: 'Find', value: 'a', options: [{ value: 'a', label: 'Alpha' }] },
     });
-    expectHitArea(getByLabelText('Clear'), 'absolute');
+    expectHitArea(getByLabelText('Clear find'), 'absolute');
   });
 
   it("a Modal's close cross", () => {

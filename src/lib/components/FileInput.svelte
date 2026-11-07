@@ -95,8 +95,10 @@
       <line x1="12" y1="3" x2="12" y2="15" />
     </svg>
     <div class="text-sm">
-      <span class="{error ? 'text-danger' : 'text-brand'} font-medium">Click to upload</span>
-      <span class="text-muted"> or drag & drop</span>
+      <span class="{error ? 'text-danger' : 'text-brand'} font-medium"
+        >{multiple ? 'Choose files' : 'Choose a file'}</span
+      >
+      <span class="text-muted">{multiple ? ' or drop them here' : ' or drop it here'}</span>
       {#if types}<p class="mt-0.5 text-xs text-faint [overflow-wrap:anywhere]">{types}</p>{/if}
     </div>
     <input

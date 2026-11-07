@@ -8,6 +8,7 @@
     describedBy,
   } from '../internal/field.js';
   import { HIT_AREA } from '../internal/touch.js';
+  import { inSentence } from '../internal/words.js';
 
   interface Props {
     value?: number;
@@ -102,7 +103,7 @@
       type="button"
       onclick={dec}
       disabled={!canDec}
-      aria-label="Decrease"
+      aria-label={label ? `Decrease ${inSentence(label)}` : 'Decrease'}
       class="{step_} rounded-s-lg border border-e-0 coarse:before:start-auto coarse:before:end-0"
     >
       <svg
@@ -146,7 +147,7 @@
       type="button"
       onclick={inc}
       disabled={!canInc}
-      aria-label="Increase"
+      aria-label={label ? `Increase ${inSentence(label)}` : 'Increase'}
       class="{step_} rounded-e-lg border border-s-0 coarse:before:start-0 coarse:before:end-auto"
     >
       <svg

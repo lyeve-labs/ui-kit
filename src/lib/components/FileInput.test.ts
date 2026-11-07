@@ -29,7 +29,7 @@ describe('FileInput', () => {
 
   it('renders the upload prompt', () => {
     const { getByText } = render(FileInput, { props: {} });
-    expect(getByText('Click to upload')).toBeTruthy();
+    expect(getByText('Choose a file')).toBeTruthy();
   });
 
   it('renders a label and the accepted types', () => {

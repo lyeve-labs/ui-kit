@@ -37,6 +37,11 @@ describe('MultiSelect', () => {
     expect(getByText('Choose tags')).toBeTruthy();
   });
 
+  it('states the empty value when no placeholder is passed', () => {
+    const { getByText } = render(MultiSelect, { props: { options, value: [] } });
+    expect(getByText('None selected')).toBeTruthy();
+  });
+
   it('opens the option list when the trigger is clicked', async () => {
     const { container, getAllByRole } = render(MultiSelect, { props: { options, value: [] } });
     await fireEvent.click(trigger(container));

@@ -16,7 +16,7 @@
   let {
     value = $bindable(''),
     label = undefined,
-    placeholder = 'Search…',
+    placeholder = 'Search',
     disabled = false,
     id = undefined,
     name = undefined,

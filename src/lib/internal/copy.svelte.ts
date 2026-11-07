@@ -13,7 +13,15 @@ export type CopyStatus = 'idle' | 'copied' | 'failed';
 /** How long the confirmation holds before the control returns to rest. */
 export const COPY_REVERT_MS = 1500;
 
-export const COPY_FAILED_MESSAGE = 'Copy failed';
+/** A refused copy, where the value may not be on screen to copy by hand. */
+export const COPY_FAILED_MESSAGE = 'Could not copy. Try again.';
+
+/** A refused copy from a field whose value is on screen. */
+export const COPY_FAILED_VISIBLE = 'Could not copy. Select the value and copy it yourself.';
+
+/** A refused copy from a masked field, which the browser will not copy from either. */
+export const COPY_FAILED_MASKED =
+  'Could not copy. Show the value, then select it and copy it yourself.';
 
 /**
  * Writes to the clipboard and says whether it worked.

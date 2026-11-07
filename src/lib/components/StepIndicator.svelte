@@ -8,14 +8,22 @@
     steps: Step[];
     current: number; // 1-based
     orientation?: 'horizontal' | 'vertical';
+    /** The list's accessible name. Name each list when a page holds two. */
+    label?: string;
     class?: string;
   }
 
-  let { steps, current, orientation = 'horizontal', class: cls = '' }: Props = $props();
+  let {
+    steps,
+    current,
+    orientation = 'horizontal',
+    label = 'Progress',
+    class: cls = '',
+  }: Props = $props();
 </script>
 
 {#if orientation === 'horizontal'}
-  <nav aria-label="Progress" class="w-full {cls}">
+  <nav aria-label={label} class="w-full {cls}">
     <ol class="flex items-start">
       {#each steps as step, i}
         {@const idx = i + 1}
@@ -85,7 +93,7 @@
     </ol>
   </nav>
 {:else}
-  <nav aria-label="Progress" class={cls}>
+  <nav aria-label={label} class={cls}>
     <ol class="flex flex-col">
       {#each steps as step, i}
         {@const idx = i + 1}

@@ -50,6 +50,7 @@
     placePanel,
   } from '../internal/panel.js';
   import { HIT_AREA_POSITIONED } from '../internal/touch.js';
+  import { inSentence } from '../internal/words.js';
   import * as motion from '../motion.js';
 
   interface Props {
@@ -81,7 +82,7 @@
     label = undefined,
     hint = undefined,
     error = undefined,
-    placeholder = 'Type to search…',
+    placeholder = 'Search',
     disabled = false,
     required = false,
     id = undefined,
@@ -222,7 +223,7 @@
       -->
       <button
         type="button"
-        aria-label="Clear"
+        aria-label={label ? `Clear ${inSentence(label)}` : 'Clear'}
         onclick={clear}
         class="{HIT_AREA_POSITIONED} absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors hover:text-fg"
       >

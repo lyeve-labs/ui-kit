@@ -18,7 +18,7 @@
     label = undefined,
     hint = undefined,
     error = undefined,
-    placeholder = 'Select a date',
+    placeholder = 'Choose a date',
     min = undefined,
     max = undefined,
     disabled = false,
@@ -262,7 +262,7 @@
       <div
         id={calendarId}
         role="dialog"
-        aria-label="Choose date"
+        aria-label="Choose a date"
         use:placePanel
         transition:motion.popover|global
         class="{PANEL_SURFACE} w-68 min-w-65.5 coarse:w-80 coarse:min-w-62.5"

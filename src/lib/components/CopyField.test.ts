@@ -73,10 +73,30 @@ describe('CopyField', () => {
     await fireEvent.click(getByRole('button'));
     await settle();
     const status = container.querySelector('[aria-live]') as HTMLElement;
-    expect(status.textContent?.trim()).toBe('Copy failed');
+    expect(status.textContent?.trim()).toBe(
+      'Could not copy. Select the value and copy it yourself.',
+    );
     expect(status.className).toContain('text-danger');
     expect(glyph(container)).toBe('idle');
     expect(getByLabelText('Key').getAttribute('aria-describedby')).toBe(status.id);
+  });
+
+  it('asks for the value to be shown first when a masked copy is refused', async () => {
+    stubClipboard(vi.fn().mockRejectedValue(new Error('Document is not focused')));
+    const { getByRole, container } = render(CopyField, {
+      props: { value: 'abc', label: 'Key', secret: true },
+    });
+    await fireEvent.click(getByRole('button', { name: 'Copy key' }));
+    await settle();
+    const status = container.querySelector('[aria-live]') as HTMLElement;
+    expect(status.textContent?.trim()).toBe(
+      'Could not copy. Show the value, then select it and copy it yourself.',
+    );
+
+    await fireEvent.click(getByRole('button', { name: 'Show value' }));
+    expect(status.textContent?.trim()).toBe(
+      'Could not copy. Select the value and copy it yourself.',
+    );
   });
 
   it('selects the whole value on focus', async () => {
@@ -197,7 +217,7 @@ describe('CopyField wrap', () => {
     const { getByRole } = render(CopyField, {
       props: { value: KEY, label: 'API key', wrap: true },
     });
-    await fireEvent.click(getByRole('button', { name: 'Copy api key' }));
+    await fireEvent.click(getByRole('button', { name: 'Copy API key' }));
     await settle();
     expect(writeText).toHaveBeenCalledWith(KEY);
   });

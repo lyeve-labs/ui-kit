@@ -167,9 +167,9 @@ describe('AppShell', () => {
     const { container, getByLabelText } = render(AppShell, {
       props: { ...base, collapsible: true },
     });
-    await fireEvent.click(getByLabelText('Hide sidebar'));
+    await fireEvent.click(getByLabelText('Collapse navigation'));
     expect(container.querySelector('aside')).toBeNull();
-    expect(getByLabelText('Show sidebar').getAttribute('aria-expanded')).toBe('false');
+    expect(getByLabelText('Expand navigation').getAttribute('aria-expanded')).toBe('false');
   });
 
   it('puts the header away above md: when asked, and the page keeps the way back', () => {

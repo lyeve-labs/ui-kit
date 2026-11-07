@@ -56,7 +56,7 @@
     label = undefined,
     hint = undefined,
     error = undefined,
-    placeholder = 'Select…',
+    placeholder = 'None selected',
     searchable = true,
     disabled = false,
     required = false,

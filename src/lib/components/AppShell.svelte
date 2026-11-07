@@ -344,7 +344,7 @@
               type="button"
               data-testid="app-sidebar-toggle"
               class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-              aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+              aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
               aria-expanded={!collapsed}
               onclick={() => (collapsed = !collapsed)}
             >
