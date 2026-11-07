@@ -121,6 +121,10 @@ export const PANEL_OPTION_DISABLED = 'pointer-events-none opacity-40';
  */
 export const PANEL_EMPTY = 'px-2 py-2 text-sm text-faint';
 
+/** The search box at the top of a Select or MultiSelect panel. */
+export const PANEL_SEARCH =
+  'w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35';
+
 /**
  * A group heading inside the list. Not focusable, so it takes no row classes,
  * only the row's horizontal padding so it lines up with the labels below it.

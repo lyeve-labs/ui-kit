@@ -73,7 +73,7 @@ export type { ChoiceOption } from './components/CheckboxGroup.svelte';
 export type { SelectOption } from './components/Select.svelte';
 // One shape for both filtered lists: MultiSelect takes the same option array
 // Autocomplete does, so a consumer types it once.
-export type { ListOption } from './components/Autocomplete.svelte';
+export type { ListOption } from './internal/listbox.svelte.js';
 // A caller supplying its own matcher needs the shape the kit hands it. The
 // module stays internal. Only the types a consumer must spell are public.
 export type { FilterFn, FilterInput, FilterContext } from './internal/filter.js';

@@ -36,6 +36,15 @@ export interface ListboxItem {
   disabled?: boolean;
 }
 
+/** One row of a filterable option list, as Autocomplete and MultiSelect take it. */
+export interface ListOption extends ListboxItem {
+  /**
+   * Extra words the default matcher searches alongside the label, so an option
+   * a reader knows by a code or a synonym can be found by typing it.
+   */
+  keywords?: readonly string[];
+}
+
 /**
  * Why the list closed. A consumer that resets a search query on dismissal but
  * keeps it on a pick needs to tell the two apart, and the four controls each

@@ -26,6 +26,7 @@
 </script>
 
 <script lang="ts">
+  import { ChevronDown } from '@lucide/svelte';
   /**
    * A select: a listbox the kit draws, never the browser's own.
    *
@@ -62,6 +63,7 @@
     PANEL_LIST,
     PANEL_SURFACE,
     panelOption,
+    PANEL_SEARCH,
     placePanel,
   } from '../internal/panel.js';
   import * as motion from '../motion.js';
@@ -216,21 +218,13 @@
     class="pointer-events-none absolute end-2.5 top-1/2 -translate-y-1/2 text-faint"
     aria-hidden="true"
   >
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
+    <ChevronDown
+      size={12}
+      absoluteStrokeWidth
+      strokeWidth={1.5}
       class="transition-transform duration-base {open ? 'rotate-180' : ''}"
-    >
-      <path
-        d="M2 4l4 4 4-4"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+      aria-hidden="true"
+    />
   </span>
 {/snippet}
 
@@ -368,9 +362,7 @@
               placeholder="Search"
               aria-label={label ? `Search ${label}` : 'Search options'}
               {...box.triggerAttrs}
-              class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
-                  text-sm text-fg outline-none transition-colors
-                  placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35"
+              class={PANEL_SEARCH}
             />
           </div>
         {/if}

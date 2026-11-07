@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
   import { CONTROL_BASE, FIELD_LABEL, FIELD_WRAP, controlBorder } from '../internal/field.js';
   import { HIT_AREA_POSITIONED } from '../internal/touch.js';
 
@@ -96,18 +97,7 @@
         class="{HIT_AREA_POSITIONED} absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint
           transition-colors hover:text-fg"
       >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
+        <X size={14} aria-hidden="true" />
       </button>
     {/if}
   </div>

@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import type { FilterFn } from '../internal/filter.js';
-import Autocomplete, { type ListOption } from './Autocomplete.svelte';
+import Autocomplete from './Autocomplete.svelte';
+import type { ListOption } from '../internal/listbox.svelte.js';
 
 const options = [
   { value: 'a', label: 'Alpha' },

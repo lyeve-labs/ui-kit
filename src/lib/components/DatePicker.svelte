@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { HIT_AREA } from '../internal/touch.js';
   import {
     CONTROL_BASE,
@@ -252,15 +253,7 @@
               onclick={prevMonth}
               class="{HIT_AREA} p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
-                ><path
-                  d="M7.5 2L4 6l3.5 4"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                /></svg
-              >
+              <ChevronLeft size={14} absoluteStrokeWidth strokeWidth={1.75} aria-hidden="true" />
             </button>
             <span class="text-sm font-medium text-fg">{MONTHS[view.m - 1]} {view.y}</span>
             <button
@@ -269,15 +262,7 @@
               onclick={nextMonth}
               class="{HIT_AREA} p-1.5 rounded-md text-muted hover:bg-surface-2 hover:text-fg transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none"
-                ><path
-                  d="M4.5 2L8 6l-3.5 4"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                /></svg
-              >
+              <ChevronRight size={14} absoluteStrokeWidth strokeWidth={1.75} aria-hidden="true" />
             </button>
           </div>
 

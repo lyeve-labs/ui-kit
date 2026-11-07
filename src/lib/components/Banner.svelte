@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
   import { statusTone, type StatusTone, type StatusToneInput } from '../internal/tone.js';
   import { createNotice } from '../internal/notice.svelte.js';
   import { HIT_AREA } from '../internal/touch.js';
@@ -95,16 +96,7 @@
         aria-label="Close"
         class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg
-        >
+        <X size={16} aria-hidden="true" />
       </button>
     {/if}
   </div>

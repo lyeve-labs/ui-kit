@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
   import type { Snippet } from 'svelte';
   import { HIT_AREA } from '../internal/touch.js';
   import * as motion from '../motion.js';
@@ -94,16 +95,7 @@
         class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
         aria-label="Close"
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg
-        >
+        <X size={16} aria-hidden="true" />
       </button>
     {/if}
   </div>

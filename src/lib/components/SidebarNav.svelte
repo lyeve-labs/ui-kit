@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronRight } from '@lucide/svelte';
   import { activeTrail, flattenNav, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
@@ -309,18 +310,9 @@
 {#snippet chevron(open: boolean)}
   <!-- Stroked SVG, not a Unicode arrow: a glyph lands at whatever weight the
        reader's font gives it, visibly apart from every other icon here. -->
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
+  <ChevronRight
+    size={14}
     class="shrink-0 transition-transform duration-base {open ? 'rotate-90' : 'rtl:rotate-180'}"
-  >
-    <path d="M9 18l6-6-6-6" />
-  </svg>
+    aria-hidden="true"
+  />
 {/snippet}
