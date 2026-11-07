@@ -2,22 +2,9 @@
   import type { Snippet } from 'svelte';
   import { HIT_AREA } from '../internal/touch.js';
   import * as motion from '../motion.js';
-  import {
-    TONE_GLYPH,
-    statusTone,
-    type StatusTone,
-    type StatusToneInput,
-  } from '../internal/tone.js';
-
-  /**
-   * How long a confirmation holds before it clears itself.
-   *
-   * A toast waits 4000ms. This waits longer because it carries more: a toast is
-   * one line floating over the page, and an alert is a title and a sentence
-   * sitting in the reading order, which takes a beat to find and a beat to
-   * read.
-   */
-  const DISMISS_AFTER = 5000;
+  import { statusTone, type StatusTone, type StatusToneInput } from '../internal/tone.js';
+  import { createNotice } from '../internal/notice.svelte.js';
+  import ToneGlyph from '../internal/ToneGlyph.svelte';
 
   interface Props {
     /** The status the message reports, which picks its color and glyph. */
@@ -70,101 +57,29 @@
 
   const t = $derived(statusTone(tone));
 
-  /**
-   * A failure and a warning interrupt, because the reader has to act. Anything
-   * else waits for a pause. FormMessage already splits them this way. Alert
-   * announced every tone assertively, so a green confirmation cut across
-   * whatever was being read. An alert that also clears itself must not be
-   * assertive: it would interrupt to say something and then take it away.
-   * The polite branch takes no role: browsers expose role="status" as a status
-   * bar, and Orca speaks nothing inserted into one.
-   */
-  const delay = $derived(autoDismiss === true ? DISMISS_AFTER : Number(autoDismiss) || 0);
-
-  const live = $derived((t === 'danger' || t === 'warn') && delay <= 0);
-
-  /** An alert that can close itself can also be closed by hand. */
-  const closable = $derived(dismissible || delay > 0);
-
-  /**
-   * A live region reports a change to what it holds, and an outcome alert
-   * arrives inside `{#if form}` already holding its text, so nothing would be
-   * read out. An alert that reports an outcome, one that clears itself or
-   * takes `announce`, mounts without its text and takes it two frames later,
-   * as FormMessage does. It is atomic, as role="status" made it, so a change
-   * reads the whole message. One that states a standing condition is no live
-   * region at all: it must not be read out because the page loaded, and
-   * Chrome reads a polite region that a client-side navigation inserts. A
-   * failure or a warning that stays is the alert branch and is never deferred.
-   */
-  const outcome = $derived(!live && (delay > 0 || announce));
-  let filled = $state(typeof window === 'undefined');
-
-  $effect(() => {
-    if (!outcome) return;
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => (filled = true));
-    });
-    return () => cancelAnimationFrame(frame);
-  });
-
-  let closed = $state(false);
-  /** The pointer is over the alert, or focus is inside it. */
-  let held = $state(false);
-
-  function close(): void {
-    closed = true;
-    ondismiss?.();
-  }
-
-  /**
-   * The alert owns whether it is on screen, rather than asking the page to
-   * un-render it. An outcome alert lives inside `{#if form}` in the page that
-   * submitted, and nothing clears a form result short of a navigation, so a
-   * callback has nothing to act on.
-   */
-  $effect(() => {
-    if (closed || held || delay <= 0) return;
-    const timer = setTimeout(close, delay);
-    return () => clearTimeout(timer);
+  const notice = createNotice({
+    tone: () => t,
+    dismissible: () => dismissible,
+    autoDismiss: () => autoDismiss,
+    announce: () => announce,
+    ondismiss: () => ondismiss,
   });
 </script>
 
-{#if !closed}
-  <!-- The timer stops while the pointer is over the alert or focus is inside
-       it, and starts again when they leave. Text is never pulled away from
-       somebody reading it. -->
+{#if !notice.closed}
   <div
     transition:motion.toast|global
     class="flex items-start gap-3 rounded-lg border px-4 py-3 {tones[t].wrap} {klass}"
-    role={live ? 'alert' : undefined}
-    aria-live={live ? 'assertive' : outcome ? 'polite' : undefined}
-    aria-atomic={outcome ? 'true' : undefined}
-    onmouseenter={closable ? () => (held = true) : undefined}
-    onmouseleave={closable ? () => (held = false) : undefined}
-    onfocusin={closable ? () => (held = true) : undefined}
-    onfocusout={closable ? () => (held = false) : undefined}
+    role={notice.live ? 'alert' : undefined}
+    aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
+    aria-atomic={notice.outcome ? 'true' : undefined}
+    onmouseenter={notice.closable ? () => notice.hold(true) : undefined}
+    onmouseleave={notice.closable ? () => notice.hold(false) : undefined}
+    onfocusin={notice.closable ? () => notice.hold(true) : undefined}
+    onfocusout={notice.closable ? () => notice.hold(false) : undefined}
   >
-    <span
-      class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current {tones[
-        t
-      ].icon}"
-      aria-hidden="true"
-    >
-      <svg
-        width="11"
-        height="11"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d={TONE_GLYPH[t]} />
-      </svg>
-    </span>
-    {#if filled || !outcome}
+    <ToneGlyph tone={t} class={tones[t].icon} />
+    {#if notice.filled}
       <div class="flex-1 min-w-0">
         {#if title}<p class="text-sm font-semibold text-fg">{title}</p>{/if}
         {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">
@@ -172,10 +87,10 @@
           </div>{/if}
       </div>
     {/if}
-    {#if closable}
+    {#if notice.closable}
       <button
         type="button"
-        onclick={close}
+        onclick={notice.close}
         class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
         aria-label="Close"
       >

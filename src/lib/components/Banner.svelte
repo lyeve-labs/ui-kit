@@ -1,15 +1,9 @@
 <script lang="ts">
   import { statusTone, type StatusTone, type StatusToneInput } from '../internal/tone.js';
+  import { createNotice } from '../internal/notice.svelte.js';
   import { HIT_AREA } from '../internal/touch.js';
   import * as motion from '../motion.js';
   import type { Snippet } from 'svelte';
-
-  /**
-   * How long a confirmation holds before it clears itself. The same five
-   * seconds Alert waits, because a reader crossing between the two surfaces
-   * should not have to learn two timings.
-   */
-  const DISMISS_AFTER = 5000;
 
   interface Props {
     /** The status the message reports, which picks its color. */
@@ -51,26 +45,6 @@
     action,
   }: Props = $props();
 
-  let visible = $state(true);
-  /** The pointer is over the banner, or focus is inside it. */
-  let held = $state(false);
-
-  function dismiss() {
-    visible = false;
-    ondismiss?.();
-  }
-
-  const delay = $derived(autoDismiss === true ? DISMISS_AFTER : Number(autoDismiss) || 0);
-
-  /** A banner that can close itself can also be closed by hand. */
-  const closable = $derived(dismissible || delay > 0);
-
-  $effect(() => {
-    if (!visible || held || delay <= 0) return;
-    const timer = setTimeout(dismiss, delay);
-    return () => clearTimeout(timer);
-  });
-
   const tones: Record<StatusTone, string> = {
     neutral: 'bg-surface-2 border-line',
     brand: 'bg-brand/10 border-brand/20',
@@ -81,55 +55,30 @@
 
   const t = $derived(statusTone(tone));
 
-  /**
-   * A failure and a warning interrupt, because the reader has to act, as
-   * Alert does. Anything else waits for a pause. A banner that clears itself
-   * waits too: interrupting to say something and then taking it away leaves
-   * the reader with nothing to act on. The polite branch takes no role, as
-   * Alert's does, because Orca speaks nothing inserted into a status role.
-   */
-  const live = $derived((t === 'danger' || t === 'warn') && delay <= 0);
-
-  /**
-   * A live region reports a change to what it holds, and an outcome banner
-   * arrives inside `{#if form}` already holding its text, so nothing would be
-   * read out. A banner that reports an outcome, one that clears itself or
-   * takes `announce`, mounts without its text and takes it two frames later,
-   * as FormMessage does. It is atomic, as role="status" made it, so a change
-   * reads the whole message. One that states a standing condition is no live
-   * region at all: it must not be read out because the page loaded, and
-   * Chrome reads a polite region that a client-side navigation inserts. A
-   * failure or a warning that stays is the alert branch and is never deferred.
-   */
-  const outcome = $derived(!live && (delay > 0 || announce));
-  let filled = $state(typeof window === 'undefined');
-
-  $effect(() => {
-    if (!outcome) return;
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => (filled = true));
-    });
-    return () => cancelAnimationFrame(frame);
+  const notice = createNotice({
+    tone: () => t,
+    dismissible: () => dismissible,
+    autoDismiss: () => autoDismiss,
+    announce: () => announce,
+    ondismiss: () => ondismiss,
   });
 </script>
 
-{#if visible}
-  <!-- The timer stops while the pointer is over the banner or focus is inside
-       it, and starts again when they leave. Text is never pulled away from
-       somebody reading it. It leaves on the toast preset, as Alert does,
-       rather than vanishing in one frame. -->
+{#if !notice.closed}
+  <!-- It leaves on the toast preset, as Alert does, rather than vanishing in
+       one frame. -->
   <div
     transition:motion.toast|global
-    role={live ? 'alert' : undefined}
-    aria-live={live ? 'assertive' : outcome ? 'polite' : undefined}
-    aria-atomic={outcome ? 'true' : undefined}
+    role={notice.live ? 'alert' : undefined}
+    aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
+    aria-atomic={notice.outcome ? 'true' : undefined}
     class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[t]} {cls}"
-    onmouseenter={closable ? () => (held = true) : undefined}
-    onmouseleave={closable ? () => (held = false) : undefined}
-    onfocusin={closable ? () => (held = true) : undefined}
-    onfocusout={closable ? () => (held = false) : undefined}
+    onmouseenter={notice.closable ? () => notice.hold(true) : undefined}
+    onmouseleave={notice.closable ? () => notice.hold(false) : undefined}
+    onfocusin={notice.closable ? () => notice.hold(true) : undefined}
+    onfocusout={notice.closable ? () => notice.hold(false) : undefined}
   >
-    {#if filled || !outcome}
+    {#if notice.filled}
       <div class="flex flex-1 items-center justify-center gap-3 text-fg">
         {@render children()}
       </div>
@@ -139,10 +88,10 @@
       <div class="shrink-0">{@render action()}</div>
     {/if}
 
-    {#if closable}
+    {#if notice.closable}
       <button
         type="button"
-        onclick={dismiss}
+        onclick={notice.close}
         aria-label="Close"
         class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
       >

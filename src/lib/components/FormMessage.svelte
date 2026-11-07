@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { TONE_GLYPH } from '../internal/tone.js';
+  import { deferFill } from '../internal/notice.svelte.js';
+  import ToneGlyph from '../internal/ToneGlyph.svelte';
 
   /** The two outcomes a submit has. Anything else is a hint, not a result. */
   type Tone = 'danger' | 'success';
@@ -26,31 +27,11 @@
   };
 
   /**
-   * A live region reports a CHANGE to what it holds. A region that arrives in
-   * the document with its text already inside it is not a change, and nothing
-   * is read out: that is why every toast was silent while each toast carried
-   * its own role="status". Toaster fixed it by keeping one region mounted for
-   * the life of the app and moving each toast into it.
-   *
-   * A submit outcome has no such permanent host, because the page mounts this
-   * component at the moment the submit resolves. So the region goes in empty
-   * and the message is placed inside it two frames later, which is the same
-   * shape of change a toast makes. One frame is not enough: Firefox builds its
-   * accessibility tree after the frame's callbacks run, so a region filled on
-   * the first frame reaches it already full and Orca hears nothing.
-   *
-   * The server runs no effect and has no frames, so it renders the message
-   * straight away: a page delivered without its client bundle still carries
-   * the outcome of the submit, which matters more than announcing it.
+   * The page mounts this component at the moment the submit resolves, so the
+   * region has no permanent host the way Toaster's does. Its text is deferred
+   * so the region is read as a change.
    */
-  let filled = $state(typeof window === 'undefined');
-
-  $effect(() => {
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => (filled = true));
-    });
-    return () => cancelAnimationFrame(frame);
-  });
+  const fill = deferFill(() => true);
 </script>
 
 <!--
@@ -67,25 +48,10 @@
   aria-live={tone === 'danger' ? 'assertive' : 'polite'}
   aria-atomic={tone === 'danger' ? undefined : 'true'}
 >
-  {#if filled}
-    <!-- Stroked SVG, not a literal cross or tick: a font glyph lands at
-         whatever weight the reader's font gives it, which sat visibly lighter
-         than every other icon in the library. Color alone would also be the
-         only thing telling a failure from a confirmation. -->
-    <svg
-      class="mt-0.5 shrink-0"
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d={TONE_GLYPH[tone]} />
-    </svg>
+  {#if fill.filled}
+    <!-- Color alone would be the only thing telling a failure from a
+         confirmation, so the glyph says it in a shape too. -->
+    <ToneGlyph {tone} framed={false} />
     <p class="min-w-0 flex-1">{@render children()}</p>
   {/if}
 </div>
