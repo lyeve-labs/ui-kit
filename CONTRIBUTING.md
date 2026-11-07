@@ -1,8 +1,8 @@
 # Contributing to `@lyeve-labs/ui-kit`
 
-The kit is small on purpose. Every addition has to earn its place across
-every application that consumes it, which is more than one and not all of them
-public. This document lays out the bar.
+Several applications consume the kit, and not all of them are public, so a
+component or a prop joins it only when more than one of them needs it. This
+document covers the setup, the conventions and the checks a change passes.
 
 ## Quick start
 
@@ -10,10 +10,10 @@ public. This document lays out the bar.
 git clone git@github.com:lyeve-labs/ui-kit.git
 cd ui-kit
 pnpm install
-pnpm test         # verify everything works
+pnpm test
 ```
 
-You'll need:
+You need:
 
 - **Node 26.12.1**, the version `mise.toml` and CI pin
 - **pnpm 11.25.0**, pinned by the `packageManager` field. The repository
@@ -24,39 +24,39 @@ You'll need:
 ```
 src/
 └── lib/             # the published package
-    ├── components/  # 48 .svelte files, one component per file
-    ├── stores/      # runed stores (toast.svelte.ts)
+    ├── components/  # one component per file
+    ├── internal/    # shared pieces the package does not export
+    ├── stores/      # the toast queue
     ├── styles/      # theme.css
-    ├── utils/       # cn.ts, theme.ts
-    └── index.ts     # the *only* public API
+    ├── utils/       # theme, palette and class helpers
+    └── index.ts     # the only public API
+tests/
+├── ct/              # component specs in a real browser
+└── fixtures/        # server renders the hydration tests compare against
 ```
-
-This is a single-purpose component library. The docs site lives in
-`lyeve-labs/ui-kit-docs`.
 
 ## Coding conventions
 
 ### Components
 
-- One component per file, matching the export name (`Button.svelte` →
-  `export { Button }`).
+- One component per file, named as it is exported (`Button.svelte` exports
+  `Button`).
 - **Svelte 5 only.** Use runes (`$state`, `$derived`, `$effect`) and snippets.
   No `writable()`, no `$:` reactive statements, no `<slot />`.
 - **Type the props.** Every component has an explicit `interface Props { ... }`
   and destructures with `let { ... }: Props = $props();`.
 - **Forward rest props with `[key: string]: unknown`** when the component is a
   thin wrapper around a native element (Input, Textarea, Select). Consumers
-  expect `autocomplete`, `min`, `data-*`, and friends to just work.
-- **Read tokens, not hex.** Use `bg-surface`, `text-fg`, `border-line`.
-  never `#151D30` or `gray-700`. The whole point of the library is one source
-  of palette truth.
-- **`class` prop wins.** Always allow consumers to append classes via
-  `class={cls}` so they can punch through styling without forking.
+  pass `autocomplete`, `min` and `data-*` attributes through to the element.
+- **Read tokens, not hex.** Use `bg-surface`, `text-fg` and `border-line`,
+  never `#151D30` or `gray-700`, so a palette change reaches every component.
+- **Take a `class` prop.** A consumer appends classes through `class={cls}`
+  and adjusts a component without copying it.
 
 ### Accessibility
 
 - The Svelte compiler is configured to **throw on any a11y warning** (see
-  `svelte.config.js`). Don't disable the check. Fix the markup.
+  `svelte.config.js`). Fix the markup rather than turning the check off.
 - Every interactive element must be keyboard-reachable and have a visible
   focus style. Reuse the global `:focus-visible` token from `theme.css`.
 - Form inputs always have an associated label, either via the `label` prop or
@@ -66,9 +66,9 @@ This is a single-purpose component library. The docs site lives in
 
 - Component files: `PascalCase.svelte`.
 - Variants live on a `variant` (visual style) or `tone` (color role) prop.
-  Pick one per component and stick with it.
-- Sizes are always `sm | md | lg` (or extend up to `xl`/`xs` only when
-  genuinely useful).
+  A component takes one of the two.
+- Sizes are `sm | md | lg`, extended to `xs` or `xl` only where a consumer
+  needs the rung.
 - Boolean props read positively: `disabled`, not `enabled`. `dismissible`,
   not `notDismissible`.
 
@@ -76,24 +76,24 @@ This is a single-purpose component library. The docs site lives in
 
 1. Create `src/lib/components/<Name>.svelte`.
 2. Add an export to `src/lib/index.ts`, in the right section.
-3. Add a documentation page in the `ui-kit-docs` repo under
-   `src/routes/docs/components/<name>/+page.svelte` with at least a short
-   description, two preview examples, and a complete `<PropTable />`.
-4. Add the page to `src/routes/_docs/nav.ts` in the docs repo.
-5. Update [`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]`.
+3. Write a sentence of JSDoc on every prop, which is what a consumer reads in
+   the editor.
+4. Add a colocated `<Name>.test.ts`.
+5. Add an entry to [`CHANGELOG.md`](CHANGELOG.md) under `[Unreleased]`.
 
 ## Verifying changes
 
 Before pushing:
 
 ```bash
-pnpm check          # tsc + svelte-check
+pnpm check          # tsc and svelte-check
 pnpm test           # vitest
 pnpm format:check   # prettier
-pnpm build          # ensure svelte-package + publint pass
+pnpm build          # svelte-package and publint
 ```
 
-No CI runs these checks, so this local gate is the only gate. Run all four before every PR.
+CI runs the same four on every push to `main` and `dev` and on every pull
+request against them, and they gate every pull request.
 
 `pnpm test:ct` runs the component specs in `tests/ct` in a real Chromium,
 which sees focus, pointer and keyboard behavior that the vitest DOM does
@@ -111,7 +111,8 @@ We use Conventional Commits:
 - `chore: bump tailwindcss to 4.1`
 - `refactor(toast): collapse store into a single class`
 
-One logical change per commit. Squash before merging if a PR has noise.
+One logical change per commit. A pull request merges with a merge commit,
+never a squash or a rebase, so each commit reaches `dev` as it was written.
 
 ## Branches
 
@@ -137,4 +138,4 @@ package to npm from that tag.
 
 ## Questions
 
-Open an issue with the `question` label, or reach out in the LyEve Discord.
+Open an issue with the `question` label.
