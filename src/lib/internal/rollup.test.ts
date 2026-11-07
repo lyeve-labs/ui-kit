@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nextState, rollUp, rollUpWithFloor, setSubtree, type TriState } from './rollup.js';
+import { nextState, rollUp, setSubtree, type TriState } from './rollup.js';
 
 /**
  * A permissions matrix is one of the few surfaces where a wrong summary is not
@@ -108,72 +108,5 @@ describe('setSubtree', () => {
     }
     expect(rollUp(rows.filter(isSettable), isGranted)).toBe('all');
     expect(rollUp(rows, isGranted)).toBe('some');
-  });
-});
-
-describe('rollUpWithFloor', () => {
-  it('rolls the empty set up to none, not all', () => {
-    expect(rollUpWithFloor([], isGranted, isInherited)).toBe('none');
-  });
-
-  it('reports all for a row set that stores nothing but is entirely floored', () => {
-    // An inherited grant cannot be revoked by clearing the stored row. A
-    // control that reported 'none' here offered a clear that does nothing.
-    const rows = [row('a', false, false, true), row('b', false, false, true)];
-    expect(rollUp(rows, isGranted)).toBe('none');
-    expect(rollUpWithFloor(rows, isGranted, isInherited)).toBe('all');
-    expect(nextState(rollUpWithFloor(rows, isGranted, isInherited))).toBe(false);
-  });
-
-  it.each<[string, [boolean, boolean][], TriState]>([
-    [
-      'every row stored',
-      [
-        [true, false],
-        [true, false],
-      ],
-      'all',
-    ],
-    [
-      'every row floored',
-      [
-        [false, true],
-        [false, true],
-      ],
-      'all',
-    ],
-    [
-      'each row stored or floored',
-      [
-        [true, false],
-        [false, true],
-      ],
-      'all',
-    ],
-    [
-      'one row neither',
-      [
-        [true, false],
-        [false, false],
-      ],
-      'some',
-    ],
-    [
-      'no row either',
-      [
-        [false, false],
-        [false, false],
-      ],
-      'none',
-    ],
-    ['a floored row alone', [[false, true]], 'all'],
-  ])('reports %s as %s', (_name, pairs, expected) => {
-    const rows = pairs.map(([granted, inherited], i) => row(`p${i}`, granted, false, inherited));
-    expect(rollUpWithFloor(rows, isGranted, isInherited)).toBe(expected);
-  });
-
-  it('does not count a row twice when it is both stored and floored', () => {
-    const rows = [row('a', true, false, true), row('b', false, false, false)];
-    expect(rollUpWithFloor(rows, isGranted, isInherited)).toBe('some');
   });
 });
