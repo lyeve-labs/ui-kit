@@ -202,7 +202,7 @@
      for the reason at CARD_FRAME. It paints its own surface rather than
      showing the page through, which the shadow under it needs to read as a
      raised sheet. -->
-<div data-testid="table-frame" class="relative w-full overflow-hidden {CARD_FRAME} {cls}">
+<div class="relative w-full overflow-hidden {CARD_FRAME} {cls}">
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.
@@ -212,7 +212,6 @@
     onpointerover={reveal}
     onfocusin={reveal}
     data-print="unclip"
-    data-testid="table-scroll"
     class="w-full overflow-x-auto rounded-card"
     {...scrollAttrs}
   >

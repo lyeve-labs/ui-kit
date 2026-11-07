@@ -43,10 +43,7 @@
        the row. Five filter chips in this slot ran 212px past a phone's edge
        while it was `shrink-0`. -->
   {#if actions}
-    <div
-      data-testid="section-actions"
-      class="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-2"
-    >
+    <div class="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
       {@render actions()}
     </div>
   {/if}

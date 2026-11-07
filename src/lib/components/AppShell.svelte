@@ -332,7 +332,6 @@
                the header's first control sits in one place at every width. -->
             <button
               type="button"
-              data-testid="app-sidebar-toggle"
               class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
               aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
               aria-expanded={!collapsed}
@@ -342,7 +341,7 @@
             </button>
           {/if}
           {#if section}
-            <span data-testid="app-section" class="truncate text-sm font-semibold text-fg">
+            <span class="truncate text-sm font-semibold text-fg">
               {section}
             </span>
           {/if}

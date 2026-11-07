@@ -13,7 +13,7 @@ test.describe('GateNotice', () => {
   for (const state of OFFERED) {
     test(`asks for the page again on Enter when ${state}`, async ({ mount, page }) => {
       const story = await mount(NoticeStory, { props: { part: 'gate' } });
-      const notice = story.locator(`[data-testid="gate-notice"][data-state="${state}"]`);
+      const notice = story.locator(`[data-state="${state}"]`);
       await tabTo(page, notice.getByRole('link', { name: 'Try again' }));
       await page.keyboard.press('Enter');
       await page.waitForURL((url) => url.pathname === '/reports');

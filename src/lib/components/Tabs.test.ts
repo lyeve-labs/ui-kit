@@ -52,8 +52,7 @@ function layOut(el: HTMLElement, scrollWidth: number, clientWidth: number, scrol
   });
 }
 
-const strip = (root: ParentNode) =>
-  root.querySelector('[data-testid="tabs-scroll"]') as HTMLElement;
+const strip = (root: ParentNode) => root.querySelector('[role="tablist"]') as HTMLElement;
 
 const edges = (root: ParentNode) => ({
   before: root.querySelector('[data-testid="tabs-more-before"]') !== null,

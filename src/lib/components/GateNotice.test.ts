@@ -69,15 +69,13 @@ describe('GateNotice', () => {
   it('draws nothing for a read that answered', () => {
     const { container } = mount({ state: 'ok' });
     expect(container.textContent?.trim()).toBe('');
-    expect(container.querySelector('[data-testid="gate-notice"]')).toBeNull();
+    expect(container.querySelector('[data-state]')).toBeNull();
   });
 
   it('says which state it drew', () => {
     for (const gate of ALL) {
       const { container } = mount(gate);
-      expect(
-        container.querySelector('[data-testid="gate-notice"]')?.getAttribute('data-state'),
-      ).toBe(gate.state);
+      expect(container.querySelector('[data-state]')?.getAttribute('data-state')).toBe(gate.state);
       cleanup();
     }
   });
