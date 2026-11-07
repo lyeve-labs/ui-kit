@@ -50,7 +50,7 @@ describe('Alert', () => {
     const { getByLabelText } = render(Alert, {
       props: { children: text('x'), dismissible: true, ondismiss },
     });
-    await fireEvent.click(getByLabelText('Dismiss'));
+    await fireEvent.click(getByLabelText('Close'));
     expect(ondismiss).toHaveBeenCalledOnce();
   });
 
@@ -58,13 +58,13 @@ describe('Alert', () => {
     const { container, getByLabelText } = render(Alert, {
       props: { children: text('x'), dismissible: true },
     });
-    await fireEvent.click(getByLabelText('Dismiss'));
+    await fireEvent.click(getByLabelText('Close'));
     expect(root(container)).toBeNull();
   });
 
   it('has no dismiss button unless dismissible', () => {
     const { queryByLabelText } = render(Alert, { props: { children: text('x') } });
-    expect(queryByLabelText('Dismiss')).toBeNull();
+    expect(queryByLabelText('Close')).toBeNull();
   });
 
   describe('which live region it is', () => {
@@ -141,7 +141,7 @@ describe('Alert', () => {
       const { getByLabelText } = render(Alert, {
         props: { children: text('x'), autoDismiss: true },
       });
-      expect(getByLabelText('Dismiss')).toBeTruthy();
+      expect(getByLabelText('Close')).toBeTruthy();
     });
 
     // Text is never pulled away from somebody reading it.
@@ -201,7 +201,7 @@ describe('an outcome is announced, a standing condition is not', () => {
     expect(region?.hasAttribute('role')).toBe(false);
     expect(queryByText('Payment received')).toBeNull();
     expect(region?.contains(await findByText('Payment received'))).toBe(true);
-    expect(queryByLabelText('Dismiss')).toBeNull();
+    expect(queryByLabelText('Close')).toBeNull();
   });
 
   it('keeps a failure that stays an alert, told to announce or not', () => {

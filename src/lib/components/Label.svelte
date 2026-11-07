@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { FIELD_LABEL } from '../internal/field.js';
 
   let {
     for: htmlFor,
@@ -22,10 +23,7 @@
   } = $props();
 </script>
 
-<label
-  for={htmlFor}
-  class="flex items-center gap-1 text-xs font-medium text-muted uppercase tracking-wider {cls}"
->
+<label for={htmlFor} class="flex items-center gap-1 {FIELD_LABEL} {cls}">
   {@render children()}
   {#if required}
     <span class="text-danger font-bold leading-none" aria-hidden="true">*</span>

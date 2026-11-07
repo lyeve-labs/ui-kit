@@ -22,6 +22,7 @@
 </script>
 
 <script lang="ts">
+  import FieldLabel from '../internal/FieldLabel.svelte';
   /**
    * A color, typed as hex or picked from a set of swatches.
    *
@@ -42,7 +43,6 @@
     CONTROL_BASE,
     FIELD_ERROR,
     FIELD_HINT,
-    FIELD_LABEL,
     FIELD_WRAP,
     controlBorder,
     describedBy,
@@ -140,9 +140,7 @@
     aria-describedby={joinIds(describedBy(fieldId, error, missing ? value : hint), callerIds)}
   >
     {#if label}
-      <legend class={CHOICE_LEGEND}>
-        {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-      </legend>
+      <FieldLabel as="legend" text={label} {required} class={CHOICE_LEGEND} />
     {/if}
     <div class="flex flex-wrap gap-2">
       {#each swatches as swatch (swatch.value)}
@@ -184,9 +182,7 @@
 {:else}
   <div data-field class="{FIELD_WRAP} {klass}">
     {#if label}
-      <label for={fieldId} class={FIELD_LABEL}>
-        {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-      </label>
+      <FieldLabel for={fieldId} text={label} {required} />
     {/if}
     <div class="relative">
       <span

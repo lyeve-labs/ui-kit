@@ -1,5 +1,6 @@
 <script lang="ts">
   import Avatar from './Avatar.svelte';
+  import { AVATAR_SIZE } from '../internal/avatar.js';
 
   type AvatarSize = 'xs' | 'sm' | 'md' | 'lg';
 
@@ -10,6 +11,7 @@
 
   interface Props {
     users: User[];
+    /** How many avatars show. The rest collapse into one "+n" chip. */
     max?: number;
     size?: AvatarSize;
     class?: string;
@@ -19,13 +21,6 @@
 
   let visible = $derived(users.slice(0, max));
   let overflow = $derived(users.length - max);
-
-  const overflowSizes: Record<AvatarSize, string> = {
-    xs: 'w-6 h-6 text-[9px]',
-    sm: 'w-7 h-7 text-[10px]',
-    md: 'w-8 h-8 text-xs',
-    lg: 'w-10 h-10 text-sm',
-  };
 </script>
 
 <div class="flex items-center {cls}">
@@ -39,7 +34,7 @@
     <span
       class="-ms-1.5 inline-flex shrink-0 items-center justify-center rounded-full
         bg-surface-2 font-semibold text-faint ring-2 ring-ink
-        {overflowSizes[size]}">+{overflow}</span
+        {AVATAR_SIZE[size].wrap} {AVATAR_SIZE[size].text}">+{overflow}</span
     >
   {/if}
 </div>

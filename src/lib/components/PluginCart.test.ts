@@ -5,8 +5,7 @@ import PluginCart from './PluginCart.svelte';
 import type { CartQuote } from '../internal/pricing.js';
 
 const NEXT_RUNG = 'Add 1 more for a 5% discount.';
-const EMPTY_CART =
-  'No capabilities picked yet. Without any, you stay on the free tier, which needs no checkout.';
+const EMPTY_CART = 'No capabilities picked yet. With none, you stay on the free tier.';
 const NO_MATCH = 'No capabilities match these filters.';
 
 const PLUGINS = [
@@ -70,7 +69,7 @@ describe('PluginCart', () => {
     expect(queryByLabelText(/Later/)).toBeNull();
   });
 
-  it('posts each choice under a field name, so a form still works with no JavaScript', () => {
+  it('posts each choice under a field name, so a form submits them with no JavaScript', () => {
     const { container } = render(PluginCart, { props: { plugins: PLUGINS, fieldName: 'sku' } });
     const boxes = container.querySelectorAll('input[type="checkbox"][name="sku"]');
     expect(boxes.length).toBe(2);

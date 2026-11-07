@@ -1,13 +1,7 @@
 <script lang="ts">
-  import {
-    CONTROL_MULTILINE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import { CONTROL_MULTILINE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
 
   type TA = HTMLTextAreaElement;
   type TAE = Event & { currentTarget: TA };
@@ -45,9 +39,8 @@
     error?: string;
     hint?: string;
     /**
-     * Monospace for the control alone: code, JSON, a key. Passing `font-mono`
-     * as a class reached the wrapper, so the label and the hint turned
-     * monospace with it.
+     * Monospace for the control alone: code, JSON, a key. `class` lands on the
+     * wrapper, so it cannot do this.
      */
     mono?: boolean;
     class?: string;
@@ -64,9 +57,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <textarea
@@ -88,9 +79,5 @@
     {onblur}
   ></textarea>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

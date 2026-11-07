@@ -38,7 +38,7 @@
 {/snippet}
 
 {#if gate.state !== 'ok'}
-  <div class={klass} data-testid="gate-notice" data-state={gate.state}>
+  <div class={klass} data-state={gate.state}>
     {#if gate.state === 'absent'}
       <Alert tone="brand">{words.absent}</Alert>
     {:else if gate.state === 'locked'}

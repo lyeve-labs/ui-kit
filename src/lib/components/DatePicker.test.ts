@@ -19,6 +19,42 @@ describe('DatePicker', () => {
     expect(trigger.textContent).toContain('15');
   });
 
+  it('spells the date the same way whatever the browser locale is', () => {
+    const { getByRole } = render(DatePicker, { props: { value: '2024-09-03' } });
+    expect(getByRole('combobox').textContent).toContain('Sep 3, 2024');
+  });
+
+  it('draws six weeks for every month, so the calendar keeps its height', async () => {
+    for (const value of ['2026-02-01', '2025-08-15']) {
+      const { getByRole, container, unmount } = render(DatePicker, { props: { value } });
+      await fireEvent.click(getByRole('combobox'));
+      expect(container.querySelector('[data-day-grid]')?.children).toHaveLength(42);
+      unmount();
+    }
+  });
+
+  it('closes the calendar on a press outside it and on Escape', async () => {
+    const { getByRole, queryByRole } = render(DatePicker, { props: { value: '2024-06-15' } });
+    await fireEvent.click(getByRole('combobox'));
+    await fireEvent.pointerDown(document.body);
+    expect(queryByRole('dialog')).toBeNull();
+    await fireEvent.click(getByRole('combobox'));
+    await fireEvent.keyDown(document, { key: 'Escape' });
+    expect(queryByRole('dialog')).toBeNull();
+  });
+
+  it('disables the days outside min and max and keeps the bounds themselves', async () => {
+    const { getByRole } = render(DatePicker, {
+      props: { value: '2024-06-15', min: '2024-06-10', max: '2024-06-20' },
+    });
+    await fireEvent.click(getByRole('combobox'));
+    const day = (iso: string) => getByRole('button', { name: iso }) as HTMLButtonElement;
+    expect(day('2024-06-09').disabled).toBe(true);
+    expect(day('2024-06-10').disabled).toBe(false);
+    expect(day('2024-06-20').disabled).toBe(false);
+    expect(day('2024-06-21').disabled).toBe(true);
+  });
+
   it('opens a calendar popover when the trigger is clicked', async () => {
     const { container, getByLabelText, getByText } = render(DatePicker, {
       props: { value: '2024-06-15' },
@@ -116,7 +152,7 @@ describe('DatePicker trigger wiring', () => {
     expect(queryByRole('dialog')).toBeNull();
 
     await fireEvent.click(trigger);
-    const calendar = getByRole('dialog', { name: 'Choose date' });
+    const calendar = getByRole('dialog', { name: 'Choose a date' });
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(trigger.getAttribute('aria-controls')).toBe(calendar.id);
   });
@@ -154,7 +190,7 @@ describe('DatePicker: calendar placement', () => {
     const { getByRole, trigger } = mountIn([0, 800], [100, 140]);
     await fireEvent.click(trigger);
 
-    const surface = getByRole('dialog', { name: 'Choose date' });
+    const surface = getByRole('dialog', { name: 'Choose a date' });
     expect(surface.className).toMatch(/\btop-full\b|\bbottom-full\b/);
     expect(surface.className).not.toMatch(/\btop-full\b.*\bbottom-full\b/);
     const region = surface.querySelector('[data-panel-list]') as HTMLElement;
@@ -166,7 +202,7 @@ describe('DatePicker: calendar placement', () => {
     const { getByRole, trigger } = mountIn([100, 500], [400, 440]);
     await fireEvent.click(trigger);
 
-    const surface = getByRole('dialog', { name: 'Choose date' });
+    const surface = getByRole('dialog', { name: 'Choose a date' });
     expect(surface.className).toContain('bottom-full');
     expect(surface.className).not.toContain('top-full');
     // 400 - 100 - 8, the room alone: the list token is shorter than six weeks
@@ -179,7 +215,7 @@ describe('DatePicker: calendar placement', () => {
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(290);
     const { getByRole, trigger, anchor, clip } = mountIn([100, 500], [400, 440]);
     await fireEvent.click(trigger);
-    const surface = getByRole('dialog', { name: 'Choose date' });
+    const surface = getByRole('dialog', { name: 'Choose a date' });
     expect(surface.className).toContain('bottom-full');
 
     anchor.getBoundingClientRect = () => rect(120, 160);

@@ -40,7 +40,7 @@
      */
     documentTitle?: string;
     description?: string;
-    /** Content cap. narrow, default, wide, full. */
+    /** The content cap: `narrow`, `default`, `wide` or `full`, resolved to 896, 1152, 1536 or no cap. */
     width?: PageWidth;
     /**
      * A full-height page that manages its own scrolling, for instance a split
@@ -50,36 +50,22 @@
     fill?: boolean;
     /**
      * Drop the title to body size and hide the description, for a page with
-     * genuinely no room for a heading.
-     *
-     * It used to be implied by `fill`, which made the two pages that own the
-     * viewport the only two in the app whose name rendered at body size against
-     * the window edge. Owning the viewport is a statement about the content
-     * pane, not about the heading, so a caller that wants the smaller title now
-     * asks for it.
+     * genuinely no room for a heading. `fill` does not imply it.
      */
     compact?: boolean;
     /**
      * A link back to the page this one sits under, rendered above the title
-     * with an arrow and the parent's label ("Flows", "Settings").
-     *
-     * A page two levels down had only the sidebar and the browser to get back
-     * with. A third of the nested pages in one app built a breadcrumb of their
-     * own, half of those drew an arrow by hand, and the rest offered nothing.
-     * The affordance lives in the shell so every page gets it the same way.
-     * It is a plain anchor, so the keyboard needs nothing extra.
+     * with an arrow and the parent's label ("Flows", "Settings"). It is a plain
+     * anchor, so the keyboard needs nothing extra.
      */
     back?: { href: string; label: string };
     /**
      * Keep the h1 for assistive technology and render no title row at all: no
      * back link, no breadcrumb, no description, no actions.
      *
-     * For a page whose toolbar is its header. An editor that owns the viewport
-     * spent two rows before its canvas, the title row and then its own toolbar
-     * carrying the same name, with the shell's gap between them. The page
-     * still has exactly one h1, so a heading query and a screen reader see
-     * what every other page gives them. It is `sr-only`, not absent. A page
-     * that hides the row takes on the way back: `back` renders nothing here.
+     * For a page whose toolbar is its header. The h1 is `sr-only`, not absent,
+     * so a heading query and a screen reader still find it. A page that hides
+     * the row takes on the way back: `back` renders nothing here.
      */
     titleHidden?: boolean;
     /** Rendered above the title at one fixed distance, after `back` when both are set. */

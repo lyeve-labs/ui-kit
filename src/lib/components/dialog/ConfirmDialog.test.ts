@@ -1,15 +1,9 @@
 import { fireEvent, render } from '@testing-library/svelte';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import DialogContainer from './DialogContainer.svelte';
+import { confirm, dismissAllDialogs } from './dialog-manager.svelte';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DialogEntry } from './types.js';
 import ConfirmDialog from './ConfirmDialog.svelte';
-
-const mockCloseDialog = vi.fn();
-const mockDismissDialog = vi.fn();
-
-vi.mock('./dialog-manager.svelte', () => ({
-  closeDialog: (...args: unknown[]) => mockCloseDialog(...args),
-  dismissDialog: (...args: unknown[]) => mockDismissDialog(...args),
-}));
 
 function makeEntry(overrides: Partial<DialogEntry<boolean>> = {}): DialogEntry<boolean> {
   return {
@@ -102,5 +96,25 @@ describe('ConfirmDialog', () => {
     const { getByText } = render(ConfirmDialog, { props: { entry } });
     expect(getByText('Yes')).toBeTruthy();
     expect(getByText('No')).toBeTruthy();
+  });
+
+  describe('through the real stack', () => {
+    afterEach(() => dismissAllDialogs());
+
+    it('resolves true when the reader confirms and false when they cancel', async () => {
+      const { getByRole } = render(DialogContainer);
+
+      const accepted = confirm('Delete webhook?', 'This cannot be undone.', {
+        confirmLabel: 'Delete',
+      });
+      await Promise.resolve();
+      await fireEvent.click(getByRole('button', { name: 'Delete' }));
+      await expect(accepted).resolves.toBe(true);
+
+      const declined = confirm('Delete webhook?');
+      await Promise.resolve();
+      await fireEvent.click(getByRole('button', { name: 'Cancel' }));
+      await expect(declined).resolves.toBe(false);
+    });
   });
 });

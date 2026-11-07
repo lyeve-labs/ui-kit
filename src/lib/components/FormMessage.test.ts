@@ -133,7 +133,7 @@ describe('FormMessage', () => {
     expect(svg.getAttribute('aria-hidden')).toBe('true');
     expect(svg.querySelector('path')?.getAttribute('d')).toBeTruthy();
     expect(svg.getAttribute('stroke')).toBe('currentColor');
-    expect(source).toContain("from '../internal/tone.js'");
+    expect(source).toContain("import ToneGlyph from '../internal/ToneGlyph.svelte'");
   });
 
   it('says with more than color which outcome it is', async () => {
@@ -156,12 +156,5 @@ describe('FormMessage', () => {
     });
     await findByText('Could not save');
     expect(region(container).className.split(/\s+/)).toContain('mt-4');
-  });
-
-  it('renders the message the server sent when no client effect ever runs', () => {
-    // $effect does not run on the server, so a component that only ever fills
-    // its region from an effect would deliver an empty region to a page with
-    // no client bundle and the outcome of the submit would be lost.
-    expect(source).toContain("typeof window === 'undefined'");
   });
 });

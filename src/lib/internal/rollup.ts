@@ -61,19 +61,3 @@ export function setSubtree<T>(
   }
   return writes;
 }
-
-/**
- * Rolls up while treating a floor as already granted.
- *
- * A grant that is inherited rather than stored cannot be revoked by clearing
- * the stored row, so a control that offers to clear it is lying. A row that is
- * floored counts as granted here, which puts the parent at 'all' and makes the
- * next click fill rather than clear.
- */
-export function rollUpWithFloor<T>(
-  items: readonly T[],
-  has: (item: T) => boolean,
-  floor: (item: T) => boolean,
-): TriState {
-  return rollUp(items, (item) => floor(item) || has(item));
-}

@@ -1,9 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { countFields } from '../internal/field.js';
   import { fitOverlay, OVERLAY_WIDTH, type OverlaySize } from '../internal/layout.js';
-  import { HIT_AREA } from '../internal/touch.js';
-  import { overlay } from '../internal/overlay.js';
+  import { measureFields, overlay, OVERLAY_FOOTER } from '../internal/overlay.js';
+  import OverlayHeader from '../internal/OverlayHeader.svelte';
   import * as motion from '../motion.js';
 
   /** The shared overlay ladder, minus the rung the dialog stack keeps for a table. */
@@ -36,19 +35,7 @@
     footer,
   }: Props = $props();
 
-  let body: HTMLElement | undefined = $state();
   let fields = $state(0);
-
-  /* Measured, and kept measured: see Drawer, which sizes itself the same way. */
-  $effect(() => {
-    const el = body;
-    if (!open || !el) return;
-    const measure = () => (fields = countFields(el));
-    measure();
-    const observer = new MutationObserver(measure);
-    observer.observe(el, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  });
 
   const rung = $derived(size === 'auto' ? fitOverlay(fields) : size);
 
@@ -95,42 +82,15 @@
       aria-label={title ? undefined : 'Dialog'}
     >
       {#if title}
-        <div class="flex shrink-0 items-start justify-between gap-4 px-5 py-4 border-b border-line">
-          <div>
-            <h2 id={headingId} class="font-semibold text-fg">{title}</h2>
-            {#if description}
-              <p id={descriptionId} class="text-sm text-muted mt-0.5">{description}</p>
-            {/if}
-          </div>
-          <button
-            type="button"
-            onclick={close}
-            class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg
-                   outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-            aria-label="Close"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg
-            >
-          </button>
-        </div>
+        <OverlayHeader {title} {description} {headingId} {descriptionId} onclose={close} />
       {/if}
 
-      <div bind:this={body} class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div use:measureFields={(n) => (fields = n)} class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
         {@render children()}
       </div>
 
       {#if footer}
-        <div
-          class="flex shrink-0 items-center justify-end gap-2 px-5 py-3 border-t border-line bg-surface-2/40"
-        >
+        <div class={OVERLAY_FOOTER}>
           {@render footer()}
         </div>
       {/if}

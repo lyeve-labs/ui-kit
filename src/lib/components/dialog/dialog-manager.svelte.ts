@@ -16,37 +16,39 @@
  */
 
 import type { DialogOptions, DialogEntry } from './types.js';
-import { lockBodyScroll, unlockBodyScroll } from '../../internal/overlay.js';
-
-// ──────────────────────────────────────────────────────────
-// Module-level reactive state
-// ──────────────────────────────────────────────────────────
 
 let idCounter = 0;
 
 /** Reactive stack: topmost dialog = last element */
 let stack = $state<DialogEntry<any>[]>([]);
 
-// ──────────────────────────────────────────────────────────
-// Body scroll lock (counter-based: handles stacked dialogs)
-// ──────────────────────────────────────────────────────────
-
-/*
- * The count lives in internal/overlay.ts, which is also what Modal and Drawer
- * lock through. Two counters meant a Dialog opened over a Drawer restored
- * scrolling to the page as soon as either one closed, because each believed it
- * held the only lock.
- */
-export { lockBodyScroll as _lockBodyScroll, unlockBodyScroll as _unlockBodyScroll };
-
 /** Readonly snapshot for components */
 export function getDialogStack(): readonly DialogEntry<any>[] {
   return stack;
 }
 
-// ──────────────────────────────────────────────────────────
+/** Gives every entry its position again, after an entry left the stack. */
+function renumber(): void {
+  for (let i = 0; i < stack.length; i++) stack[i].depth = i;
+}
+
+/** Pushes an entry on top of the stack, with any meta it carries from the start. */
+function push<T>(options: DialogOptions<T>, meta?: Record<string, unknown>): Promise<T> {
+  const id = options.id ?? `dialog-${++idCounter}`;
+  return new Promise<T>((resolve, reject) => {
+    const entry: DialogEntry<T> = {
+      id,
+      options: { ...options, id },
+      resolve,
+      reject,
+      depth: stack.length,
+      ...(meta ? { meta } : {}),
+    };
+    stack = [...stack, entry];
+  });
+}
+
 // Public API
-// ──────────────────────────────────────────────────────────
 
 /**
  * Open a new dialog. Returns a promise that resolves when the dialog is closed
@@ -55,24 +57,7 @@ export function getDialogStack(): readonly DialogEntry<any>[] {
  * The dialog is pushed onto the stack and becomes the topmost.
  */
 export function openDialog<T = void>(options: DialogOptions<T>): Promise<T> {
-  const id = options.id ?? `dialog-${++idCounter}`;
-
-  return new Promise<T>((resolve, reject) => {
-    const entry: DialogEntry<T> = {
-      id,
-      options: { ...options, id },
-      resolve,
-      reject,
-      depth: stack.length,
-    };
-
-    stack = [...stack, entry];
-
-    // Update depths for all entries (each re-renders because depth is in state)
-    for (let i = 0; i < stack.length; i++) {
-      stack[i].depth = i;
-    }
-  });
+  return push(options);
 }
 
 /**
@@ -100,11 +85,7 @@ export function closeDialog<T = void>(value: T, id?: string): void {
 
   // Resolve the promise
   entry.resolve(value as T);
-
-  // Update depths
-  for (let i = 0; i < stack.length; i++) {
-    stack[i].depth = i;
-  }
+  renumber();
 }
 
 /**
@@ -134,10 +115,7 @@ export function dismissDialog(id?: string): void {
 
   // Reject the promise: caller can .catch() or let it be
   entry.reject(new DOMException('Dialog dismissed', 'AbortError'));
-
-  for (let i = 0; i < stack.length; i++) {
-    stack[i].depth = i;
-  }
+  renumber();
 }
 
 /**
@@ -192,17 +170,19 @@ export function confirm(
   options?: ConfirmOptions,
 ): Promise<boolean> {
   const id = `confirm-${++idCounter}`;
-  const promise = openDialog<boolean>({ id, size: 'sm', title });
-  setDialogMeta(id, {
-    confirmTitle: title,
-    confirmMessage: message ?? '',
-    // Undefined keys are dropped rather than written, because ConfirmDialog
-    // decides its default by type-checking the meta value: writing undefined
-    // would be indistinguishable from an override to the empty case.
-    ...(options?.confirmLabel !== undefined ? { confirmLabel: options.confirmLabel } : {}),
-    ...(options?.cancelLabel !== undefined ? { cancelLabel: options.cancelLabel } : {}),
-    ...(options?.detail !== undefined ? { confirmDetail: options.detail } : {}),
-  });
+  const promise = push<boolean>(
+    { id, size: 'sm', title },
+    {
+      confirmTitle: title,
+      confirmMessage: message ?? '',
+      // Undefined keys are dropped rather than written, because ConfirmDialog
+      // decides its default by type-checking the meta value: writing undefined
+      // would be indistinguishable from an override to the empty case.
+      ...(options?.confirmLabel !== undefined ? { confirmLabel: options.confirmLabel } : {}),
+      ...(options?.cancelLabel !== undefined ? { cancelLabel: options.cancelLabel } : {}),
+      ...(options?.detail !== undefined ? { confirmDetail: options.detail } : {}),
+    },
+  );
   // Canceling a dialog dismisses it, and dismissal rejects. Callers write
   // `if (await confirm(...))`, so a rejection on Cancel is an unhandled
   // rejection on the ordinary path rather than an error anyone meant to

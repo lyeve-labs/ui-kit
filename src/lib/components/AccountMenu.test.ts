@@ -1,6 +1,6 @@
-import { render } from '@testing-library/svelte';
+import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import AccountMenu from './AccountMenu.svelte';
 
 const items = createRawSnippet(() => ({
@@ -8,7 +8,7 @@ const items = createRawSnippet(() => ({
 }));
 
 describe('AccountMenu', () => {
-  it('is a disclosure that works without script', () => {
+  it('is a details disclosure, so it opens without script', () => {
     // The panel holds links and a form post. Both have to keep working when
     // hydration fails or never runs, which is when somebody most needs to be
     // able to sign out.
@@ -77,7 +77,8 @@ describe('AccountMenu', () => {
 
   it('draws the footer after a rule, below the rows', () => {
     const footer = createRawSnippet(() => ({
-      render: () => `<form method="POST" action="/logout"><button type="submit">Sign out</button></form>`,
+      render: () =>
+        `<form method="POST" action="/logout"><button type="submit">Sign out</button></form>`,
     }));
     const { container } = render(AccountMenu, {
       props: { name: 'Paid Journey', children: items, footer },
@@ -98,5 +99,38 @@ describe('AccountMenu', () => {
   it('keeps the trigger lit while its panel is open', () => {
     const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
     expect(container.querySelector('summary')?.className).toContain('group-open:bg-surface-2');
+  });
+
+  it('closes on a press outside it and on Escape, which returns focus to the trigger', async () => {
+    const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
+    const details = container.querySelector('details')!;
+    const summary = details.querySelector('summary')!;
+
+    details.open = true;
+    await fireEvent(details, new Event('toggle'));
+    await fireEvent.pointerDown(document.body);
+    expect(details.open).toBe(false);
+
+    details.open = true;
+    await fireEvent(details, new Event('toggle'));
+    await fireEvent.keyDown(document, { key: 'Escape' });
+    expect(details.open).toBe(false);
+    expect(document.activeElement).toBe(summary);
+  });
+
+  it('listens to the document only while it is open', async () => {
+    const add = vi.spyOn(document, 'addEventListener');
+    try {
+      const { container } = render(AccountMenu, {
+        props: { name: 'Paid Journey', children: items },
+      });
+      expect(add.mock.calls.filter(([type]) => type === 'pointerdown')).toHaveLength(0);
+      const details = container.querySelector('details')!;
+      details.open = true;
+      await fireEvent(details, new Event('toggle'));
+      expect(add.mock.calls.filter(([type]) => type === 'pointerdown')).toHaveLength(1);
+    } finally {
+      add.mockRestore();
+    }
   });
 });

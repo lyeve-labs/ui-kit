@@ -210,7 +210,8 @@ function channels(hex: string): number[] {
   return [1, 3, 5].map((i) => parseInt(six.slice(i, i + 2), 16));
 }
 
-function luminance(hex: string): number {
+/** WCAG 2.2 relative luminance of a hex color. */
+export function luminance(hex: string): number {
   const [r, g, b] = channels(hex).map((c) => {
     const s = c / 255;
     return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
@@ -218,7 +219,8 @@ function luminance(hex: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-function contrast(a: string, b: string): number {
+/** WCAG 2.2 contrast ratio between two hex colors. */
+export function contrast(a: string, b: string): number {
   const [x, y] = [luminance(a), luminance(b)];
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }

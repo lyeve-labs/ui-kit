@@ -11,10 +11,8 @@
  *
  * DatePicker binds `value` to an ISO calendar date spelled `YYYY-MM-DD`: four
  * digit year, two digit zero padded month, two digit zero padded day, with the
- * empty string standing for no date. Its `min` and `max` props take the same
- * spelling and are compared as plain strings, which works only because that
- * spelling sorts lexicographically. DateRangePicker and DateTimePicker will
- * carry the same value and need the same arithmetic, and each of the three is a
+ * empty string standing for no date, and its `min` and `max` props take the
+ * same spelling. DateTimePicker carries the same value, and each control is a
  * place the zone bug enters, so the arithmetic is stated once here.
  *
  * The numeric Date constructor is avoided as well. `new Date(24, 0, 1)` is
@@ -208,8 +206,7 @@ export function compareDates(a: CalendarDate, b: CalendarDate): number {
  * Inclusive on both ends. Either bound may be null, meaning unbounded.
  *
  * Inclusive because a picker given min and max for a single allowed day has to
- * offer that day. DatePicker compares its bounds as strings today, which agrees
- * with this only while every bound is zero padded.
+ * offer that day.
  */
 export function withinRange(
   date: CalendarDate,
@@ -226,11 +223,10 @@ export function withinRange(
  * change height between months. Cells outside the viewed month carry
  * `outside: true`.
  *
- * DatePicker pads its lead with empty spans and stops at the last day, so
- * February in a year where it starts on a Sunday draws four rows and a 31 day
- * month starting on a Saturday draws six. The popover resizes as the user pages
- * through the year and the day under the pointer moves out from under it. Fixed
- * at 42 because six weeks is the most any month can touch.
+ * Fixed at 42 because six weeks is the most any month can touch. A grid that
+ * stopped at the last day drew four rows for one February and six for another
+ * month, so the popover resized as the reader paged through the year and the
+ * day under the pointer moved out from under it.
  *
  * `weekStartsOn` is 0 for Sunday and 1 for Monday.
  */

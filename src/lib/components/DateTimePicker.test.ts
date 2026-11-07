@@ -78,7 +78,7 @@ describe('DateTimePicker value round trip', () => {
     // parts it can pick out of it would claim a value the field cannot emit.
     const r = render(DateTimePicker, { props: { value: '04/03/2026' } });
 
-    expect(dateTrigger(r).textContent).toContain('Select a date');
+    expect(dateTrigger(r).textContent).toContain('Choose a date');
     expect(hourOf(r).value).toBe('');
   });
 });
@@ -133,7 +133,7 @@ describe('DateTimePicker empty value', () => {
     // chose the moment they touched the other one.
     const r = render(DateTimePicker, { props: { value: '', name: 'at' } });
 
-    expect(dateTrigger(r).textContent).toContain('Select a date');
+    expect(dateTrigger(r).textContent).toContain('Choose a date');
     expect(hourOf(r).value).toBe('');
     expect(minuteOf(r).value).toBe('');
     expect(postedOf(r, 'at').value).toBe('');

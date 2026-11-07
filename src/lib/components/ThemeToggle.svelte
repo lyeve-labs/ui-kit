@@ -30,9 +30,9 @@
     /**
      * Which preferences to offer, in the order the button cycles through them.
      *
-     * A surface that must not offer `system` - a screen printed to a fixed
-     * palette, a kiosk - passes `['light', 'dark']` and gets the two-state
-     * control back with no other change.
+     * A surface that must not offer `system` (a screen printed to a fixed
+     * palette, a kiosk) passes `['light', 'dark']` and gets the two-state
+     * control with no other change.
      */
     order?: readonly ThemePreference[];
     class?: string;

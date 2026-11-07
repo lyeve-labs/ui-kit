@@ -22,9 +22,9 @@ describe('Card', () => {
 
   it('applies the md padding by default and sm when requested', () => {
     const md = render(Card, { props: { children: text('x') } });
-    expect(md.container.querySelector('.p-5')).toBeTruthy();
+    expect(md.container.querySelector('.p-card')).toBeTruthy();
     const sm = render(Card, { props: { children: text('x'), pad: 'sm' } });
-    expect(sm.container.querySelector('.p-4')).toBeTruthy();
+    expect(sm.container.querySelector('.p-card-sm')).toBeTruthy();
   });
 
   it('renders header and footer snippets', () => {

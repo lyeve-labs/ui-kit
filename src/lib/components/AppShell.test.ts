@@ -4,6 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppShell, { RAIL_REST_MS } from './AppShell.svelte';
 import * as motion from '../motion.js';
 
+const RAIL_TOGGLE = /^(Expand|Collapse) navigation$/;
+
 vi.mock('../motion.js', async (original) => {
   const real = await original<typeof import('../motion.js')>();
   return { ...real, drawer: vi.fn(real.drawer) };
@@ -54,7 +56,7 @@ describe('AppShell', () => {
     // announce the page name twice.
     const { container } = render(AppShell, { props: base });
     expect(container.querySelectorAll('h1, h2, h3, h4, h5, h6')).toHaveLength(0);
-    expect(container.querySelector('[data-testid="app-section"]')?.textContent?.trim()).toBe(
+    expect(container.querySelector('header span.font-semibold')?.textContent?.trim()).toBe(
       'Dashboard',
     );
   });
@@ -159,17 +161,17 @@ describe('AppShell', () => {
     expect(container.querySelector('header')!.textContent).toContain('Toggle');
   });
   it('offers no collapse control until a caller asks for one', () => {
-    const { queryByTestId } = render(AppShell, { props: base });
-    expect(queryByTestId('app-sidebar-toggle')).toBeNull();
+    const { queryByRole } = render(AppShell, { props: base });
+    expect(queryByRole('button', { name: RAIL_TOGGLE })).toBeNull();
   });
 
   it('puts the sidebar away above md: and keeps the control that brings it back', async () => {
     const { container, getByLabelText } = render(AppShell, {
       props: { ...base, collapsible: true },
     });
-    await fireEvent.click(getByLabelText('Hide sidebar'));
+    await fireEvent.click(getByLabelText('Collapse navigation'));
     expect(container.querySelector('aside')).toBeNull();
-    expect(getByLabelText('Show sidebar').getAttribute('aria-expanded')).toBe('false');
+    expect(getByLabelText('Expand navigation').getAttribute('aria-expanded')).toBe('false');
   });
 
   it('puts the header away above md: when asked, and the page keeps the way back', () => {
@@ -194,11 +196,11 @@ describe('AppShell', () => {
     // Honoring it there leaves the hamburger opening nothing, and the drawer
     // is the only way to the nav at that width.
     viewport(true);
-    const { getByLabelText, queryByTestId } = render(AppShell, {
+    const { getByLabelText, queryByRole } = render(AppShell, {
       props: { ...base, collapsible: true, collapsed: true, navOpen: true },
     });
     expect(getByLabelText('Close navigation')).toBeTruthy();
-    expect(queryByTestId('app-sidebar-toggle')).toBeNull();
+    expect(queryByRole('button', { name: RAIL_TOGGLE })).toBeNull();
   });
 });
 
@@ -222,8 +224,8 @@ describe('AppShell header controls answer a finger', () => {
    * the hamburger is the only way into the nav it never matched anything.
    */
   it('gives the sidebar toggle a held state', () => {
-    const { container } = render(AppShell, { props: { ...base, collapsible: true } });
-    const toggle = container.querySelector('[data-testid="app-sidebar-toggle"]') as HTMLElement;
+    const { getByRole } = render(AppShell, { props: { ...base, collapsible: true } });
+    const toggle = getByRole('button', { name: RAIL_TOGGLE });
     expect(toggle.className).toMatch(/\bactive:/);
   });
 });

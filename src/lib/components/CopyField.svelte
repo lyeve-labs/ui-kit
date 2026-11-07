@@ -25,8 +25,9 @@
   import type { Snippet } from 'svelte';
   import { Eye, EyeOff } from '@lucide/svelte';
   import { HIT_AREA } from '../internal/touch.js';
+  import { inSentence } from '../internal/words.js';
   import CopyGlyph from '../internal/CopyGlyph.svelte';
-  import { COPY_FAILED_MESSAGE, CopyState } from '../internal/copy.svelte.js';
+  import { COPY_FAILED_MASKED, COPY_FAILED_VISIBLE, CopyState } from '../internal/copy.svelte.js';
   import {
     FIELD_ERROR,
     FIELD_HINT,
@@ -79,13 +80,14 @@
 
   const uid = $props.id();
   const fieldId = $derived(id ?? uid);
-  const buttonName = $derived(copyLabel ?? (label ? `Copy ${label.toLowerCase()}` : 'Copy'));
+  const buttonName = $derived(copyLabel ?? (label ? `Copy ${inSentence(label)}` : 'Copy'));
 
   const copier = new CopyState();
   let revealed = $state(false);
   const masked = $derived(secret && !revealed);
   const wrapped = $derived(wrap && !masked);
   const failed = $derived(copier.status === 'failed');
+  const failedMessage = $derived(masked ? COPY_FAILED_MASKED : COPY_FAILED_VISIBLE);
 
   $effect(() => () => copier.dispose());
 </script>
@@ -131,7 +133,7 @@
           readonly
           {value}
           onfocus={(e) => e.currentTarget.select()}
-          aria-describedby={describedBy(fieldId, failed ? COPY_FAILED_MESSAGE : undefined, hint)}
+          aria-describedby={describedBy(fieldId, failed ? failedMessage : undefined, hint)}
           class="col-start-1 row-start-1 resize-none overflow-hidden bg-transparent px-3 py-1 text-sm break-all whitespace-pre-wrap text-fg outline-none {mono
             ? 'font-mono'
             : ''}"
@@ -145,7 +147,7 @@
         readonly
         {value}
         onfocus={(e) => e.currentTarget.select()}
-        aria-describedby={describedBy(fieldId, failed ? COPY_FAILED_MESSAGE : undefined, hint)}
+        aria-describedby={describedBy(fieldId, failed ? failedMessage : undefined, hint)}
         class="h-full min-w-0 flex-1 truncate bg-transparent px-3 text-sm text-fg outline-none {mono
           ? 'font-mono'
           : ''}"
@@ -188,7 +190,7 @@
     id={failed ? `${fieldId}-error` : undefined}
     class={failed ? FIELD_ERROR : 'sr-only'}
   >
-    {copier.status === 'copied' ? copiedLabel : failed ? COPY_FAILED_MESSAGE : ''}
+    {copier.status === 'copied' ? copiedLabel : failed ? failedMessage : ''}
   </div>
   {#if hint && !failed}
     <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>

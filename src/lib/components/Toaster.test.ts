@@ -26,7 +26,7 @@ describe('Toaster', () => {
   it('removes a toast when its dismiss button is clicked', async () => {
     toast.push('info', 'Dismiss me', 0);
     const { getByLabelText, queryByText } = render(Toaster);
-    await fireEvent.click(getByLabelText('Dismiss'));
+    await fireEvent.click(getByLabelText('Close'));
     expect(queryByText('Dismiss me')).toBeNull();
   });
 

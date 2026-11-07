@@ -2,9 +2,8 @@
  * Theme utilities: small, framework-agnostic helpers for managing the
  * `data-theme` attribute on `<html>` and persisting the user's choice.
  *
- * The `<ThemeToggle />` component uses these under the hood. You can also
- * call them directly when you need to set the theme from a layout, route
- * loader, or an inline `<script>` that runs before paint.
+ * `<ThemeToggle />` uses them, and a layout, a route loader or an inline
+ * `<script>` that runs before paint can call them too.
  *
  * Two vocabularies, and the distinction is the whole point:
  *

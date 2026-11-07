@@ -1,9 +1,9 @@
 <script lang="ts">
   /**
-   * DialogContainer - renders the dialog stack.
+   * Renders the dialog stack.
    *
-   * Mount once near the app root (in +layout.svelte).
-   * Reads from the module-level $state store - no props needed.
+   * Mount once near the app root (in +layout.svelte). It reads the
+   * module-level stack, so it takes no props.
    *
    * Dialogs stack bottom-to-top. Newest renders on top.
    * Each dialog gets its own focus trap, ESC handler, and backdrop.

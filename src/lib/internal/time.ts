@@ -40,7 +40,8 @@ const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
 
 /** The whole time as one number, so a comparison cannot compare the minute first. */
-function secondsOf(p: TimeParts): number {
+/** Seconds since midnight. */
+export function secondsOf(p: TimeParts): number {
   return p.h * SECONDS_PER_HOUR + p.mi * SECONDS_PER_MINUTE + p.s;
 }
 

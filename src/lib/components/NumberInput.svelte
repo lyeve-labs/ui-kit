@@ -1,18 +1,17 @@
 <script lang="ts">
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import { FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
   import { HIT_AREA } from '../internal/touch.js';
+  import { inSentence } from '../internal/words.js';
 
   interface Props {
     value?: number;
+    /** The lowest value. The decrease button is disabled at it. */
     min?: number;
+    /** The highest value. The increase button is disabled at it. */
     max?: number;
+    /** How far each button moves the value. */
     step?: number;
     disabled?: boolean;
     required?: boolean;
@@ -92,9 +91,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <div class="flex h-control">
@@ -102,7 +99,7 @@
       type="button"
       onclick={dec}
       disabled={!canDec}
-      aria-label="Decrease"
+      aria-label={label ? `Decrease ${inSentence(label)}` : 'Decrease'}
       class="{step_} rounded-s-lg border border-e-0 coarse:before:start-auto coarse:before:end-0"
     >
       <svg
@@ -146,7 +143,7 @@
       type="button"
       onclick={inc}
       disabled={!canInc}
-      aria-label="Increase"
+      aria-label={label ? `Increase ${inSentence(label)}` : 'Increase'}
       class="{step_} rounded-e-lg border border-s-0 coarse:before:start-0 coarse:before:end-auto"
     >
       <svg
@@ -164,9 +161,5 @@
     </button>
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

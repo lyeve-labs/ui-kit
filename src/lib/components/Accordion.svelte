@@ -3,7 +3,9 @@
   import type { Snippet } from 'svelte';
 
   interface Props {
+    /** Lets more than one item stay open. By default opening one closes the others. */
     multiple?: boolean;
+    /** Drops the outer border and rounding, for an accordion inside a card or panel. */
     flush?: boolean;
     class?: string;
     children: Snippet;

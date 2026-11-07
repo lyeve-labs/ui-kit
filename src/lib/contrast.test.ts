@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { APP_HEADER, PANEL_DANGER_SURFACE } from './internal/layout.js';
+import { APP_HEADER, NAV_ROW_REST, PANEL_DANGER_SURFACE } from './internal/layout.js';
+import { contrast } from './utils/palette.js';
 
 /**
  * The palette is the one place a defect reaches every surface at once, and it
@@ -23,17 +24,7 @@ import { APP_HEADER, PANEL_DANGER_SURFACE } from './internal/layout.js';
 
 const css = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
 
-/** WCAG 2.2 relative luminance. */
-function luminance(hex: string): number {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
-  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
-  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-}
-
-function ratio(a: string, b: string): number {
-  const [x, y] = [luminance(a), luminance(b)];
-  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
-}
+const ratio = contrast;
 
 /** Flatten `fg` at `alpha` over `bg`, which is what a /10 tint actually paints. */
 function over(fg: string, bg: string, alpha: number): string {
@@ -242,6 +233,7 @@ describe('an account menu row', () => {
   // the pointer and fg on line while held. Line is no ground for text
   // anywhere else, so the held step is measured here.
   const src = readFileSync(join(__dirname, 'components/AccountMenuItem.svelte'), 'utf8');
+  const rest = src.includes('NAV_ROW_REST') ? `${src} ${NAV_ROW_REST}` : src;
   const paints = [
     ['muted', 'surface', 'text-muted'],
     ['fg', 'surface-2', 'hover:bg-surface-2 hover:text-fg'],
@@ -249,7 +241,7 @@ describe('an account menu row', () => {
   ] as const;
 
   it('paints the three steps measured below', () => {
-    for (const [, , classes] of paints) expect(src).toContain(classes);
+    for (const [, , classes] of paints) expect(rest).toContain(classes);
   });
 
   it.each([
@@ -257,7 +249,9 @@ describe('an account menu row', () => {
     ['light', light],
   ] as const)('clears 4.5:1 at every step in the %s palette', (_scope, tokens) => {
     for (const [text, ground] of paints) {
-      expect(ratio(tokens[text], tokens[ground]), `${text} on ${ground}`).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(tokens[text], tokens[ground]), `${text} on ${ground}`).toBeGreaterThanOrEqual(
+        4.5,
+      );
     }
   });
 });
@@ -332,7 +326,8 @@ const heroShare = Number(
  */
 const wellToken = /--inset-shadow-well:([^;]*);/.exec(css)?.[1] ?? '';
 const wellShare =
-  Number(/color-mix\(in srgb, var\(--color-shade\) (\d+)%, transparent\)/.exec(wellToken)?.[1]) / 100;
+  Number(/color-mix\(in srgb, var\(--color-shade\) (\d+)%, transparent\)/.exec(wellToken)?.[1]) /
+  100;
 
 describe('the field well', () => {
   it('names the share of shade it paints', () => {
@@ -392,9 +387,10 @@ describe.each([
     // The button's boundary is its fill. Hovered, the fill sits in its glow.
     for (const ground of GROUNDS) {
       const halo = flat('glow', tokens[ground]);
-      expect(ratio(tokens['brand-light'], halo), `hovered fill on ${ground}`).toBeGreaterThanOrEqual(
-        3,
-      );
+      expect(
+        ratio(tokens['brand-light'], halo),
+        `hovered fill on ${ground}`,
+      ).toBeGreaterThanOrEqual(3);
     }
   });
 
@@ -437,7 +433,10 @@ function paint(expr: string, tokens: Record<string, string>): Paint {
   if (v) return { hex: tokens[v[1]], alpha: 1 };
   const rgb = /^rgb\((\d+) (\d+) (\d+) \/ ([0-9.]+)\)$/.exec(e);
   if (rgb) {
-    const hex = `#${rgb.slice(1, 4).map((c) => Number(c).toString(16).padStart(2, '0')).join('')}`;
+    const hex = `#${rgb
+      .slice(1, 4)
+      .map((c) => Number(c).toString(16).padStart(2, '0'))
+      .join('')}`;
     return { hex, alpha: Number(rgb[4]) };
   }
   const mix = /^color-mix\(in srgb, (.+)\)$/.exec(e);
@@ -497,7 +496,7 @@ describe.each([
     // A pool that reached the other's center would stack on it there, and
     // the suite measures them one at a time.
     const [a, b] = args(image(scope, 'canvas')).map((g) => {
-      const [, radius, center] = /^radial-gradient\((\d+)% \d+px at (\d+)% /.exec(g) ?? [];
+      const [, radius, center] = /^radial-gradient\(\s*(\d+)% \d+px at (\d+)% /.exec(g) ?? [];
       return { radius: Number(radius), center: Number(center) };
     });
     expect(Math.abs(a.center - b.center)).toBeGreaterThanOrEqual(Math.max(a.radius, b.radius));
@@ -537,9 +536,10 @@ describe.each([
     for (const [surface, list] of Object.entries(grounds)) {
       expect(list.length, surface).toBeGreaterThan(0);
       for (const ground of list) {
-        expect(ratio(tokens[name], ground), `${name} on the ${surface} at ${ground}`).toBeGreaterThanOrEqual(
-          4.5,
-        );
+        expect(
+          ratio(tokens[name], ground),
+          `${name} on the ${surface} at ${ground}`,
+        ).toBeGreaterThanOrEqual(4.5);
       }
     }
   });
@@ -588,7 +588,10 @@ describe.each([
       }
       for (const [ground, hex] of Object.entries(grounds)) {
         const chip = over(tokens[name], hex, 0.1);
-        expect(ratio(tokens[name], chip), `${name} badge on ${ground} ${hex}`).toBeGreaterThanOrEqual(4.5);
+        expect(
+          ratio(tokens[name], chip),
+          `${name} badge on ${ground} ${hex}`,
+        ).toBeGreaterThanOrEqual(4.5);
       }
     },
   );

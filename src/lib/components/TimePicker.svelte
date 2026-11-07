@@ -1,10 +1,9 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import {
     CONTROL_SEGMENT,
     CONTROL_SEGMENTED,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
     FIELD_WRAP,
     describedBy,
     segmentedBorder,
@@ -48,6 +47,7 @@
   type DigitSegment = Exclude<TimeSegment, 'meridiem'>;
 
   interface Props {
+    /** The time as 24-hour `HH:MM`, or `HH:MM:SS` with `seconds`, or the empty string. Bindable. */
     value?: string;
     id?: string;
     name?: string;
@@ -60,7 +60,9 @@
     hour12?: boolean;
     /** Minute and second step. Arrow keys move by this. */
     step?: number;
+    /** The earliest time, in the `value` format. An earlier entry is moved up to it. */
     min?: string;
+    /** The latest time, in the `value` format. A later entry is moved down to it. */
     max?: string;
     required?: boolean;
     disabled?: boolean;
@@ -450,9 +452,7 @@
     <!-- `for` the hour so a click lands somewhere useful, while the group below
          takes its name from this same element. The hour keeps its own aria-label,
          which is what a screen reader reads for it. -->
-    <label id="{fieldId}-label" for="{fieldId}-hour" class={FIELD_LABEL}>
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel id="{fieldId}-label" for="{fieldId}-hour" text={label} {required} />
   {/if}
 
   <!--
@@ -545,9 +545,5 @@
        and in 12-hour display two of them would be the wrong numbers. -->
   <input type="hidden" {name} {value} />
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

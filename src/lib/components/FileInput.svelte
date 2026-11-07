@@ -1,22 +1,21 @@
 <script lang="ts">
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-  } from '../internal/field.js';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import { FIELD_WRAP, describedBy } from '../internal/field.js';
   import { describeAccept } from '../internal/accept.js';
   interface Props {
     id?: string;
     name?: string;
+    /** The file types to offer, as the input's `accept` attribute. Listed under the prompt in plain words. */
     accept?: string;
+    /** Takes more than one file. */
     multiple?: boolean;
     disabled?: boolean;
     error?: string;
     hint?: string;
     label?: string;
     class?: string;
+    /** Runs with the chosen or dropped files. */
     onchange?: (files: FileList | null) => void;
   }
 
@@ -32,6 +31,11 @@
     class: cls = '',
     onchange = undefined,
   }: Props = $props();
+
+  // $props.id() and not the label, as every other field: without an id the
+  // label pointed at nothing and the messages had no ids to be described by.
+  const uid = $props.id();
+  const fieldId = $derived(id ?? uid);
 
   let dragOver = $state(false);
   const types = $derived(describeAccept(accept ?? ''));
@@ -50,7 +54,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={id} class={FIELD_LABEL}>{label}</label>
+    <FieldLabel for={fieldId} text={label} />
   {/if}
 
   <!-- The dashed border is the only thing marking this region as a control, so
@@ -95,27 +99,25 @@
       <line x1="12" y1="3" x2="12" y2="15" />
     </svg>
     <div class="text-sm">
-      <span class="{error ? 'text-danger' : 'text-brand'} font-medium">Click to upload</span>
-      <span class="text-muted"> or drag & drop</span>
+      <span class="{error ? 'text-danger' : 'text-brand'} font-medium"
+        >{multiple ? 'Choose files' : 'Choose a file'}</span
+      >
+      <span class="text-muted">{multiple ? ' or drop them here' : ' or drop it here'}</span>
       {#if types}<p class="mt-0.5 text-xs text-faint [overflow-wrap:anywhere]">{types}</p>{/if}
     </div>
     <input
       type="file"
-      {id}
+      id={fieldId}
       {name}
       {accept}
       {multiple}
       {disabled}
       onchange={handleChange}
       aria-invalid={error ? 'true' : undefined}
-      aria-describedby={describedBy(id, error, hint)}
+      aria-describedby={describedBy(fieldId, error, hint)}
       class="sr-only"
     />
   </label>
 
-  {#if error}
-    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

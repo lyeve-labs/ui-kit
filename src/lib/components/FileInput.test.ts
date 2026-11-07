@@ -29,7 +29,7 @@ describe('FileInput', () => {
 
   it('renders the upload prompt', () => {
     const { getByText } = render(FileInput, { props: {} });
-    expect(getByText('Click to upload')).toBeTruthy();
+    expect(getByText('Choose a file')).toBeTruthy();
   });
 
   it('renders a label and the accepted types', () => {
@@ -184,5 +184,14 @@ describe('FileInput', () => {
     await fireEvent.drop(label);
     // onchange should not be called because disabled check
     expect(onchange).not.toHaveBeenCalled();
+  });
+
+  it('names its input and describes it by the hint without an id of its own', () => {
+    const { getByLabelText, getByText } = render(FileInput, {
+      props: { label: 'Logo', hint: 'PNG up to 1 MB' },
+    });
+    const input = getByLabelText('Logo') as HTMLInputElement;
+    expect(input.type).toBe('file');
+    expect(input.getAttribute('aria-describedby')).toBe(getByText('PNG up to 1 MB').id);
   });
 });

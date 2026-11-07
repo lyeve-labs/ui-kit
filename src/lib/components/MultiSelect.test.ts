@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import type { FilterFn } from '../internal/filter.js';
-import type { ListOption } from './Autocomplete.svelte';
+import type { ListOption } from '../internal/listbox.svelte.js';
 import MultiSelect from './MultiSelect.svelte';
 
 const options = [
@@ -35,6 +35,11 @@ describe('MultiSelect', () => {
       props: { options, value: [], placeholder: 'Choose tags' },
     });
     expect(getByText('Choose tags')).toBeTruthy();
+  });
+
+  it('states the empty value when no placeholder is passed', () => {
+    const { getByText } = render(MultiSelect, { props: { options, value: [] } });
+    expect(getByText('None selected')).toBeTruthy();
   });
 
   it('opens the option list when the trigger is clicked', async () => {
@@ -296,7 +301,8 @@ describe('matching', () => {
 describe('the parts it no longer owns', () => {
   it('shares one option type with Autocomplete rather than declaring a second', () => {
     // The interface was written out in both files, character for character.
-    expect(source).toContain("import type { ListOption } from './Autocomplete.svelte'");
+    // It lives in the listbox module now, beside the item it extends.
+    expect(source).toContain("import type { ListOption } from '../internal/listbox.svelte.js'");
     expect(source).not.toMatch(/interface Option\b/);
   });
 

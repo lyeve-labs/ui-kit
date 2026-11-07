@@ -21,15 +21,9 @@
 </script>
 
 <script lang="ts" generics="T extends string">
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-    joinIds,
-  } from '../internal/field.js';
-  import { safeHref } from '../internal/href.js';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import { FIELD_LABEL, FIELD_WRAP, describedBy, joinIds } from '../internal/field.js';
+  import { assertLinked, safeHref } from '../internal/href.js';
   import type { IconPx } from '../internal/icon.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -138,15 +132,7 @@
    * links would report a choice that the URL never learns about, and the
    * caller has no way to see that from the screen.
    */
-  const linked = $derived.by(() => {
-    const count = options.filter((o) => o.href !== undefined).length;
-    if (count !== 0 && count !== options.length) {
-      throw new Error(
-        `SegmentedControl: every option carries href or none does, ${count} of ${options.length} did`,
-      );
-    }
-    return count !== 0;
-  });
+  const linked = $derived(assertLinked(options, 'SegmentedControl'));
 
   const selectedIndex = $derived(options.findIndex((o) => o.value === value));
 
@@ -338,11 +324,7 @@
     {/each}
   </div>
 
-  {#if error}
-    <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{messageBase}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={messageBase} {error} {hint} />
 
   {#if name}
     <!-- A div with role="radiogroup" submits nothing. The value reaches a form

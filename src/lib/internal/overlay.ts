@@ -11,6 +11,8 @@
  * Not exported from the package entry point: this is an implementation detail.
  */
 
+import { countFields } from './field.js';
+
 /**
  * Elements that can hold focus. `[tabindex="-1"]` is excluded because it is
  * programmatically focusable but not part of the tab sequence, which is what
@@ -108,3 +110,36 @@ export function overlay(node: HTMLElement): { destroy(): void } {
     },
   };
 }
+
+/**
+ * Reports how many fields an overlay's body holds, and keeps reporting it.
+ *
+ * The count is measured rather than declared, so it cannot go stale. A form
+ * that reveals two more fields when a period is set to custom, or drops a
+ * whole section behind a toggle, changes what it needs while it is open,
+ * which is why the observer stays for as long as the body does. It runs in
+ * the same task as the mount, before the browser paints the panel, so an
+ * overlay opens at the width it will keep.
+ */
+export function measureFields(
+  node: HTMLElement,
+  report: (fields: number) => void,
+): { update(next: (fields: number) => void): void; destroy(): void } {
+  let send = report;
+  const measure = () => send(countFields(node));
+  measure();
+  const observer = new MutationObserver(measure);
+  observer.observe(node, { childList: true, subtree: true });
+  return {
+    update(next) {
+      send = next;
+    },
+    destroy() {
+      observer.disconnect();
+    },
+  };
+}
+
+/** The footer band Modal and Drawer put their actions in. */
+export const OVERLAY_FOOTER =
+  'flex shrink-0 items-center justify-end gap-2 border-t border-line bg-surface-2/40 px-5 py-3';

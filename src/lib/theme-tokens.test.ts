@@ -550,7 +550,9 @@ describe('depth', () => {
       Math.max(...[...value(token).matchAll(/\b0 -?\d+px (\d+)px/g)].map((m) => Number(m[1])));
     const ramp = ['--shadow-raised', '--shadow-card', '--shadow-popover', '--shadow-overlay'];
     for (let i = 1; i < ramp.length; i += 1) {
-      expect(reach(ramp[i]), `${ramp[i]} against ${ramp[i - 1]}`).toBeGreaterThan(reach(ramp[i - 1]));
+      expect(reach(ramp[i]), `${ramp[i]} against ${ramp[i - 1]}`).toBeGreaterThan(
+        reach(ramp[i - 1]),
+      );
     }
   });
 
@@ -564,7 +566,10 @@ describe('depth', () => {
       if (token === '--inset-shadow-bevel' || token.startsWith('--shadow-primary')) continue;
       const allowed = ['highlight', 'shade', 'glow'];
       expect(colors.length, `${token} names no depth color`).toBeGreaterThan(0);
-      expect(colors.every((c) => allowed.includes(c)), token).toBe(true);
+      expect(
+        colors.every((c) => allowed.includes(c)),
+        token,
+      ).toBe(true);
     }
   });
 
@@ -602,7 +607,9 @@ describe('depth', () => {
     // draws no layer, so each is drawn again for the light palette rather
     // than inherited.
     for (const name of ['canvas', 'card']) {
-      expect(light.slice(0, light.indexOf('\n}')), `light ${name}`).toContain(`--background-image-${name}:`);
+      expect(light.slice(0, light.indexOf('\n}')), `light ${name}`).toContain(
+        `--background-image-${name}:`,
+      );
     }
     for (const name of ['highlight', 'shade', 'glow']) {
       expect(light.slice(0, light.indexOf('}')), `light ${name}`).toContain(`--color-${name}:`);
@@ -616,7 +623,17 @@ describe('depth', () => {
     expect(value('--color-halo')).toBe('var(--color-brand)');
     expect(print).toMatch(/--color-halo: transparent/);
     expect(forced).toMatch(/--color-halo: transparent/);
-    for (const name of ['hero', 'accent', 'accent-y', 'canvas', 'sidebar', 'card', 'lift', 'rule-y', 'rule-end']) {
+    for (const name of [
+      'hero',
+      'accent',
+      'accent-y',
+      'canvas',
+      'sidebar',
+      'card',
+      'lift',
+      'rule-y',
+      'rule-end',
+    ]) {
       expect(forced, `forced ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
       expect(print, `print ${name}`).toMatch(new RegExp(`--background-image-${name}: none`));
     }
@@ -666,11 +683,15 @@ describe('depth', () => {
       const src = readFileSync(join(__dirname, 'components', name), 'utf8');
       for (const [cls] of src.matchAll(/\S*bg-accent(?:-y)?\b/g)) {
         const prefix = cls.slice(0, cls.indexOf('bg-accent'));
-        expect(src, `${name} paints ${cls} with no solid brand under it`).toContain(`${prefix}bg-brand `);
+        expect(src, `${name} paints ${cls} with no solid brand under it`).toContain(
+          `${prefix}bg-brand `,
+        );
         // The horizontal accent runs from the start edge, so under
         // right-to-left the mark is mirrored, as the header rule is.
         if (!cls.endsWith('-y')) {
-          expect(src, `${name} does not mirror ${cls} under rtl`).toContain(`rtl:${prefix}-scale-x-100`);
+          expect(src, `${name} does not mirror ${cls} under rtl`).toContain(
+            `rtl:${prefix}-scale-x-100`,
+          );
         }
       }
     }
