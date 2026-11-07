@@ -23,6 +23,7 @@
 </script>
 
 <script lang="ts" generics="T extends string">
+  import FieldMessage from '../internal/FieldMessage.svelte';
   /**
    * One filter out of many: a row of chips that wraps.
    *
@@ -36,7 +37,7 @@
    * filter the page keeps in its URL.
    */
   import { cn } from '../utils/cn.js';
-  import { FIELD_ERROR, FIELD_HINT, describedBy, joinIds } from '../internal/field.js';
+  import { describedBy, joinIds } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -176,11 +177,7 @@
     {/if}
   {/each}
 </div>
-{#if error}
-  <p id="{messageBase}-error" class="{FIELD_ERROR} mt-1.5">{error}</p>
-{:else if hint}
-  <p id="{messageBase}-hint" class="{FIELD_HINT} mt-1.5">{hint}</p>
-{/if}
+<FieldMessage base={messageBase} {error} {hint} class="mt-1.5" />
 
 {#snippet face(chip: FilterChip<T>)}
   {#if chip.icon}

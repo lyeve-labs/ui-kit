@@ -1,9 +1,8 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import {
     CONTROL_BASE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
     FIELD_WRAP,
     controlBorder,
     describedBy,
@@ -71,9 +70,7 @@
 
 <div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <input
@@ -89,9 +86,5 @@
     {...rest}
   />
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

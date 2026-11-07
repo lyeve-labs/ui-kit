@@ -1,11 +1,7 @@
 <script lang="ts">
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-  } from '../internal/field.js';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import { FIELD_WRAP, describedBy } from '../internal/field.js';
   import { describeAccept } from '../internal/accept.js';
   interface Props {
     id?: string;
@@ -36,6 +32,11 @@
     onchange = undefined,
   }: Props = $props();
 
+  // $props.id() and not the label, as every other field: without an id the
+  // label pointed at nothing and the messages had no ids to be described by.
+  const uid = $props.id();
+  const fieldId = $derived(id ?? uid);
+
   let dragOver = $state(false);
   const types = $derived(describeAccept(accept ?? ''));
 
@@ -53,7 +54,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={id} class={FIELD_LABEL}>{label}</label>
+    <FieldLabel for={fieldId} text={label} />
   {/if}
 
   <!-- The dashed border is the only thing marking this region as a control, so
@@ -106,21 +107,17 @@
     </div>
     <input
       type="file"
-      {id}
+      id={fieldId}
       {name}
       {accept}
       {multiple}
       {disabled}
       onchange={handleChange}
       aria-invalid={error ? 'true' : undefined}
-      aria-describedby={describedBy(id, error, hint)}
+      aria-describedby={describedBy(fieldId, error, hint)}
       class="sr-only"
     />
   </label>
 
-  {#if error}
-    <p id={id ? `${id}-error` : undefined} class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id={id ? `${id}-hint` : undefined} class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

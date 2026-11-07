@@ -1,15 +1,9 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { HIT_AREA } from '../internal/touch.js';
-  import {
-    CONTROL_BASE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
   import { PANEL_LIST_UNCAPPED, PANEL_SURFACE, placePanel } from '../internal/panel.js';
   import * as motion from '../motion.js';
   import {
@@ -149,9 +143,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}" bind:this={containerEl}>
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <div class="relative">
@@ -312,9 +304,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

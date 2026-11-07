@@ -1,4 +1,6 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   /**
    * A date and a time as one field, composed from DatePicker and TimePicker.
    *
@@ -46,13 +48,7 @@
 
   import { compareDates, parseISODate, toISODate } from '../internal/calendar.js';
   import type { CalendarDate } from '../internal/calendar.js';
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-  } from '../internal/field.js';
+  import { FIELD_WRAP, describedBy } from '../internal/field.js';
   import { parseISOTime, toISOTime } from '../internal/time.js';
   import type { TimeParts } from '../internal/time.js';
   import DatePicker from './DatePicker.svelte';
@@ -280,9 +276,7 @@
     <!-- `for` the date trigger. A button is labelable, so the field's own label
          names it and clicking that label opens the calendar. The group below
          takes its name from this same element. -->
-    <label id="{fieldId}-label" for="{fieldId}-date" class={FIELD_LABEL}>
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel id="{fieldId}-label" for="{fieldId}-date" text={label} {required} />
   {/if}
 
   <!--
@@ -329,9 +323,5 @@
        so a submit posts the instant and not the two strings it was built from. -->
   <input type="hidden" {name} {value} />
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

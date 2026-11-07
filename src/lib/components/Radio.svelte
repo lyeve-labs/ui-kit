@@ -1,6 +1,8 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import type { Component } from 'svelte';
-  import { FIELD_ERROR, FIELD_HINT, FIELD_WRAP } from '../internal/field.js';
+  import { FIELD_WRAP } from '../internal/field.js';
   import {
     CHOICE_DESCRIPTION,
     CHOICE_FOCUS,
@@ -144,9 +146,13 @@
                  the description below stays a description. Read as the label's
                  own text it became part of the name, and the reader heard the
                  whole paragraph before it reached the selected state. -->
-            <span id="{fieldId}-label" class="{choiceLabel(size)} {labelHidden ? 'sr-only' : ''}">
-              {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-            </span>
+            <FieldLabel
+              id="{fieldId}-label"
+              text={label}
+              {required}
+              class={choiceLabel(size)}
+              hidden={labelHidden}
+            />
           {/if}
         </span>
       {/if}
@@ -180,9 +186,5 @@
     </label>
   {/if}
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

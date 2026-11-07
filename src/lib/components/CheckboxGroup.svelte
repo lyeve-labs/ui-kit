@@ -24,6 +24,8 @@
 </script>
 
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import {
     CHOICE_GROUP,
     CHOICE_LEGEND,
@@ -32,7 +34,7 @@
     type ChoiceSize,
     type ChoiceVariant,
   } from '../internal/choice.js';
-  import { FIELD_ERROR, FIELD_HINT, describedBy } from '../internal/field.js';
+  import { describedBy } from '../internal/field.js';
   import Checkbox from './Checkbox.svelte';
 
   interface Props {
@@ -129,13 +131,9 @@
     so a reader moving through the page would meet the options with nothing
     ahead of them saying what the set is for.
   -->
-  <legend class="{CHOICE_LEGEND} {labelHidden ? 'sr-only' : ''}">
-    {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span><span
-        class="sr-only"
-      >
-        (required)</span
-      >{/if}
-  </legend>
+  <FieldLabel as="legend" text={label} {required} class={CHOICE_LEGEND} hidden={labelHidden}>
+    {#if required}<span class="sr-only"> (required)</span>{/if}
+  </FieldLabel>
 
   <div class={choiceGroupList(orientation, size, variant)}>
     {#each options as option (option.value)}
@@ -160,9 +158,5 @@
     {/each}
   </div>
 
-  {#if error}
-    <p id="{uid}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{uid}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={uid} {error} {hint} />
 </fieldset>

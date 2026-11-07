@@ -25,6 +25,8 @@
 </script>
 
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import {
     CHOICE_GROUP,
     CHOICE_LEGEND,
@@ -33,7 +35,7 @@
     type ChoiceSize,
     type ChoiceVariant,
   } from '../internal/choice.js';
-  import { FIELD_ERROR, FIELD_HINT, describedBy, joinIds } from '../internal/field.js';
+  import { describedBy, joinIds } from '../internal/field.js';
   import Radio from './Radio.svelte';
 
   interface Props {
@@ -125,9 +127,7 @@
     so a reader moving through the page would meet the options with nothing
     ahead of them saying what the set is for.
   -->
-  <legend class="{CHOICE_LEGEND} {labelHidden ? 'sr-only' : ''}">
-    {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-  </legend>
+  <FieldLabel as="legend" text={label} {required} class={CHOICE_LEGEND} hidden={labelHidden} />
 
   <div class={choiceGroupList(orientation, size, variant)}>
     {#each options as option (option.value)}
@@ -153,9 +153,5 @@
     {/each}
   </div>
 
-  {#if error}
-    <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{messageBase}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={messageBase} {error} {hint} />
 </fieldset>

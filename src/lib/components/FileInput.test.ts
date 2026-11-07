@@ -185,4 +185,13 @@ describe('FileInput', () => {
     // onchange should not be called because disabled check
     expect(onchange).not.toHaveBeenCalled();
   });
+
+  it('names its input and describes it by the hint without an id of its own', () => {
+    const { getByLabelText, getByText } = render(FileInput, {
+      props: { label: 'Logo', hint: 'PNG up to 1 MB' },
+    });
+    const input = getByLabelText('Logo') as HTMLInputElement;
+    expect(input.type).toBe('file');
+    expect(input.getAttribute('aria-describedby')).toBe(getByText('PNG up to 1 MB').id);
+  });
 });

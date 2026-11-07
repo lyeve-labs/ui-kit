@@ -1,4 +1,6 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import { X } from '@lucide/svelte';
   import type { ListOption } from '../internal/listbox.svelte.js';
   /**
@@ -11,15 +13,7 @@
    * owns: whether the input is showing a query being typed or the label of the
    * row already chosen.
    */
-  import {
-    CONTROL_BASE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
@@ -157,9 +151,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <div class="relative" bind:this={fieldEl} use:anchor>
@@ -269,9 +261,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

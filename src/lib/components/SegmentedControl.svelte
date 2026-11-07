@@ -21,14 +21,8 @@
 </script>
 
 <script lang="ts" generics="T extends string">
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-    joinIds,
-  } from '../internal/field.js';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import { FIELD_LABEL, FIELD_WRAP, describedBy, joinIds } from '../internal/field.js';
   import { safeHref } from '../internal/href.js';
   import type { IconPx } from '../internal/icon.js';
   import { HIT_AREA } from '../internal/touch.js';
@@ -338,11 +332,7 @@
     {/each}
   </div>
 
-  {#if error}
-    <p id="{messageBase}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{messageBase}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={messageBase} {error} {hint} />
 
   {#if name}
     <!-- A div with role="radiogroup" submits nothing. The value reaches a form

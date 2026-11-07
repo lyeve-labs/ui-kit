@@ -1,12 +1,7 @@
 <script lang="ts">
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import { FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
   import { HIT_AREA } from '../internal/touch.js';
   import { inSentence } from '../internal/words.js';
 
@@ -96,9 +91,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <div class="flex h-control">
@@ -168,9 +161,5 @@
     </button>
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

@@ -352,7 +352,11 @@ function surfacesWithoutExit(src: string): string[] {
 }
 
 /** The asterisk a component draws beside a label when the field is required. */
-const REQUIRED_MARKER = /\{#if required\}\s*<span/;
+/** A marker drawn in place. A screen-reader-only word after it is not one. */
+const LITERAL_MARKER = /\{#if required\}\s*<span(?![^>]*sr-only)/;
+
+/** A marker drawn in place, or through FieldLabel, which draws it for the field. */
+const REQUIRED_MARKER = /\{#if required\}\s*<span|<FieldLabel\b[^>]*\{required\}/;
 
 /**
  * The two components that draw the marker for a control they do not own. Field
@@ -360,7 +364,7 @@ const REQUIRED_MARKER = /\{#if required\}\s*<span/;
  * caller wrote. Neither can set the attribute, so both say so in the prop doc
  * and the caller sets it.
  */
-const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label'];
+const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label', 'internal/FieldLabel'];
 
 /**
  * Portalled overlays own the whole viewport, so `class` has no unambiguous
@@ -488,7 +492,8 @@ describe('component consistency', () => {
     '%s shows an error instead of a hint, never both at once',
     (name) => {
       const src = files.find((x) => x.name === name)!.src;
-      expect(src, `${name} stacks its hint under its error`).toContain('{:else if hint}');
+      const either = src.includes('{:else if hint}') || /<FieldMessage\b/.test(src);
+      expect(either, `${name} stacks its hint under its error`).toBe(true);
     },
   );
 
@@ -559,7 +564,7 @@ describe('component consistency', () => {
     // The other half of the same rule. Dropping the aria-label alone leaves the
     // bare "*" in the name, so a field announces as "Email star".
     const offenders = files
-      .filter((f) => REQUIRED_MARKER.test(f.src))
+      .filter((f) => LITERAL_MARKER.test(f.src))
       .filter((f) => !/\{#if required\}\s*<span[^>]*aria-hidden="true"/.test(f.src))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
@@ -1061,10 +1066,12 @@ describe('a field says that it is one', () => {
    */
   const wrappers = files.filter((f) => {
     const src = code(f.src);
+    // An internal piece renders inside a field and is never one itself.
+    if (f.name.startsWith('internal/')) return false;
     return (
       /FIELD_WRAP/.test(src) ||
       /role="radiogroup"|CHOICE_GROUP/.test(src) ||
-      /FIELD_ERROR/.test(src) ||
+      /FIELD_ERROR|<FieldMessage\b/.test(src) ||
       (/label\?:/.test(src) && CONTROL.test(src))
     );
   });

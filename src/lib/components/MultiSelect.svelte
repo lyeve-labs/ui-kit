@@ -1,4 +1,6 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import { ChevronDown, X } from '@lucide/svelte';
   /**
    * Several values from one list, shown as removable chips, with an optional
@@ -11,13 +13,7 @@
    */
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { HIT_AREA } from '../internal/touch.js';
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-  } from '../internal/field.js';
+  import { FIELD_WRAP, describedBy } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
     PANEL_EMPTY,
@@ -169,9 +165,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label id="{fieldId}-label" for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel id="{fieldId}-label" for={fieldId} text={label} {required} />
   {/if}
 
   <div class="relative" use:anchor>
@@ -355,9 +349,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>
