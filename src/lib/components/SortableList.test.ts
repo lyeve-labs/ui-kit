@@ -53,7 +53,32 @@ const alt = (key: 'ArrowUp' | 'ArrowDown', extra: Partial<KeyboardEventInit> = {
   ...extra,
 });
 
+/** A mouse pointer event. The test DOM has no PointerEvent, so the fields are set on a MouseEvent. */
+function pointer(type: string): MouseEvent {
+  const event = new MouseEvent(type, { bubbles: true, button: 0 });
+  Object.assign(event, { pointerId: 1, pointerType: 'mouse' });
+  return event;
+}
+
 describe('SortableList', () => {
+  it('listens to the window for the end of a gesture only while one is held', async () => {
+    const add = vi.spyOn(window, 'addEventListener');
+    const remove = vi.spyOn(window, 'removeEventListener');
+    try {
+      const { handle } = setup();
+      const ups = (spy: typeof add) => spy.mock.calls.filter(([type]) => type === 'pointerup');
+      expect(ups(add)).toHaveLength(0);
+      await fireEvent(handle('Hero'), pointer('pointerdown'));
+      expect(ups(add)).toHaveLength(1);
+      await fireEvent(window, pointer('pointerup'));
+      await tick();
+      expect(ups(remove)).toHaveLength(1);
+    } finally {
+      add.mockRestore();
+      remove.mockRestore();
+    }
+  });
+
   it('names the list and every handle by its row', () => {
     const { getByRole, handle } = setup();
     expect(getByRole('list', { name: 'Sections' })).toBeTruthy();

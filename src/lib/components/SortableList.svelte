@@ -106,6 +106,8 @@
   }
 
   let press: Press | null = null;
+  /** A press is held, so the window listens for how it ends. */
+  let pressing = $state(false);
   let drag = $state<Drag | null>(null);
   /**
    * Whether the handle's latest press lifted its row, so the click that ends
@@ -231,6 +233,7 @@
     const handle = e.currentTarget as HTMLElement;
     const held: Press = { pointerId: e.pointerId, id, x: e.clientX, y: e.clientY, handle };
     press = held;
+    pressing = true;
     if (e.pointerType === 'touch') held.timer = setTimeout(() => lift(held), TOUCH_HOLD_MS);
     else handle.setPointerCapture?.(e.pointerId);
   }
@@ -333,6 +336,7 @@
   function quit() {
     if (press) clearTimeout(press.timer);
     press = null;
+    pressing = false;
   }
 
   function stop() {
@@ -375,7 +379,9 @@
 
   $effect(() => {
     // The window hears how a gesture ends even once the handle that began it
-    // has left the document, as when the caller removes the row mid-drag.
+    // has left the document, as when the caller removes the row mid-drag. It
+    // listens only while a press or a drag is under way.
+    if (!pressing && !drag) return;
     window.addEventListener('pointerup', releaseHandle, true);
     window.addEventListener('pointercancel', cancelPointer, true);
     window.addEventListener('lostpointercapture', cancelPointer, true);
