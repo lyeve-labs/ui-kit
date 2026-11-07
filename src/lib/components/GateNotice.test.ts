@@ -121,7 +121,7 @@ describe('Try again', () => {
     }
   });
 
-  it('links to the address the page passes, so it works before the page hydrates', () => {
+  it('links to the address the page passes, so the link opens before the page hydrates', () => {
     expect(retry({ state: 'unavailable' })?.getAttribute('href')).toBe(RETRY);
   });
 

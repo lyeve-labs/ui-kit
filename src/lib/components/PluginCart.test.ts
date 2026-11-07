@@ -69,7 +69,7 @@ describe('PluginCart', () => {
     expect(queryByLabelText(/Later/)).toBeNull();
   });
 
-  it('posts each choice under a field name, so a form still works with no JavaScript', () => {
+  it('posts each choice under a field name, so a form submits them with no JavaScript', () => {
     const { container } = render(PluginCart, { props: { plugins: PLUGINS, fieldName: 'sku' } });
     const boxes = container.querySelectorAll('input[type="checkbox"][name="sku"]');
     expect(boxes.length).toBe(2);
