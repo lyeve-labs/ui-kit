@@ -428,7 +428,7 @@
 
       {#if count === 0}
         <p class="py-6 text-center text-sm text-muted">
-          No capabilities picked yet. With none, you stay on the free tier.
+          No capabilities chosen yet. With none, you stay on the Free plan.
         </p>
       {:else}
         <ul class="mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
