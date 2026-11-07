@@ -11,8 +11,15 @@
   } from '../internal/field.js';
   import { PANEL_LIST_UNCAPPED, PANEL_SURFACE, placePanel } from '../internal/panel.js';
   import * as motion from '../motion.js';
-  // DatePicker: a text trigger + calendar popover. Binds `value` to an ISO date
-  // string ("YYYY-MM-DD"). Pure local-date math (no timezone surprises).
+  import {
+    addMonths,
+    monthGrid,
+    parseISODate,
+    toISODate,
+    todayLocal,
+    withinRange,
+    type CalendarDate,
+  } from '../internal/calendar.js';
   let {
     value = $bindable(''),
     label = undefined,
@@ -77,88 +84,47 @@
   let open = $state(false);
   let containerEl: HTMLDivElement | undefined = $state();
 
-  function parseISO(s?: string): { y: number; m: number; d: number } | null {
-    if (!s) return null;
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
-    if (!m) return null;
-    return { y: +m[1], m: +m[2], d: +m[3] };
-  }
-  function pad(n: number) {
-    return n < 10 ? `0${n}` : `${n}`;
-  }
-  function toISO(y: number, m: number, d: number) {
-    return `${y}-${pad(m)}-${pad(d)}`;
-  }
+  const today = todayLocal();
+  const todayISO = toISODate(today);
 
-  const today = new Date();
-  const initial = parseISO(value) ?? {
-    y: today.getFullYear(),
-    m: today.getMonth() + 1,
-    d: today.getDate(),
-  };
-  let viewYear = $state(initial.y);
-  let viewMonth = $state(initial.m); // 1-12
+  /** The month on screen, always on its first day. */
+  let view = $state<CalendarDate>({ ...(parseISODate(value) ?? today), d: 1 });
 
+  /**
+   * The chosen day as en-US spells it, "Jun 15, 2024". Fixed rather than the
+   * browser's locale, so the server and the browser render the same text.
+   */
   const display = $derived.by(() => {
-    const p = parseISO(value);
+    const p = parseISODate(value);
     if (!p) return '';
-    return new Date(p.y, p.m - 1, p.d).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return `${MONTHS[p.m - 1].slice(0, 3)} ${p.d}, ${p.y}`;
   });
 
-  // Grid of day numbers (null = leading blank) for the viewed month.
-  const cells = $derived.by(() => {
-    const firstDow = new Date(viewYear, viewMonth - 1, 1).getDay();
-    const days = new Date(viewYear, viewMonth, 0).getDate();
-    const out: (number | null)[] = [];
-    for (let i = 0; i < firstDow; i++) out.push(null);
-    for (let d = 1; d <= days; d++) out.push(d);
-    return out;
-  });
+  const cells = $derived(monthGrid(view.y, view.m));
+  const bounds = $derived({ min: parseISODate(min), max: parseISODate(max) });
 
-  const todayISO = toISO(today.getFullYear(), today.getMonth() + 1, today.getDate());
-
-  function isDisabled(d: number) {
-    const iso = toISO(viewYear, viewMonth, d);
-    if (min && iso < min) return true;
-    if (max && iso > max) return true;
-    return false;
+  function isDisabled(date: CalendarDate) {
+    return !withinRange(date, bounds.min, bounds.max);
   }
 
-  function pick(d: number) {
-    if (isDisabled(d)) return;
-    value = toISO(viewYear, viewMonth, d);
+  function pick(date: CalendarDate) {
+    if (isDisabled(date)) return;
+    value = toISODate(date);
     onchange?.(value);
     open = false;
   }
 
   function prevMonth() {
-    if (viewMonth === 1) {
-      viewMonth = 12;
-      viewYear -= 1;
-    } else {
-      viewMonth -= 1;
-    }
+    view = addMonths(view, -1);
   }
   function nextMonth() {
-    if (viewMonth === 12) {
-      viewMonth = 1;
-      viewYear += 1;
-    } else {
-      viewMonth += 1;
-    }
+    view = addMonths(view, 1);
   }
 
   function openCal() {
     if (disabled) return;
-    const p = parseISO(value);
-    if (p) {
-      viewYear = p.y;
-      viewMonth = p.m;
-    }
+    const p = parseISODate(value);
+    if (p) view = { ...p, d: 1 };
     open = true;
   }
 
@@ -296,7 +262,7 @@
                 /></svg
               >
             </button>
-            <span class="text-sm font-medium text-fg">{MONTHS[viewMonth - 1]} {viewYear}</span>
+            <span class="text-sm font-medium text-fg">{MONTHS[view.m - 1]} {view.y}</span>
             <button
               type="button"
               aria-label="Next month"
@@ -317,7 +283,7 @@
 
           <!-- Weekday labels -->
           <div class="grid grid-cols-7 mb-1">
-            {#each WEEKDAYS as wd}
+            {#each WEEKDAYS as wd (wd)}
               <span class="text-center text-[0.65rem] font-medium text-faint py-1">{wd}</span>
             {/each}
           </div>
@@ -334,15 +300,15 @@
             class="@container grid grid-cols-7 gap-0.5 coarse:gap-y-3 coarse:[--hit-width:min(var(--spacing-control),calc((100cqw_+_0.125rem)_/_7))]"
             data-day-grid
           >
-            {#each cells as d}
-              {#if d === null}
+            {#each cells as cell (toISODate(cell.date))}
+              {#if cell.outside}
                 <span></span>
               {:else}
-                {@const iso = toISO(viewYear, viewMonth, d)}
+                {@const iso = toISODate(cell.date)}
                 <button
                   type="button"
-                  disabled={isDisabled(d)}
-                  onclick={() => pick(d)}
+                  disabled={isDisabled(cell.date)}
+                  onclick={() => pick(cell.date)}
                   aria-current={iso === todayISO ? 'date' : undefined}
                   aria-label={iso}
                   class="{HIT_AREA} h-8 w-8 mx-auto flex items-center justify-center rounded-md text-sm transition-colors
@@ -351,7 +317,7 @@
                     ? 'bg-brand text-ink font-medium'
                     : iso === todayISO
                       ? 'text-brand font-medium hover:bg-surface-2'
-                      : 'text-fg hover:bg-surface-2'}">{d}</button
+                      : 'text-fg hover:bg-surface-2'}">{cell.date.d}</button
                 >
               {/if}
             {/each}
