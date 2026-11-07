@@ -2,10 +2,9 @@
  * The single source of truth for how a form control looks and announces itself.
  *
  * Every text-entry control in the library composes its classes from here rather
- * than spelling them out inline. The nine controls had drifted into three focus
- * treatments, two wrapper gaps, two error-border opacities and two heights, so
- * an Input and a NumberInput placed side by side did not line up. Changing a
- * control's appearance now means changing one of these constants.
+ * than spelling them out inline, so an Input and a NumberInput placed side by
+ * side line up, and changing a control's appearance means changing one of
+ * these constants.
  *
  * Not exported from the package entry point: this is an implementation detail.
  */
@@ -68,17 +67,13 @@ export const CONTROL_FOCUS_RING =
  * Everything a single-line control needs except its border color.
  *
  * `h-control` is a theme token (2.375rem / 38px), not a literal, so the height
- * is stated once. Controls that grow with their content: Textarea, the
- * MultiSelect chip well: use `CONTROL_MULTILINE` instead and keep the token as
+ * is stated once. Controls that grow with their content (Textarea, the
+ * MultiSelect chip well) use `CONTROL_MULTILINE` instead and keep the token as
  * a minimum.
- */
-/**
- * outline-none must be paired with a replacement. It was not here: theme.css
- * declares a global :focus-visible outline of 2px solid brand, chosen for its
- * contrast, and a utility beats the base layer, so these two canceled the
- * kit's own focus indicator for every text input, textarea, number and select.
- * Focus was left as a 1px border-color change. SidebarNav's buttons and
- * CONTROL_SEGMENT already pair the two correctly. These did half of it.
+ *
+ * `outline-none` is paired with CONTROL_FOCUS_RING, because a utility beats the
+ * global `:focus-visible` outline in theme.css and would otherwise leave focus
+ * as a 1px border-color change.
  */
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +

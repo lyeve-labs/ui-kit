@@ -38,7 +38,7 @@
    * The frame renders `main` and the drawer's dialog role. It renders no `nav`
    * and no heading: the nav comes from the caller's SidebarNav, which is the
    * only navigation landmark in the page, and the page's own PageShell owns the
-   * one `h1`. The section name here is a span for that reason - a second `h1`
+   * one `h1`. The section name here is a span for that reason: a second `h1`
    * in the header makes a heading query answer with two elements and a screen
    * reader announce the page name twice.
    */

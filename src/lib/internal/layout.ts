@@ -2,18 +2,13 @@
  * The single source of truth for how a page, a card, a table and a modal are
  * spaced.
  *
- * Nothing in the library owned the page frame, so every page invented one. The
- * same gutter ships in four spellings, five content caps are in use with no
- * rule for picking between them, a section heading is spelled fourteen ways,
- * and card surfaces are hand-rolled in nine paddings while Card itself goes
- * unused. The components disagree with each other too: Card pads its header
- * 16px down and its footer 12px down for no reason a reader can infer, and
- * Modal insets its panel 20px where Dialog insets the same kind of panel 24px.
+ * Before this module nothing in the library owned the page frame, so every
+ * page invented one: four spellings of one gutter, five content caps with no
+ * rule for picking between them, fourteen section headings, and card surfaces
+ * in nine paddings while Card itself went unused.
  *
  * Every value composes from a `--spacing-*` token rather than a Tailwind
- * number. That is the only thing that makes the tokens real. Of the ten the
- * theme declares, `--spacing-control` was the one with any uses, and it had
- * them because the field contract composes from it.
+ * number, so changing a token changes every surface that uses it.
  *
  * Not exported from the package entry point: this is an implementation detail.
  */
@@ -173,8 +168,7 @@ export const CARD_HEADER = 'px-card py-card-sm border-b border-line';
 export const CARD_FOOTER = 'px-card py-card-sm border-t border-line bg-surface-2/40';
 
 /**
- * A placeholder inside a card, where three spellings of the same centered muted
- * line currently ship.
+ * A placeholder inside a card: one centered muted line.
  *
  * An empty list is not an error, so it reads as muted body copy and not as a
  * warning. The section gap above and below keeps a card holding nothing from
@@ -212,9 +206,7 @@ export const MODAL_PAD = 'px-card py-card-sm';
  * A section heading below the page title. Level 2 sits under the title, level 3
  * inside a card.
  *
- * Fourteen distinct class strings serve this role, so two sections on the same
- * page can render at different sizes and weights. Taking the level rather than
- * a free-form string means the class cannot disagree with the heading element
+ * Taking the level rather than a free-form string means the class cannot disagree with the heading element
  * the caller is already writing.
  *
  * `eyebrow` is the small uppercase label the consoles use to head a band of

@@ -496,7 +496,7 @@ describe.each([
     // A pool that reached the other's center would stack on it there, and
     // the suite measures them one at a time.
     const [a, b] = args(image(scope, 'canvas')).map((g) => {
-      const [, radius, center] = /^radial-gradient\((\d+)% \d+px at (\d+)% /.exec(g) ?? [];
+      const [, radius, center] = /^radial-gradient\(\s*(\d+)% \d+px at (\d+)% /.exec(g) ?? [];
       return { radius: Number(radius), center: Number(center) };
     });
     expect(Math.abs(a.center - b.center)).toBeGreaterThanOrEqual(Math.max(a.radius, b.radius));

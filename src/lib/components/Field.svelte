@@ -3,8 +3,8 @@
    * What Field hands the control it wraps.
    *
    * The wiring is the whole point of the component. A consumer building a
-   * control the kit does not ship - a color well, a code editor, a third
-   * party map picker - cannot reach internal/field.ts, so it hand-copies the
+   * control the kit does not ship (a color well, a code editor, a third
+   * party map picker) cannot reach internal/field.ts, so it hand-copies the
    * class strings and stops there: a form in a consuming app spelled
    * `class="flex flex-col gap-1.5"` inline, which is the literal value of
    * FIELD_WRAP, and then wired nothing. The control had no id, the label had

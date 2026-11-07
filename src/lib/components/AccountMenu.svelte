@@ -8,7 +8,7 @@
    * header, so the same account block was in two places depending on which of
    * our own products you were looking at. The sidebar is also the worst of the
    * two: it is already full height, so opening a menu in its last row pushes
-   * the last entry - Sign out, every time - past the bottom edge of the window.
+   * the last entry (Sign out, every time) past the bottom edge of the window.
    * The header has room below it by construction.
    *
    * A native `details`, not a menu assembled from buttons. The panel holds
