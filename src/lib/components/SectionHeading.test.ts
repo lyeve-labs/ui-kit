@@ -123,7 +123,7 @@ describe('SectionHeading actions on a narrow screen', () => {
         actions,
       },
     });
-    const slot = container.querySelector('[data-testid="section-actions"]') as HTMLElement;
+    const slot = container.querySelector('h2')!.nextElementSibling as HTMLElement;
     const list = slot.className.split(/\s+/);
     expect(list).not.toContain('shrink-0');
     expect(list).toContain('flex-wrap');

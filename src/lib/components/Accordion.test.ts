@@ -59,21 +59,15 @@ describe('Accordion with items', () => {
     expect(container.querySelector('[data-accordion="wrapper"]')).toBeTruthy();
   });
 
-  it('in single mode, opening one item closes others', async () => {
-    // The multiple=false (default) mode is tested implicitly
-    // by the context setup. We can verify that flush=false
-    // sets the context property correctly by checking
-    // the outer wrapper class when flush is default.
+  it('draws the rounded frame when flush is off', () => {
     const { container } = render(Accordion, { props: { children: text('x') } });
-    // When flush=false, the container should have rounded-xl
     expect((container.firstElementChild as HTMLElement).className).toContain('rounded-xl');
   });
 
-  it('in multiple mode, allows multiple open items', () => {
+  it('keeps the rounded frame in multiple mode', () => {
     const { container } = render(Accordion, {
       props: { children: text('x'), multiple: true },
     });
-    // Multiple mode doesn't affect the wrapper class
     expect((container.firstElementChild as HTMLElement).className).toContain('rounded-xl');
   });
 });

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronRight } from '@lucide/svelte';
   import { safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -14,20 +15,7 @@
 <nav aria-label="Breadcrumb" class="flex items-center gap-1 text-xs {cls}">
   {#each items as item, i}
     {#if i > 0}
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-faint shrink-0 rtl:rotate-180"
-        aria-hidden="true"
-      >
-        <path d="M9 18l6-6-6-6" />
-      </svg>
+      <ChevronRight size={12} class="text-faint shrink-0 rtl:rotate-180" aria-hidden="true" />
     {/if}
 
     {#if item.href && i < items.length - 1}

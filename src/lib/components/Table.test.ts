@@ -8,8 +8,7 @@ const body = createRawSnippet(() => ({
 }));
 
 /** The focusable box, which is now inside the frame the border is drawn on. */
-const scroller = (root: ParentNode) =>
-  root.querySelector('[data-testid="table-scroll"]') as HTMLElement;
+const scroller = (root: ParentNode) => root.querySelector('table')!.parentElement as HTMLElement;
 
 /**
  * jsdom lays nothing out, so every scroll metric it reports is 0 and no table
@@ -55,8 +54,8 @@ describe('Table', () => {
   it('clips the rows to its rounded frame', () => {
     // The hovered row's fill is square and the frame is not. On the last row
     // the corners drew past the frame.
-    const { getByTestId } = render(Table, { props: { children: body } });
-    const frame = getByTestId('table-frame');
+    const { container } = render(Table, { props: { children: body } });
+    const frame = container.firstElementChild as HTMLElement;
     expect(frame.className).toContain('overflow-hidden');
     expect(frame.className).toContain('rounded-card');
   });
@@ -64,8 +63,8 @@ describe('Table', () => {
   it('keeps the card surface on its frame without the top wash', () => {
     // Under an opaque head row the wash only lightened the first body rows,
     // so the rows were not one color at rest.
-    const { getByTestId } = render(Table, { props: { children: body } });
-    const cls = getByTestId('table-frame').className.split(/\s+/);
+    const { container } = render(Table, { props: { children: body } });
+    const cls = (container.firstElementChild as HTMLElement).className.split(/\s+/);
     expect(cls).toEqual(
       expect.arrayContaining(['bg-surface', 'border', 'border-line', 'shadow-card']),
     );

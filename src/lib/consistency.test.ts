@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ICON_LADDER, type IconPx } from './internal/icon.js';
+import { CHIP_TONE } from './internal/tone.js';
 
 /**
  * The library drifted because nothing measured it. Every component was correct
@@ -16,19 +17,27 @@ import { ICON_LADDER, type IconPx } from './internal/icon.js';
  */
 
 const COMPONENTS = join(__dirname, 'components');
+const INTERNAL = join(__dirname, 'internal');
 
+/**
+ * Every component, and every internal piece of markup the components render,
+ * so moving a header or a glyph into internal/ does not move it out from
+ * under these checks. An internal file is named `internal/<name>`.
+ */
 function componentFiles(): { name: string; path: string; src: string }[] {
   const walk = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)],
     );
-  return walk(COMPONENTS)
-    .filter((p) => p.endsWith('.svelte'))
-    .map((path) => ({
-      name: path.slice(COMPONENTS.length + 1).replace(/\.svelte$/, ''),
-      path,
-      src: readFileSync(path, 'utf8'),
-    }));
+  const read = (root: string, prefix: string) =>
+    walk(root)
+      .filter((p) => p.endsWith('.svelte'))
+      .map((path) => ({
+        name: prefix + path.slice(root.length + 1).replace(/\.svelte$/, ''),
+        path,
+        src: readFileSync(path, 'utf8'),
+      }));
+  return [...read(COMPONENTS, ''), ...read(INTERNAL, 'internal/')];
 }
 
 const files = componentFiles();
@@ -344,7 +353,11 @@ function surfacesWithoutExit(src: string): string[] {
 }
 
 /** The asterisk a component draws beside a label when the field is required. */
-const REQUIRED_MARKER = /\{#if required\}\s*<span/;
+/** A marker drawn in place. A screen-reader-only word after it is not one. */
+const LITERAL_MARKER = /\{#if required\}\s*<span(?![^>]*sr-only)/;
+
+/** A marker drawn in place, or through FieldLabel, which draws it for the field. */
+const REQUIRED_MARKER = /\{#if required\}\s*<span|<FieldLabel\b[^>]*\{required\}/;
 
 /**
  * The two components that draw the marker for a control they do not own. Field
@@ -352,7 +365,7 @@ const REQUIRED_MARKER = /\{#if required\}\s*<span/;
  * caller wrote. Neither can set the attribute, so both say so in the prop doc
  * and the caller sets it.
  */
-const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label'];
+const NO_CONTROL_OF_THEIR_OWN = ['Field', 'Label', 'internal/FieldLabel'];
 
 /**
  * Portalled overlays own the whole viewport, so `class` has no unambiguous
@@ -480,13 +493,15 @@ describe('component consistency', () => {
     '%s shows an error instead of a hint, never both at once',
     (name) => {
       const src = files.find((x) => x.name === name)!.src;
-      expect(src, `${name} stacks its hint under its error`).toContain('{:else if hint}');
+      const either = src.includes('{:else if hint}') || /<FieldMessage\b/.test(src);
+      expect(either, `${name} stacks its hint under its error`).toBe(true);
     },
   );
 
   it('lets the consumer position anything that is not a portalled overlay', () => {
+    // An internal piece is placed by the component that renders it, never by a consumer.
     const offenders = files
-      .filter((f) => !PORTALLED.includes(f.name))
+      .filter((f) => !PORTALLED.includes(f.name) && !f.name.startsWith('internal/'))
       .filter((f) => !/class:\s*(klass|cls)\b/.test(f.src))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
@@ -512,8 +527,11 @@ describe('component consistency', () => {
     // container with overflow-hidden crops it. On the accordion that showed as
     // a stray colored line under the open header: three edges clipped, one
     // left. A component that clips must draw its focus ring inset instead.
+    // A scrim button with tabindex="-1" never takes focus, so it has no ring to clip.
     const offenders = files
-      .filter((f) => f.src.includes('overflow-hidden') && f.src.includes('<button'))
+      .filter(
+        (f) => f.src.includes('overflow-hidden') && /<button(?![^>]*tabindex="-1")/.test(f.src),
+      )
       .filter((f) => !f.src.includes('focus-visible:ring-inset'))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
@@ -547,7 +565,7 @@ describe('component consistency', () => {
     // The other half of the same rule. Dropping the aria-label alone leaves the
     // bare "*" in the name, so a field announces as "Email star".
     const offenders = files
-      .filter((f) => REQUIRED_MARKER.test(f.src))
+      .filter((f) => LITERAL_MARKER.test(f.src))
       .filter((f) => !/\{#if required\}\s*<span[^>]*aria-hidden="true"/.test(f.src))
       .map((f) => f.name);
     expect(offenders).toEqual([]);
@@ -813,11 +831,15 @@ describe('tone vocabulary', () => {
   const ACCENT = ['neutral', 'brand', 'success', 'warn', 'danger', 'violet'];
   const STATUS = ['neutral', 'brand', 'success', 'warn', 'danger'];
 
-  it.each(['Badge', 'Tag', 'Indicator', 'Progress'])('%s covers every accent tone', (name) => {
+  it.each(['Badge', 'Indicator', 'Progress'])('%s covers every accent tone', (name) => {
     const src = files.find((f) => f.name === name)!.src;
     for (const tone of ACCENT) {
       expect(src, `${name} has no ${tone} tone`).toMatch(new RegExp(`\\b${tone}:`));
     }
+  });
+
+  it('covers every accent tone in the chip map Badge and Tag share', () => {
+    expect(Object.keys(CHIP_TONE).sort()).toEqual([...ACCENT].sort());
   });
 
   it.each(['Alert', 'Banner', 'Toaster'])('%s covers every status tone', (name) => {
@@ -1049,10 +1071,12 @@ describe('a field says that it is one', () => {
    */
   const wrappers = files.filter((f) => {
     const src = code(f.src);
+    // An internal piece renders inside a field and is never one itself.
+    if (f.name.startsWith('internal/')) return false;
     return (
       /FIELD_WRAP/.test(src) ||
       /role="radiogroup"|CHOICE_GROUP/.test(src) ||
-      /FIELD_ERROR/.test(src) ||
+      /FIELD_ERROR|<FieldMessage\b/.test(src) ||
       (/label\?:/.test(src) && CONTROL.test(src))
     );
   });

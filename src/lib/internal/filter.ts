@@ -1,16 +1,15 @@
 /**
  * One filter contract for every list-bearing control.
  *
- * MultiSelect and Autocomplete each spelled the same expression by hand, at
- * MultiSelect.svelte:51-53 and Autocomplete.svelte:60-64:
+ * MultiSelect and Autocomplete once spelled the same expression by hand:
  *
  *     options.filter((o) => o.label.toLowerCase().includes(query.trim().toLowerCase()))
  *
- * It reads the label and nothing else, so an option a user knows by its value,
- * its airport code or a synonym could not be found. It compares raw code
+ * It read the label and nothing else, so an option a user knows by its value,
+ * its airport code or a synonym could not be found. It compared raw code
  * points, so a query of "cafe" missed an option labeled with an acute accent.
- * It trims and lowercases the query once per option instead of once per
- * keystroke. And it is not a prop, so a consumer whose list arrives already
+ * It trimmed and lowercased the query once per option instead of once per
+ * keystroke. And it was not a prop, so a consumer whose list arrives already
  * narrowed by a server query had no way to switch local filtering off or to say
  * what a match means for their data. Both controls now call applyFilter, which
  * takes a matcher the call site can replace or disable.
@@ -58,9 +57,8 @@ export function normalize(value: string): string {
 
 /**
  * The default matcher: case- and accent-insensitive substring over the label,
- * plus any keywords the option carries. Label-only matching is what ships
- * today. Keywords are additive and absent on every existing option, so adopting
- * this changes no current list.
+ * plus any keywords the option carries. Keywords are additive, so an option
+ * without them matches on its label alone.
  *
  * An empty needle keeps every option. applyFilter answers an empty query before
  * it reaches a matcher, so this case is here for a call site that composes the

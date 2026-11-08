@@ -38,7 +38,7 @@
    * The frame renders `main` and the drawer's dialog role. It renders no `nav`
    * and no heading: the nav comes from the caller's SidebarNav, which is the
    * only navigation landmark in the page, and the page's own PageShell owns the
-   * one `h1`. The section name here is a span for that reason - a second `h1`
+   * one `h1`. The section name here is a span for that reason: a second `h1`
    * in the header makes a heading query answer with two elements and a screen
    * reader announce the page name twice.
    */
@@ -61,14 +61,7 @@
     section?: string;
     /** Bindable so the app router can close the drawer after a navigation. */
     navOpen?: boolean;
-    /**
-     * Offers a control that puts the sidebar away above md:.
-     *
-     * Opt-in rather than on by default: three products render this shell, and
-     * a new button in every header of all three is a decision each of them
-     * makes for itself. A page that owns the viewport - a canvas, a split pane
-     * - is the case it exists for.
-     */
+    /** Offers a control that puts the sidebar away above md:. */
     collapsible?: boolean;
     /**
      * Whether the sidebar is put away. Desktop only: below md: the sidebar is
@@ -90,13 +83,10 @@
      */
     headerHidden?: boolean;
     /**
-     * Narrows the sidebar to the icon rail at every width above md:.
-     *
-     * The rail is automatic between md: and lg:, where the 224px column left a
-     * 768px window 496px for the page. A page that owns the viewport - a
-     * canvas, a split pane - asks for it at every width with this. The labels
-     * still come back under a pointer or the keyboard. Below md: the sidebar
-     * is the drawer whatever this says.
+     * Narrows the sidebar to the icon rail at every width above md:. The rail
+     * is automatic between md: and lg: either way. The labels still come back
+     * under a pointer or the keyboard, and below md: the sidebar is the drawer
+     * whatever this says.
      */
     rail?: boolean;
     /** The sidebar landmark's accessible name. */
@@ -342,9 +332,8 @@
                the header's first control sits in one place at every width. -->
             <button
               type="button"
-              data-testid="app-sidebar-toggle"
               class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-              aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+              aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
               aria-expanded={!collapsed}
               onclick={() => (collapsed = !collapsed)}
             >
@@ -352,7 +341,7 @@
             </button>
           {/if}
           {#if section}
-            <span data-testid="app-section" class="truncate text-sm font-semibold text-fg">
+            <span class="truncate text-sm font-semibold text-fg">
               {section}
             </span>
           {/if}

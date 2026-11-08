@@ -33,7 +33,9 @@
     side: 'start' | 'end';
     /** The width it opens at until somebody drags it. */
     width?: number;
+    /** The narrowest a drag can make it, in pixels. */
     min?: number;
+    /** The widest a drag can make it, in pixels. */
     max?: number;
     /** Where the desktop controls start. */
     breakpoint?: Breakpoint;
@@ -52,6 +54,7 @@
     meta?: Snippet;
     /** Classes for the aside element itself, for the stacked layout's share of the height. */
     class?: string;
+    /** The `data-testid` on the aside, its strip and its handle. Defaults to `aside-<storageKey>`. */
     testId?: string;
     children: Snippet;
   }

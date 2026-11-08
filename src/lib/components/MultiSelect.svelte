@@ -1,4 +1,7 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import { ChevronDown, X } from '@lucide/svelte';
   /**
    * Several values from one list, shown as removable chips, with an optional
    * search box in the panel.
@@ -10,23 +13,19 @@
    */
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { HIT_AREA } from '../internal/touch.js';
-  import {
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    describedBy,
-  } from '../internal/field.js';
+  import { FIELD_WRAP, describedBy } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
     PANEL_EMPTY,
     PANEL_LIST,
     PANEL_SURFACE,
     panelOption,
+    PANEL_SEARCH,
     placePanel,
   } from '../internal/panel.js';
   import * as motion from '../motion.js';
-  import type { ListOption } from './Autocomplete.svelte';
+  import { CHOICE_MARK } from '../internal/choice.js';
+  import type { ListOption } from '../internal/listbox.svelte.js';
 
   interface Props {
     /** The chosen values, in the order they were picked. */
@@ -56,7 +55,7 @@
     label = undefined,
     hint = undefined,
     error = undefined,
-    placeholder = 'Select…',
+    placeholder = 'None selected',
     searchable = true,
     disabled = false,
     required = false,
@@ -166,9 +165,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label id="{fieldId}-label" for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel id="{fieldId}-label" for={fieldId} text={label} {required} />
   {/if}
 
   <div class="relative" use:anchor>
@@ -226,21 +223,13 @@
           <span class="sr-only">{selected.map((option) => option.label).join(', ')}</span>
         {/if}
         <span class="ms-auto shrink-0 text-faint" aria-hidden="true">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
+          <ChevronDown
+            size={12}
+            absoluteStrokeWidth
+            strokeWidth={1.5}
             class="transition-transform duration-base {box.open ? 'rotate-180' : ''}"
-          >
-            <path
-              d="M2 4l4 4 4-4"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+            aria-hidden="true"
+          />
         </span>
       </div>
       {#each selected as option (option.value)}
@@ -270,18 +259,7 @@
               is the same 12px cross Autocomplete clears its value with. It
               was drawn a pixel smaller here for no reason anyone recorded.
             -->
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+            <X size={12} strokeWidth={2.5} aria-hidden="true" />
           </button>
         </span>
       {/each}
@@ -303,9 +281,7 @@
               placeholder="Search"
               aria-label={label ? `Search ${label}` : 'Search options'}
               {...box.triggerAttrs}
-              class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
-                text-sm text-fg outline-none transition-colors
-                placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35"
+              class={PANEL_SEARCH}
             />
           </div>
         {/if}
@@ -354,7 +330,7 @@
                 {#if isSelected}
                   <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
                     <path
-                      d="M1 4l3 3 5-6"
+                      d={CHOICE_MARK.check}
                       stroke="currentColor"
                       stroke-width="1.5"
                       stroke-linecap="round"
@@ -373,9 +349,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

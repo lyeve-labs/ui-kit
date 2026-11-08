@@ -29,4 +29,14 @@ describe('StepIndicator', () => {
     const { container } = render(StepIndicator, { props: { steps, current: 1 } });
     expect(container.querySelector('nav[aria-label="Progress"]')).toBeTruthy();
   });
+
+  it('takes a name of its own in either orientation', () => {
+    for (const orientation of ['horizontal', 'vertical'] as const) {
+      const { getByRole, unmount } = render(StepIndicator, {
+        props: { steps, current: 1, orientation, label: 'Setup progress' },
+      });
+      expect(getByRole('navigation', { name: 'Setup progress' })).toBeTruthy();
+      unmount();
+    }
+  });
 });

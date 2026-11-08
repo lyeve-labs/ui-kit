@@ -5,7 +5,7 @@ import SearchInput from './SearchInput.svelte';
 describe('SearchInput', () => {
   it('uses a default placeholder', () => {
     const { container } = render(SearchInput, { props: {} });
-    expect(container.querySelector('input')?.getAttribute('placeholder')).toBe('Search…');
+    expect(container.querySelector('input')?.getAttribute('placeholder')).toBe('Search');
   });
 
   it('renders the current value', () => {

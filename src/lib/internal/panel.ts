@@ -121,6 +121,10 @@ export const PANEL_OPTION_DISABLED = 'pointer-events-none opacity-40';
  */
 export const PANEL_EMPTY = 'px-2 py-2 text-sm text-faint';
 
+/** The search box at the top of a Select or MultiSelect panel. */
+export const PANEL_SEARCH =
+  'w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35';
+
 /**
  * A group heading inside the list. Not focusable, so it takes no row classes,
  * only the row's horizontal padding so it lines up with the labels below it.
@@ -358,6 +362,62 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
       window.removeEventListener('resize', measure);
       scroller.removeEventListener('scroll', measure);
       if (reserved && anchor !== null) anchor.style.marginBottom = '';
+    },
+  };
+}
+
+export interface DismissOptions {
+  /** Listens only while this is true, so a closed menu costs the document nothing. */
+  open: boolean;
+  /** A press that starts outside the node. */
+  onoutside: () => void;
+  /** Escape, wherever focus is. */
+  onescape: () => void;
+}
+
+/**
+ * Closes a menu or a popover on a press outside it and on Escape.
+ *
+ * pointerdown rather than click, as the listboxes do: a press that starts
+ * outside has already closed the panel by the time the click lands, so the
+ * click reaches what the reader aimed at, and every kind of menu closes on the
+ * same event.
+ */
+export function dismissOnOutside(
+  node: HTMLElement,
+  options: DismissOptions,
+): { update(next: DismissOptions): void; destroy(): void } {
+  let current = options;
+  let listening = false;
+
+  function press(event: PointerEvent): void {
+    if (!node.contains(event.target as Node)) current.onoutside();
+  }
+  function key(event: KeyboardEvent): void {
+    if (event.key === 'Escape') current.onescape();
+  }
+  function sync(): void {
+    const want = current.open && typeof document !== 'undefined';
+    if (want === listening) return;
+    if (want) {
+      document.addEventListener('pointerdown', press, true);
+      document.addEventListener('keydown', key);
+    } else {
+      document.removeEventListener('pointerdown', press, true);
+      document.removeEventListener('keydown', key);
+    }
+    listening = want;
+  }
+
+  sync();
+  return {
+    update(next) {
+      current = next;
+      sync();
+    },
+    destroy() {
+      current = { ...current, open: false };
+      sync();
     },
   };
 }

@@ -1,6 +1,8 @@
 # @lyeve-labs/ui-kit
 
-A clean, accessible Svelte 5 component library. The design system behind [LyEve](https://lyeve.com).
+A component library for Svelte 5 and Tailwind CSS 4, with a dark and a light
+theme drawn from one stylesheet of design tokens. It is the design system the
+[LyEve](https://lyeve.com) applications are built from.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Svelte 5](https://img.shields.io/badge/svelte-5-ff3e00.svg)](https://svelte.dev)
@@ -17,27 +19,26 @@ pnpm add @lyeve-labs/ui-kit @lucide/svelte
 </script>
 
 <Card title="Welcome">
-  <p>Three lines from a clean dark dashboard.</p>
-  <Button onclick={() => toast.success('Hello, world!')}>Try it</Button>
+  <p>Your account is ready.</p>
+  <Button onclick={() => toast.success('Invitation sent.')}>Invite teammate</Button>
 </Card>
 ```
 
-No config file, no theme provider, no setup ceremony.
+Importing the stylesheet is the only setup. There is no config file and no
+theme provider.
 
----
+## What the package holds
 
-## What's in the box
-
-- **79 components:** buttons, inputs, modals, drawers, tabs, tables, toasts, the works.
-- **Two themes:** Soft Dark (default) and Soft Light, switched by a single `data-theme` attribute on `<html>`.
-- **One CSS file:** `@lyeve-labs/ui-kit/styles.css` declares every token. The rest is just Tailwind.
-- **Svelte 5 native:** built on runes and snippets, fully typed end-to-end.
-- **No surprises:** a `<Button />` is a `<button>`, an `<Input />` is an `<input>`. Markup matches the preview.
+- **Components** for layout, forms, navigation, overlays and feedback, listed below.
+- **Two themes:** Soft Dark, the default, and Soft Light, switched by the `data-theme` attribute on `<html>`.
+- **One stylesheet:** `@lyeve-labs/ui-kit/styles.css` declares every token, and the components style themselves with Tailwind utilities that read them.
+- **Svelte 5 runes and snippets**, with every prop typed.
+- **Native elements:** a `<Button />` renders a `<button>` and an `<Input />` an `<input>`.
 
 ## Component list
 
 <details>
-<summary>79 components, organized by purpose</summary>
+<summary>Components, organized by purpose</summary>
 
 **Layout and structure**
 Card, Panel, AppShell, AuthShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, DiffView, Toolbar, TreeView, SortableList, SplitPane
@@ -112,7 +113,7 @@ Import the stylesheet once at the top of your app's CSS entry:
 @import '@lyeve-labs/ui-kit/styles.css';
 ```
 
-Then drop components into your routes:
+Then use the components in your routes:
 
 ```svelte
 <script lang="ts">
@@ -126,12 +127,23 @@ Then drop components into your routes:
 <Toaster />
 ```
 
-Mount the `<Toaster />` component in your root layout to surface toast notifications.
-See `src/lib/components/Toaster.svelte` for the full prop list.
+Mount one `<Toaster />` in your root layout. It takes no props and draws the
+toasts the `toast` service queues:
+
+| Call                               | Does                                      |
+| ---------------------------------- | ----------------------------------------- |
+| `toast.success(message, timeout?)` | queues a success toast and returns its id |
+| `toast.info(message, timeout?)`    | the same in the brand tone                |
+| `toast.warn(message, timeout?)`    | the same in the warning tone              |
+| `toast.error(message, timeout?)`   | the same in the danger tone               |
+| `toast.dismiss(id)`                | removes a toast before its timeout        |
+
+`timeout` is in milliseconds and defaults to 4000. A timeout of 0 keeps the
+toast until it is dismissed.
 
 ## Theming
 
-Two themes ship out of the box. Switch with one attribute:
+The kit ships two themes, and one attribute switches between them:
 
 ```html
 <html data-theme="light">
@@ -140,24 +152,30 @@ Two themes ship out of the box. Switch with one attribute:
 <html>
   <!-- dark mode (default) -->
 </html>
+<html data-theme="system">
+  <!-- light or dark, as the operating system asks, with no script -->
+</html>
 ```
 
-Or use the helpers:
+Or use the helpers, which also store the reader's choice:
 
 ```ts
-import { setTheme, toggleTheme, getTheme } from '@lyeve-labs/ui-kit';
+import { setThemePreference, getTheme } from '@lyeve-labs/ui-kit';
 
-setTheme('light');
-toggleTheme(); // returns the new theme
+setThemePreference('light'); // 'dark', 'light' or 'system', returns the theme applied
 getTheme(); // 'dark' | 'light'
 ```
 
-Avoid the flash-of-wrong-theme by adding the boot script to your `app.html`.
-Import `themeBootScript` from `@lyeve-labs/ui-kit` and inline it in `<head>` before any
-stylesheets.
+The helpers write `light` or `dark` to the attribute and resolve the `system`
+preference when they run. Only markup names `system`, for a page that runs no
+script.
 
-Want to bend the palette to your own brand? Override individual tokens after
-the import, once for each theme. The `@theme` block sets the dark palette. The
+To keep the first paint in the reader's theme, inline the output of
+`themeBootScript()` from `@lyeve-labs/ui-kit` in the `<head>` of your
+`app.html`, before any stylesheet.
+
+To match your own brand, override individual tokens after the import, once
+for each theme. The `@theme` block sets the dark palette. The
 light palette is its own rule, and yours outranks the kit's because it comes
 after the import. A token you leave out keeps the kit's value, and a page
 printed under these rules stays black on white.
@@ -175,6 +193,20 @@ html[data-theme='light'] {
   --color-brand: #b51758;
   --color-brand-light: #9f144d;
   --color-brand-deep: #8b1244;
+}
+```
+
+A page that names `system` takes its light palette from a copy of that rule
+inside `@media (prefers-color-scheme: light)`, so its light overrides go there
+too:
+
+```css
+@media (prefers-color-scheme: light) {
+  html[data-theme='system'] {
+    --color-brand: #b51758;
+    --color-brand-light: #9f144d;
+    --color-brand-deep: #8b1244;
+  }
 }
 ```
 
@@ -268,12 +300,12 @@ Two ladders, both declared as tokens and both read by name.
 
 A page picks a role and `PageShell` picks the cap:
 
-| `width`   | Cap    | For                                    |
-| --------- | ------ | -------------------------------------- |
-| `narrow`  | 896px  | one column: a form, a settings pane    |
-| `default` | 1152px | a page of stacked cards                |
-| `wide`    | 1536px | a data page whose table needs the room |
-| `full`    | none   | a canvas or a split pane               |
+| `width`   | Cap    | For                                        |
+| --------- | ------ | ------------------------------------------ |
+| `narrow`  | 896px  | one column: a form, a settings pane        |
+| `default` | 1152px | a page with nothing dense on it            |
+| `wide`    | 1536px | a page holding a table or other dense data |
+| `full`    | none   | a canvas or a split pane                   |
 
 A surface lifted off the page (`Modal`, `Drawer`, a dialog) takes a rung of
 one shared ladder, so the same form is the same size whichever of the three a
@@ -441,38 +473,36 @@ consume it need Node 24 or newer and may use any package manager.
 ```bash
 pnpm install            # install dependencies
 pnpm test               # run unit tests
-pnpm check              # type-check + svelte-check
-pnpm build              # svelte-package + publint → dist/
+pnpm check              # type-check and svelte-check
+pnpm build              # svelte-package and publint, into dist/
 ```
-
-The documentation site lives in its own repo (`lyeve-labs/ui-kit-docs`).
-This repo is a single-purpose component library. Nothing but `src/lib/`.
 
 ## Project layout
 
 ```
 src/
-└── lib/                 # → published as @lyeve-labs/ui-kit
-    ├── components/      # 79 .svelte files
-    ├── stores/          # toast.svelte.ts
-    ├── styles/          # theme.css (the one stylesheet)
-    ├── utils/           # cn.ts, theme.ts
-    └── index.ts         # public API
+└── lib/                 # published as @lyeve-labs/ui-kit
+    ├── components/      # the components
+    ├── internal/        # shared pieces the package does not export
+    ├── stores/          # the toast queue
+    ├── styles/          # theme.css, the one stylesheet
+    ├── utils/           # theme, palette and class helpers
+    └── index.ts         # the public API
 ```
 
 ## Versioning
 
 `@lyeve-labs/ui-kit` follows [SemVer](https://semver.org). While under `1.0`,
 breaking changes bump the **minor** version. Additive changes bump the **patch**.
-Every release is logged in [`CHANGELOG.md`](CHANGELOG.md) and on the docs site.
+Every release is logged in [`CHANGELOG.md`](CHANGELOG.md).
 
 Maintainers: the release workflow is [`CONTRIBUTING.md`](CONTRIBUTING.md#releases).
 
 ## Contributing
 
-Bug reports, prop suggestions, and component proposals are welcome. See
-[`CONTRIBUTING.md`](CONTRIBUTING.md) for the development setup, coding
-conventions, and how the kit stays cohesive.
+Bug reports, prop suggestions and component proposals are welcome. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for the development setup and the coding
+conventions.
 
 ## License
 

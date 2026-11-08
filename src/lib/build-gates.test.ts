@@ -329,11 +329,12 @@ describe('README against the library', () => {
     expect(files.length).toBe(exported);
   });
 
-  it('states the real component count everywhere it states one', () => {
+  // The README lists the components rather than counting them. A count it
+  // states again has to be the real one.
+  it('states no component count but the real one', () => {
     const claims = [...readme.matchAll(/(\d+) (?:components|\.svelte files)/g)].map((m) =>
       Number(m[1]),
     );
-    expect(claims.length).toBeGreaterThan(0);
     for (const claim of claims) expect(claim).toBe(exported);
   });
 

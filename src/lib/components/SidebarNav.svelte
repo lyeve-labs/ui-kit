@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { ChevronRight } from '@lucide/svelte';
   import { activeTrail, flattenNav, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
+  import { NAV_ROW, NAV_ROW_REST } from '../internal/layout.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
   import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
 
@@ -13,8 +15,11 @@
     label?: string;
     /** Icon-only rail. */
     collapsed?: boolean;
+    /** Opens the groups the current page sits in. On by default. */
     expandActive?: boolean;
+    /** Keeps one group open at a time: opening one closes the others. */
     exclusive?: boolean;
+    /** The localStorage key the open groups are remembered under. Without it they reset on reload. */
     storageKey?: string;
     class?: string;
   }
@@ -81,10 +86,7 @@
    * outside its element, so an outer ring on a row near the edge shows as a
    * stray line or as nothing at all.
    */
-  const ROW =
-    `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg border-s-2 py-2 ps-inline pe-2 text-sm text-start ` +
-    'transition-colors outline-none ' +
-    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  const ROW = `${TOUCH_GROW} ${NAV_ROW} border-s-2 ps-inline pe-2`;
 
   /**
    * Exactly one border color, one background and one text color per state.
@@ -124,7 +126,7 @@
         'after:bg-brand after:bg-accent-y after:shadow-mark'
       );
     if (state === 'ancestor') return 'border-transparent text-fg hover:bg-surface-2 active:bg-line';
-    return 'border-transparent text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';
+    return `border-transparent ${NAV_ROW_REST}`;
   }
 
   const ROW_DISABLED = 'cursor-not-allowed border-transparent text-muted opacity-50';
@@ -306,18 +308,9 @@
 {#snippet chevron(open: boolean)}
   <!-- Stroked SVG, not a Unicode arrow: a glyph lands at whatever weight the
        reader's font gives it, visibly apart from every other icon here. -->
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
+  <ChevronRight
+    size={14}
     class="shrink-0 transition-transform duration-base {open ? 'rotate-90' : 'rtl:rotate-180'}"
-  >
-    <path d="M9 18l6-6-6-6" />
-  </svg>
+    aria-hidden="true"
+  />
 {/snippet}

@@ -11,17 +11,16 @@
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import {
-    SCROLL_EDGE,
-    SCROLL_EDGE_END,
-    SCROLL_EDGE_START,
-    scrollEdges,
-  } from '../internal/scroll-edges.js';
-  import { CARD_SURFACE } from '../internal/layout.js';
+  import { createScrollFades } from '../internal/scroll-fades.svelte.js';
+  import ScrollFades from '../internal/ScrollFades.svelte';
+  import { CARD_FRAME } from '../internal/layout.js';
 
   interface Props {
+    /** Tints every other body row. */
     striped?: boolean;
+    /** Fills the row under the pointer. On by default. */
     hoverable?: boolean;
+    /** Uses the fixed table layout, so columns take the widths the head sets rather than their content's. */
     fixed?: boolean;
     /**
      * Names the scroll box, so a screen reader announces what the region it
@@ -31,25 +30,11 @@
      */
     label?: string;
     /**
-     * What a body cell does with content too wide for its column.
-     *
-     * `wrap` by default, and the default is not `auto`. A table constrained
-     * nothing: one cell holding an unbroken token - an API key, a signed URL,
-     * a base64 payload - has no break opportunity in it, so the auto table
-     * algorithm sizes the column to the whole string and the table grows to
-     * whatever that comes to. One measured page took its container from no
-     * overflow at all to 3,086px of it, and the audit log overran its own
-     * container by 419px at 390px wide.
-     *
-     * `wrap` fixes exactly that and nothing else. It is `overflow-wrap:
-     * anywhere`, which is the one value that shrinks the column's min-content
-     * width, so a paragraph still breaks at its spaces and only a token with
-     * no spaces in it is broken mid-string. Prose in a cell renders as it
-     * always did.
-     *
-     * The default wraps rather than truncates because wrapping is the choice
-     * that cannot lose anything. Truncation hides, and a table that hides is
-     * worse than one that scrolls, so it is opted into.
+     * What a body cell does with content too wide for its column. `wrap` by
+     * default: it breaks a token with no spaces (an API key, a signed URL)
+     * mid-string and leaves prose breaking at its spaces, so no column can
+     * grow the table past its container. `truncate` hides, so it is opted
+     * into.
      */
     cell?: CellFit;
     /**
@@ -74,17 +59,6 @@
     '[&_tbody_tr:has(>td):hover]:bg-surface-2',
     '[&_tbody_tr]:transition-colors',
   ].join(' ');
-
-  /*
-   * The card's surface, border, radius and shadows, without the card's
-   * gradient. In light the gradient darkens a card toward its foot, so the
-   * last rows would be darker than the first, the rows would not be one color
-   * at rest, and a hover would show unevenly down the table. A dark card has
-   * no gradient.
-   */
-  const FRAME_SURFACE = CARD_SURFACE.split(' ')
-    .filter((c) => c !== 'bg-card')
-    .join(' ');
 
   let {
     striped = false,
@@ -127,32 +101,7 @@
    * overflows, and only on the side the content continues on, so it reads as a
    * property of this table rather than as decoration every table wears.
    */
-  let scroller: HTMLElement | undefined = $state();
-  let moreBefore = $state(false);
-  let moreAfter = $state(false);
-
-  function measure() {
-    const el = scroller;
-    if (!el) return;
-    const edges = scrollEdges(el);
-    moreBefore = edges.before;
-    moreAfter = edges.after;
-  }
-
-  $effect(() => {
-    const el = scroller;
-    if (!el) return;
-    measure();
-    // The width that matters changes without a scroll and without a resize of
-    // the window: a column added, a filter applied, a sidebar collapsed. Both
-    // boxes are watched because either one moving changes whether the other
-    // overflows.
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    if (el.firstElementChild) observer.observe(el.firstElementChild);
-    return () => observer.disconnect();
-  });
+  const fades = createScrollFades();
 
   /*
    * The table-wide treatment, applied only to cells that did not ask for their
@@ -250,24 +199,19 @@
 
      The frame is a card: the same surface, radius and shadows, so a table and
      the cards above it sit at one depth. It leaves out the card's top wash,
-     for the reason at FRAME_SURFACE. It paints its own surface rather than
+     for the reason at CARD_FRAME. It paints its own surface rather than
      showing the page through, which the shadow under it needs to read as a
      raised sheet. -->
-<div
-  data-testid="table-frame"
-  class="relative w-full overflow-hidden {FRAME_SURFACE} {cls}"
->
+<div class="relative w-full overflow-hidden {CARD_FRAME} {cls}">
   <!--
     data-print: the box exists to clip. On paper there is no viewport to clip
     to, and every column past the edge would simply not be printed.
   -->
   <div
-    bind:this={scroller}
-    onscroll={measure}
+    use:fades.track
     onpointerover={reveal}
     onfocusin={reveal}
     data-print="unclip"
-    data-testid="table-scroll"
     class="w-full overflow-x-auto rounded-card"
     {...scrollAttrs}
   >
@@ -307,26 +251,5 @@
     </table>
   </div>
 
-  <!--
-    aria-hidden and outside the scroll box. It is a picture of the scrollbar
-    the phone will not draw, it says nothing a screen reader has not already
-    been told by the region, and a child of the box would scroll away with the
-    content it is describing.
-  -->
-  {#if moreBefore}
-    <div
-      aria-hidden="true"
-      data-print="hide"
-      data-testid="table-more-before"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_START} rounded-s-card"
-    ></div>
-  {/if}
-  {#if moreAfter}
-    <div
-      aria-hidden="true"
-      data-print="hide"
-      data-testid="table-more-after"
-      class="{SCROLL_EDGE} {SCROLL_EDGE_END} rounded-e-card"
-    ></div>
-  {/if}
+  <ScrollFades before={fades.before} after={fades.after} testId="table" rounded />
 </div>

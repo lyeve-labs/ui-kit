@@ -154,7 +154,7 @@ describe('TreeView structure', () => {
     expect(group?.contains(row(container, 'api'))).toBe(true);
   });
 
-  it('states aria-level, aria-setsize and aria-posinset correctly at depth 2', () => {
+  it('counts aria-level, aria-setsize and aria-posinset within each sibling set', () => {
     const { container } = render(TreeView, {
       props: { nodes, label: 'Files', expanded: ['docs'] },
     });

@@ -7,7 +7,7 @@
  * is an implementation detail.
  */
 
-// ── Layout & structure ─────────────────────────────────────────────────────
+// Layout and structure
 export { default as Card } from './components/Card.svelte';
 export { default as Panel } from './components/Panel.svelte';
 export { default as AppShell } from './components/AppShell.svelte';
@@ -37,7 +37,7 @@ export type { TreeNode, TriState } from './internal/tree.js';
 // element from the kit.
 export { setDocumentTitleFormat, type DocumentTitleFormat } from './internal/document-title.js';
 
-// ── Forms & inputs ─────────────────────────────────────────────────────────
+// Forms and inputs
 export { default as Button } from './components/Button.svelte';
 export { default as ButtonGroup } from './components/ButtonGroup.svelte';
 export { default as Input } from './components/Input.svelte';
@@ -73,12 +73,12 @@ export type { ChoiceOption } from './components/CheckboxGroup.svelte';
 export type { SelectOption } from './components/Select.svelte';
 // One shape for both filtered lists: MultiSelect takes the same option array
 // Autocomplete does, so a consumer types it once.
-export type { ListOption } from './components/Autocomplete.svelte';
+export type { ListOption } from './internal/listbox.svelte.js';
 // A caller supplying its own matcher needs the shape the kit hands it. The
 // module stays internal. Only the types a consumer must spell are public.
 export type { FilterFn, FilterInput, FilterContext } from './internal/filter.js';
 
-// ── Navigation ─────────────────────────────────────────────────────────────
+// Navigation
 export { default as Breadcrumb } from './components/Breadcrumb.svelte';
 export { default as Tabs } from './components/Tabs.svelte';
 export { default as Pagination } from './components/Pagination.svelte';
@@ -89,12 +89,12 @@ export { default as AccountMenu } from './components/AccountMenu.svelte';
 export { default as AccountMenuItem } from './components/AccountMenuItem.svelte';
 export type { NavNode, NavTree } from './internal/nav-tree.js';
 
-// ── Overlays ───────────────────────────────────────────────────────────────
+// Overlays
 export { default as Modal } from './components/Modal.svelte';
 export { default as Drawer } from './components/Drawer.svelte';
 export { default as Tooltip } from './components/Tooltip.svelte';
 
-// ── Feedback & status ──────────────────────────────────────────────────────
+// Feedback and status
 export { default as Alert } from './components/Alert.svelte';
 export { default as Banner } from './components/Banner.svelte';
 export { default as Badge } from './components/Badge.svelte';
@@ -135,7 +135,7 @@ export { default as CopyField } from './components/CopyField.svelte';
 // same way on an insecure origin and confirms on the same clock.
 export { CopyState, copyToClipboard, type CopyStatus } from './internal/copy.svelte.js';
 
-// ── Media ──────────────────────────────────────────────────────────────────
+// Media
 export { default as Avatar } from './components/Avatar.svelte';
 export { default as AvatarGroup } from './components/AvatarGroup.svelte';
 // The product mark. Two applications carried their own copy of the same lockup
@@ -143,15 +143,15 @@ export { default as AvatarGroup } from './components/AvatarGroup.svelte';
 // theme. The kit owns it now.
 export { default as Logo } from './components/Logo.svelte';
 
-// ── Theming & toasts ───────────────────────────────────────────────────────
+// Theming and toasts
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
 export { default as Toaster } from './components/Toaster.svelte';
 
-// ── Stores ─────────────────────────────────────────────────────────────────
+// The toast queue
 export { toast } from './stores/toast.svelte.js';
 export type { Toast, ToastTone } from './stores/toast.svelte.js';
 
-// ── Dialogs (imperative stack: openDialog / confirm) ────────────────────────
+// Dialogs, opened with openDialog or confirm
 export { default as DialogContainer } from './components/dialog/DialogContainer.svelte';
 export { default as Dialog } from './components/dialog/Dialog.svelte';
 export { default as ConfirmDialog } from './components/dialog/ConfirmDialog.svelte';
@@ -167,7 +167,7 @@ export {
 export type { ConfirmOptions } from './components/dialog/dialog-manager.svelte.js';
 export type { DialogOptions, DialogEntry, DialogSize } from './components/dialog/types.js';
 
-// ── Utilities ──────────────────────────────────────────────────────────────
+// Utilities
 export { cn, type ClassValue } from './utils/cn.js';
 export {
   getTheme,
@@ -196,7 +196,7 @@ export {
   type PaletteUse,
 } from './utils/palette.js';
 
-// ── Motion ─────────────────────────────────────────────────────────────────
+// Motion
 // The entrances and exits as Svelte transitions, for a surface a consumer
 // builds that the kit does not ship: `transition:motion.popover`,
 // `animate:motion.reorder`. They read the duration and easing tokens, so a
@@ -204,7 +204,7 @@ export {
 export * as motion from './motion.js';
 export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 
-// ── Version ────────────────────────────────────────────────────────────────
+// Version
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.52.0';
+export const VERSION = '0.53.0';

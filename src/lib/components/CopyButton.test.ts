@@ -174,7 +174,7 @@ describe('CopyButton when the clipboard is unavailable', () => {
     await fireEvent.click(button);
     await settle();
 
-    expect(live(container).textContent).toBe('Copy failed');
+    expect(live(container).textContent).toBe('Could not copy. Try again.');
     expect(glyph(container)).toBe('idle');
     expect((button as HTMLButtonElement).disabled).toBe(false);
 
@@ -203,7 +203,7 @@ describe('CopyButton when the clipboard is unavailable', () => {
     await settle();
 
     expect(writeText).toHaveBeenCalled();
-    expect(live(container).textContent).toBe('Copy failed');
+    expect(live(container).textContent).toBe('Could not copy. Try again.');
     expect(glyph(container)).toBe('idle');
     expect(glyph(container)).toBe('idle');
     expect((button as HTMLButtonElement).disabled).toBe(false);
@@ -216,7 +216,7 @@ describe('CopyButton when the clipboard is unavailable', () => {
 
     await fireEvent.click(getByRole('button'));
     await settle();
-    expect(live(container).textContent).toBe('Copy failed');
+    expect(live(container).textContent).toBe('Could not copy. Try again.');
 
     vi.advanceTimersByTime(1500);
     await tick();

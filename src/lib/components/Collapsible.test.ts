@@ -138,7 +138,7 @@ describe('Collapsible', () => {
     });
     const svg = container.querySelector('svg') as SVGElement;
     expect(svg.getAttribute('aria-hidden')).toBe('true');
-    expect(svg.querySelector('path')?.getAttribute('d')).toBe('M6 9l6 6 6-6');
+    expect(svg.querySelector('path')?.getAttribute('d')).toBe('m6 9 6 6 6-6');
     expect(svg.getAttribute('class')).toContain('-rotate-90');
   });
 

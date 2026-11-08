@@ -36,7 +36,7 @@ describe('Banner', () => {
     const { container, getByLabelText } = render(Banner, {
       props: { children: text('x'), dismissible: true, ondismiss },
     });
-    await fireEvent.click(getByLabelText('Dismiss'));
+    await fireEvent.click(getByLabelText('Close'));
     expect(ondismiss).toHaveBeenCalledOnce();
     expect(root(container)).toBeNull();
   });
@@ -97,7 +97,7 @@ describe('a confirmation that clears itself', () => {
     const { getByLabelText } = render(Banner, {
       props: { children: text('x'), autoDismiss: true },
     });
-    expect(getByLabelText('Dismiss')).toBeTruthy();
+    expect(getByLabelText('Close')).toBeTruthy();
   });
 
   it('holds while the pointer is over it', async () => {
@@ -142,7 +142,7 @@ describe('an outcome is announced, a standing condition is not', () => {
     expect(region?.hasAttribute('role')).toBe(false);
     expect(queryByText('Payment received')).toBeNull();
     expect(region?.contains(await findByText('Payment received'))).toBe(true);
-    expect(queryByLabelText('Dismiss')).toBeNull();
+    expect(queryByLabelText('Close')).toBeNull();
   });
 
   it('keeps a failure that stays an alert, told to announce or not', () => {

@@ -1,26 +1,8 @@
-<script lang="ts" module>
-  import type { ListboxItem } from '../internal/listbox.svelte.js';
-
-  /**
-   * One row of a filterable option list.
-   *
-   * Declared here and imported by MultiSelect, which carried the same interface
-   * written out character for character. Two declarations are two chances to
-   * answer the same question differently, and these two had already drifted
-   * apart in what they let a consumer say: neither could describe a row by
-   * anything but its label, so an option a user knows by a code or a synonym
-   * could not be found by typing it.
-   */
-  export interface ListOption extends ListboxItem {
-    /**
-     * Extra words the default matcher searches alongside the label. Absent on
-     * every option that ships today, so adopting it narrows no existing list.
-     */
-    keywords?: readonly string[];
-  }
-</script>
-
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import { X } from '@lucide/svelte';
+  import type { ListOption } from '../internal/listbox.svelte.js';
   /**
    * A combobox: type to narrow the list, arrow through what is left, Enter to
    * choose.
@@ -31,15 +13,7 @@
    * owns: whether the input is showing a query being typed or the label of the
    * row already chosen.
    */
-  import {
-    CONTROL_BASE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
@@ -50,6 +24,7 @@
     placePanel,
   } from '../internal/panel.js';
   import { HIT_AREA_POSITIONED } from '../internal/touch.js';
+  import { inSentence } from '../internal/words.js';
   import * as motion from '../motion.js';
 
   interface Props {
@@ -81,7 +56,7 @@
     label = undefined,
     hint = undefined,
     error = undefined,
-    placeholder = 'Type to search…',
+    placeholder = 'Search',
     disabled = false,
     required = false,
     id = undefined,
@@ -176,9 +151,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <div class="relative" bind:this={fieldEl} use:anchor>
@@ -222,22 +195,11 @@
       -->
       <button
         type="button"
-        aria-label="Clear"
+        aria-label={label ? `Clear ${inSentence(label)}` : 'Clear'}
         onclick={clear}
         class="{HIT_AREA_POSITIONED} absolute end-2.5 top-1/2 -mx-1.5 -translate-y-1/2 p-1.5 text-faint transition-colors hover:text-fg"
       >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
+        <X size={12} strokeWidth={2.5} aria-hidden="true" />
       </button>
     {/if}
 
@@ -299,9 +261,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

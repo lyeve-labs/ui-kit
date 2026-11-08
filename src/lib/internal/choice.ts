@@ -2,15 +2,10 @@
  * The single source of truth for how a checkbox or a radio looks and announces
  * itself.
  *
- * Checkbox, Radio and RadioGroup paint one control three ways. The two label
- * wrappers hold the same utilities in two orders, Checkbox marks a required
- * option and Radio marks nothing, RadioGroup rests its box on `border-line`
- * where the other two use `border-line-strong`, and RadioGroup still keeps its
- * focus ring inside the selected ternary. That last one is the defect Checkbox
- * and Radio were already fixed for: selecting an option deleted the only
- * indicator a keyboard user had, and in a list of a hundred options that loses
- * your place entirely. Composing from here means a fourth choice control cannot
- * reintroduce any of it.
+ * Checkbox, Radio and RadioGroup paint one control three ways, and composing
+ * from here keeps them one control. The focus ring stays outside the selected
+ * state: when it sat inside, selecting an option deleted the only indicator a
+ * keyboard user had, and in a list of a hundred options that loses your place.
  *
  * Not exported from the package entry point: this is an implementation detail.
  */

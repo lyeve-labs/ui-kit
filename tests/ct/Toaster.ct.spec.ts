@@ -28,7 +28,7 @@ test.describe('Toaster', () => {
   test('close button dismisses immediately', async ({ mount }) => {
     const component = await mount(ToasterStory, { props: { message: 'Close me now' } });
     await expect(component).toContainText('Close me now');
-    const closeBtn = component.locator('[aria-label="Dismiss"]');
+    const closeBtn = component.locator('[aria-label="Close"]');
     await closeBtn.click();
     await expect(component).not.toContainText('Close me now');
   });

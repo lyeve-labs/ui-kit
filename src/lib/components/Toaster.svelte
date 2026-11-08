@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
   import { toast } from '../stores/toast.svelte';
   import { HIT_AREA } from '../internal/touch.js';
-  import { TONE_GLYPH, statusTone, type StatusTone } from '../internal/tone.js';
+  import { statusTone, type StatusTone } from '../internal/tone.js';
+  import ToneGlyph from '../internal/ToneGlyph.svelte';
   import * as motion from '../motion.js';
 
   const styles: Record<StatusTone, { bar: string; icon: string }> = {
@@ -33,42 +35,15 @@
              bg-surface ps-0 pe-3 py-3 shadow-popover inset-shadow-highlight"
     >
       <span class="w-1 self-stretch shrink-0 {styles[statusTone(t.tone)].bar}"></span>
-      <span
-        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current {styles[
-          statusTone(t.tone)
-        ].icon}"
-        aria-hidden="true"
-      >
-        <svg
-          width="11"
-          height="11"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d={TONE_GLYPH[statusTone(t.tone)]} />
-        </svg>
-      </span>
+      <ToneGlyph tone={statusTone(t.tone)} class={styles[statusTone(t.tone)].icon} />
       <p class="flex-1 text-sm text-fg leading-snug">{t.message}</p>
       <button
         type="button"
         class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-        aria-label="Dismiss"
+        aria-label="Close"
         onclick={() => toast.dismiss(t.id)}
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg
-        >
+        <X size={16} aria-hidden="true" />
       </button>
     </div>
   {/each}

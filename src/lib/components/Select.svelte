@@ -26,6 +26,9 @@
 </script>
 
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
+  import { ChevronDown } from '@lucide/svelte';
   /**
    * A select: a listbox the kit draws, never the browser's own.
    *
@@ -47,9 +50,6 @@
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import {
     CONTROL_BASE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
     FIELD_WRAP,
     controlBorder,
     describedBy,
@@ -62,6 +62,7 @@
     PANEL_LIST,
     PANEL_SURFACE,
     panelOption,
+    PANEL_SEARCH,
     placePanel,
   } from '../internal/panel.js';
   import * as motion from '../motion.js';
@@ -216,21 +217,13 @@
     class="pointer-events-none absolute end-2.5 top-1/2 -translate-y-1/2 text-faint"
     aria-hidden="true"
   >
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
+    <ChevronDown
+      size={12}
+      absoluteStrokeWidth
+      strokeWidth={1.5}
       class="transition-transform duration-base {open ? 'rotate-180' : ''}"
-    >
-      <path
-        d="M2 4l4 4 4-4"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+      aria-hidden="true"
+    />
   </span>
 {/snippet}
 
@@ -284,9 +277,7 @@
 
 <div data-field class="{FIELD_WRAP} {cls}">
   {#if label}
-    <label for={fieldId} class={FIELD_LABEL}>
-      {label}{#if required}<span class="text-danger ms-0.5" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
   <div class="relative" use:anchor>
@@ -368,9 +359,7 @@
               placeholder="Search"
               aria-label={label ? `Search ${label}` : 'Search options'}
               {...box.triggerAttrs}
-              class="w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5
-                  text-sm text-fg outline-none transition-colors
-                  placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35"
+              class={PANEL_SEARCH}
             />
           </div>
         {/if}
@@ -400,9 +389,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { CHIP_TONE } from '../internal/tone.js';
 import {
   AVATAR_FILLS,
   BADGE_SHARE,
@@ -102,10 +103,15 @@ describe('checkPalette measures what the kit paints', () => {
   });
 
   it('paints badges, tags and tab counts at the share it measures', () => {
-    for (const name of ['Badge', 'Tag', 'Tabs']) {
-      const shares = [
-        ...source(name).matchAll(/bg-(?:brand|violet|success|warn|danger)\/(\d+) text-/g),
-      ].map(([, pct]) => Number(pct) / 100);
+    // Badge and Tag paint the chip map they share, so it is read once for both.
+    const sources: Record<string, string> = {
+      'Badge and Tag': Object.values(CHIP_TONE).join(' '),
+      Tabs: source('Tabs'),
+    };
+    for (const [name, src] of Object.entries(sources)) {
+      const shares = [...src.matchAll(/bg-(?:brand|violet|success|warn|danger)\/(\d+) text-/g)].map(
+        ([, pct]) => Number(pct) / 100,
+      );
       expect(shares.length, name).toBeGreaterThan(0);
       for (const share of shares) expect(share, name).toBe(BADGE_SHARE);
     }

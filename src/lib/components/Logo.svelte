@@ -21,11 +21,7 @@
   type Size = 'sm' | 'md' | 'lg';
 
   interface Props {
-    /**
-     * Named rather than a pixel count. The two copies this replaces shipped at
-     * 28px and 36px with different wordmark weights, and a free number is how
-     * the third one drifts too.
-     */
+    /** Named rather than a pixel count, so every surface draws the mark at one of two sizes. */
     size?: Size;
     /**
      * False renders the mark alone, for a slot too narrow to carry the name.

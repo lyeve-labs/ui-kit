@@ -32,6 +32,7 @@
   import Button from './Button.svelte';
 
   interface Props {
+    /** The differences to list, one row each, in the order given. */
     changes: DiffChange[];
     class?: string;
   }

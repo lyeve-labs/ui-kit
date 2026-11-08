@@ -7,8 +7,9 @@
    * bare div at body size. `size`, `tone` and `mono` are what let both of them
    * use this one instead.
    */
+  import { ArrowDown, ArrowRight, ArrowUp } from '@lucide/svelte';
   import type { StatusTone } from '../internal/tone.js';
-  import { CARD_SURFACE } from '../internal/layout.js';
+  import { CARD_PAD, CARD_SURFACE } from '../internal/layout.js';
 
   type Trend = 'up' | 'down' | 'flat';
   type Accent = 'brand' | 'violet' | 'success' | 'neutral';
@@ -17,20 +18,20 @@
   interface Props {
     label: string;
     value: string | number;
+    /** A line under the value, such as the period it covers. */
     sub?: string;
+    /** The direction of `change`, which picks its arrow and color. */
     trend?: Trend;
+    /** The difference from the previous period, in the caller's words, such as "+12%". */
     change?: string;
+    /** A decorative color for the value. `tone` wins over it. */
     accent?: Accent;
     /** `sm` for a dense row of figures, `md` for a card of its own. */
     size?: Size;
     /**
-     * The status the figure reports, which colors the value.
-     *
-     * Wins over `accent` when it is set. `accent` is the decorative vocabulary
-     * and has no warn or danger, so a number that is over its quota could only
-     * be stated in prose beside it. Only the canonical spellings are accepted:
-     * the tone vocabulary keeps `info` as an alias for the components that
-     * already shipped it, and this prop never shipped anything to keep working.
+     * The status the figure reports, which colors the value. Wins over
+     * `accent`, which has no warn or danger. Takes `success`, `warn` and
+     * `danger` only.
      */
     tone?: StatusTone;
     /**
@@ -73,7 +74,6 @@
     danger: 'text-danger',
   };
 
-  const pads: Record<Size, string> = { sm: 'p-4', md: 'p-5' };
   const values: Record<Size, string> = {
     sm: 'mt-1 text-lg font-semibold tracking-tight',
     md: 'mt-2 text-2xl font-bold tracking-tight',
@@ -82,7 +82,9 @@
   const valueColor = $derived(tone ? tones[tone] : accents[accent]);
 
   const trendColor = { up: 'text-success', down: 'text-danger', flat: 'text-muted' } as const;
-  const trendMark = { up: '↑', down: '↓', flat: '→' } as const;
+  const trendIcon = { up: ArrowUp, down: ArrowDown, flat: ArrowRight } as const;
+  /** The arrow is drawn, so its direction is said in words for a screen reader. */
+  const trendWord = { up: 'Up', down: 'Down', flat: 'Unchanged' } as const;
 </script>
 
 <!-- A brand to violet line along the top edge, so a row of figures reads as a
@@ -91,7 +93,7 @@
      mirrored under right-to-left, so cyan stays at the start edge.
      overflow-hidden lets the card's corners trim it. -->
 <div
-  class="{CARD_SURFACE} relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-brand before:bg-accent rtl:before:-scale-x-100 {pads[
+  class="{CARD_SURFACE} relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-brand before:bg-accent rtl:before:-scale-x-100 {CARD_PAD[
     size
   ]} {klass}"
 >
@@ -99,7 +101,11 @@
   <p class="{values[size]} {valueColor} {mono ? 'font-mono tabular-nums' : ''}">{value}</p>
   <div class="mt-1 flex items-center gap-2">
     {#if trend && change}
-      <span class="text-xs font-medium {trendColor[trend]}">{trendMark[trend]} {change}</span>
+      {@const Icon = trendIcon[trend]}
+      <span class="inline-flex items-center gap-0.5 text-xs font-medium {trendColor[trend]}"
+        ><Icon size={12} aria-hidden="true" /><span class="sr-only">{trendWord[trend]}</span>
+        {change}</span
+      >
     {/if}
     {#if sub}<span class="text-xs text-muted">{sub}</span>{/if}
   </div>

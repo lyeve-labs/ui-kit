@@ -1,7 +1,10 @@
 <script lang="ts">
   interface Props {
+    /** Any CSS length. Match the content it stands in for, so nothing moves when it arrives. */
     width?: string;
+    /** Any CSS length. */
     height?: string;
+    /** A Tailwind rounding class. */
     rounded?: string;
     class?: string;
   }

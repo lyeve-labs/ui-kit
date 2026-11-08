@@ -1,15 +1,9 @@
 <script lang="ts">
+  import FieldMessage from '../internal/FieldMessage.svelte';
+  import FieldLabel from '../internal/FieldLabel.svelte';
   import { Eye, EyeOff } from '@lucide/svelte';
   import { HIT_AREA_POSITIONED } from '../internal/touch.js';
-  import {
-    CONTROL_BASE,
-    FIELD_ERROR,
-    FIELD_HINT,
-    FIELD_LABEL,
-    FIELD_WRAP,
-    controlBorder,
-    describedBy,
-  } from '../internal/field.js';
+  import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
 
   interface Props {
     value?: string;
@@ -88,9 +82,7 @@
 
 <div data-field class="{FIELD_WRAP} {klass}">
   {#if label}
-    <label for={fieldId} class="{FIELD_LABEL} {labelHidden ? 'sr-only' : ''}">
-      {label}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span>{/if}
-    </label>
+    <FieldLabel for={fieldId} text={label} {required} hidden={labelHidden} />
   {/if}
 
   <div class="relative">
@@ -137,9 +129,5 @@
     {/if}
   </div>
 
-  {#if error}
-    <p id="{fieldId}-error" class={FIELD_ERROR}>{error}</p>
-  {:else if hint}
-    <p id="{fieldId}-hint" class={FIELD_HINT}>{hint}</p>
-  {/if}
+  <FieldMessage base={fieldId} {error} {hint} />
 </div>

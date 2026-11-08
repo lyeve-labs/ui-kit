@@ -81,7 +81,7 @@ for (const theme of ['dark', 'light'] as const) {
 
     test('GateNotice, every state', async ({ mount, page }) => {
       const story = await mount(NoticeStory, { props: { part: 'gate' } });
-      await expect(story.getByTestId('gate-notice')).toHaveCount(7);
+      await expect(story.locator('[data-state]')).toHaveCount(7);
       await styled(page);
       expect(await blocking(page)).toEqual([]);
     });

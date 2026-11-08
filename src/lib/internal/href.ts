@@ -44,3 +44,18 @@ export function isExternalHref(href: string): boolean {
     return true;
   }
 }
+
+/**
+ * Whether a set of options is a row of links, refusing a set that mixes links
+ * and buttons: a button beside two links would report a choice that the URL
+ * never learns about, and the caller has no way to see that from the screen.
+ */
+export function assertLinked(options: readonly { href?: string }[], name: string): boolean {
+  const count = options.filter((o) => o.href !== undefined).length;
+  if (count !== 0 && count !== options.length) {
+    throw new Error(
+      `${name}: every option carries href or none does, ${count} of ${options.length} did`,
+    );
+  }
+  return count !== 0;
+}

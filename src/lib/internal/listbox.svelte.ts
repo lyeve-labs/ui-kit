@@ -2,21 +2,13 @@
  * One owner for the open state, the active row, the keyboard model and the
  * dismissal that every list-bearing control needs.
  *
- * MultiSelect, Autocomplete, DatePicker and Dropdown each hand-rolled all four,
- * and every copy is wrong somewhere different. The dismiss effect is written
- * out four times: MultiSelect.svelte:84-93, DatePicker.svelte:151-160 and
- * Dropdown.svelte:45-54 are byte identical, and Autocomplete.svelte:117-120 is
- * the same minus the keydown, so Escape does nothing there at all.
- * Autocomplete.svelte:90-107 is the kit's only arrow-key implementation and it
- * is incomplete: ArrowUp on a closed list decrements the index without opening
- * anything, Home and End do nothing, there is no typeahead and there is no
- * wrap. Nothing in the kit sets aria-activedescendant, so a screen reader is
- * never told which row the keyboard is resting on, and Autocomplete marks that
- * row with a background tint alone, which reads 1.09:1. The rows are buttons
- * carrying role="option" and no tabindex, so Tab walks into the list instead of
- * leaving the field. Autocomplete.svelte:146 closes on a 150ms blur timer, so
- * clicking an option works only because mousedown-to-click beats the timer. And
- * no copy stops the Escape event, so a listbox inside a Modal closes both.
+ * MultiSelect, Autocomplete, DatePicker and Dropdown once hand-rolled all
+ * four, and each copy was wrong somewhere different: Escape did nothing in
+ * Autocomplete, ArrowUp on a closed list moved the index without opening it,
+ * Home, End, typeahead and wrap were missing, nothing set
+ * aria-activedescendant, Tab walked into the rows, a blur timer raced the
+ * click on an option, and no copy stopped the Escape event, so a listbox
+ * inside a Modal closed both.
  *
  * One thing deliberately stays at the call site: what a selection means. This
  * fires onSelect and leaves the list open, because MultiSelect collects several
@@ -34,6 +26,15 @@ export interface ListboxItem {
   value: string;
   label: string;
   disabled?: boolean;
+}
+
+/** One row of a filterable option list, as Autocomplete and MultiSelect take it. */
+export interface ListOption extends ListboxItem {
+  /**
+   * Extra words the default matcher searches alongside the label, so an option
+   * a reader knows by a code or a synonym can be found by typing it.
+   */
+  keywords?: readonly string[];
 }
 
 /**
