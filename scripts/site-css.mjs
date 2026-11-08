@@ -22,7 +22,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const theme = join(root, 'src/lib/styles/theme.css');
 
 /** The components a page block draws with. A site component joins the list when it lands. */
-export const BLOCK_COMPONENTS = [
+const BLOCK_COMPONENTS = [
   'Accordion',
   'AccordionItem',
   'Badge',
@@ -55,7 +55,7 @@ function resolveImport(from, specifier) {
 }
 
 /** The block components and every kit module they import, directly or not. */
-export function blockSources() {
+function blockSources() {
   const files = BLOCK_COMPONENTS.map((name) => join(root, 'src/lib/components', `${name}.svelte`));
   for (const file of files) {
     for (const [, specifier] of readFileSync(file, 'utf8').matchAll(/from\s*['"](\.[^'"]+)['"]/g)) {
@@ -76,10 +76,11 @@ export async function siteStylesheet() {
       return { path, base: dirname(path), content: readFileSync(path, 'utf8') };
     },
   });
-  // Every word of every file is a candidate, the way Tailwind reads a
-  // consumer's files, and a word that is no class builds nothing.
+  // Every word of every file is a candidate, and a word that is no class
+  // builds nothing. Angle brackets stay inside a word: `[&>svg]:inline` is a
+  // class, and a tag such as `</span>` builds nothing either way.
   return compiler.build(
-    blockSources().flatMap((file) => readFileSync(file, 'utf8').split(/[\s"'`{}<>]+/)),
+    blockSources().flatMap((file) => readFileSync(file, 'utf8').split(/[\s"'`{}]+/)),
   );
 }
 

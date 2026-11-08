@@ -15,14 +15,15 @@ import { styleWithKit } from './kit-css.js';
 // style read halfway through one matches neither build. A color an element
 // inherits changes only once its parent's transition ends, and can start a
 // transition of its own a frame later, so this waits for a frame that starts
-// none.
+// none. A transition that a newer one replaces rejects its promise, so each
+// one is awaited as settled rather than as fulfilled.
 async function settled(page: Page) {
   await page.evaluate(async () => {
     const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
     const running = () =>
       document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity);
     for (await frame(); running().length > 0; await frame()) {
-      await Promise.all(running().map((a) => a.finished));
+      await Promise.allSettled(running().map((a) => a.finished));
     }
   });
 }
