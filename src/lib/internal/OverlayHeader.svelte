@@ -21,10 +21,13 @@
       <p id={descriptionId} class="mt-0.5 text-sm text-muted">{description}</p>
     {/if}
   </div>
+  <!-- 4px of padding makes the cross a 24px target under a mouse, the WCAG
+       2.5.8 minimum, and the equal negative margin keeps the glyph and the
+       row where they were. A finger still gets the 44px box. -->
   <button
     type="button"
     onclick={onclose}
-    class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg
+    class="{HIT_AREA} -m-1 shrink-0 rounded p-1 text-faint transition-colors hover:text-fg
            outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
     aria-label="Close"
   >

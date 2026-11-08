@@ -115,6 +115,24 @@ describe('Drawer', () => {
     expect(panelOf(container).className.split(/\s+/)).toContain('w-full');
   });
 
+  /*
+   * The cross was a 16px target under a mouse, under the 24px minimum of WCAG
+   * 2.5.8. Padding takes the button to 24px and an equal negative margin
+   * keeps the glyph and the header row where they were.
+   */
+  it('gives the close cross a 24px target without moving the glyph', () => {
+    const { container } = render(Drawer, {
+      props: { open: true, title: 'T', children: text('x') },
+    });
+    const cross = panelOf(container).querySelector('button[aria-label="Close"]')!;
+    const cls = cross.className.split(/\s+/);
+    const pad = cls.map((c) => /^p-([\d.]+)$/.exec(c)?.[1]).find(Boolean);
+    const pull = cls.map((c) => /^-m-([\d.]+)$/.exec(c)?.[1]).find(Boolean);
+    const glyph = Number(cross.querySelector('svg')!.getAttribute('width'));
+    expect(glyph + 2 * 4 * Number(pad ?? 0)).toBeGreaterThanOrEqual(24);
+    expect(pull).toBe(pad);
+  });
+
   it('fires onclose when a close control is clicked', async () => {
     const onclose = vi.fn();
     const { container } = render(Drawer, {
