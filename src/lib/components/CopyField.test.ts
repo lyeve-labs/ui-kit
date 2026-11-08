@@ -168,7 +168,12 @@ describe('CopyField wrap', () => {
     expect(input.parentElement?.className).toContain('h-control');
   });
 
-  it('shows the whole value on as many lines as it takes, breaking anywhere', () => {
+  /*
+   * A value breaks where the line breaking rules allow, such as after a
+   * hyphen, and inside a token only when the token alone is too long for a
+   * line. break-all broke a UUID inside a group on every line.
+   */
+  it('shows the whole value on as many lines as it takes, breaking inside a token only when it must', () => {
     const { getByLabelText, container } = render(CopyField, {
       props: { value: KEY, label: 'API key', wrap: true },
     });
@@ -176,7 +181,8 @@ describe('CopyField wrap', () => {
     expect(field.tagName).toBe('TEXTAREA');
     expect(field.value).toBe(KEY);
     expect(field.readOnly).toBe(true);
-    expect(field.className).toContain('break-all');
+    expect(field.className.split(/\s+/)).toContain('wrap-anywhere');
+    expect(field.className).not.toContain('break-all');
     expect(field.className).toContain('font-mono');
     expect(field.className).not.toContain('truncate');
     expect(container.querySelector('input')).toBeNull();
@@ -184,7 +190,8 @@ describe('CopyField wrap', () => {
     const sizer = field.previousElementSibling as HTMLElement;
     expect(sizer.getAttribute('aria-hidden')).toBe('true');
     expect(sizer.textContent).toBe(KEY);
-    expect(sizer.className).toContain('break-all');
+    expect(sizer.className.split(/\s+/)).toContain('wrap-anywhere');
+    expect(sizer.className).not.toContain('break-all');
     const frame = field.parentElement?.parentElement as HTMLElement;
     expect(frame.className).toContain('min-h-control');
     expect(frame.className).not.toMatch(/(^|\s)h-control/);
