@@ -62,7 +62,9 @@ describe('Button', () => {
       props: { children: text('x'), size: 'icon', variant: 'ghost', 'aria-label': 'Open menu' },
     });
     const cls = container.querySelector('button')?.className ?? '';
-    expect(cls).toContain('p-2');
+    // 7px of padding and the 1px border every variant carries: 8px round the icon.
+    expect(cls).toContain('p-1.75');
+    expect(cls.split(/\s+/)).toContain('border');
     expect(cls).not.toMatch(/\bpx-\d/);
     expect(cls).toContain('coarse:min-h-control');
   });
@@ -182,6 +184,31 @@ describe('Button pressed state', () => {
     const { container } = render(Button, { props: { children: text('x'), variant } });
     return (container.querySelector('button')?.className ?? '').split(/\s+/).filter(Boolean);
   };
+
+  /*
+   * Only the outlined variants carried a border, so a filled button drew 2px
+   * shorter than a secondary one beside it and 2px short of the input in the
+   * same row. Every class that adds to the height has to match across the
+   * variants of one size.
+   */
+  it('gives every variant the same height at each size', () => {
+    const height =
+      /^(?:border(?:-[xytb])?(?:-\d+)?|p[ytb]?-[\d.]+|h-\S+|min-h-\S+|text-(?:xs|sm|base|lg))$/;
+    for (const size of ['sm', 'md', 'lg', 'icon'] as const) {
+      const of = (variant: (typeof variants)[number]) => {
+        const { container, unmount } = render(Button, {
+          props: { children: text('x'), variant, size },
+        });
+        const cls = (container.querySelector('button')?.className ?? '').split(/\s+/);
+        unmount();
+        return cls.filter((c) => height.test(c)).sort();
+      };
+      const primary = of('primary');
+      for (const variant of variants) {
+        expect({ size, variant, cls: of(variant) }).toEqual({ size, variant, cls: primary });
+      }
+    }
+  });
 
   it('gives every variant something to show while it is held', () => {
     for (const variant of variants) {
