@@ -30,10 +30,10 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "pnpm version:check && svelte-package && publint && node scripts/check-dist.mjs",
+    "build": "pnpm version:check && svelte-package && node scripts/site-css.mjs && publint && node scripts/check-dist.mjs",
     "version:sync": "node scripts/sync-version.mjs",
     "version:check": "node scripts/sync-version.mjs --check",
-    "package": "pnpm version:check && svelte-package && publint",
+    "package": "pnpm version:check && svelte-package && node scripts/site-css.mjs && publint",
     "prepublishOnly": "pnpm package",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
@@ -59,6 +59,7 @@
       "default": "./dist/index.js"
     },
     "./styles.css": "./src/lib/styles/theme.css",
+    "./site.css": "./dist/site.css",
     "./package.json": "./package.json"
   },
   "peerDependencies": {
