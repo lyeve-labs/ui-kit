@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `StepIndicator` takes `label`, the list's accessible name, which defaults to "Progress". Name each list when a page holds two.
 - `data-theme="system"` on `<html>` paints the light or dark palette the operating system asks for, with no script, and repaints when that setting changes. `getTheme()` reads it the same way. A light override for such a page goes inside `@media (prefers-color-scheme: light)`, as the README shows.
-- `@lyeve-labs/ui-kit/site.css` is the stylesheet compiled for a page with no Tailwind build: the theme in all three schemes and every class of Accordion, AccordionItem, Badge, Button, Card, Checkbox, Field, FormMessage, Input, Label, SectionHeading and Textarea.
 
 ### Changed
 
