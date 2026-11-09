@@ -119,14 +119,14 @@
   bind:this={root}
   bind:open
   use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: closeAndReturn }}
-  class="group relative {klass}"
+  class="relative {klass}"
 >
   <!-- The name beside the avatar is hidden below sm, and the avatar is paint,
        so the trigger carries its name itself. While the panel is open the
        trigger keeps its hover fill, so the panel reads as coming from it. -->
   <summary
     aria-label="{name}, account menu"
-    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 group-open:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 [[open]>&]:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
   >
     <span
       class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold {AVATAR_TONE[
@@ -139,16 +139,19 @@
     <span class="hidden min-w-0 max-w-[10rem] truncate text-sm text-fg sm:block">{name}</span>
     <ChevronDown
       size={14}
-      class="shrink-0 text-faint transition-transform duration-base group-open:rotate-180"
+      class="shrink-0 text-faint transition-transform duration-base [[open]>summary>&]:rotate-180"
     />
   </summary>
 
   <!-- end-0: the panel hangs from the header's trailing edge, which is the one
        edge it can grow from without leaving the window. The surface and the
        rule are the card treatment, because lifted off the header it is a
-       surface of its own. -->
+       surface of its own. Its entrance and the trigger's open styles name
+       this menu's own details: set at all times, the entrance played once
+       while the panel was hidden and at no opening, and group-open followed
+       any open group around the menu. -->
   <div
-    class="absolute end-0 top-full z-dropdown mt-2 flex w-64 origin-top-right flex-col gap-1 rounded-xl border border-line bg-surface p-2 shadow-popover inset-shadow-highlight animate-popover-in"
+    class="absolute end-0 top-full z-dropdown mt-2 flex w-64 origin-top-right flex-col gap-1 rounded-xl border border-line bg-surface p-2 shadow-popover inset-shadow-highlight [[open]>&]:animate-popover-in"
   >
     <div class="border-b border-line px-2 pb-2">
       <p class="truncate text-sm font-medium text-fg">{name}</p>

@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SectionHeading` at both levels and the title of a `Card` draw in `--font-heading`, a new token that is the body face unless a page sets its own.
 - **Breaking:** `Accordion` is built on `details`, so the browser opens and closes each item and an accordion works on a page that runs no script. Its items share a name unless `multiple` is set, which has the browser close the others when one opens. An item's body fades in at each opening and shuts in one frame, where it used to grow and shrink to its height. The header is the item's `summary` with its `h3` inside, and it is no longer a button with `aria-expanded` and `aria-controls`. The body has no region role, and the `accordion-header-` and `accordion-panel-` ids are gone, because the browser reports an item's state itself. An item's `id` is now the id of its `details` element, unique on the page: find an item by it and read its `open` property. A page put together from several server renders gives each its own `idPrefix`, or two accordions on it share a name.
 
+### Fixed
+
+- The account menu's panel never played its entrance in Chromium, which hides a shut panel without dropping its style, so the animation ran once while the panel was hidden. It now plays at each opening. A closed menu inside an open part of the page no longer draws its button lit and its chevron turned.
+
 ## [0.55.0] - 2026-11-09
 
 ### Added
