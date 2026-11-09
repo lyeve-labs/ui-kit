@@ -127,15 +127,15 @@
   /*
    * The focus ring is inset: the tabs sit in a box that clips to scroll, and
    * the global outline sits 2px outside its element, so on the strip's top
-   * edge it was cut off. min-h-control under a finger is the same height the
-   * buttons and fields beside the strip take there.
+   * edge it was cut off.
    */
   const TAB =
     'relative shrink-0 px-4 text-sm font-medium whitespace-nowrap ' +
     'transition-colors outline-none ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
-  // In a header row the row is already a control tall at every pointer, so a
-  // tab takes its height and grows only sideways under a finger.
+  // min-h-control under a finger is the height the buttons and fields beside
+  // the strip take there. In a header row the row is already a control tall
+  // at every pointer, so a tab takes its height and grows only sideways.
   const SIZE = $derived(
     inHeader ? 'flex h-full items-center coarse:min-w-control' : `${TOUCH_GROW} py-2.5`,
   );
