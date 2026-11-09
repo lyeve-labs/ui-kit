@@ -4,6 +4,7 @@ import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
 import { BLOCK_COMPONENTS } from '../../../scripts/site-css.mjs';
+import SiteBlocksStory from '../../../tests/ct/SiteBlocksStory.svelte';
 import AccordionItems from '../../../tests/fixtures/AccordionItems.svelte';
 import AccordionItem from './AccordionItem.svelte';
 import Badge from './Badge.svelte';
@@ -120,6 +121,18 @@ const pages = {
 };
 
 describe('the site components, rendered on the server', () => {
+  // site-page.ct.spec.ts measures this page in a browser, as a visitor gets
+  // it, so the page it loads is the server's own HTML. A component change
+  // that moves the HTML fails here until the file is written again with
+  // pnpm exec vitest run -u src/lib/components/site-components.ssr.test.ts,
+  // and the browser measures the new HTML. The file is one line, as the
+  // server writes it, so the browser measures the exact markup.
+  it('renders every component on one page, kept in the file the browser measures', async () => {
+    await expect(render(SiteBlocksStory).body).toMatchFileSnapshot(
+      '../../../tests/fixtures/site-page-ssr.html',
+    );
+  });
+
   it('covers every component a block uses', () => {
     expect(Object.keys(pages).sort()).toEqual([...BLOCK_COMPONENTS].sort());
   });
