@@ -64,6 +64,12 @@
     class?: string;
     /** The `data-testid` on the aside, its strip and its handle. Defaults to `aside-<storageKey>`. */
     testId?: string;
+    /**
+     * The aside's id, for a control outside the pane, such as a toolbar
+     * toggle, to name in `aria-controls`. The body a page passes in holds
+     * neither the header row nor the strip, so it is the wrong target.
+     */
+    id?: string;
     children: Snippet;
   }
 
@@ -83,6 +89,7 @@
     header,
     class: klass = '',
     testId,
+    id: paneId = undefined,
     children,
   }: Props = $props();
 
@@ -346,6 +353,7 @@
 
 <aside
   bind:this={aside}
+  id={paneId}
   class={frame}
   style="--panel-w:{width}px;--panel-min:{min}px"
   aria-label={label}
