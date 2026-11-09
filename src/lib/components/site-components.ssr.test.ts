@@ -3,6 +3,7 @@
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
+import Card from './Card.svelte';
 import Columns from './Columns.svelte';
 import Footer from './Footer.svelte';
 import Gallery from './Gallery.svelte';
@@ -22,6 +23,14 @@ const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}<
  * handler gets `onload` and `onerror` from the server render.
  */
 const pages = {
+  Card: () =>
+    render(Card, {
+      props: {
+        title: 'Studio',
+        image: { src: '/studio.jpg', alt: 'A desk' },
+        children: text('Body'),
+      },
+    }).body,
   Section: () =>
     render(Section, {
       props: {
@@ -79,6 +88,8 @@ describe('the site components, rendered on the server', () => {
   });
 
   it('carries the content of the rest', () => {
+    expect(pages.Card()).toContain('Studio');
+    expect(pages.Card()).toContain('Body');
     expect(pages.Columns()).toContain('Column');
     expect(pages.Prose()).toContain('Paragraph');
     expect(pages.Quote()).toContain('Words');
@@ -100,5 +111,6 @@ describe('the site components, rendered on the server', () => {
     expect(unsized).toMatch(/<img[^>]*class="[^"]*aspect-video/);
     expect(pages.NavBar()).toMatch(/<img[^>]*width="64"[^>]*height="32"/);
     expect(pages.Gallery()).toMatch(/<img[^>]*class="[^"]*aspect-\[4\/3\]/);
+    expect(pages.Card()).toMatch(/<img[^>]*class="[^"]*aspect-video/);
   });
 });

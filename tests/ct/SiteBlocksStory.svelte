@@ -29,7 +29,11 @@
 
 <SectionHeading>Plans</SectionHeading>
 <SectionHeading level={3} variant="eyebrow">Pricing</SectionHeading>
-<Card title="Starter" description="For a first site.">
+<Card
+  title="Starter"
+  description="For a first site."
+  image={{ src: picture, alt: '', width: 400, height: 300 }}
+>
   <p>Everything a small site needs.</p>
   {#snippet footer()}
     <Button href="/start">Start</Button>
