@@ -66,6 +66,26 @@ test.describe('SegmentedControl fit', () => {
     await expect.poll(async () => new Set((await boxes(page)).map((s) => s.top)).size).toBe(1);
   });
 
+  for (const [layout, narrow, wide] of [
+    ['row', 300, 640],
+    ['grid', 440, 1000],
+  ] as const) {
+    test(`stacks in a ${layout} that is too narrow and lies down again when it widens`, async ({
+      mount,
+      page,
+    }) => {
+      // A control sized by its content refused to shrink once its labels kept
+      // to one line, so a flex row or a grid column ran past its container
+      // instead of stacking.
+      await styled(await mount(SegmentedFitStory, { props: { width: narrow, layout } }), page);
+      await expect.poll(async () => new Set((await boxes(page)).map((s) => s.top)).size).toBe(4);
+      const frame = await page.locator('#frame').evaluate((el) => el.scrollWidth <= el.clientWidth);
+      expect(frame, 'the control stays inside its frame').toBe(true);
+      await page.locator('#frame').evaluate((el, w) => (el.style.width = `${w}px`), wide);
+      await expect.poll(async () => new Set((await boxes(page)).map((s) => s.top)).size).toBe(1);
+    });
+  }
+
   test('picks with the pointer and draws no focus ring for it', async ({ mount, page }) => {
     await styled(await mount(SegmentedFitStory, { props: { width: 640 } }), page);
     await page.getByRole('radio', { name: 'Write only' }).click();

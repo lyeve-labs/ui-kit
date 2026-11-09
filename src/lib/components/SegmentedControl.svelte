@@ -148,6 +148,13 @@
    * wide as its container and says nothing about the labels. New labels are
    * read flat again. A container with no width yet, inside a closed panel,
    * is read when it opens.
+   *
+   * The field may shrink below its row (min-w-0), and a stack keeps the row's
+   * width as its own, capped by the field. A flex row or a grid column sizes
+   * the field by what it holds: without the first it never shrank, so a row
+   * that did not fit ran past its container, and without the second a stack
+   * offered only its widest label and never lay back down. Set from script,
+   * since a page's policy may refuse a style attribute.
    */
   let stacked = $state(false);
   let natural = 0;
@@ -162,6 +169,7 @@
     } else if (natural <= room) {
       stacked = false;
     }
+    rootEl.style.width = stacked ? `${natural}px` : '';
   }
 
   $effect(() => {
@@ -169,6 +177,7 @@
     void labels;
     if (rootEl === undefined || !wrap || typeof ResizeObserver === 'undefined') return;
     stacked = false;
+    rootEl.style.width = '';
     const observer = new ResizeObserver(fit);
     observer.observe(wrap);
     observer.observe(rootEl);
@@ -267,7 +276,7 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} items-start {klass}">
+<div data-field class="{FIELD_WRAP} min-w-0 items-start {klass}">
   {#if !labelHidden}
     <!-- A caption, not a label element. The group is named by aria-label, or
          by the caption it is handed, and a label has nothing to point at
@@ -298,7 +307,9 @@
     aria-invalid={error && !linked ? 'true' : undefined}
     aria-describedby={describedByIds}
     onfocusout={linked ? onGroupFocusOut : undefined}
-    class="{stacked ? 'flex w-full flex-col' : 'inline-flex'} items-stretch rounded-lg border {error
+    class="{stacked
+      ? 'flex max-w-full flex-col'
+      : 'inline-flex'} items-stretch rounded-lg border {error
       ? 'border-danger coarse:outline-danger'
       : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 inset-shadow-well p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {stacked
       ? ''
