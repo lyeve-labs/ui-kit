@@ -100,6 +100,27 @@ test.describe('DatePicker', () => {
     }
   });
 
+  test('gives focus back to the field after a pick, with no ring for a pointer', async ({
+    mount,
+    page,
+  }) => {
+    // The calendar closed with the focused day inside it, and focus fell to the
+    // page, so a keyboard reader lost their place in the form.
+    await mount(DatePicker, { props: { id: 'when', label: 'When', value: '2026-01-01' } });
+    const at = () =>
+      page.evaluate(() => ({
+        id: document.activeElement?.id,
+        ring: document.activeElement?.matches(':focus-visible'),
+      }));
+    await page.locator('#when').click();
+    await page.locator('button[aria-label="2026-01-15"]').click();
+    expect(await at()).toEqual({ id: 'when', ring: false });
+    await page.keyboard.press('Enter');
+    await page.locator('button[aria-label="2026-01-20"]').focus();
+    await page.keyboard.press('Enter');
+    expect(await at()).toEqual({ id: 'when', ring: true });
+  });
+
   test('escape key closes calendar', async ({ mount, page }) => {
     const component = await mount(DatePicker, {
       props: { value: '2026-06-01' },
