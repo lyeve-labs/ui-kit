@@ -76,10 +76,16 @@
 <!-- The surface is the layout contract's, so a Card and a bordered Panel on
      one page agree. A hover card, and any clickable one, takes a cyan border
      under the pointer, so it answers the way a button does. Its shadow never
-     changes, and focus is the global outline alone. -->
+     changes, and focus is the global outline alone.
+
+     Only a card whose content reaches its edge (pad none) clips it to the
+     rounded corners. A padded card clipped a list that opened from its last
+     field, so the card grew to hold the list instead of the list opening
+     over the page. The footer band rounds its own corners. -->
 <div
   data-print="keep"
-  class="{CARD_SURFACE} overflow-hidden transition-colors {hover || onclick
+  class="{CARD_SURFACE} {pad === 'none' ? 'overflow-hidden' : ''} transition-colors {hover ||
+  onclick
     ? 'hover:border-brand/50'
     : ''} {onclick ? 'cursor-pointer' : ''} {klass}"
   role={onclick ? 'button' : undefined}
