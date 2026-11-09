@@ -86,15 +86,23 @@
   }
 
   /*
-   * A row moves within the app, by a link or a form post, and the layout that
-   * holds the menu stays mounted, so a panel left open hangs over the page the
-   * reader asked for. A pick closes it the way Escape does. The row's own
-   * action still runs, because closing hides the row without canceling its
-   * click.
+   * A row moves within the app, by a link or by a button that posts a form,
+   * and the layout that holds the menu stays mounted, so a panel left open
+   * hangs over the page the reader asked for. A pick closes it the way Escape
+   * does. The row's own action still runs, because closing hides the row
+   * without canceling its click. A click the host already canceled is left
+   * alone: the host acts in place, such as asking first, and closing would
+   * take the focus from what it opened.
    */
   function closeOnPick(event: MouseEvent): void {
-    const row = (event.target as Element | null)?.closest('a[href], [type="submit"]');
-    if (row && root?.contains(row)) closeAndReturn();
+    if (event.defaultPrevented) return;
+    const row = (event.target as Element | null)?.closest('a[href], button, input');
+    if (!row || !root?.contains(row)) return;
+    const posts =
+      (row instanceof HTMLButtonElement || row instanceof HTMLInputElement) &&
+      row.type === 'submit' &&
+      row.form !== null;
+    if (row instanceof HTMLAnchorElement || posts) closeAndReturn();
   }
 
   $effect(() => {

@@ -150,6 +150,32 @@ describe('AccountMenu', () => {
     expect(submit).toHaveBeenCalledOnce();
   });
 
+  it('leaves a click its host canceled alone and closes for any button that posts', async () => {
+    // A host that cancels a row's click acts in place, such as asking first,
+    // and closing would take the focus from what it opened. A button with no
+    // type inside a form posts it like any submit, and one outside a form
+    // posts nothing.
+    const rows = createRawSnippet(() => ({
+      render: () =>
+        `<div><a href="#ask">Ask first</a><button>Toggle</button><form><button>Switch</button></form></div>`,
+    }));
+    const { container, getByText } = render(AccountMenu, {
+      props: { name: 'Paid Journey', children: rows },
+    });
+    const details = container.querySelector('details')!;
+    getByText('Ask first').addEventListener('click', (event) => event.preventDefault());
+    container.querySelector('form')!.addEventListener('submit', (event) => event.preventDefault());
+    details.open = true;
+    await fireEvent(details, new Event('toggle'));
+
+    await fireEvent.click(getByText('Ask first'));
+    expect(details.open).toBe(true);
+    await fireEvent.click(getByText('Toggle'));
+    expect(details.open).toBe(true);
+    await fireEvent.click(getByText('Switch'));
+    expect(details.open).toBe(false);
+  });
+
   it('listens to the document only while it is open', async () => {
     const add = vi.spyOn(document, 'addEventListener');
     try {
