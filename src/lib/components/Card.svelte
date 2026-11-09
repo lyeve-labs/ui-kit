@@ -115,7 +115,7 @@
         </div>
         {#if description}<p class="text-sm text-muted mt-0.5">{description}</p>{/if}
       {:else}
-        <h3 class="font-semibold text-fg">{title}</h3>
+        <h3 class="font-heading font-semibold text-fg">{title}</h3>
         {#if description}<p class="text-sm text-muted mt-0.5">{description}</p>{/if}
       {/if}
     </div>

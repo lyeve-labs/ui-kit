@@ -118,12 +118,14 @@ describe('Card', () => {
 
     it('takes its type treatment from the layout contract, not from a local string', () => {
       const three = render(Card, { props: { children: text('x'), heading: 'A' } });
-      expect(three.container.querySelector('h3')?.className).toBe('text-sm font-semibold text-fg');
+      expect(three.container.querySelector('h3')?.className).toBe(
+        'font-heading text-sm font-semibold text-fg',
+      );
       const two = render(Card, {
         props: { children: text('x'), heading: 'A', headingLevel: 2 },
       });
       expect(two.container.querySelector('h2')?.className).toBe(
-        'text-h3 leading-h3 tracking-h3 font-semibold text-fg',
+        'font-heading text-h3 leading-h3 tracking-h3 font-semibold text-fg',
       );
     });
 

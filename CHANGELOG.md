@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Every kit radius rung, `xs` to `2xl` and `card`, is a multiple of `--radius-md`, so a page that sets it once moves the whole scale. At its default of 8px every rung keeps its value.
+- `SectionHeading` at both levels and the title of a `Card` draw in `--font-heading`, a new token that is the body face unless a page sets its own.
+
 ## [0.55.0] - 2026-11-09
 
 ### Added
