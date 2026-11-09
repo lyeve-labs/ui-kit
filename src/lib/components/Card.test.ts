@@ -27,6 +27,19 @@ describe('Card', () => {
     expect(sm.container.querySelector('.p-card-sm')).toBeTruthy();
   });
 
+  it('clips only a card whose content reaches its edge', () => {
+    // A padded card clipped a list that opened from its last field, so the
+    // card grew to hold the list. The footer band rounds its own corners.
+    const padded = render(Card, { props: { children: text('x'), footer: text('f') } });
+    const root = padded.container.firstElementChild as HTMLElement;
+    expect(root.className.split(/\s+/)).not.toContain('overflow-hidden');
+    expect(padded.getByText('f').parentElement!.className).toContain('rounded-b-card');
+    const flush = render(Card, { props: { children: text('y'), pad: 'none' } });
+    expect((flush.container.firstElementChild as HTMLElement).className.split(/\s+/)).toContain(
+      'overflow-hidden',
+    );
+  });
+
   it('renders header and footer snippets', () => {
     const { getByText } = render(Card, {
       props: { children: text('body'), header: text('HEAD'), footer: text('FOOT') },
