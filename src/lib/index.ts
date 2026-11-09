@@ -67,6 +67,24 @@ export { default as Label } from './components/Label.svelte';
 // not reach it hand-copied the class strings instead.
 export { default as Field } from './components/Field.svelte';
 export { default as FormMessage } from './components/FormMessage.svelte';
+// An assistant reads and fills a form through the kit's controls inside a
+// FormAssist. A control the kit does not ship registers through assistField,
+// the function the kit's own controls call.
+export { default as FormAssist } from './components/FormAssist.svelte';
+export {
+  activeAssistForm,
+  assistField,
+  type AssistField,
+  type AssistFieldDescription,
+  type AssistFieldSpec,
+  type AssistKind,
+  type AssistOption,
+  type AssistPending,
+  type AssistSkipReason,
+  type AssistSuggestResult,
+  type AssistValue,
+  type FormAssistController,
+} from './internal/assist.svelte.js';
 export { default as SegmentedControl } from './components/SegmentedControl.svelte';
 export { default as FilterChips } from './components/FilterChips.svelte';
 export type { FilterChip } from './components/FilterChips.svelte';

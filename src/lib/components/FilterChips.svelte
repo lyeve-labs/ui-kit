@@ -24,6 +24,8 @@
 
 <script lang="ts" generics="T extends string">
   import FieldMessage from '../internal/FieldMessage.svelte';
+  import AssistActions from '../internal/AssistActions.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   /**
    * One filter out of many: a row of chips that wraps.
    *
@@ -37,7 +39,7 @@
    * filter the page keeps in its URL.
    */
   import { cn } from '../utils/cn.js';
-  import { describedBy, joinIds } from '../internal/field.js';
+  import { ASSIST_WRAP, describedBy, joinIds } from '../internal/field.js';
   import { assertLinked, safeHref } from '../internal/href.js';
   import { HIT_AREA } from '../internal/touch.js';
 
@@ -67,6 +69,13 @@
      * own hint or error.
      */
     describedBy?: string;
+    /** Submits the chosen value with the surrounding form, through a hidden input. */
+    name?: string;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
     class?: string;
     /** Button mode only. A link chip reports nothing. The page it opens does. */
     onchange?: (value: T) => void;
@@ -81,9 +90,36 @@
     hint = undefined,
     error = undefined,
     describedBy: callerIds = undefined,
+    name = undefined,
+    noAI = false,
     class: klass = '',
     onchange = undefined,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'choice',
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return options.map((option) => ({ value: option.value, label: option.label }));
+    },
+    get value() {
+      return value ?? null;
+    },
+    set value(v) {
+      value = v as T;
+    },
+  });
 
   /*
    * Link mode when every chip carries an href. A row that mixes the two is
@@ -138,8 +174,9 @@
 -->
 <div
   data-field={error || hint ? '' : undefined}
+  data-no-ai={noAI ? '' : undefined}
   {id}
-  class={cn('flex flex-wrap gap-1.5 coarse:gap-y-4.5', klass)}
+  class="{cn('flex flex-wrap gap-1.5 coarse:gap-y-4.5', klass)}{assist.pending ? ASSIST_WRAP : ''}"
   role="group"
   aria-label={label}
   aria-describedby={describedByIds}
@@ -167,7 +204,11 @@
         {@render face(chip)}
       </button>
     {/if}
-  {/each}
+  {/each}{#if assist.pending}<AssistActions field={assist} />{/if}{#if name}<input
+      type="hidden"
+      {name}
+      value={value ?? ''}
+    />{/if}
 </div>
 <FieldMessage base={messageBase} {error} {hint} class="mt-1.5" />
 

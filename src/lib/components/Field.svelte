@@ -34,6 +34,7 @@
   import FieldLabel from '../internal/FieldLabel.svelte';
   import type { Snippet } from 'svelte';
   import { FIELD_WRAP, describedBy } from '../internal/field.js';
+  import { provideAssistFieldLabel } from '../internal/assist.svelte.js';
 
   interface Props {
     /** Overrides the generated id, for a control the caller has to address by name. */
@@ -77,6 +78,10 @@
     class: klass = '',
     children,
   }: Props = $props();
+
+  // A control inside takes this label as its name in a FormAssist, when it
+  // has none of its own.
+  provideAssistFieldLabel(() => label);
 
   /*
    * $props.id(), never Math.random(). A random id is one value in the server

@@ -48,6 +48,7 @@ const COMPONENTS = [
   'Label',
   'Field',
   'FormMessage',
+  'FormAssist',
   'SegmentedControl',
   'FilterChips',
   'Select',
@@ -132,6 +133,8 @@ const FUNCTIONS = [
   'ladderState',
   'copyToClipboard',
   'setDocumentTitleFormat',
+  'assistField',
+  'activeAssistForm',
 ] as const;
 
 /**

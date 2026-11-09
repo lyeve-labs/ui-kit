@@ -134,6 +134,23 @@ describe.each([
       ).toBeGreaterThanOrEqual(3);
     }
   });
+
+  it('draws a suggested value at AA for its tag and 3:1 for its border', () => {
+    // A field holding an assistant's suggestion swaps its border to violet and
+    // labels it with a violet tag, and the bar above the form carries the
+    // sentence on an 8 percent violet tint.
+    for (const ground of GROUNDS) {
+      expect(ratio(tokens.violet, tokens[ground]), `tag on ${ground}`).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const ground of ['surface', 'surface-2'] as const) {
+      expect(ratio(tokens.violet, tokens[ground]), `border on ${ground}`).toBeGreaterThanOrEqual(3);
+    }
+    for (const ground of GROUNDS) {
+      const bar = over(tokens.violet, tokens[ground], 0.08);
+      expect(ratio(tokens.fg, bar), `bar sentence on ${ground}`).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(tokens.violet, bar), `bar icon on ${ground}`).toBeGreaterThanOrEqual(3);
+    }
+  });
 });
 
 describe('the light palette', () => {
