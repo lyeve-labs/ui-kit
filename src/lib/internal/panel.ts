@@ -322,7 +322,9 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     // under a finger is as wide as a 320px phone, and its field starts at the
     // page gutter or inside a modal body's padding. It first tries its
     // anchor's other edge, then slides, keeping the gap when the room holds
-    // the panel and the gap on both sides. A panel wider than the room shrinks
+    // the panel and the gap on both sides. Only a panel past the room moves: a
+    // panel inside it, flush with its edge, is still aligned with its field.
+    // A panel wider than the room shrinks
     // to it, since a modal body on a 320px phone is narrower than the calendar
     // and scrolled sideways around it, and keeps its start edge in view. Read
     // from the layout box, which the entrance preset's scale does not shrink,
@@ -342,10 +344,10 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     let shift = 0;
     if (width >= span) {
       shift = rtl ? hi - right : lo - left;
-    } else if (left < lo + gap || right > hi - gap) {
+    } else if (left < lo || right > hi) {
       const flipped = rtl ? rect.left - left : rect.right - right;
       if (left + flipped >= lo && right + flipped <= hi) shift = flipped;
-      else if (right > hi - gap) shift = hi - gap - right;
+      else if (right > hi) shift = hi - gap - right;
       else shift = lo + gap - left;
     }
     node.style.translate = shift === 0 ? '' : `${shift}px 0`;

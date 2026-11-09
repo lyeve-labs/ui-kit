@@ -484,6 +484,15 @@ describe('placePanel', () => {
     it('stays where it is when it fits', () => {
       expect(at([400, 544], 272)).toBe('');
     });
+
+    it('stays aligned with an anchor that touches the edge when it fits', () => {
+      // A field flush with the room's start edge. Read against the gap, a 400px
+      // field sent its calendar to the far end, and a 144px one slid it 8px off
+      // its field.
+      expect(at([0, 400], 272)).toBe('');
+      expect(at([0, 144], 272)).toBe('');
+      expect(at([1136, 1280], 272, { rtl: true })).toBe('');
+    });
   });
 
   describe('in a container too short for it on either side', () => {
