@@ -23,7 +23,11 @@
      item is open, so it plays again at each opening, and a shut body holds no
      animation that never runs. Every open style names this item's own
      details, never an open ancestor, so an item inside another open item or
-     inside a page's open group still draws shut while it is shut. -->
+     inside a page's open group still draws shut while it is shut.
+     The title is plain text, never a heading. Screen readers treat a summary
+     as a button: inside one, a heading hides the item's state from
+     VoiceOver on iOS, drops out of heading navigation in JAWS and TalkBack,
+     and in Firefox with Orca the item does not open from it. -->
 <details {id} name={ctx?.name} class="bg-surface {cls}">
   <summary
     class="flex w-full cursor-pointer list-none items-center justify-between px-5 py-4 text-start text-sm font-medium
@@ -31,7 +35,7 @@
       outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand
       [&::-webkit-details-marker]:hidden"
   >
-    <h3 class="m-0">{title}</h3>
+    <span>{title}</span>
     <ChevronDown
       size={16}
       class="shrink-0 text-faint transition-transform duration-base [[open]>summary>&]:rotate-180"
