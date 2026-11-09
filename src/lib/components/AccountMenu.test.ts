@@ -98,7 +98,7 @@ describe('AccountMenu', () => {
 
   it('keeps the trigger lit while its panel is open', () => {
     const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: items } });
-    expect(container.querySelector('summary')?.className).toContain('group-open:bg-surface-2');
+    expect(container.querySelector('summary')?.className).toContain('[[open]>&]:bg-surface-2');
   });
 
   it('closes on a press outside it and on Escape, which returns focus to the trigger', async () => {
