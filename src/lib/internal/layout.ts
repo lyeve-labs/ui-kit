@@ -165,7 +165,7 @@ export const CARD_PAD: Record<'none' | 'sm' | 'md' | 'lg', string> = {
 export const CARD_HEADER = 'px-card py-card-sm border-b border-line';
 
 /** The band below a card's content. CARD_HEADER's inset, with the rule on top. */
-export const CARD_FOOTER = 'px-card py-card-sm border-t border-line bg-surface-2/40';
+export const CARD_FOOTER = 'px-card py-card-sm border-t border-line bg-surface-2/40 rounded-b-card';
 
 /**
  * A placeholder inside a card: one centered muted line.

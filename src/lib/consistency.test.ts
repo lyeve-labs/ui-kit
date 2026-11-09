@@ -537,6 +537,22 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('positions every element that scrolls, so nothing hidden inside it escapes', () => {
+    // A visually hidden label is absolutely positioned. Inside a scroller that
+    // is not positioned, its containing block is the nearest positioned
+    // ancestor outside, so the scroller neither clips it nor scrolls it, and
+    // its box lengthens that ancestor's scroll range instead: a schema editor
+    // holding two such labels gave the console's shell region 83px to scroll,
+    // and its toolbar slid under the header.
+    const offenders = files.flatMap((f) =>
+      openingTags(code(f.src))
+        .filter((tag) => /\boverflow-(?:x-|y-)?(?:auto|scroll)\b/.test(tag))
+        .filter((tag) => !/\b(?:relative|absolute|fixed|sticky)\b/.test(tag))
+        .map((tag) => `${f.name}: ${tag.replace(/\s+/g, ' ').slice(0, 90)}`),
+    );
+    expect(offenders).toEqual([]);
+  });
+
   it('scopes a duration to the same elements as the transition it belongs to', () => {
     // `[&_tbody_tr]:transition-colors duration-150` reads as one thought and is
     // not: the bare duration lands on the element carrying the class, so the

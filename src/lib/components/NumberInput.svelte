@@ -82,10 +82,15 @@
   // 6px past each side, into the number on one of them, so each box is pinned
   // to the edge the stepper shares with the number and grows outward instead.
   // The sides are logical, so a right-to-left page mirrors them.
+  //
+  // A stepper at its bound keeps its fill and its border and fades only its
+  // glyph. Faded whole, the decrease button at 0 let the surface behind show
+  // through and read as a dark hole in the control. A disabled control fades
+  // as one, from its row.
   const step_ =
     `${HIT_AREA} flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted coarse:w-8 ` +
     'transition-colors hover:bg-line hover:text-fg ' +
-    'disabled:opacity-50 disabled:cursor-not-allowed ' +
+    'disabled:text-faint disabled:hover:bg-surface-2 disabled:cursor-not-allowed ' +
     'coarse:before:translate-x-0 coarse:before:-translate-y-1/2';
 </script>
 
@@ -94,7 +99,7 @@
     <FieldLabel for={fieldId} text={label} {required} />
   {/if}
 
-  <div class="flex h-control">
+  <div class="flex h-control{disabled ? ' opacity-50' : ''}">
     <button
       type="button"
       onclick={dec}
@@ -132,7 +137,7 @@
       class="min-w-0 flex-1 border-y bg-surface-2 text-center text-sm text-fg
         outline-none transition-colors
         focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35
-        disabled:cursor-not-allowed disabled:opacity-50
+        disabled:cursor-not-allowed
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none
         [&::-webkit-outer-spin-button]:appearance-none

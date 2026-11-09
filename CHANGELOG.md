@@ -5,6 +5,26 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.0] - 2026-11-09
+
+### Added
+
+- `SplitPane` takes a `header` snippet in place of its label in the header row, for a pane whose own tabs already name what it holds. The label still names the pane to a screen reader, on the strip and on its controls. The row stays one control tall, and in a pane dragged narrower than its tabs they scroll in their own strip while the lock and the fold stay in place.
+- `Tabs` takes `inHeader` for a strip in such a header row: it draws no rule of its own and its tabs take the row's height.
+
+### Changed
+
+- A `SegmentedControl` keeps each label on one line. When its options do not fit beside each other, in a narrow panel, a flex row or a grid column, it stacks them, and it lies back down once there is room.
+- A `Card` clips its content to its corners only with `pad="none"`, so a list that opens from a field in a padded card draws over the page instead of growing the card. The footer band rounds its own corners.
+- `AccountMenu` closes when a link in it, or a button that posts a form, is chosen, and gives focus back to its trigger. A click canceled on the row before it reaches the menu leaves it open.
+
+### Fixed
+
+- A `PageShell` with `fill` no longer scrolls the shell when a visually hidden label sits in a scrolling region inside it, and every scrolling region in the kit is positioned so such a label stays inside it.
+- A panel opened from a field (`Select`, `DatePicker` and the rest) stays inside the room the reader can see, inside any scrollbar of the region that clips it. When it runs past an edge it aligns to its field's other edge first, then slides back with an 8px gap. A panel that fits is left aligned with its field.
+- A `NumberInput` stepper at its bound fades only its glyph and keeps its frame, where it drew a dark block.
+- `DatePicker` gives focus back to its field when a pick or Escape closes the calendar with focus inside it, with a focus ring only after a keyboard pick.
+
 ## [0.54.0] - 2026-11-08
 
 ### Added

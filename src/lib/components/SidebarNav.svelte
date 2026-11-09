@@ -161,7 +161,7 @@
   aria-label={label}
   class="{collapsed
     ? 'w-nav-rail'
-    : 'w-sidebar'} shrink-0 overflow-y-auto overscroll-contain py-2 {klass}"
+    : 'w-sidebar'} relative shrink-0 overflow-y-auto overscroll-contain py-2 {klass}"
 >
   <ul class="flex flex-col gap-0.5">
     {#each items as node (node.id)}

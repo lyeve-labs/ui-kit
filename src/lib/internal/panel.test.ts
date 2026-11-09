@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   PANEL_ABOVE,
   PANEL_BELOW,
@@ -144,6 +144,14 @@ describe('the scrolling region', () => {
     expect(theme).toMatch(/--spacing-control:[^\n]*\n\s*--spacing-panel-max:\s*15rem;/);
   });
 
+  it('is positioned, so a hidden label in a row cannot scroll the surface', () => {
+    // The surface clips, and a clipping box still scrolls when told to. A
+    // hidden label below the list's fold, held by the surface rather than the
+    // list, gave the surface a scroll range that focusing a row could use,
+    // and the search field above the list went with it.
+    expect(hasAll(PANEL_LIST, 'relative')).toBe(true);
+  });
+
   it('owns the scroll, so the surface does not', () => {
     // Autocomplete scrolled the surface and MultiSelect an inner region. On the
     // surface the sticky search field scrolls away with the options.
@@ -236,6 +244,17 @@ describe('placePanel', () => {
     if (opts.clip !== undefined) {
       clip.style.overflowY = 'auto';
       clip.getBoundingClientRect = () => rect(opts.clip![0], opts.clip![1]);
+      // The room is read inside the clip's borders and scrollbars. Here it has
+      // neither, unless a test states a scrollbar, so the inner box follows
+      // whatever rect the test gives the clip.
+      Object.defineProperty(clip, 'clientHeight', {
+        configurable: true,
+        get: () => clip.getBoundingClientRect().height,
+      });
+      Object.defineProperty(clip, 'clientWidth', {
+        configurable: true,
+        get: () => clip.getBoundingClientRect().right - clip.getBoundingClientRect().left,
+      });
     }
     const anchor = document.createElement('div');
     anchor.getBoundingClientRect = () => rect(opts.anchor[0], opts.anchor[1]);
@@ -354,8 +373,8 @@ describe('placePanel', () => {
       // Wider than the screen, it keeps its start edge on the screen.
       expect(at(24, 400)).toBe('-24px 0');
       // A start edge off the left, as an end-anchored panel in a right-to-left
-      // page, comes back to the edge.
-      expect(at(-16, 300)).toBe('16px 0');
+      // page, comes back inside and keeps the gap from the edge.
+      expect(at(-16, 300)).toBe('24px 0');
     } finally {
       if (width) Object.defineProperty(window, 'innerWidth', width);
     }
@@ -396,6 +415,84 @@ describe('placePanel', () => {
     } finally {
       if (width) Object.defineProperty(window, 'innerWidth', width);
     }
+  });
+
+  it('keeps the room inside the clip scrollbar', () => {
+    // A filter row's last date field in a shell region that shows a 15px
+    // scrollbar: the border box reaches 343 and the content shows to 328.
+    // Slid to the border box, the calendar ended under the scrollbar.
+    const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      const f = mount({ anchor: [100, 140], clip: [0, 800], natural: 200 });
+      f.clip.getBoundingClientRect = () => ({ ...rect(0, 800), left: 17, right: 343 }) as DOMRect;
+      Object.defineProperty(f.clip, 'clientWidth', { configurable: true, value: 311 });
+      f.anchor.getBoundingClientRect = () =>
+        ({ ...rect(100, 140), left: 33, right: 177 }) as DOMRect;
+      Object.defineProperty(f.surface, 'offsetWidth', { value: 300 });
+      const action = placePanel(f.surface);
+      // 33 + 300 = 333, 5px past 328. Its field's end is too far left to align with.
+      expect(f.surface.style.translate).toBe('-5px 0');
+      action.destroy();
+    } finally {
+      if (width) Object.defineProperty(window, 'innerWidth', width);
+    }
+  });
+
+  describe('beside the edge of the window', () => {
+    const at = (anchor: [number, number], panel: number, opts: { rtl?: boolean } = {}) => {
+      const f = mount({ anchor: [100, 140], natural: 200 });
+      f.anchor.getBoundingClientRect = () =>
+        ({ ...rect(100, 140), left: anchor[0], right: anchor[1] }) as DOMRect;
+      Object.defineProperty(f.surface, 'offsetWidth', { value: panel });
+      if (opts.rtl) {
+        // An end-anchored panel: its right edge sits at its anchor's.
+        f.surface.style.direction = 'rtl';
+        Object.defineProperty(f.surface, 'offsetLeft', { value: anchor[1] - anchor[0] - panel });
+      }
+      const action = placePanel(f.surface);
+      const shift = f.surface.style.translate;
+      action.destroy();
+      return shift;
+    };
+    let width: PropertyDescriptor | undefined;
+    beforeEach(() => {
+      width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
+    });
+    afterEach(() => {
+      if (width) Object.defineProperty(window, 'innerWidth', width);
+    });
+
+    it('aligns with the end of its anchor before it slides', () => {
+      // A 144px date field ending at 1248 and its 272px calendar. Slid by its
+      // overflow it started 96px left of the field and ended 32px past it.
+      expect(at([1104, 1248], 272)).toBe('-128px 0');
+    });
+
+    it('aligns with the start of its anchor in a right-to-left page', () => {
+      expect(at([40, 184], 272, { rtl: true })).toBe('128px 0');
+    });
+
+    it('keeps a gap from the edge when neither edge of its anchor fits', () => {
+      // 1100px from 200 runs to 1300. Aligned with its anchor's end at 250 it
+      // would start off the screen, so it slides, and stops 8px short of the
+      // edge rather than on it.
+      expect(at([200, 250], 1100)).toBe('-28px 0');
+    });
+
+    it('stays where it is when it fits', () => {
+      expect(at([400, 544], 272)).toBe('');
+    });
+
+    it('stays aligned with an anchor that touches the edge when it fits', () => {
+      // A field flush with the room's start edge. Read against the gap, a 400px
+      // field sent its calendar to the far end, and a 144px one slid it 8px off
+      // its field.
+      expect(at([0, 400], 272)).toBe('');
+      expect(at([0, 144], 272)).toBe('');
+      expect(at([1136, 1280], 272, { rtl: true })).toBe('');
+    });
   });
 
   describe('in a container too short for it on either side', () => {

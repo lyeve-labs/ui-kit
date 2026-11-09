@@ -106,11 +106,23 @@
     return !withinRange(date, bounds.min, bounds.max);
   }
 
+  /**
+   * Focus inside the calendar leaves with it, so it comes back to the field.
+   * The calendar closed with the focused day inside it and focus fell to the
+   * page, so a keyboard reader lost their place in the form. Moved before the
+   * calendar goes, from the day that held it, a pointer's pick draws no ring.
+   */
+  function close() {
+    const inside = document.getElementById(calendarId)?.contains(document.activeElement);
+    if (inside) document.getElementById(fieldId)?.focus();
+    open = false;
+  }
+
   function pick(date: CalendarDate) {
     if (isDisabled(date)) return;
     value = toISODate(date);
     onchange?.(value);
-    open = false;
+    close();
   }
 
   function prevMonth() {
@@ -131,7 +143,7 @@
 <div
   data-field
   class="{FIELD_WRAP} {cls}"
-  use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: () => (open = false) }}
+  use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: close }}
 >
   {#if label}
     <FieldLabel for={fieldId} text={label} {required} />
@@ -222,7 +234,7 @@
         class="{PANEL_SURFACE} w-68 min-w-65.5 coarse:w-80 coarse:min-w-62.5"
       >
         <div
-          class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
+          class="relative overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
           data-panel-list={PANEL_LIST_UNCAPPED}
         >
           <!-- Header. Under a finger each 26px month step takes a 44px box,

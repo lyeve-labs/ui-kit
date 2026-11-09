@@ -85,7 +85,10 @@
         <OverlayHeader {title} {description} {headingId} {descriptionId} onclose={close} />
       {/if}
 
-      <div use:measureFields={(n) => (fields = n)} class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div
+        use:measureFields={(n) => (fields = n)}
+        class="relative min-h-0 flex-1 overflow-y-auto px-5 py-4"
+      >
         {@render children()}
       </div>
 

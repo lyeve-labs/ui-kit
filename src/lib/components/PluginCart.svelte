@@ -431,7 +431,7 @@
           No capabilities chosen yet. With none, you stay on the Free plan.
         </p>
       {:else}
-        <ul class="mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
+        <ul class="relative mb-4 max-h-56 space-y-1 overflow-y-auto pe-1">
           {#each [...selected] as sku (sku)}
             {@const p = bySku.get(sku)}
             <li class="flex items-center justify-between gap-2 text-xs">

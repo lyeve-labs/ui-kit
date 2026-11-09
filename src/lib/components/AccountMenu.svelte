@@ -84,6 +84,35 @@
     open = false;
     root?.querySelector('summary')?.focus();
   }
+
+  /*
+   * A row moves within the app, by a link or by a button that posts a form,
+   * and the layout that holds the menu stays mounted, so a panel left open
+   * hangs over the page the reader asked for. A pick closes it the way Escape
+   * does. The row's own action still runs, because closing hides the row
+   * without canceling its click. A click canceled on the row before it
+   * reaches the menu is left alone, because its host acts in place, such as
+   * asking first, and closing would take the focus from what it opened. A
+   * Svelte host's onclick runs later, at the app's root, so the menu closes
+   * first and a dialog the host opens returns the focus to the trigger.
+   */
+  function closeOnPick(event: MouseEvent): void {
+    if (event.defaultPrevented) return;
+    const row = (event.target as Element | null)?.closest('a[href], button, input');
+    if (!row || !root?.contains(row)) return;
+    const posts =
+      (row instanceof HTMLButtonElement || row instanceof HTMLInputElement) &&
+      row.type === 'submit' &&
+      row.form !== null;
+    if (row instanceof HTMLAnchorElement || posts) closeAndReturn();
+  }
+
+  $effect(() => {
+    const el = root;
+    if (!el) return;
+    el.addEventListener('click', closeOnPick);
+    return () => el.removeEventListener('click', closeOnPick);
+  });
 </script>
 
 <details

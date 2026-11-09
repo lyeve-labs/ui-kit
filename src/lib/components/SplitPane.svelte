@@ -52,6 +52,14 @@
     open?: boolean;
     /** Keeps the header's count or status beside the label. */
     meta?: Snippet;
+    /**
+     * Takes the label's place in the header row, for a pane whose own tabs
+     * already name what it holds. Pass `Tabs` with `inHeader`, which leaves
+     * the rule to the row and keeps the row as tall as its neighbors. The
+     * label still names the pane to a screen reader, on the strip and on its
+     * controls.
+     */
+    header?: Snippet;
     /** Classes for the aside element itself, for the stacked layout's share of the height. */
     class?: string;
     /** The `data-testid` on the aside, its strip and its handle. Defaults to `aside-<storageKey>`. */
@@ -72,6 +80,7 @@
     collapsible = false,
     open = $bindable(true),
     meta,
+    header,
     class: klass = '',
     testId,
     children,
@@ -370,10 +379,19 @@
   {/if}
 
   <div class="relative flex h-full min-h-0 flex-1 flex-col {folded ? at.hidden : ''}">
+    <!-- One control tall with a header too, so a pane of tabs and a pane
+         with a label beside it draw their rules on one line. -->
     <div
-      class="flex h-control shrink-0 items-center justify-between border-b border-line ps-3 pe-1"
+      class="flex h-control {header
+        ? 'ps-1'
+        : 'ps-3'} shrink-0 items-center justify-between border-b border-line pe-1"
     >
-      <SectionHeading level={2} variant="eyebrow" actions={meta}>{label}</SectionHeading>
+      {#if header}
+        <div class="flex h-full min-w-0 flex-1">{@render header()}</div>
+        {#if meta}<div class="flex shrink-0 items-center gap-2 ps-2">{@render meta()}</div>{/if}
+      {:else}
+        <SectionHeading level={2} variant="eyebrow" actions={meta}>{label}</SectionHeading>
+      {/if}
       <div bind:this={controls} class="hidden items-center {at.flex}">
         <Button
           variant="ghost"
@@ -399,7 +417,7 @@
         {/if}
       </div>
     </div>
-    <div class="min-h-0 flex-1 overflow-y-auto">
+    <div class="relative min-h-0 flex-1 overflow-y-auto">
       {@render children()}
     </div>
     {#if !locked}

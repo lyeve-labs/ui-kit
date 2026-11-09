@@ -212,7 +212,7 @@
     onpointerover={reveal}
     onfocusin={reveal}
     data-print="unclip"
-    class="w-full overflow-x-auto rounded-card"
+    class="relative w-full overflow-x-auto rounded-card"
     {...scrollAttrs}
   >
     <!--

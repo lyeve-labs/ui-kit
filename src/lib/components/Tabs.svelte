@@ -7,6 +7,7 @@
     items,
     active,
     class: cls = '',
+    inHeader = false,
     onchange,
   }: {
     /** The tabs in order. `count` draws a number after the label. */
@@ -14,6 +15,13 @@
     /** The id of the selected tab. */
     active: string;
     class?: string;
+    /**
+     * The strip sits in a header row that draws the rule under it, as a
+     * SplitPane's `header` does. It draws no rule of its own, which put a
+     * second line under the tabs, and the tabs take the row's height, so the
+     * row stays as tall as one without tabs.
+     */
+    inHeader?: boolean;
     onchange: (id: string) => void;
   } = $props();
 
@@ -119,22 +127,29 @@
   /*
    * The focus ring is inset: the tabs sit in a box that clips to scroll, and
    * the global outline sits 2px outside its element, so on the strip's top
-   * edge it was cut off. min-h-control under a finger is the same height the
-   * buttons and fields beside the strip take there.
+   * edge it was cut off.
    */
   const TAB =
-    `${TOUCH_GROW} relative shrink-0 px-4 py-2.5 text-sm font-medium whitespace-nowrap ` +
+    'relative shrink-0 px-4 text-sm font-medium whitespace-nowrap ' +
     'transition-colors outline-none ' +
     'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  // min-h-control under a finger is the height the buttons and fields beside
+  // the strip take there. In a header row the row is already a control tall
+  // at every pointer, so a tab takes its height and grows only sideways.
+  const SIZE = $derived(
+    inHeader ? 'flex h-full items-center coarse:min-w-control' : `${TOUCH_GROW} py-2.5`,
+  );
 </script>
 
-<div class="relative {cls}">
+<div class="relative {inHeader ? 'h-full' : ''} {cls}">
   <div
     bind:this={scroller}
     use:fades.track
     onfocusout={onStripFocusOut}
     role="tablist"
-    class="flex gap-0.5 overflow-x-auto border-b border-line [scrollbar-width:none]"
+    class="relative flex gap-0.5 overflow-x-auto {inHeader
+      ? 'h-full'
+      : 'border-b border-line'} [scrollbar-width:none]"
   >
     <!-- The active indicator is the cyan to violet accent, with solid brand
          under it for wherever gradients are not drawn. -->
@@ -148,7 +163,7 @@
         onclick={() => onchange(tab.id)}
         onfocus={() => (roving = i)}
         onkeydown={(e) => onTabKeydown(e, i)}
-        class="{TAB}
+        class="{TAB} {SIZE}
           {active === tab.id
           ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:bg-accent after:rounded-t rtl:after:-scale-x-100'
           : 'text-faint hover:text-fg'}"
