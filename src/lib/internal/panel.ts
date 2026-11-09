@@ -70,8 +70,10 @@ export const PANEL_SURFACE =
  * from carrying on into the page behind the open panel. px-1 insets the rows
  * from the frame, so a row's ring and hover tint sit inside the surface's
  * rounded corners instead of being cut by them on the first and last row.
+ * relative makes the list hold a row's visually hidden label, so the surface,
+ * which clips, gets no scroll range a script could use.
  */
-export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain px-1 py-1';
+export const PANEL_LIST = 'relative max-h-panel-max overflow-y-auto overscroll-contain px-1 py-1';
 
 /**
  * One row at rest.
@@ -223,6 +225,19 @@ function clippingAncestor(node: HTMLElement): HTMLElement | null {
   return null;
 }
 
+/**
+ * The part of an element's box its content shows in: inside the borders and
+ * inside any scrollbar. A scrollbar sits within the border box, so a panel
+ * slid to the border box's edge ended under the scrollbar, its last column cut
+ * and the container given a sideways scroll.
+ */
+function innerBox(el: HTMLElement): { top: number; bottom: number; left: number; right: number } {
+  const box = el.getBoundingClientRect();
+  const top = box.top + el.clientTop;
+  const left = box.left + el.clientLeft;
+  return { top, bottom: top + el.clientHeight, left, right: left + el.clientWidth };
+}
+
 function swap(node: HTMLElement, remove: string, add: string): void {
   node.classList.remove(...remove.split(' '));
   node.classList.add(...add.split(' '));
@@ -255,9 +270,13 @@ function swap(node: HTMLElement, remove: string, add: string): void {
  * is brought into view. The room is kept until the panel closes, because the
  * container it lengthened would otherwise read as room to spare.
  *
- * A panel that would run past the left or the right edge of the clipping
- * ancestor or the viewport slides back inside both, and one wider than that
- * room shrinks to it.
+ * The room is what the reader can see: the clipping ancestor's box inside its
+ * borders and scrollbars, within the viewport. A panel that would run past
+ * the left or the right edge of it first aligns with its anchor's other edge,
+ * so a calendar under a field at the end of a row ends where the field ends.
+ * When that does not fit either, it slides back inside the room and keeps
+ * PANEL_EDGE_GAP from the edge it meets, and one wider than the room shrinks
+ * to it.
  *
  * Measured on mount, on resize and on scroll of the clipping ancestor, since
  * each moves the anchor relative to the edge. Scroll does not bubble, so the
@@ -282,7 +301,7 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     if (list !== null) list.style.maxHeight = '';
 
     const rect = anchor.getBoundingClientRect();
-    const clipBox = clip === null ? null : clip.getBoundingClientRect();
+    const clipBox = clip === null ? null : innerBox(clip);
     const clipTop = clipBox?.top ?? 0;
     const clipBottom = clipBox?.bottom ?? window.innerHeight;
     const below = clipBottom - rect.bottom - PANEL_EDGE_GAP;
@@ -298,29 +317,38 @@ export function placePanel(node: HTMLElement): { destroy(): void } {
     if (flip) swap(node, PANEL_BELOW, PANEL_ABOVE);
     else swap(node, PANEL_ABOVE, PANEL_BELOW);
 
-    // A panel wider than the room beside its anchor slides back inside what
-    // the reader can see, which is the clip and the viewport both: the
-    // calendar under a finger is as wide as a 320px phone, and its field
-    // starts at the page gutter or inside a modal body's padding. A panel
-    // wider than that room shrinks to it, since a modal body on a 320px phone
-    // is narrower than the calendar and scrolled sideways around it. Should
-    // it still be wider, it keeps its start edge in view. Read from the
-    // layout box, which the entrance preset's scale does not shrink, and from
-    // the width the class gives, not one an earlier measurement capped.
+    // A panel past the room beside its anchor comes back inside what the
+    // reader can see, which is the clip and the viewport both: the calendar
+    // under a finger is as wide as a 320px phone, and its field starts at the
+    // page gutter or inside a modal body's padding. It first tries its
+    // anchor's other edge, then slides, keeping the gap when the room holds
+    // the panel and the gap on both sides. Only a panel past the room moves: a
+    // panel inside it, flush with its edge, is still aligned with its field.
+    // A panel wider than the room shrinks
+    // to it, since a modal body on a 320px phone is narrower than the calendar
+    // and scrolled sideways around it, and keeps its start edge in view. Read
+    // from the layout box, which the entrance preset's scale does not shrink,
+    // and from the width the class gives, not one an earlier measurement
+    // capped.
     node.style.maxWidth = '';
     const viewport = document.documentElement.clientWidth || window.innerWidth;
     const lo = Math.max(0, clipBox?.left ?? 0);
     const hi = Math.min(viewport, clipBox?.right ?? viewport);
-    if (node.offsetWidth > hi - lo) node.style.maxWidth = `${hi - lo}px`;
+    const span = hi - lo;
+    if (node.offsetWidth > span) node.style.maxWidth = `${span}px`;
+    const width = node.offsetWidth;
+    const rtl = getComputedStyle(node).direction === 'rtl';
     const left = rect.left + node.offsetLeft;
-    const right = left + node.offsetWidth;
+    const right = left + width;
+    const gap = width + 2 * PANEL_EDGE_GAP <= span ? PANEL_EDGE_GAP : 0;
     let shift = 0;
-    if (node.offsetWidth > hi - lo) {
-      shift = getComputedStyle(node).direction === 'rtl' ? hi - right : lo - left;
-    } else if (right > hi) {
-      shift = hi - right;
-    } else if (left < lo) {
-      shift = lo - left;
+    if (width >= span) {
+      shift = rtl ? hi - right : lo - left;
+    } else if (left < lo || right > hi) {
+      const flipped = rtl ? rect.left - left : rect.right - right;
+      if (left + flipped >= lo && right + flipped <= hi) shift = flipped;
+      else if (right > hi) shift = hi - gap - right;
+      else shift = lo + gap - left;
     }
     node.style.translate = shift === 0 ? '' : `${shift}px 0`;
 

@@ -222,7 +222,7 @@
         class="{PANEL_SURFACE} w-68 min-w-65.5 coarse:w-80 coarse:min-w-62.5"
       >
         <div
-          class="overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
+          class="relative overflow-y-auto overscroll-contain p-3 coarse:p-1.5"
           data-panel-list={PANEL_LIST_UNCAPPED}
         >
           <!-- Header. Under a finger each 26px month step takes a 44px box,

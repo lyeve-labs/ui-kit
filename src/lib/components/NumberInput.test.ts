@@ -40,6 +40,29 @@ describe('NumberInput', () => {
     expect((getByLabelText('Increase') as HTMLButtonElement).disabled).toBe(true);
   });
 
+  it('keeps a stepper at its bound inside the control and fades only its glyph', () => {
+    // At 0 with a minimum of 0 the decrease button faded whole, its fill and
+    // its border with it, and read as a dark hole in the control.
+    const { getByLabelText } = render(NumberInput, { props: { value: 0, min: 0 } });
+    const tokens = getByLabelText('Decrease').className.split(/\s+/);
+    expect(tokens.filter((t) => t.includes('opacity'))).toEqual([]);
+    expect(tokens).toContain('disabled:text-faint');
+  });
+
+  it('fades the whole control as one when it is disabled', () => {
+    const { getByLabelText, container } = render(NumberInput, {
+      props: { value: 3, disabled: true },
+    });
+    expect(getByLabelText('Decrease').parentElement!.className.split(/\s+/)).toContain(
+      'opacity-50',
+    );
+    expect(
+      field(container)
+        .className.split(/\s+/)
+        .filter((t) => t.includes('opacity')),
+    ).toEqual([]);
+  });
+
   it('takes its resting border from the shared field contract', () => {
     // The border used to be hand-spelled here: a `border-line` ternary and a
     // separate `focus:border-brand`, so the one control that did not call
