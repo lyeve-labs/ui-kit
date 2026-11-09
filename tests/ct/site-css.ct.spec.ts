@@ -88,3 +88,47 @@ for (const theme of ['dark', 'light', 'system'] as const) {
     expect(differences).toEqual([]);
   });
 }
+
+// A site sets one radius and its heading face on the root, after the
+// stylesheet, and every component takes them. The rungs are the kit's at 8px,
+// so an element drawn on one of them before the override is square after it.
+test("takes a site's radius and heading face from its root", async ({ mount, page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await mount(SiteBlocksStory);
+  await page.addStyleTag({ content: await siteStylesheet() });
+  const read = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('#root *')].map((el) => ({
+        element: [el.tagName.toLowerCase(), ...el.classList].join('.'),
+        radius: getComputedStyle(el).borderTopLeftRadius,
+      })),
+    );
+  const kit = await read();
+  await page.addStyleTag({
+    content: ':root { --radius-md: 0px; --font-heading: Georgia, serif; }',
+  });
+  const site = await read();
+
+  const rungs = ['4px', '6px', '8px', '12px', '16px', '20px', '24px'];
+  const rounded = kit.flatMap(({ element, radius }, i) =>
+    rungs.includes(radius) ? [{ element, kit: radius, site: site[i].radius }] : [],
+  );
+  expect(rounded.length).toBeGreaterThan(5);
+  expect(rounded.filter((r) => r.site !== '0px')).toEqual([]);
+
+  // The page's heading and the card's title take the face, and the eyebrow,
+  // a label rather than a title, keeps the body face.
+  const faces = await page.evaluate(() =>
+    Object.fromEntries(
+      ['Plans', 'Pricing', 'Starter'].map((text) => {
+        const heading = [...document.querySelectorAll('h2, h3')].find(
+          (el) => el.textContent?.trim() === text,
+        );
+        return [text, heading ? getComputedStyle(heading).fontFamily.split(',')[0] : null];
+      }),
+    ),
+  );
+  expect(faces.Plans).toBe('Georgia');
+  expect(faces.Pricing).not.toBe('Georgia');
+  expect(faces.Starter).toBe('Georgia');
+});

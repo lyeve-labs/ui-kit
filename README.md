@@ -249,6 +249,20 @@ import '@lyeve-labs/ui-kit/site.css';
 A static page can link the file from `dist/site.css` instead. Any other
 component needs the Tailwind build.
 
+A site sets its own corner radius and heading face on the root, after the
+stylesheet, and the components follow:
+
+```css
+:root {
+  --radius-md: 4px; /* every kit rung is a multiple of it: 0 squares the page */
+  --font-heading: 'Source Serif 4', serif;
+}
+```
+
+Set `--radius-md` on `:root` itself. The other rungs are worked out there,
+so a value set on an element inside the page reaches only the components
+that read md directly.
+
 ## Motion
 
 Every component moves on the same four durations and three curves, declared
