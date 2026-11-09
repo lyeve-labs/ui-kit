@@ -3,18 +3,34 @@
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
+import { BLOCK_COMPONENTS } from '../../../scripts/site-css.mjs';
 import AccordionItems from '../../../tests/fixtures/AccordionItems.svelte';
+import AccordionItem from './AccordionItem.svelte';
+import Badge from './Badge.svelte';
+import Button from './Button.svelte';
 import Card from './Card.svelte';
+import Checkbox from './Checkbox.svelte';
 import Columns from './Columns.svelte';
+import Field, { type FieldWiring } from './Field.svelte';
 import Footer from './Footer.svelte';
+import FormMessage from './FormMessage.svelte';
 import Gallery from './Gallery.svelte';
 import Image from './Image.svelte';
+import Input from './Input.svelte';
+import Label from './Label.svelte';
 import NavBar from './NavBar.svelte';
 import Prose from './Prose.svelte';
 import Quote from './Quote.svelte';
 import Section from './Section.svelte';
+import SectionHeading from './SectionHeading.svelte';
+import Textarea from './Textarea.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
+
+// A control wired the way Field's notes say, from the ids it hands over.
+const wired = createRawSnippet((wiring: () => FieldWiring) => ({
+  render: () => `<input id="${wiring().id}" aria-describedby="${wiring().describedBy}">`,
+}));
 
 /**
  * A page drawn for visitors is rendered on the server and ships no script, so
@@ -25,6 +41,34 @@ const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}<
  */
 const pages = {
   Accordion: () => render(AccordionItems).body,
+  AccordionItem: () =>
+    render(AccordionItem, {
+      props: { id: 'refunds', title: 'Refunds', children: text('Within 30 days.') },
+    }).body,
+  Badge: () => render(Badge, { props: { tone: 'success', children: text('New') } }).body,
+  Button: () => render(Button, { props: { href: '/start', children: text('Start') } }).body,
+  Checkbox: () =>
+    render(Checkbox, {
+      props: { label: 'Send me news', name: 'news', hint: 'One email a month.' },
+    }).body,
+  Field: () =>
+    render(Field, {
+      props: { label: 'Email', hint: 'Replies go to this address.', children: wired },
+    }).body,
+  FormMessage: () =>
+    render(FormMessage, { props: { tone: 'success', children: text('Message sent.') } }).body,
+  Input: () =>
+    render(Input, {
+      props: { label: 'Name', name: 'name', required: true, error: 'Enter a name.' },
+    }).body,
+  Label: () =>
+    render(Label, { props: { for: 'email', required: true, children: text('Email') } }).body,
+  SectionHeading: () =>
+    render(SectionHeading, { props: { level: 2, children: text('Plans') } }).body,
+  Textarea: () =>
+    render(Textarea, {
+      props: { label: 'Message', name: 'message', hint: 'Up to 500 characters.', maxlength: 500 },
+    }).body,
   Card: () =>
     render(Card, {
       props: {
@@ -76,6 +120,10 @@ const pages = {
 };
 
 describe('the site components, rendered on the server', () => {
+  it('covers every component a block uses', () => {
+    expect(Object.keys(pages).sort()).toEqual([...BLOCK_COMPONENTS].sort());
+  });
+
   it.each(Object.keys(pages) as (keyof typeof pages)[])('%s carries no script', (name) => {
     const html = pages[name]();
     expect(html).not.toMatch(/<script/i);
@@ -108,7 +156,46 @@ describe('the site components, rendered on the server', () => {
     expect(name('faq')).not.toBe(name('plans'));
   });
 
+  it('carries each form part, its label and its message wired to its control', () => {
+    const forOf = (html: string) => /<label[^>]*\sfor="([^"]+)"/.exec(html)?.[1];
+    const idOf = (html: string, tag: string) =>
+      new RegExp(`<${tag}[^>]*\\sid="([^"]+)"`).exec(html)?.[1];
+    for (const [name, tag] of [
+      ['Field', 'input'],
+      ['Input', 'input'],
+      ['Textarea', 'textarea'],
+    ] as const) {
+      const html = pages[name]();
+      expect(forOf(html), name).toBeDefined();
+      expect(idOf(html, tag), name).toBe(forOf(html));
+    }
+    // A checkbox sits inside its label and is named by the label's text.
+    const box = pages.Checkbox();
+    const named =
+      /<label[^>]*>(?:(?!<\/label>).)*<input type="checkbox"[^>]*aria-labelledby="([^"]+)"/s.exec(
+        box,
+      );
+    expect(box).toMatch(new RegExp(`id="${named?.[1]}"[^>]*>(<!---->)?Send me news`));
+    // Each hint or error is the text of the element the control names as its description.
+    const description = (html: string, tag: string) => {
+      const id = new RegExp(`<${tag}[^>]*\\saria-describedby="([^"\\s]+)`).exec(html)?.[1];
+      return new RegExp(`\\sid="${id}"[^>]*>(.*?)</`, 's').exec(html)?.[1] ?? '';
+    };
+    expect(description(box, 'input')).toContain('One email a month.');
+    expect(description(pages.Field(), 'input')).toContain('Replies go to this address.');
+    expect(description(pages.Input(), 'input')).toContain('Enter a name.');
+    expect(pages.Input()).toMatch(/aria-invalid="true"/);
+    expect(description(pages.Textarea(), 'textarea')).toContain('Up to 500 characters.');
+    expect(pages.Label()).toMatch(/<label[^>]*\sfor="email"/);
+    expect(pages.FormMessage()).toContain('Message sent.');
+  });
+
   it('carries the content of the rest', () => {
+    expect(pages.AccordionItem()).toMatch(/<details[^>]*\sid="refunds"/);
+    expect(pages.AccordionItem()).toContain('Within 30 days.');
+    expect(pages.Badge()).toContain('New');
+    expect(pages.Button()).toMatch(/<a[^>]*\shref="\/start"/);
+    expect(pages.SectionHeading()).toMatch(/<h2[^>]*>.*Plans/s);
     expect(pages.Card()).toContain('Studio');
     expect(pages.Card()).toContain('Body');
     expect(pages.Columns()).toContain('Column');
