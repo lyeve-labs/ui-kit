@@ -24,6 +24,7 @@ vitest.config.d.ts
 # the server renders.
 tests/fixtures/checkbox-ssr.html
 tests/fixtures/same-label-fields-ssr.html
+tests/fixtures/site-page-ssr.html
 
 # What a control given none of its newer field props rendered before it took
 # them, compared after collapsing white space. Prettier would break the markup
