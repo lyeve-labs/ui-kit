@@ -42,8 +42,17 @@
    * in the header makes a heading query answer with two elements and a screen
    * reader announce the page name twice.
    */
-  import type { Snippet } from 'svelte';
+  import { untrack, type Snippet } from 'svelte';
   import { Menu, PanelLeft, PanelLeftClose } from '@lucide/svelte';
+  import OverlayHeader from '../internal/OverlayHeader.svelte';
+  import {
+    clampWidth,
+    growsRight,
+    keyedWidth,
+    readAside,
+    viewerStorage,
+    writeAside,
+  } from '../internal/aside.js';
   import { overlay } from '../internal/overlay.js';
   import * as motion from '../motion.js';
   import {
@@ -105,6 +114,24 @@
     sidebarFooter?: Snippet<[SidebarState]>;
     /** The right end of the header bar. The theme toggle and the account menu live here. */
     headerActions?: Snippet;
+    /**
+     * A panel on the right of the main area, such as an assistant. From lg: up
+     * it docks as a column and the main area narrows beside it. Below lg: it
+     * opens as a modal drawer. It is one element at every width, so whatever
+     * it holds stays mounted when the window crosses lg:. It renders nothing
+     * until it first opens. The shell adds no button for it: put one in
+     * `headerActions` and bind `panelOpen`.
+     */
+    panel?: Snippet;
+    /** Bindable. Whether the panel is open. */
+    panelOpen?: boolean;
+    /** The panel's accessible name, as a complementary region and as the drawer's title. */
+    panelLabel?: string;
+    /**
+     * The localStorage key the panel's width is kept under, per viewer. Without
+     * one the width lasts the page.
+     */
+    panelStorageKey?: string;
     class?: string;
     children: Snippet;
   }
@@ -122,6 +149,10 @@
     nav,
     sidebarFooter,
     headerActions,
+    panel,
+    panelOpen = $bindable(false),
+    panelLabel = 'Panel',
+    panelStorageKey = undefined,
     class: klass = '',
     children,
   }: Props = $props();
@@ -134,7 +165,112 @@
   let isMobile = $state(false);
   /** md: to lg:, where the expanded column costs the page more than it gives. */
   let isNarrow = $state(false);
+  /** lg: and up, where the panel docks beside the main area instead of opening as a drawer. */
+  let isWide = $state(true);
   const drawerOpen = $derived(isMobile && navOpen);
+
+  /** The panel's width: 400 until somebody drags it, and never under 320 or over 560. */
+  const PANEL = { width: 400, min: 320, max: 560 };
+  /** What the docked panel always leaves the main area, so the page stays readable beside it. */
+  const MAIN_MIN = 480;
+  // The key never changes for the life of the shell, so the read happens once.
+  // The server has no storage, so it renders the default width.
+  let panelWidth = $state(
+    untrack(() =>
+      panelStorageKey ? readAside(viewerStorage(), panelStorageKey, PANEL).width : PANEL.width,
+    ),
+  );
+  let panelEl = $state<HTMLElement | undefined>();
+  let panelRow = $state<HTMLDivElement | undefined>();
+  let panelDrag = $state<{ startX: number; startWidth: number; grows: number } | null>(null);
+  const shellUid = $props.id();
+  const panelHeadingId = `${shellUid}-panel`;
+
+  // Mounted from its first opening on, and never on a server render of a
+  // closed panel: a phone would otherwise build the docked form and then
+  // move it into the drawer.
+  let panelMounted = $state(untrack(() => panelOpen));
+  $effect(() => {
+    if (panelOpen) panelMounted = true;
+  });
+  const panelModal = $derived(panelOpen && !isWide);
+
+  /** The widest the panel may be in the row it shares with main, as SplitPane's room does. */
+  function panelRoom() {
+    const total = panelRow?.clientWidth ?? 0;
+    const upper =
+      total > 0 ? Math.max(PANEL.min, Math.min(PANEL.max, total - MAIN_MIN)) : PANEL.max;
+    return { min: PANEL.min, max: upper };
+  }
+
+  // Kept current as the window resizes, so the separator announces the width
+  // drawn and a maximum the keys can reach. The server has no layout.
+  let panelMax = $state(PANEL.max);
+  $effect(() => {
+    const row = panelRow;
+    const sync = () => {
+      panelMax = panelRoom().max;
+    };
+    sync();
+    if (!row || typeof ResizeObserver !== 'function') return;
+    const watch = new ResizeObserver(sync);
+    watch.observe(row);
+    return () => watch.disconnect();
+  });
+  /** The width drawn, which the room can hold below the remembered one. */
+  const panelShown = $derived(Math.min(panelWidth, panelMax));
+
+  /** The overlay behavior below lg: only: focus moves in, Tab stays inside, the page is locked. */
+  function modalWhen(node: HTMLElement, active: boolean) {
+    let handle = active ? overlay(node) : undefined;
+    return {
+      update(next: boolean) {
+        if (next && !handle) handle = overlay(node);
+        else if (!next && handle) {
+          handle.destroy();
+          handle = undefined;
+        }
+      },
+      destroy() {
+        handle?.destroy();
+      },
+    };
+  }
+
+  function rememberPanel() {
+    if (panelStorageKey)
+      writeAside(viewerStorage(), panelStorageKey, PANEL, { width: panelWidth, locked: false });
+  }
+
+  function startPanelResize(e: PointerEvent) {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    panelDrag = { startX: e.clientX, startWidth: panelShown, grows: growsRight(panelEl, 'end') };
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  }
+
+  function panelResizeMove(e: PointerEvent) {
+    if (!panelDrag) return;
+    panelWidth = clampWidth(
+      panelRoom(),
+      panelDrag.startWidth + (e.clientX - panelDrag.startX) * panelDrag.grows,
+    );
+  }
+
+  function endPanelResize(e: PointerEvent) {
+    if (!panelDrag) return;
+    panelDrag = null;
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+    rememberPanel();
+  }
+
+  function panelResizeKey(e: KeyboardEvent) {
+    const next = keyedWidth(e, panelShown, growsRight(panelEl, 'end'), panelRoom());
+    if (next === null) return;
+    e.preventDefault();
+    panelWidth = next;
+    rememberPanel();
+  }
 
   let shellEl = $state<HTMLDivElement | undefined>();
 
@@ -190,8 +326,10 @@
   $effect(() => {
     const mobile = window.matchMedia('(max-width: 767px)');
     const narrow = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
+    const wide = window.matchMedia('(min-width: 1024px)');
     const sync = () => {
       isMobile = mobile.matches;
+      isWide = wide.matches;
       isNarrow = narrow.matches && !mobile.matches;
       if (!mobile.matches) navOpen = false;
       clearTimeout(railRest);
@@ -200,10 +338,12 @@
     sync();
     mobile.addEventListener('change', sync);
     narrow.addEventListener('change', sync);
+    wide.addEventListener('change', sync);
     return () => {
       clearTimeout(railRest);
       mobile.removeEventListener('change', sync);
       narrow.removeEventListener('change', sync);
+      wide.removeEventListener('change', sync);
     };
   });
 
@@ -222,6 +362,7 @@
   /** The backdrop is the pointer's way out of the drawer. A keyboard has none. */
   function onWindowKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape' && navOpen) navOpen = false;
+    if (event.key === 'Escape' && panelModal) panelOpen = false;
   }
 </script>
 
@@ -365,16 +506,114 @@
          sr-only label) otherwise took the viewport as its containing block, and
          one low on a long page stretched the document past the h-screen shell,
          so the window scrolled the whole frame up and off. -->
-    <main
-      id="content"
-      tabindex="-1"
-      data-print="unclip"
-      class="relative min-w-0 flex-1 overflow-auto outline-none"
-    >
-      {@render children()}
-    </main>
+    {#if panel}
+      <div bind:this={panelRow} data-testid="app-panel-row" class="flex min-h-0 flex-1">
+        {@render content()}
+        {#if panelMounted}
+          {@render dock(panel)}
+        {/if}
+      </div>
+    {:else}
+      {@render content()}
+    {/if}
   </div>
 </div>
+
+{#snippet content()}
+  <main
+    id="content"
+    tabindex="-1"
+    data-print="unclip"
+    class="relative min-w-0 flex-1 overflow-auto outline-none"
+  >
+    {@render children()}
+  </main>
+{/snippet}
+
+{#snippet dock(body: Snippet)}
+  {#if panelModal}
+    <div
+      data-print="hide"
+      transition:motion.scrim|global
+      class="fixed inset-0 z-overlay bg-black/60 backdrop-blur-sm"
+      role="presentation"
+      onclick={() => (panelOpen = false)}
+    ></div>
+  {/if}
+  <!--
+    One panel at every width, as the sidebar is one aside. From lg: the frame
+    is a column beside main, never over it. Below lg: the column would leave
+    the page too narrow to read, so the same frame becomes a modal drawer from
+    the end edge, full width on a phone. It stays mounted while it slides, so
+    it travels in CSS on the drawer's rungs: slow in, base out.
+
+    Closed, the panel keeps its content mounted at no width, so whatever the
+    reader typed in it survives, and inert keeps it out of reach. Docked, the
+    content holds the panel's own width while the column travels, so it
+    slides rather than reflowing.
+  -->
+  <div
+    data-print="hide"
+    class={isWide
+      ? 'relative hidden shrink-0 lg:flex'
+      : `fixed inset-y-0 end-0 z-drawer flex w-full shadow-overlay transition-[translate,visibility] sm:w-auto ${
+          panelOpen
+            ? 'visible translate-x-0 duration-slow ease-enter'
+            : 'invisible translate-x-full duration-base ease-exit rtl:-translate-x-full'
+        }`}
+    role={panelModal ? 'dialog' : undefined}
+    aria-modal={panelModal ? 'true' : undefined}
+    aria-labelledby={panelModal ? panelHeadingId : undefined}
+    use:modalWhen={panelModal}
+  >
+    <aside
+      bind:this={panelEl}
+      aria-label={panelLabel}
+      data-testid="app-panel"
+      inert={!panelOpen}
+      style="--panel-w:{panelShown}px"
+      class="relative flex shrink-0 flex-col overflow-hidden bg-surface {isWide
+        ? `${panelOpen ? 'w-(--panel-w) border-s border-line' : 'w-0'} ${panelDrag ? '' : 'transition-[width] duration-base ease-move'}`
+        : 'w-full border-s border-line sm:w-(--panel-w)'}"
+    >
+      {#if panelModal}
+        <OverlayHeader
+          title={panelLabel}
+          headingId={panelHeadingId}
+          descriptionId="{panelHeadingId}-description"
+          onclose={() => (panelOpen = false)}
+        />
+      {/if}
+      <div class="flex min-h-0 flex-1 flex-col {isWide ? 'w-(--panel-w) shrink-0' : 'w-full'}">
+        {@render body()}
+      </div>
+      {#if panelOpen && isWide}
+        <!-- A separator that takes focus is the pattern for a splitter, and the
+             a11y rules read every separator as static. -->
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class="absolute inset-y-0 start-0 w-2 cursor-col-resize outline-none hover:bg-brand/40 focus-visible:bg-brand/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand {panelDrag
+            ? 'bg-brand/40'
+            : ''}"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize {panelLabel}"
+          aria-valuenow={panelShown}
+          aria-valuemin={PANEL.min}
+          aria-valuemax={panelMax}
+          tabindex="0"
+          data-testid="app-panel-handle"
+          onpointerdown={startPanelResize}
+          onpointermove={panelResizeMove}
+          onpointerup={endPanelResize}
+          onpointercancel={endPanelResize}
+          onkeydown={panelResizeKey}
+        ></div>
+      {/if}
+    </aside>
+  </div>
+{/snippet}
 
 {#snippet sidebar(hidden: boolean, rail: boolean)}
   <!-- The bands clip on the rail: a brand row that ignores the argument still

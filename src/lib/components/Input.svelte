@@ -1,7 +1,10 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import {
+    ASSIST_WRAP,
     CONTROL_BASE,
     FIELD_WRAP,
     controlBorder,
@@ -42,6 +45,11 @@
      * lands on the wrapper, so it cannot do this.
      */
     mono?: boolean;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
     class?: string;
   }
 
@@ -57,6 +65,7 @@
     required = false,
     id = undefined,
     mono = false,
+    noAI = false,
     class: klass = '',
     ...rest
   }: Props = $props();
@@ -66,12 +75,49 @@
   // the server render and hydration, which a random string would not.
   const uid = $props.id();
   const fieldId = $derived(id ?? uid);
+
+  // A password is never read or filled, whatever the caller marks.
+  const assist = assistField({
+    get name() {
+      return rest.name ?? undefined;
+    },
+    get label() {
+      return label;
+    },
+    get ariaLabel() {
+      return rest['aria-label'] ?? undefined;
+    },
+    get hint() {
+      return hint;
+    },
+    get kind() {
+      return type === 'password' ? 'secret' : 'text';
+    },
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 </script>
 
-<div data-field class="{FIELD_WRAP} {klass}">
-  {#if label}
-    <FieldLabel for={fieldId} text={label} {required} />
-  {/if}
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
+>
+  <AssistRow field={assist}>
+    {#if label}
+      <FieldLabel for={fieldId} text={label} {required} {assist} />
+    {/if}
+  </AssistRow>
 
   <input
     id={fieldId}
@@ -82,7 +128,7 @@
     bind:value
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={joinIds(describedBy(fieldId, error, hint), callerIds)}
-    class="{CONTROL_BASE} {controlBorder(!!error)} {mono ? 'font-mono' : ''}"
+    class="{CONTROL_BASE} {controlBorder(!!error, assist.suggested)} {mono ? 'font-mono' : ''}"
     {...rest}
   />
 

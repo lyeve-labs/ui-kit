@@ -42,7 +42,9 @@ function kitCompiler() {
  * A class the markup gains only after a change, such as the variant that hides
  * a folded pane's body, is not on the page yet, so it would get no rule. Each
  * file in `sources` adds every word it holds as a candidate, the way Tailwind
- * scans a consumer's files, and a word that is no class builds nothing.
+ * scans a consumer's files, and a word that is no class builds nothing. Words
+ * split at white space, quotes and braces, never at angle brackets, which a
+ * class such as `[&>svg]:size-4` holds.
  */
 export async function styleWithKit(
   page: Page,
@@ -53,7 +55,7 @@ export async function styleWithKit(
     ...new Set([...document.querySelectorAll('*')].flatMap((el) => [...el.classList])),
   ]);
   for (const source of sources) {
-    classes.push(...(await readFile(source, 'utf8')).split(/[\s"'`{}<>]+/));
+    classes.push(...(await readFile(source, 'utf8')).split(/[\s"'`{}]+/));
   }
   const css = (await kitCompiler()).build(classes);
   await page.addStyleTag({ content: css });

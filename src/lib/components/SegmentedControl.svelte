@@ -22,7 +22,17 @@
 
 <script lang="ts" generics="T extends string">
   import FieldMessage from '../internal/FieldMessage.svelte';
-  import { FIELD_LABEL, FIELD_WRAP, describedBy, joinIds } from '../internal/field.js';
+  import AssistActions from '../internal/AssistActions.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
+  import {
+    ASSIST_TAG,
+    ASSIST_WRAP,
+    FIELD_LABEL,
+    FIELD_WRAP,
+    describedBy,
+    joinIds,
+  } from '../internal/field.js';
   import { assertLinked, safeHref } from '../internal/href.js';
   import type { IconPx } from '../internal/icon.js';
   import { HIT_AREA } from '../internal/touch.js';
@@ -76,6 +86,11 @@
     class?: string;
     /** Value mode only. A link segment reports nothing. The page it opens does. */
     onchange?: (value: T) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -93,7 +108,33 @@
     disabled = false,
     class: klass = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'choice',
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return options.map((option) => ({ value: option.value, label: option.label }));
+    },
+    get value() {
+      return value ?? null;
+    },
+    set value(v) {
+      value = v as T;
+    },
+  });
 
   /**
    * The row height comes from the control token, so a segmented control and an
@@ -276,12 +317,23 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} min-w-0 items-start {klass}">
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} min-w-0 items-start {klass}{assist.pending ? ASSIST_WRAP : ''}"
+>
   {#if !labelHidden}
     <!-- A caption, not a label element. The group is named by aria-label, or
          by the caption it is handed, and a label has nothing to point at
          here: role="radiogroup" is not a form control that `for` can name. -->
-    <span class={FIELD_LABEL}>{label}</span>
+    <AssistRow field={assist}>
+      <span class={FIELD_LABEL}
+        >{label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">Suggested</span
+          >{/if}</span
+      >
+    </AssistRow>
+  {:else if assist.pending}
+    <AssistActions field={assist} />
   {/if}
 
   <!-- A set of links is a group, not a radiogroup: a link is not a radio and

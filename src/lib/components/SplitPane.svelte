@@ -10,7 +10,14 @@
   import { tick, untrack, type Snippet } from 'svelte';
   import Button from './Button.svelte';
   import SectionHeading from './SectionHeading.svelte';
-  import { clampWidth, readAside, viewerStorage, writeAside } from '../internal/aside.js';
+  import {
+    clampWidth,
+    growsRight,
+    keyedWidth,
+    readAside,
+    viewerStorage,
+    writeAside,
+  } from '../internal/aside.js';
 
   /**
    * A column docked to one side of a page, with one width discipline for every
@@ -64,6 +71,12 @@
     class?: string;
     /** The `data-testid` on the aside, its strip and its handle. Defaults to `aside-<storageKey>`. */
     testId?: string;
+    /**
+     * The aside's id, for a control outside the pane, such as a toolbar
+     * toggle, to name in `aria-controls`. The body a page passes in holds
+     * neither the header row nor the strip, so it is the wrong target.
+     */
+    id?: string;
     children: Snippet;
   }
 
@@ -83,6 +96,7 @@
     header,
     class: klass = '',
     testId,
+    id: paneId = undefined,
     children,
   }: Props = $props();
 
@@ -201,17 +215,6 @@
   let drag = $state<{ startX: number; startWidth: number; grows: number } | null>(null);
 
   /**
-   * Which way a pointer or an arrow moving right changes the width. The inner
-   * edge is on the right of a start pane and on the left of an end pane, and a
-   * right-to-left page swaps both, so the edge always follows the key the way
-   * it looks.
-   */
-  function growsRight(): number {
-    const rtl = aside ? getComputedStyle(aside).direction === 'rtl' : false;
-    return (side === 'start' ? 1 : -1) * (rtl ? -1 : 1);
-  }
-
-  /**
    * The bounds as this screen allows them. The upper bound also leaves the
    * main column the pane's minimum, the same cap the stylesheet draws. A
    * parent with no measured width (before layout, or in a test) leaves the
@@ -255,7 +258,7 @@
   function startResize(e: PointerEvent) {
     if (e.button !== 0) return;
     e.preventDefault();
-    drag = { startX: e.clientX, startWidth: shown(), grows: growsRight() };
+    drag = { startX: e.clientX, startWidth: shown(), grows: growsRight(aside, side) };
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
   }
 
@@ -272,16 +275,10 @@
   }
 
   function resizeKey(e: KeyboardEvent) {
-    const step = e.shiftKey ? 80 : 24;
-    const limits = room();
-    let next: number | null = null;
-    if (e.key === 'ArrowRight') next = shown() + step * growsRight();
-    else if (e.key === 'ArrowLeft') next = shown() - step * growsRight();
-    else if (e.key === 'Home') next = limits.min;
-    else if (e.key === 'End') next = limits.max;
+    const next = keyedWidth(e, shown(), growsRight(aside, side), room());
     if (next === null) return;
     e.preventDefault();
-    width = clampWidth(limits, next);
+    width = next;
     remember();
   }
 
@@ -346,6 +343,7 @@
 
 <aside
   bind:this={aside}
+  id={paneId}
   class={frame}
   style="--panel-w:{width}px;--panel-min:{min}px"
   aria-label={label}

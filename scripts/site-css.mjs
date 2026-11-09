@@ -22,7 +22,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const theme = join(root, 'src/lib/styles/theme.css');
 
 /** The components a page block draws with. A site component joins the list when it lands. */
-const BLOCK_COMPONENTS = [
+export const BLOCK_COMPONENTS = [
   'Accordion',
   'AccordionItem',
   'Badge',
@@ -35,6 +35,14 @@ const BLOCK_COMPONENTS = [
   'Label',
   'SectionHeading',
   'Textarea',
+  'Section',
+  'Columns',
+  'Prose',
+  'Image',
+  'Quote',
+  'NavBar',
+  'Footer',
+  'Gallery',
 ];
 
 /**

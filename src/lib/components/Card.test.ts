@@ -40,6 +40,40 @@ describe('Card', () => {
     );
   });
 
+  it('draws its image edge to edge above the heading, clipped to the top corners', () => {
+    const { container } = render(Card, {
+      props: { children: text('x'), title: 'Studio', image: { src: '/studio.jpg', alt: 'A desk' } },
+    });
+    const root = container.firstElementChild as HTMLElement;
+    const frame = root.firstElementChild as HTMLElement;
+    expect(frame.querySelector('img')?.getAttribute('alt')).toBe('A desk');
+    expect(frame.className.split(/\s+/)).toEqual(
+      expect.arrayContaining([
+        'overflow-hidden',
+        'rounded-t-card',
+        '[&_img]:w-full',
+        '[&_img]:rounded-none',
+      ]),
+    );
+    // The picture is clipped, never the card, so a list from a field still
+    // opens over the page.
+    expect(root.className.split(/\s+/)).not.toContain('overflow-hidden');
+    expect(frame.nextElementSibling?.querySelector('h3')?.textContent).toBe('Studio');
+  });
+
+  it("crops an image of unknown size to the ratio, and keeps a sized one's shape", () => {
+    const cropped = render(Card, {
+      props: { children: text('x'), image: { src: '/a.jpg', alt: '', ratio: '1/1' } },
+    });
+    expect(cropped.container.querySelector('img')?.className).toMatch(/\baspect-square\b/);
+    const sized = render(Card, {
+      props: { children: text('x'), image: { src: '/a.jpg', alt: '', width: 640, height: 480 } },
+    });
+    const img = sized.container.querySelector('img')!;
+    expect(img.getAttribute('width')).toBe('640');
+    expect(img.className).not.toMatch(/\baspect-/);
+  });
+
   it('renders header and footer snippets', () => {
     const { getByText } = render(Card, {
       props: { children: text('body'), header: text('HEAD'), footer: text('FOOT') },
@@ -118,12 +152,14 @@ describe('Card', () => {
 
     it('takes its type treatment from the layout contract, not from a local string', () => {
       const three = render(Card, { props: { children: text('x'), heading: 'A' } });
-      expect(three.container.querySelector('h3')?.className).toBe('text-sm font-semibold text-fg');
+      expect(three.container.querySelector('h3')?.className).toBe(
+        'font-heading text-sm font-semibold text-fg',
+      );
       const two = render(Card, {
         props: { children: text('x'), heading: 'A', headingLevel: 2 },
       });
       expect(two.container.querySelector('h2')?.className).toBe(
-        'text-h3 leading-h3 tracking-h3 font-semibold text-fg',
+        'font-heading text-h3 leading-h3 tracking-h3 font-semibold text-fg',
       );
     });
 

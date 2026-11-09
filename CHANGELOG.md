@@ -5,6 +5,30 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.0] - 2026-11-09
+
+### Added
+
+- `Card` takes an `image`, drawn edge to edge above the heading and clipped to the card's top corners. With its own width and height it fills the card's width at its own shape, and without them it is cropped to a ratio, 16:9 unless the image names another.
+- `NavBar`, `Footer` and `Gallery` for a page drawn for visitors, rendered on the server with no script and part of `site.css`. The navigation bar's links wrap onto more lines on a narrow page instead of hiding behind a menu, and it marks the current page. The footer names each social profile by its network as a plain link. The gallery crops its images to 4:3 in a grid, or in a row that scrolls sideways, stops on each image and takes keyboard focus.
+- Components for a page drawn for visitors, each rendered on the server with no script: `Section`, a band with an introduction, content and a footer, an optional background image and a light or dark overlay, `Columns`, which stack once a column would fall under the site's minimum width and take an optional cap of two, three or four, `Prose` for markup written elsewhere, `Image`, which reserves its box from its width and height or a ratio, and `Quote`. Each is part of `site.css`.
+- `data-scheme="dark"` or `"light"` on any element draws everything inside in that palette, whatever the page's theme. A `Section` with an overlay names the overlay's scheme, so its body text, muted text and links clear 4.5:1 over any image.
+- Site tokens the new components read: `--spacing-site-xs` to `--spacing-site-xl`, set from `--spacing-site-md`, `--spacing-column-min`, `--spacing-gutter`, and `--color-brand-2`, a second color that follows `violet` until a site sets its own.
+- `FormAssist` wraps a form's fields so an assistant on the page can read them and suggest a value for each. A suggested value goes into its control, drawn in violet with a Suggested tag and buttons to accept or reject it, and a bar above the fields accepts or rejects them all. While a suggestion waits, the form does not submit and the bar asks the person to review it first. A value the person changed is never overwritten, and a password, a file and any control given `noAI` are never reported or filled. A suggestion a field was holding when it leaves the page, behind a tab or a closed section, is rejected and the old value comes back. `activeAssistForm()` returns the form to work on, the one in an open dialog or drawer before the page's, through a controller that can describe, suggest, accept all, reject all and list what is pending. `assistField()` registers a control the kit does not ship.
+- Every field control takes `noAI`, which keeps its value from an assistant and marks it `data-no-ai` for a browser agent.
+- `Toggle`, `MultiSelect`, `DatePicker` and `FilterChips` take `name` and post their value with the form.
+- `AppShell` takes a `panel` on the right, opened with `panelOpen` and named by `panelLabel`. From the `lg` breakpoint it docks beside the main area, which narrows to make room, and its edge drags or steps with the arrow keys between 320 and 560 pixels, remembered under `panelStorageKey`. The cap shrinks so the main area keeps at least 480 pixels. Below that, the same panel opens as a modal drawer from the right, so its content stays mounted as the window crosses the breakpoint, and a panel that has never opened renders nothing.
+
+### Changed
+
+- Every kit radius rung, `xs` to `2xl` and `card`, is a multiple of `--radius-md`, so a page that sets it once moves the whole scale. At its default of 8px every rung keeps its value.
+- `SectionHeading` at both levels and the title of a `Card` draw in `--font-heading`, a new token that is the body face unless a page sets its own.
+- **Breaking:** `Accordion` is built on `details`, so the browser opens and closes each item and an accordion works on a page that runs no script. Its items share a name unless `multiple` is set, which has the browser close the others when one opens. An item's body fades in at each opening and shuts in one frame, where it used to grow and shrink to its height. The header is the item's `summary`, which holds the title as plain text, and it is no longer an `h3` around a button with `aria-expanded` and `aria-controls`. A heading inside a summary hides the item's state from VoiceOver on iOS, drops out of heading navigation in JAWS and TalkBack, and keeps the item shut when a reader presses Enter on it in browse mode with Orca in Firefox. The titles are no longer in the page's outline, so put a heading above the accordion to name the group. The body has no region role, and the `accordion-header-` and `accordion-panel-` ids are gone, because the browser reports an item's state itself. An item's `id` is now the id of its `details` element, unique on the page: find an item by it and read its `open` property. A page put together from several server renders gives each its own `idPrefix`, or two accordions on it share a name.
+
+### Fixed
+
+- The account menu's panel never played its entrance in Chromium, which hides a shut panel without dropping its style, so the animation ran once while the panel was hidden. It now plays at each opening. A closed menu inside an open part of the page no longer draws its button lit and its chevron turned.
+
 ## [0.55.0] - 2026-11-09
 
 ### Added

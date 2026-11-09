@@ -244,7 +244,7 @@
     {#if branch}
       <!--
         Rendered whether or not it is open, and shut by collapsing its grid row
-        to nothing, the same move AccordionItem makes. aria-controls has to name
+        to nothing, the same move Collapsible makes. aria-controls has to name
         an element that exists. Pointing it at markup that appears only once the
         group is open leaves the reference dangling in the one state where a
         reader needs it to tell them what the button will reveal. inert keeps a

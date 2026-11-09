@@ -1,9 +1,12 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import {
     CONTROL_SEGMENT,
     CONTROL_SEGMENTED,
+    ASSIST_WRAP,
     FIELD_WRAP,
     describedBy,
     segmentedBorder,
@@ -68,6 +71,11 @@
     disabled?: boolean;
     class?: string;
     onchange?: (value: string) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -86,7 +94,40 @@
     disabled = false,
     class: klass = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'time',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    accepts(v) {
+      // The control shows seconds or it does not, and a value has to match.
+      const text = v as string;
+      if (text === '') return true;
+      if (/:\d\d:\d\d$/.test(text) !== seconds) return false;
+      return (!min || text >= min) && (!max || text <= max);
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   // $props.id() and not a random string: a random id differs between the server
   // render and hydration, so every aria-labelledby and every label `for` built
@@ -447,13 +488,19 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} {klass}">
-  {#if label}
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
+>
+  <AssistRow field={assist}>
     <!-- `for` the hour so a click lands somewhere useful, while the group below
          takes its name from this same element. The hour keeps its own aria-label,
          which is what a screen reader reads for it. -->
-    <FieldLabel id="{fieldId}-label" for="{fieldId}-hour" text={label} {required} />
-  {/if}
+    {#if label}
+      <FieldLabel id="{fieldId}-label" for="{fieldId}-hour" text={label} {required} {assist} />
+    {/if}
+  </AssistRow>
 
   <!--
     Under a finger each segment takes a 44px hit box round its 28px or 32px
@@ -474,7 +521,7 @@
     aria-describedby={describedBy(fieldId, error, hint)}
     onpointerdown={onGroupPointerdown}
     onclick={onGroupClick}
-    class="{CONTROL_SEGMENTED} coarse:gap-1 {segmentedBorder(!!error)} {disabled
+    class="{CONTROL_SEGMENTED} coarse:gap-1 {segmentedBorder(!!error, assist.suggested)} {disabled
       ? 'cursor-not-allowed opacity-50'
       : ''}"
   >

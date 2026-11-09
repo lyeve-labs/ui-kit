@@ -235,9 +235,12 @@ export function sectionHeading(level: 2 | 3, variant: SectionVariant = 'default'
   // one heading broken in half. It stays at text-sm: the ramp holds nothing
   // between 16px and 22px, and 16px is exactly the size of the card title it
   // has to sit below.
+  //
+  // Both levels take the heading face, which is the body face until a site
+  // sets its own.
   return level === 2
-    ? 'text-h3 leading-h3 tracking-h3 font-semibold text-fg'
-    : 'text-sm font-semibold text-fg';
+    ? 'font-heading text-h3 leading-h3 tracking-h3 font-semibold text-fg'
+    : 'font-heading text-sm font-semibold text-fg';
 }
 
 /**

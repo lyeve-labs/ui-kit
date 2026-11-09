@@ -15,6 +15,15 @@ export { default as AuthShell } from './components/AuthShell.svelte';
 export { default as PageShell } from './components/PageShell.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as SectionHeading } from './components/SectionHeading.svelte';
+// A page drawn for visitors, rendered on the server with no script
+export { default as Section } from './components/Section.svelte';
+export { default as Columns } from './components/Columns.svelte';
+export { default as Prose } from './components/Prose.svelte';
+export { default as Image } from './components/Image.svelte';
+export { default as Quote } from './components/Quote.svelte';
+export { default as NavBar } from './components/NavBar.svelte';
+export { default as Footer } from './components/Footer.svelte';
+export { default as Gallery } from './components/Gallery.svelte';
 export { default as Divider } from './components/Divider.svelte';
 export { default as Accordion } from './components/Accordion.svelte';
 export { default as AccordionItem } from './components/AccordionItem.svelte';
@@ -29,6 +38,10 @@ export { default as SortableList } from './components/SortableList.svelte';
 export type { SortableItem, SortableMove } from './components/SortableList.svelte';
 export { default as SplitPane } from './components/SplitPane.svelte';
 export type { CellFit } from './components/Table.svelte';
+export type { ImageRatio } from './components/Image.svelte';
+export type { NavLink } from './components/NavBar.svelte';
+export type { GalleryImage } from './components/Gallery.svelte';
+export type { SocialNetwork } from './components/Footer.svelte';
 export type { SidebarState } from './components/AppShell.svelte';
 export type { PageWidth, SectionVariant } from './internal/layout.js';
 export type { TreeNode, TriState } from './internal/tree.js';
@@ -54,6 +67,24 @@ export { default as Label } from './components/Label.svelte';
 // not reach it hand-copied the class strings instead.
 export { default as Field } from './components/Field.svelte';
 export { default as FormMessage } from './components/FormMessage.svelte';
+// An assistant reads and fills a form through the kit's controls inside a
+// FormAssist. A control the kit does not ship registers through assistField,
+// the function the kit's own controls call.
+export { default as FormAssist } from './components/FormAssist.svelte';
+export {
+  activeAssistForm,
+  assistField,
+  type AssistField,
+  type AssistFieldDescription,
+  type AssistFieldSpec,
+  type AssistKind,
+  type AssistOption,
+  type AssistPending,
+  type AssistSkipReason,
+  type AssistSuggestResult,
+  type AssistValue,
+  type FormAssistController,
+} from './internal/assist.svelte.js';
 export { default as SegmentedControl } from './components/SegmentedControl.svelte';
 export { default as FilterChips } from './components/FilterChips.svelte';
 export type { FilterChip } from './components/FilterChips.svelte';
@@ -207,4 +238,4 @@ export type { Rung as MotionRung, Curve as MotionCurve } from './motion.js';
 // Version
 // Generated from package.json by `pnpm version:sync`. Bump package.json, never
 // this line. The build and the test suite fail when the two disagree.
-export const VERSION = '0.55.0';
+export const VERSION = '0.56.0';

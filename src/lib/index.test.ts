@@ -16,6 +16,14 @@ const COMPONENTS = [
   'PageShell',
   'PageHeader',
   'SectionHeading',
+  'Section',
+  'Columns',
+  'Prose',
+  'Image',
+  'Quote',
+  'NavBar',
+  'Footer',
+  'Gallery',
   'Divider',
   'Accordion',
   'AccordionItem',
@@ -40,6 +48,7 @@ const COMPONENTS = [
   'Label',
   'Field',
   'FormMessage',
+  'FormAssist',
   'SegmentedControl',
   'FilterChips',
   'Select',
@@ -124,6 +133,8 @@ const FUNCTIONS = [
   'ladderState',
   'copyToClipboard',
   'setDocumentTitleFormat',
+  'assistField',
+  'activeAssistForm',
 ] as const;
 
 /**

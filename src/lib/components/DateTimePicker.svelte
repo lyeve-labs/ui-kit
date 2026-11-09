@@ -1,6 +1,8 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   /**
    * A date and a time as one field, composed from DatePicker and TimePicker.
    *
@@ -48,7 +50,7 @@
 
   import { compareDates, parseISODate, toISODate } from '../internal/calendar.js';
   import type { CalendarDate } from '../internal/calendar.js';
-  import { FIELD_WRAP, describedBy } from '../internal/field.js';
+  import { ASSIST_WRAP, FIELD_WRAP, describedBy } from '../internal/field.js';
   import { parseISOTime, secondsOf, toISOTime } from '../internal/time.js';
   import type { TimeParts } from '../internal/time.js';
   import DatePicker from './DatePicker.svelte';
@@ -76,6 +78,11 @@
     disabled?: boolean;
     class?: string;
     onchange?: (value: string) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -94,7 +101,40 @@
     disabled = false,
     class: klass = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'datetime',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    accepts(v) {
+      // The control shows seconds or it does not, and a value has to match.
+      const text = v as string;
+      if (text === '') return true;
+      if (/:\d\d:\d\d$/.test(text) !== seconds) return false;
+      return (!min || text >= min) && (!max || text <= max);
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   // $props.id() and not a random string: a random id differs between the server
   // render and hydration, so the label `for`, the group's aria-labelledby and
@@ -264,13 +304,19 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} {klass}">
-  {#if label}
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
+>
+  <AssistRow field={assist}>
     <!-- `for` the date trigger. A button is labelable, so the field's own label
          names it and clicking that label opens the calendar. The group below
          takes its name from this same element. -->
-    <FieldLabel id="{fieldId}-label" for="{fieldId}-date" text={label} {required} />
-  {/if}
+    {#if label}
+      <FieldLabel id="{fieldId}-label" for="{fieldId}-date" text={label} {required} {assist} />
+    {/if}
+  </AssistRow>
 
   <!--
     role="group" and no aria-invalid. ARIA does not let a group carry that

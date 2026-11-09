@@ -7,6 +7,7 @@
     CARD_SURFACE,
     sectionHeading,
   } from '../internal/layout.js';
+  import Image, { type ImageRatio } from './Image.svelte';
 
   type Pad = 'none' | 'sm' | 'md' | 'lg';
 
@@ -25,6 +26,11 @@
     icon?: Component<{ size?: number; class?: string }>;
     /** A count, a status or a timestamp, at the end of the heading row. */
     meta?: string;
+    /**
+     * Drawn edge to edge above the heading. With its own width and height it
+     * keeps its shape, and without them it is cropped to `ratio`.
+     */
+    image?: { src: string; alt: string; width?: number; height?: number; ratio?: ImageRatio };
     pad?: Pad;
     hover?: boolean;
     class?: string;
@@ -42,6 +48,7 @@
     headingLevel = 3,
     icon = undefined,
     meta = undefined,
+    image = undefined,
     pad = 'md',
     hover = false,
     class: klass = '',
@@ -93,6 +100,21 @@
   {onclick}
   onkeydown={onclick ? activate : onkeydown}
 >
+  {#if image}
+    <!-- The card keeps its own overflow, so a list opening from a field still
+         draws over the page. Only the picture is clipped to the top corners,
+         and it drops its own rounding. -->
+    <div class="overflow-hidden rounded-t-card [&_img]:w-full [&_img]:rounded-none">
+      <Image
+        src={image.src}
+        alt={image.alt}
+        width={image.width}
+        height={image.height}
+        ratio={image.ratio}
+      />
+    </div>
+  {/if}
+
   {#if header || heading || title}
     <div class={CARD_HEADER}>
       {#if header}
@@ -115,7 +137,7 @@
         </div>
         {#if description}<p class="text-sm text-muted mt-0.5">{description}</p>{/if}
       {:else}
-        <h3 class="font-semibold text-fg">{title}</h3>
+        <h3 class="font-heading font-semibold text-fg">{title}</h3>
         {#if description}<p class="text-sm text-muted mt-0.5">{description}</p>{/if}
       {/if}
     </div>

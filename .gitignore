@@ -54,3 +54,4 @@ NOTES.md
 # is noise, and Prettier reads this file too, so the emitted file stays out of
 # its check.
 tests/fixtures/*.d.ts
+tests/ct/*.d.ts

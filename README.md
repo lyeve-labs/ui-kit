@@ -44,7 +44,7 @@ theme provider.
 Card, Panel, AppShell, AuthShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, DiffView, Toolbar, TreeView, SortableList, SplitPane
 
 **Forms and inputs**
-Button, ButtonGroup, Input, PasswordInput, CopyField, Textarea, NumberInput, SearchInput, FileInput, ColorField, Label, Field, FormMessage, SegmentedControl, FilterChips, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
+Button, ButtonGroup, Input, PasswordInput, CopyField, Textarea, NumberInput, SearchInput, FileInput, ColorField, Label, Field, FormMessage, FormAssist, SegmentedControl, FilterChips, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
 
 **Navigation**
 Breadcrumb, Tabs, Pagination, StepIndicator, Dropdown, SidebarNav, AccountMenu, AccountMenuItem
@@ -59,7 +59,10 @@ Dialog, DialogContainer, ConfirmDialog (plus the `openDialog` and `confirm` serv
 Alert, Banner, RefusalNotice, GateNotice, Badge, Tag, Indicator, Progress, Spinner, Skeleton, CheckoutSteps, EmptyState, PluginCart, Stat, Kbd, CopyButton
 
 **Media**
-Avatar, AvatarGroup, Logo
+Avatar, AvatarGroup, Logo, Image, Gallery
+
+**Pages for visitors**
+Section, Columns, Prose, Quote, NavBar, Footer
 
 **Theming**
 ThemeToggle, Toaster (plus the `toast` service)
@@ -238,9 +241,10 @@ cannot pass.
 `styles.css` is Tailwind source, so a page with no Tailwind build of its own
 gets no class rules from it. `site.css` is the same stylesheet compiled for
 the components a site's blocks draw with: Accordion, AccordionItem, Badge,
-Button, Card, Checkbox, Field, FormMessage, Input, Label, SectionHeading and
-Textarea. It carries the dark default, the light palette and `system`, so the
-page names its scheme on `<html>` as above.
+Button, Card, Checkbox, Columns, Field, Footer, FormMessage, Gallery, Image,
+Input, Label, NavBar, Prose, Quote, Section, SectionHeading and Textarea. It carries the dark
+default, the light palette and `system`, so the page names its scheme on
+`<html>` as above.
 
 ```ts
 import '@lyeve-labs/ui-kit/site.css';
@@ -248,6 +252,46 @@ import '@lyeve-labs/ui-kit/site.css';
 
 A static page can link the file from `dist/site.css` instead. Any other
 component needs the Tailwind build.
+
+A site sets its own look on the root, after the stylesheet, and the
+components follow. Each value has a default, so a site sets only what it
+changes:
+
+```css
+:root {
+  --radius-md: 4px; /* every kit rung is a multiple of it: 0 squares the page */
+  --font-heading: 'Source Serif 4', serif;
+  --spacing-site-md: 1.5rem; /* xs, sm, lg and xl follow at 1/4, 1/2, 2 and 4 times */
+  --spacing-column-min: 280px; /* columns stack below this width */
+  --spacing-gutter: 24px; /* the gap between columns */
+  --color-brand-2: #b45309; /* a second color, once for each scheme the page draws */
+}
+```
+
+Set `--radius-md` and `--spacing-site-md` on `:root` itself. The other rungs
+are worked out there, so a value set on an element inside the page reaches
+only the components that read md directly.
+
+A part of a page can draw in its own scheme, whatever the page's. A
+`Section` with an overlay over its image does this, and any element can:
+
+```html
+<div data-scheme="dark">
+  <!-- the dark palette inside, on a light or a dark page -->
+</div>
+```
+
+A site with its own palette writes its dark colors into a
+`[data-scheme='dark']` rule as well, the same way a light palette is written
+twice for `system`, and its light colors into `[data-scheme='light']`. That
+includes `--color-brand-2`: a part works out its second color from its own
+palette, so a value set on `:root` alone stops at the part.
+
+A page put together from several server renders, such as one for each block,
+passes each render its own `idPrefix`. Ids the components make count from
+the start of each render, so without it two renders repeat them: a label
+points at another block's field, and two accordions share a name, where
+opening an item in one closes an item in the other.
 
 ## Motion
 

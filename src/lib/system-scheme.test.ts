@@ -50,3 +50,46 @@ describe('the scheme that follows the operating system', () => {
     expect(system).toEqual(light);
   });
 });
+
+/** Each declaration as a name and a value, whitespace folded. */
+function named(body: string): Map<string, string> {
+  return new Map(
+    declarations(body).map((d) => {
+      const at = d.indexOf(':');
+      return [d.slice(0, at).trim(), d.slice(at + 1).trim()];
+    }),
+  );
+}
+
+/**
+ * A part of a page names data-scheme="dark" or "light" and draws in that
+ * palette whatever the page's own. The light part shares the Soft Light rule.
+ * The dark palette lives in the @theme block on the root, which a part inside
+ * a light page cannot reach, so the colors Soft Light sets are declared again
+ * at their dark values. Tokens worked out from the palette are resolved where
+ * they are declared, so each is declared again on every part.
+ */
+describe('a part of a page in its own scheme', () => {
+  const theme = named(block(css, '@theme'));
+  const light = named(block(css, "html[data-theme='light'] {"));
+
+  it('gives a light part the Soft Light rule', () => {
+    expect(css).toMatch(/\[data-scheme='light'\],\s*html\[data-theme='light'\] \{/);
+  });
+
+  it('sets every color Soft Light sets, at its value in the dark palette', () => {
+    const dark = named(block(css, "[data-scheme='dark'] {"));
+    expect([...dark.keys()].sort()).toEqual([...light.keys()].sort());
+    const differs = [...dark].filter(([name, value]) => theme.get(name) !== value);
+    expect(differs).toEqual([]);
+  });
+
+  it('works out every token that reads the palette again on the part', () => {
+    const derived = [...theme].filter(
+      ([name, value]) => /var\(--(color|shadow)-/.test(value) && !light.has(name),
+    );
+    expect(derived.length).toBeGreaterThan(10);
+    const again = named(block(css, '[data-scheme] {'));
+    expect([...again]).toEqual(derived);
+  });
+});

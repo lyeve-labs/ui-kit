@@ -1,6 +1,8 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import { X } from '@lucide/svelte';
   import type { ListOption } from '../internal/listbox.svelte.js';
   /**
@@ -13,7 +15,13 @@
    * owns: whether the input is showing a query being typed or the label of the
    * row already chosen.
    */
-  import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
+  import {
+    ASSIST_WRAP,
+    CONTROL_BASE,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
@@ -48,6 +56,11 @@
     filter?: FilterInput<ListOption>;
     class?: string;
     onchange?: (value: string) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -65,7 +78,36 @@
     filter = undefined,
     class: cls = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'choice',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return options.map(({ value, label, disabled }) => ({ value, label, disabled }));
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   /*
    * $props.id() and not a random string: a random id differs between the server
@@ -149,10 +191,16 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} {cls}">
-  {#if label}
-    <FieldLabel for={fieldId} text={label} {required} />
-  {/if}
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
+>
+  <AssistRow field={assist}>
+    {#if label}
+      <FieldLabel for={fieldId} text={label} {required} {assist} />
+    {/if}
+  </AssistRow>
 
   <div class="relative" bind:this={fieldEl} use:anchor>
     <!-- The form posts the chosen option's value. The visible input holds the
@@ -179,7 +227,9 @@
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
       {...box.triggerAttrs}
-      class="{CONTROL_BASE} {controlBorder(!!error)} {allowClear && value ? 'pe-8' : 'pe-3'}"
+      class="{CONTROL_BASE} {controlBorder(!!error, assist.suggested)} {allowClear && value
+        ? 'pe-8'
+        : 'pe-3'}"
     />
 
     {#if allowClear && value && !disabled}

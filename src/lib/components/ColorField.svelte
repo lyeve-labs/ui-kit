@@ -23,6 +23,9 @@
 
 <script lang="ts">
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistActions from '../internal/AssistActions.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   /**
    * A color, typed as hex or picked from a set of swatches.
    *
@@ -44,6 +47,7 @@
     FIELD_ERROR,
     FIELD_HINT,
     FIELD_WRAP,
+    ASSIST_WRAP,
     controlBorder,
     describedBy,
     joinIds,
@@ -69,6 +73,11 @@
     required?: boolean;
     id?: string;
     name?: string;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
     class?: string;
   }
 
@@ -83,11 +92,45 @@
     required = false,
     id = undefined,
     name = undefined,
+    noAI = false,
     class: klass = '',
   }: Props = $props();
 
   const uid = $props.id();
   const fieldId = $derived(id ?? uid);
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'color',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return swatches?.map((swatch) => ({ value: swatch.value, label: swatch.label }));
+    },
+    accepts(v) {
+      // With swatches only a swatch can be drawn as chosen, and without them
+      // only a hex color can be typed.
+      return swatches ? swatches.some((swatch) => swatch.value === v) : String(v).startsWith('#');
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   /**
    * What the reader typed over a value. A new value from the caller replaces
@@ -131,16 +174,27 @@
        does, so the group can carry its own validity. -->
   <fieldset
     data-field
+    data-no-ai={noAI ? '' : undefined}
     {id}
-    class="{CHOICE_GROUP} {klass}"
+    class="{CHOICE_GROUP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
     role="radiogroup"
     {disabled}
+    aria-labelledby={assist.pending && label ? `${uid}-name` : undefined}
     aria-invalid={error ? 'true' : undefined}
     aria-required={required ? 'true' : undefined}
     aria-describedby={joinIds(describedBy(fieldId, error, missing ? value : hint), callerIds)}
   >
     {#if label}
-      <FieldLabel as="legend" text={label} {required} class={CHOICE_LEGEND} />
+      <FieldLabel
+        as="legend"
+        text={label}
+        {required}
+        class={CHOICE_LEGEND}
+        {assist}
+        nameId="{uid}-name"
+      />
+    {:else if assist.pending}
+      <AssistActions field={assist} />
     {/if}
     <div class="flex flex-wrap gap-2">
       {#each swatches as swatch (swatch.value)}
@@ -180,10 +234,16 @@
     {/if}
   </fieldset>
 {:else}
-  <div data-field class="{FIELD_WRAP} {klass}">
-    {#if label}
-      <FieldLabel for={fieldId} text={label} {required} />
-    {/if}
+  <div
+    data-field
+    data-no-ai={noAI ? '' : undefined}
+    class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
+  >
+    <AssistRow field={assist}>
+      {#if label}
+        <FieldLabel for={fieldId} text={label} {required} {assist} />
+      {/if}
+    </AssistRow>
     <div class="relative">
       <span
         aria-hidden="true"
@@ -203,7 +263,7 @@
         spellcheck="false"
         aria-invalid={message ? 'true' : undefined}
         aria-describedby={joinIds(describedBy(fieldId, message, hint), callerIds)}
-        class="{CONTROL_BASE} {controlBorder(!!message)} ps-9 font-mono"
+        class="{CONTROL_BASE} {controlBorder(!!message, assist.suggested)} ps-9 font-mono"
         oninput={(e) => (draft = { over: value, text: e.currentTarget.value })}
         onchange={settle}
       />
