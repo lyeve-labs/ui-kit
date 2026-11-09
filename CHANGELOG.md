@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FormAssist` wraps a form's fields so an assistant on the page can read them and suggest a value for each. A suggested value goes into its control, drawn in violet with a Suggested tag and buttons to accept or reject it, and a bar above the fields accepts or rejects them all. While a suggestion waits, the form does not submit and the bar asks the person to review it first. A value the person changed is never overwritten, and a password, a file and any control given `noAI` are never reported or filled. `assistForms()` and `activeAssistForm()` find the forms on a page, and `assistField()` registers a control the kit does not ship.
 - Every field control takes `noAI`, which keeps its value from an assistant and marks it `data-no-ai` for a browser agent.
 - `Toggle`, `MultiSelect`, `DatePicker` and `FilterChips` take `name` and post their value with the form.
+- `AppShell` takes a `panel` on the right, opened with `panelOpen` and named by `panelLabel`. From the `lg` breakpoint it docks beside the main area, which narrows to make room, and its edge drags or steps with the arrow keys between 320 and 560 pixels, remembered under `panelStorageKey`. Below that, the panel opens as a drawer from the right.
 
 ### Changed
 
