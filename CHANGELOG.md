@@ -5,6 +5,22 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.0] - 2026-11-08
+
+### Added
+
+- `@lyeve-labs/ui-kit/site.css` is the stylesheet compiled for a page with no Tailwind build: the theme in all three schemes and every class of Accordion, AccordionItem, Badge, Button, Card, Checkbox, Field, FormMessage, Input, Label, SectionHeading and Textarea.
+
+### Changed
+
+- Every `Button` variant carries a 1px border, transparent where none shows, so every variant is one height at each size: 34px for `sm`, 38px for `md` and 46px for `lg`. A filled button drew 2px shorter than an outlined one, and `md` now matches the 38px height of `Input`. In forced colors a `ghost` button shows its edge.
+
+### Fixed
+
+- The close button of `Drawer` and `Modal` is a 24px target under a mouse, up from its 16px glyph, and the glyph stays where it was.
+- `CopyField` with `wrap` breaks a value after a hyphen, and inside a token only when the token is wider than the line, so a UUID no longer splits inside a group. The copied value is unchanged.
+- The built package refuses a tool's cache, so a `node_modules` or `.vite` folder left under the sources no longer reaches the published files.
+
 ## [0.53.0] - 2026-11-08
 
 ### Added

@@ -49,9 +49,10 @@
     secret?: boolean;
     /**
      * Wraps the whole value across lines instead of showing one truncated
-     * line. It breaks anywhere, since a key or a token has no spaces to break
-     * at. A masked secret stays on one line, because its dots carry nothing
-     * to read, and wraps once revealed.
+     * line. It breaks where the line breaking rules allow, such as after a
+     * hyphen, and inside a token only when the token is wider than the line,
+     * as a key with no spaces is. A masked secret stays on one line, because
+     * its dots carry nothing to read, and wraps once revealed.
      */
     wrap?: boolean;
     /** Extra controls inside the field's end, before the reveal and the copy. */
@@ -117,11 +118,14 @@
            textarea. A textarea does not grow with its text, so it sits in one
            grid cell with an invisible copy of the value, and the copy sets the
            height. The padding and the frame's together keep one line at the
-           control height. -->
+           control height. Both break where the line breaking rules allow, so
+           an id breaks after a hyphen, and inside a token only when the token
+           alone is wider than the line. break-all split a UUID inside a group
+           on every line. Nothing is inserted, so a copy stays byte for byte. -->
       <div class="grid min-w-0 flex-1">
         <span
           aria-hidden="true"
-          class="invisible col-start-1 row-start-1 px-3 py-1 text-sm break-all whitespace-pre-wrap {mono
+          class="invisible col-start-1 row-start-1 px-3 py-1 text-sm wrap-anywhere whitespace-pre-wrap {mono
             ? 'font-mono'
             : ''}">{value}</span
         >
@@ -134,7 +138,7 @@
           {value}
           onfocus={(e) => e.currentTarget.select()}
           aria-describedby={describedBy(fieldId, failed ? failedMessage : undefined, hint)}
-          class="col-start-1 row-start-1 resize-none overflow-hidden bg-transparent px-3 py-1 text-sm break-all whitespace-pre-wrap text-fg outline-none {mono
+          class="col-start-1 row-start-1 resize-none overflow-hidden bg-transparent px-3 py-1 text-sm wrap-anywhere whitespace-pre-wrap text-fg outline-none {mono
             ? 'font-mono'
             : ''}"
         ></textarea>

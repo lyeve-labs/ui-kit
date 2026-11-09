@@ -233,6 +233,22 @@ It reads `#rgb` and `#rrggbb`, and it throws on any other format, on a token
 it does not check and on a theme other than `dark` and `light`, so a typo
 cannot pass.
 
+## A page without a Tailwind build
+
+`styles.css` is Tailwind source, so a page with no Tailwind build of its own
+gets no class rules from it. `site.css` is the same stylesheet compiled for
+the components a site's blocks draw with: Accordion, AccordionItem, Badge,
+Button, Card, Checkbox, Field, FormMessage, Input, Label, SectionHeading and
+Textarea. It carries the dark default, the light palette and `system`, so the
+page names its scheme on `<html>` as above.
+
+```ts
+import '@lyeve-labs/ui-kit/site.css';
+```
+
+A static page can link the file from `dist/site.css` instead. Any other
+component needs the Tailwind build.
+
 ## Motion
 
 Every component moves on the same four durations and three curves, declared
@@ -380,7 +396,8 @@ and the words then name the button. `title` adds a tooltip, shown on hover and
 on keyboard focus. It never renames the button, and when it says more than the
 name it becomes the button's description. `CopyField` shows its value on one
 truncated line, and `wrap` shows the whole value across as many lines as it
-takes, breaking anywhere, for a key the reader has to check end to end.
+takes, for a key the reader has to check end to end. It breaks after a hyphen
+where it can, and inside a token only when the token is wider than the line.
 
 A control the kit does not ship copies through the same write and confirms on
 the same clock with `CopyState`. Create one while the component initializes,

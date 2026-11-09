@@ -22,6 +22,17 @@ function walk(dir) {
 }
 
 const files = walk('dist').filter((f) => !f.endsWith('.map'));
+
+// svelte-package copies everything under src/lib, so a cache a tool writes
+// there ships to every consumer. 0.53.0 was built once with a vitest cache in
+// src/lib/node_modules/.vite, and only a diff against the last tarball saw it.
+const caches = files.filter((f) => /(^|\/)(node_modules|\.vite)\//.test(f));
+if (caches.length) {
+  console.error(`${pkg.name}: dist holds a tool's cache, which would ship to every consumer:`);
+  for (const file of caches) console.error(`  ${file}`);
+  console.error('Remove the folder it came from under src/lib, then build again.');
+  process.exit(1);
+}
 const specifier = /(?:from|require\()\s*["'](@lyeve[^"']*)["']/g;
 const bad = [];
 
