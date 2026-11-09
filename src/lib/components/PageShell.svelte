@@ -106,10 +106,19 @@
    * `min-h-0` is load bearing on the column: a flex item refuses to shrink
    * below its content by default, so without it the pane runs past the bottom
    * of the window and takes its own scrollbar out of reach.
+   *
+   * `relative overflow-clip` keeps the shell's region from scrolling at all.
+   * A visually hidden label in a pane that scrolls but is not positioned
+   * takes the nearest positioned ancestor as its containing block, so the
+   * pane neither clips nor scrolls it, and its box lengthened the region:
+   * a schema editor's field labels gave the region 83px to scroll, and a
+   * wheel at the end of the editor slid the toolbar under the header. The
+   * frame now holds such a box and clips it, and clip, unlike hidden, leaves
+   * nothing a script can scroll.
    */
   const frame = $derived(
     fill
-      ? 'flex h-full min-h-0 w-full flex-col gap-4'
+      ? 'relative flex h-full min-h-0 w-full flex-col gap-4 overflow-clip'
       : `${PAGE_PAD} ${PAGE_WIDTH[width]} ${PAGE_STACK}`,
   );
 
