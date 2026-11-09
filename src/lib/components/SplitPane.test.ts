@@ -22,6 +22,7 @@ type Props = Partial<{
   class: string;
   meta: typeof count;
   header: typeof count;
+  id: string;
 }>;
 
 function setup(props: Props = {}) {
@@ -242,6 +243,15 @@ describe('SplitPane', () => {
     const row = getByRole('button', { name: 'Lock Things width' }).parentElement!.parentElement!;
     expect(row.contains(getByRole('tablist'))).toBe(true);
     expect(row.contains(getByText('12'))).toBe(true);
+  });
+
+  it('puts an id on the aside, so a control outside the pane can name all of it', () => {
+    // A toolbar toggle pointed its aria-controls at the body it passed in,
+    // which left out the header row once the pane's tabs moved into it.
+    const { aside } = setup({ id: 'pane-page' });
+    expect(aside.id).toBe('pane-page');
+    cleanup();
+    expect(setup().aside.hasAttribute('id')).toBe(false);
   });
 });
 
