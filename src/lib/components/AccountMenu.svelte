@@ -84,6 +84,25 @@
     open = false;
     root?.querySelector('summary')?.focus();
   }
+
+  /*
+   * A row moves within the app, by a link or a form post, and the layout that
+   * holds the menu stays mounted, so a panel left open hangs over the page the
+   * reader asked for. A pick closes it the way Escape does. The row's own
+   * action still runs, because closing hides the row without canceling its
+   * click.
+   */
+  function closeOnPick(event: MouseEvent): void {
+    const row = (event.target as Element | null)?.closest('a[href], [type="submit"]');
+    if (row && root?.contains(row)) closeAndReturn();
+  }
+
+  $effect(() => {
+    const el = root;
+    if (!el) return;
+    el.addEventListener('click', closeOnPick);
+    return () => el.removeEventListener('click', closeOnPick);
+  });
 </script>
 
 <details
