@@ -287,6 +287,12 @@ twice for `system`, and its light colors into `[data-scheme='light']`. That
 includes `--color-brand-2`: a part works out its second color from its own
 palette, so a value set on `:root` alone stops at the part.
 
+A page put together from several server renders, such as one for each block,
+passes each render its own `idPrefix`. Ids the components make count from
+the start of each render, so without it two renders repeat them: a label
+points at another block's field, and two accordions share a name, where
+opening an item in one closes an item in the other.
+
 ## Motion
 
 Every component moves on the same four durations and three curves, declared

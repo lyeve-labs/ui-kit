@@ -45,7 +45,7 @@
 <Badge tone="success">New</Badge>
 <Badge tone="brand" size="sm" dot>Popular</Badge>
 <Badge tone="violet"><svg width="12" height="12" aria-hidden="true"></svg>With an icon</Badge>
-<Accordion>
+<Accordion multiple>
   <AccordionItem id="included" title="What is included?">Every block.</AccordionItem>
   <AccordionItem id="cancel" title="Can I cancel?">At any time.</AccordionItem>
 </Accordion>

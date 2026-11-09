@@ -363,14 +363,14 @@ describe('the one entrance that is a CSS animation', () => {
     expect(offenders, 'a keyframe named from a class attribute has to be global').toEqual([]);
   });
 
-  it('is played by the one surface the browser shows and removes itself', () => {
-    // A panel inside <details> cannot leave through a Svelte transition, so it
-    // is the only component that may ask for the animation. A second one is a
-    // surface that belongs on the popover preset instead.
+  it('is played only inside a details element, which the browser shows and hides', () => {
+    // A part inside <details> cannot leave through a Svelte transition, so only
+    // such a part may ask for the animation: the account menu's panel and an
+    // accordion item's body. Any other surface belongs on the popover preset.
     const players = componentPaths()
       .filter((p) => readFileSync(p, 'utf8').includes('animate-popover-in'))
       .map((p) => p.split('/').pop());
-    expect(players).toEqual(['AccountMenu.svelte']);
+    expect(players).toEqual(['AccordionItem.svelte', 'AccountMenu.svelte']);
   });
 });
 

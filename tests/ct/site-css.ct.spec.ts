@@ -16,12 +16,16 @@ import { styleWithKit } from './kit-css.js';
 // inherits changes only once its parent's transition ends, and can start a
 // transition of its own a frame later, so this waits for a frame that starts
 // none. A transition that a newer one replaces rejects its promise, so each
-// one is awaited as settled rather than as fulfilled.
+// one is awaited as settled rather than as fulfilled. The browser skips the
+// body of a shut details, and a transition there never runs, so it is left out.
 async function settled(page: Page) {
   await page.evaluate(async () => {
     const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
     const running = () =>
-      document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity);
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+        .filter((a) => (a.effect as KeyframeEffect | null)?.target?.checkVisibility() !== false);
     for (await frame(); running().length > 0; await frame()) {
       await Promise.allSettled(running().map((a) => a.finished));
     }
@@ -65,8 +69,10 @@ for (const theme of ['dark', 'light', 'system'] as const) {
     await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'light' });
     await mount(SiteBlocksStory);
     const site = await page.addStyleTag({ content: await siteStylesheet() });
+    // Every item of the accordion is opened, so its open state is compared too.
     await page.evaluate((t) => {
       if (t !== 'dark') document.documentElement.dataset.theme = t;
+      for (const item of document.querySelectorAll('details')) item.open = true;
     }, theme);
     await settled(page);
     const compiled = await computed(page);

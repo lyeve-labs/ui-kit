@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * A set of disclosures. Each item is a `details` element, so the browser
+   * opens and closes it and a page rendered on the server needs no script.
+   * Unless `multiple` is set the items share one `name`, and opening one
+   * closes the others. A browser too old for a shared name lets several stay
+   * open. The name counts from the start of each server render, so a page put
+   * together from several renders gives each its own `idPrefix`, or two
+   * accordions on it share a name.
+   */
   import { setContext } from 'svelte';
   import type { Snippet } from 'svelte';
 
@@ -13,32 +22,15 @@
 
   let { multiple = false, flush = false, class: cls = '', children }: Props = $props();
 
-  let openSet = $state<Set<string>>(new Set());
+  // $props.id() and not a random string: a random id differs between the server
+  // render and hydration, and the items would then lose their shared name.
+  const uid = $props.id();
 
-  function toggle(id: string) {
-    if (openSet.has(id)) {
-      openSet.delete(id);
-    } else {
-      if (!multiple) openSet.clear();
-      openSet.add(id);
-    }
-    openSet = new Set(openSet);
-  }
-
-  function isOpen(id: string): boolean {
-    return openSet.has(id);
-  }
-
-  setContext<{ isOpen: (id: string) => boolean; toggle: (id: string) => void; flush: boolean }>(
-    'accordion',
-    {
-      isOpen,
-      toggle,
-      get flush() {
-        return flush;
-      },
+  setContext<{ readonly name: string | undefined }>('accordion', {
+    get name() {
+      return multiple ? undefined : `accordion-${uid}`;
     },
-  );
+  });
 </script>
 
 <div
