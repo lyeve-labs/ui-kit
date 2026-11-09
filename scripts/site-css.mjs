@@ -40,6 +40,9 @@ const BLOCK_COMPONENTS = [
   'Prose',
   'Image',
   'Quote',
+  'NavBar',
+  'Footer',
+  'Gallery',
 ];
 
 /**

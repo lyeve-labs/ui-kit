@@ -18,6 +18,9 @@
   import Prose from '../../src/lib/components/Prose.svelte';
   import Image from '../../src/lib/components/Image.svelte';
   import Quote from '../../src/lib/components/Quote.svelte';
+  import NavBar from '../../src/lib/components/NavBar.svelte';
+  import Footer from '../../src/lib/components/Footer.svelte';
+  import Gallery from '../../src/lib/components/Gallery.svelte';
 
   // A picture that needs no network: four by three, one flat color.
   const picture =
@@ -96,3 +99,40 @@
 <Image src={picture} alt="A gray square" width={400} height={300} caption="The first draft." />
 <Image src={picture} alt="" ratio="3/2" loading="eager" />
 <Quote source="A reader">It took an afternoon.</Quote>
+<NavBar
+  brand="Northwind"
+  logo={{ src: picture, alt: 'Northwind', width: 400, height: 300 }}
+  links={[
+    { label: 'Home', href: '/', current: true },
+    { label: 'Work', href: '/work' },
+    { label: 'About us', href: '/about' },
+    { label: 'Journal', href: '/journal' },
+    { label: 'Shop', href: '/shop' },
+    { label: 'Soon' },
+  ]}
+  action={{ label: 'Contact', href: '/contact' }}
+/>
+<Gallery
+  images={[
+    { src: picture, alt: 'The studio', caption: 'The studio.' },
+    { src: picture, alt: '' },
+  ]}
+/>
+<Gallery
+  layout="row"
+  images={[
+    { src: picture, alt: 'A desk' },
+    { src: picture, alt: 'A shelf' },
+  ]}
+/>
+<Footer
+  links={[{ label: 'Privacy', href: '/privacy' }, { label: 'Made in Lisbon' }]}
+  social={[
+    { network: 'github', href: 'https://github.com/example' },
+    { network: 'mastodon', href: 'https://mastodon.social/@example' },
+  ]}
+>
+  {#snippet note()}
+    <p>Northwind Studio, <a href="/contact">write to us</a>.</p>
+  {/snippet}
+</Footer>
