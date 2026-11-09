@@ -90,9 +90,11 @@
    * and the layout that holds the menu stays mounted, so a panel left open
    * hangs over the page the reader asked for. A pick closes it the way Escape
    * does. The row's own action still runs, because closing hides the row
-   * without canceling its click. A click the host already canceled is left
-   * alone: the host acts in place, such as asking first, and closing would
-   * take the focus from what it opened.
+   * without canceling its click. A click canceled on the row before it
+   * reaches the menu is left alone, because its host acts in place, such as
+   * asking first, and closing would take the focus from what it opened. A
+   * Svelte host's onclick runs later, at the app's root, so the menu closes
+   * first and a dialog the host opens returns the focus to the trigger.
    */
   function closeOnPick(event: MouseEvent): void {
     if (event.defaultPrevented) return;
