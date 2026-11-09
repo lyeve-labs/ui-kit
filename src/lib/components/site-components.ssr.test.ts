@@ -4,7 +4,10 @@ import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
 import Columns from './Columns.svelte';
+import Footer from './Footer.svelte';
+import Gallery from './Gallery.svelte';
 import Image from './Image.svelte';
+import NavBar from './NavBar.svelte';
 import Prose from './Prose.svelte';
 import Quote from './Quote.svelte';
 import Section from './Section.svelte';
@@ -38,6 +41,27 @@ const pages = {
       props: { src: '/a.png', alt: 'A chart', width: 400, height: 300, caption: 'Caption' },
     }).body,
   Quote: () => render(Quote, { props: { source: 'A reader', children: text('Words') } }).body,
+  NavBar: () =>
+    render(NavBar, {
+      props: {
+        brand: 'Northwind',
+        logo: { src: '/logo.svg', alt: 'Northwind', width: 64, height: 32 },
+        links: [{ label: 'Work', href: '/work', current: true }],
+        action: { label: 'Contact', href: '/contact' },
+      },
+    }).body,
+  Footer: () =>
+    render(Footer, {
+      props: {
+        note: text('Note'),
+        links: [{ label: 'Privacy', href: '/privacy' }],
+        social: [{ network: 'github', href: 'https://github.com/example' }],
+      },
+    }).body,
+  Gallery: () =>
+    render(Gallery, {
+      props: { layout: 'row', images: [{ src: '/a.jpg', alt: 'A desk', caption: 'Desk' }] },
+    }).body,
 };
 
 describe('the site components, rendered on the server', () => {
@@ -59,6 +83,13 @@ describe('the site components, rendered on the server', () => {
     expect(pages.Prose()).toContain('Paragraph');
     expect(pages.Quote()).toContain('Words');
     expect(pages.Quote()).toContain('A reader');
+    for (const part of ['Northwind', 'Work', 'aria-current="page"', 'Contact']) {
+      expect(pages.NavBar()).toContain(part);
+    }
+    for (const part of ['Note', 'Privacy', 'GitHub', 'rel="me"']) {
+      expect(pages.Footer()).toContain(part);
+    }
+    expect(pages.Gallery()).toContain('Desk');
   });
 
   it("reserves an image's box in the HTML", () => {
@@ -67,5 +98,7 @@ describe('the site components, rendered on the server', () => {
     expect(html).toContain('Caption');
     const unsized = render(Image, { props: { src: '/a.png', alt: '' } }).body;
     expect(unsized).toMatch(/<img[^>]*class="[^"]*aspect-video/);
+    expect(pages.NavBar()).toMatch(/<img[^>]*width="64"[^>]*height="32"/);
+    expect(pages.Gallery()).toMatch(/<img[^>]*class="[^"]*aspect-\[4\/3\]/);
   });
 });

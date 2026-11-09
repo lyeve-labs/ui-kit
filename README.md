@@ -59,10 +59,10 @@ Dialog, DialogContainer, ConfirmDialog (plus the `openDialog` and `confirm` serv
 Alert, Banner, RefusalNotice, GateNotice, Badge, Tag, Indicator, Progress, Spinner, Skeleton, CheckoutSteps, EmptyState, PluginCart, Stat, Kbd, CopyButton
 
 **Media**
-Avatar, AvatarGroup, Logo, Image
+Avatar, AvatarGroup, Logo, Image, Gallery
 
 **Pages for visitors**
-Section, Columns, Prose, Quote
+Section, Columns, Prose, Quote, NavBar, Footer
 
 **Theming**
 ThemeToggle, Toaster (plus the `toast` service)
@@ -241,8 +241,8 @@ cannot pass.
 `styles.css` is Tailwind source, so a page with no Tailwind build of its own
 gets no class rules from it. `site.css` is the same stylesheet compiled for
 the components a site's blocks draw with: Accordion, AccordionItem, Badge,
-Button, Card, Checkbox, Columns, Field, FormMessage, Image, Input, Label,
-Prose, Quote, Section, SectionHeading and Textarea. It carries the dark
+Button, Card, Checkbox, Columns, Field, Footer, FormMessage, Gallery, Image,
+Input, Label, NavBar, Prose, Quote, Section, SectionHeading and Textarea. It carries the dark
 default, the light palette and `system`, so the page names its scheme on
 `<html>` as above.
 

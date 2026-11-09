@@ -272,3 +272,27 @@ test('caps a row of columns at its max', async ({ mount, page }) => {
   });
   expect(tracks).toBe(3);
 });
+
+// Every site component works at a phone's width without a script: the
+// navigation wraps rather than hiding links behind a menu, and nothing makes
+// the page scroll sideways. The gallery's row scrolls inside its own box,
+// takes keyboard focus and has a name.
+test('fits a phone without scrolling the page sideways', async ({ mount, page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mount(SiteBlocksStory);
+  await page.addStyleTag({ content: await siteStylesheet() });
+  await settled(page);
+  const read = await page.evaluate(() => {
+    const nav = document.querySelector('nav[aria-label="Main"]')!;
+    const row = document.querySelector('ul[aria-label="Gallery"]') as HTMLElement;
+    const current = nav.querySelector('[aria-current="page"]')!;
+    return {
+      page: document.documentElement.scrollWidth,
+      nav: nav.scrollWidth <= nav.clientWidth,
+      current: [current.textContent, getComputedStyle(current).textDecorationLine],
+      row: [row.scrollWidth > row.clientWidth, row.tabIndex],
+    };
+  });
+  expect(read.page).toBeLessThanOrEqual(390);
+  expect(read).toMatchObject({ nav: true, current: ['Home', 'underline'], row: [true, 0] });
+});
