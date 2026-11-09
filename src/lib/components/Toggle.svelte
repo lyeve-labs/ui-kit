@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AssistRow from '../internal/AssistRow.svelte';
+  import AssistActions from '../internal/AssistActions.svelte';
   import { assistField } from '../internal/assist.svelte.js';
   import { ASSIST_TAG, ASSIST_WRAP, FIELD_HINT } from '../internal/field.js';
   import { HIT_AREA } from '../internal/touch.js';
@@ -34,6 +34,8 @@
     class?: string;
     onchange?: (checked: boolean) => void;
   } = $props();
+
+  let switchEl = $state<HTMLButtonElement | undefined>();
 
   const track: Record<'sm' | 'md', string> = {
     sm: 'w-8 h-4',
@@ -106,46 +108,45 @@
 <!-- The marker is on the label because the label is the whole control: the
      switch and its text are one field, and an overlay sizing itself to a form
      counts what it can see. -->
-<AssistRow field={assist}>
-  <label
-    data-field
-    data-no-ai={noAI ? '' : undefined}
-    class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled
-      ? 'opacity-50 cursor-not-allowed'
-      : ''} {cls}{assist.pending ? ASSIST_WRAP : ''}"
-  >
-    <button
-      type="button"
-      {id}
-      role="switch"
-      aria-checked={checked}
-      aria-label={label ?? 'Toggle'}
-      {disabled}
-      onclick={handleClick}
-      class="{HIT_AREA} shrink-0 rounded-full border transition-colors outline-none
+<label
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="inline-flex items-start gap-2.5 cursor-pointer select-none {disabled
+    ? 'opacity-50 cursor-not-allowed'
+    : ''} {cls}{assist.pending ? ASSIST_WRAP : ''}"
+>
+  <button
+    bind:this={switchEl}
+    type="button"
+    {id}
+    role="switch"
+    aria-checked={checked}
+    aria-label={label ?? 'Toggle'}
+    {disabled}
+    onclick={handleClick}
+    class="{HIT_AREA} shrink-0 rounded-full border transition-colors outline-none
       focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1
       focus-visible:ring-offset-ink mt-0.5
       {track[size]}
       {checked ? (assist.suggested ? trackPaint.suggested : trackPaint.on) : trackPaint.off}"
-    >
-      <span
-        class="absolute rounded-full bg-fg shadow transition-transform duration-base
+  >
+    <span
+      class="absolute rounded-full bg-fg shadow transition-transform duration-base
         {thumb[size]}
         {checked ? thumbOn[size] : 'translate-x-0'}"
-      ></span>
-    </button>
-    {#if label || hint}
-      <span class="flex flex-col gap-0.5">
-        {#if label}
-          <span class="text-sm text-fg"
-            >{label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">Suggested</span
-              >{/if}</span
-          >
-        {/if}
-        {#if hint}
-          <span class={FIELD_HINT}>{hint}</span>
-        {/if}
-      </span>
-    {/if}{#if name && checked}<input type="hidden" {name} value="on" />{/if}
-  </label>
-</AssistRow>
+    ></span>
+  </button>
+  {#if label || hint}
+    <span class="flex flex-col gap-0.5">
+      {#if label}
+        <span class="text-sm text-fg"
+          >{label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">Suggested</span
+            >{/if}</span
+        >
+      {/if}
+      {#if hint}
+        <span class={FIELD_HINT}>{hint}</span>
+      {/if}
+    </span>
+  {/if}{#if name && checked}<input type="hidden" {name} value="on" />{/if}
+</label>{#if assist.pending}<AssistActions field={assist} focus={() => switchEl} />{/if}

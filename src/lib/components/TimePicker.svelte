@@ -493,14 +493,14 @@
   data-no-ai={noAI ? '' : undefined}
   class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
 >
-  {#if label}
+  <AssistRow field={assist}>
     <!-- `for` the hour so a click lands somewhere useful, while the group below
          takes its name from this same element. The hour keeps its own aria-label,
          which is what a screen reader reads for it. -->
-    <AssistRow field={assist}>
+    {#if label}
       <FieldLabel id="{fieldId}-label" for="{fieldId}-hour" text={label} {required} {assist} />
-    </AssistRow>
-  {/if}
+    {/if}
+  </AssistRow>
 
   <!--
     Under a finger each segment takes a 44px hit box round its 28px or 32px

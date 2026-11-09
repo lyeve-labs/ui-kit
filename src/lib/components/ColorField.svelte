@@ -23,6 +23,7 @@
 
 <script lang="ts">
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistActions from '../internal/AssistActions.svelte';
   import AssistRow from '../internal/AssistRow.svelte';
   import { assistField } from '../internal/assist.svelte.js';
   /**
@@ -192,6 +193,8 @@
         {assist}
         nameId="{uid}-name"
       />
+    {:else if assist.pending}
+      <AssistActions field={assist} />
     {/if}
     <div class="flex flex-wrap gap-2">
       {#each swatches as swatch (swatch.value)}
@@ -236,11 +239,11 @@
     data-no-ai={noAI ? '' : undefined}
     class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
   >
-    {#if label}
-      <AssistRow field={assist}>
+    <AssistRow field={assist}>
+      {#if label}
         <FieldLabel for={fieldId} text={label} {required} {assist} />
-      </AssistRow>
-    {/if}
+      {/if}
+    </AssistRow>
     <div class="relative">
       <span
         aria-hidden="true"

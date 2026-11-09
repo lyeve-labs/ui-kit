@@ -37,7 +37,7 @@ describe('a FormAssist hydrating over the server render', () => {
     expect(warn).not.toHaveBeenCalled();
     expect(assistForms().map((f) => f.label)).toEqual(['New key']);
 
-    const result = assistForms()[0].controller.suggest({ name: 'website-read' });
+    const result = assistForms()[0].suggest({ name: 'website-read' });
     expect(result.applied).toEqual(['name']);
     flushSync();
     await tick();

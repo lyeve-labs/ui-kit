@@ -191,11 +191,11 @@
   class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
   use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: close }}
 >
-  {#if label}
-    <AssistRow field={assist}>
+  <AssistRow field={assist}>
+    {#if label}
       <FieldLabel for={fieldId} text={label} {required} {assist} />
-    </AssistRow>
-  {/if}
+    {/if}
+  </AssistRow>
 
   <div class="relative">
     <!--

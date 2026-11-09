@@ -8,6 +8,11 @@
  * until the person accepts it, rejects it or changes the field, and the form
  * refuses to submit while one is pending, so nothing a person has not
  * reviewed is ever posted.
+ *
+ * The page sees each form through a controller that can only describe,
+ * suggest, accept all, reject all and list what is pending. Every refusal is
+ * checked where the value is written, so no path around the controller can
+ * fill a withheld or edited field.
  */
 import { getContext, setContext, tick, untrack } from 'svelte';
 
@@ -61,6 +66,11 @@ export interface AssistFieldSpec {
   /** The key the control posts. A control without one does not register. */
   readonly name: string | undefined;
   readonly label: string | undefined;
+  /**
+   * The control's aria-label, which names it when it has no label of its own
+   * and no wrapping Field names it.
+   */
+  readonly ariaLabel?: string | undefined;
   readonly hint?: string | undefined;
   readonly kind: AssistKind;
   readonly required?: boolean;
@@ -81,7 +91,10 @@ export interface AssistField {
    * and on an option inside a group that is.
    */
   readonly suggested: boolean;
-  /** The field's label, for the accept and reject buttons' names. */
+  /**
+   * The control's accessible name, for the accept and reject buttons' names:
+   * its label, a wrapping Field's label, its aria-label, or else its name.
+   */
   readonly label: string;
   accept(): void;
   reject(): void;
@@ -110,8 +123,11 @@ export type AssistFieldDescription =
       kind: AssistKind;
     };
 
-/** Why a suggested value did not go into its field. */
-export type AssistSkipReason = 'edited' | 'withheld' | 'unknown' | 'invalid';
+/**
+ * Why a suggested value did not go into its field. A withheld field reads as
+ * `unknown`, so a suggestion cannot confirm that a field of that name exists.
+ */
+export type AssistSkipReason = 'edited' | 'unknown' | 'invalid';
 
 export interface AssistSuggestResult {
   /** The names that now hold a pending suggestion. */
@@ -132,23 +148,20 @@ export interface FormAssistController {
   describe(): AssistFieldDescription[];
   /** Puts each value into the field of that name, by the field's rules. */
   suggest(values: Record<string, AssistValue>): AssistSuggestResult;
-  /** False when no field of that name holds a pending suggestion. */
-  accept(name: string): boolean;
-  reject(name: string): boolean;
   acceptAll(): void;
   rejectAll(): void;
   pending(): AssistPending[];
 }
 
 /** A form on screen, as the page-level registry lists it. */
-export interface AssistForm {
-  readonly label: string;
+interface Listed {
   readonly controller: FormAssistController;
   /** The FormAssist's root, to tell a form in an open dialog from the page's. */
   readonly element: HTMLElement;
 }
 
 const KEY = Symbol('form-assist');
+const FIELD_LABEL_KEY = Symbol('form-assist-field-label');
 
 type Context = { form: FormState } | { field: FieldEntry };
 
@@ -222,32 +235,50 @@ const INERT: AssistField = {
 class FieldEntry implements AssistField {
   readonly #spec: AssistFieldSpec;
   readonly #form: FormState;
-  pending = $state(false);
-  edited = $state(false);
+  readonly #wrapLabel: () => string | undefined;
+  #pending = $state(false);
+  #edited = $state(false);
   #suggestion: AssistValue = null;
   #before: AssistValue = null;
   /** The value the field held when last seen, so a change can be told apart from a write. */
   #seen: string | undefined;
+  /**
+   * Set once the field has been a secret or a file. A password field whose
+   * reveal button turns it into plain text still holds the password.
+   */
+  #locked = false;
 
-  constructor(spec: AssistFieldSpec, form: FormState) {
+  constructor(spec: AssistFieldSpec, form: FormState, wrapLabel: () => string | undefined) {
     this.#spec = spec;
     this.#form = form;
+    this.#wrapLabel = wrapLabel;
+    void this.withheld;
   }
 
   get name(): string | undefined {
     return this.#spec.name;
   }
 
+  get pending(): boolean {
+    return this.#pending;
+  }
+
+  get edited(): boolean {
+    return this.#edited;
+  }
+
   get label(): string {
-    return this.#spec.label ?? this.#spec.name ?? '';
+    const s = this.#spec;
+    return s.label || this.#wrapLabel() || s.ariaLabel || s.name || '';
   }
 
   get suggested(): boolean {
-    return this.pending;
+    return this.#pending;
   }
 
   get withheld(): boolean {
-    return this.#spec.kind === 'secret' || this.#spec.kind === 'file' || !!this.#spec.noAI;
+    if (this.#spec.kind === 'secret' || this.#spec.kind === 'file') this.#locked = true;
+    return this.#locked || !!this.#spec.noAI;
   }
 
   describe(): AssistFieldDescription {
@@ -262,39 +293,66 @@ class FieldEntry implements AssistField {
       required: !!s.required,
       ...(s.options ? { options: s.options.map((o) => ({ ...o })) } : {}),
       value: copy($state.snapshot(s.value) as AssistValue),
-      edited: this.edited,
-      ...(this.pending ? { suggestion: copy(this.#suggestion) } : {}),
+      edited: this.#edited,
+      ...(this.#pending ? { suggestion: copy(this.#suggestion) } : {}),
     };
   }
 
   /** Why the value cannot go in, or undefined when it can. */
-  refusal(value: AssistValue): AssistSkipReason | undefined {
-    if (this.withheld) return 'withheld';
-    if (this.edited) return 'edited';
+  #refusal(value: AssistValue): AssistSkipReason | undefined {
+    if (this.withheld) return 'unknown';
+    if (this.#edited) return 'edited';
     const s = this.#spec;
     if (!holds(s.kind, value, s.options ?? [])) return 'invalid';
     if (s.accepts && !s.accepts(value)) return 'invalid';
     return undefined;
   }
 
-  offer(value: AssistValue) {
-    if (!this.pending) this.#before = copy($state.snapshot(this.#spec.value) as AssistValue);
+  /** Puts the value in as a pending suggestion, unless the field refuses it. */
+  offer(value: AssistValue): AssistSkipReason | undefined {
+    const reason = this.#refusal(value);
+    if (reason) return reason;
+    if (!this.#pending) this.#before = copy($state.snapshot(this.#spec.value) as AssistValue);
     this.#write(copy(value));
     this.#suggestion = copy(value);
-    this.pending = true;
+    this.#pending = true;
+    return undefined;
   }
 
   accept() {
-    if (!this.pending) return;
-    this.pending = false;
-    this.#suggestion = null;
+    if (!this.#settle()) return;
+    this.#form.changed();
   }
 
   reject() {
-    if (!this.pending) return;
+    if (!this.#pending) return;
     this.#write(this.#before);
-    this.pending = false;
+    this.#settle();
+    this.#form.changed();
+  }
+
+  /** Ends the pending state. False when there was none. */
+  #settle(): boolean {
+    if (!this.#pending) return false;
+    this.#pending = false;
     this.#suggestion = null;
+    return true;
+  }
+
+  /**
+   * The form was reset, which a save through use:enhance does. The values go
+   * back to the form's own, so nothing in them is the person's any more. The
+   * new values are taken as the baseline once the controls have read them.
+   */
+  reset() {
+    this.#settle();
+    this.#edited = false;
+    this.#seen = undefined;
+    void tick()
+      .then(() => tick())
+      .then(() => {
+        if (this.#seen === undefined) this.#seen = key($state.snapshot(this.#spec.value));
+      });
   }
 
   get suggestion(): AssistValue {
@@ -315,11 +373,8 @@ class FieldEntry implements AssistField {
       return;
     }
     this.#seen = now;
-    this.edited = true;
-    if (this.pending) {
-      this.pending = false;
-      this.#suggestion = null;
-    }
+    this.#edited = true;
+    this.#settle();
     this.#form.changed();
   }
 }
@@ -343,11 +398,11 @@ class Nested implements AssistField {
   reject() {}
 }
 
-/** The sentence the bar shows, and the one announced when suggestions arrive. */
+/** The sentence the bar shows. Its first sentence is announced when suggestions arrive. */
 export function suggestsSentence(count: number): string {
   return count === 1
-    ? 'The assistant suggests a value. Accept, reject or change it.'
-    : `The assistant suggests ${count} values. Accept, reject or change each one.`;
+    ? '1 suggested value. Accept, reject or change it.'
+    : `${count} suggested values. Accept, reject or change each one.`;
 }
 
 /** The sentence the bar shows after a submit it held. */
@@ -357,30 +412,67 @@ export function heldSentence(count: number): string {
     : `Accept or reject the ${count} suggested values before you save.`;
 }
 
-export class FormState implements FormAssistController {
+/**
+ * One FormAssist's state. Only FormAssist and the controls inside it hold it.
+ * The page gets `controller`, which cannot reach the fields.
+ */
+export class FormState {
   readonly #label: () => string;
-  fields = $state.raw<FieldEntry[]>([]);
+  #fields = $state.raw<FieldEntry[]>([]);
   /** A submit was refused while suggestions were pending. */
-  held = $state(false);
+  #held = $state(false);
   /** The polite announcement, written once per batch of suggestions. */
-  announcement = $state('');
+  #announcement = $state('');
+
+  /** What the page sees of this form. */
+  readonly controller: FormAssistController;
 
   constructor(label: () => string) {
     this.#label = label;
+    const name = () => this.label;
+    this.controller = Object.freeze({
+      get label() {
+        return name();
+      },
+      describe: () => this.describe(),
+      suggest: (values: Record<string, AssistValue>) => this.suggest(values),
+      acceptAll: () => this.acceptAll(),
+      rejectAll: () => this.rejectAll(),
+      pending: () => this.pending(),
+    });
   }
 
   get label(): string {
     return this.#label();
   }
 
+  get held(): boolean {
+    return this.#held;
+  }
+
+  get announcement(): string {
+    return this.#announcement;
+  }
+
   get count(): number {
-    return this.fields.filter((f) => f.pending).length;
+    return this.#fields.filter((f) => f.pending).length;
+  }
+
+  /** Marks a submit refused, so the bar asks for a decision first. */
+  hold() {
+    if (this.count > 0) this.#held = true;
   }
 
   add(field: FieldEntry): () => void {
-    untrack(() => (this.fields = [...this.fields, field]));
+    untrack(() => (this.#fields = [...this.#fields, field]));
     return () => {
-      untrack(() => (this.fields = this.fields.filter((f) => f !== field)));
+      untrack(() => {
+        // A field that leaves the page while pending, behind a tab or a closed
+        // section, puts its old value back. Left in place, the suggestion would
+        // post unreviewed and read as the person's own when the field returns.
+        if (field.pending) field.reject();
+        this.#fields = this.#fields.filter((f) => f !== field);
+      });
       this.changed();
     };
   }
@@ -391,68 +483,54 @@ export class FormState implements FormAssistController {
    */
   changed() {
     if (untrack(() => this.count) > 0) return;
-    this.held = false;
-    this.announcement = '';
+    this.#held = false;
+    this.#announcement = '';
+  }
+
+  /** The enclosing form was reset. */
+  reset() {
+    for (const f of untrack(() => this.#fields)) f.reset();
+    this.changed();
   }
 
   #find(name: string): FieldEntry | undefined {
-    return this.fields.find((f) => f.name === name);
+    return this.#fields.find((f) => f.name === name);
   }
 
   describe(): AssistFieldDescription[] {
-    return this.fields.map((f) => f.describe());
+    return this.#fields.map((f) => f.describe());
   }
 
   suggest(values: Record<string, AssistValue>): AssistSuggestResult {
     const result: AssistSuggestResult = { applied: [], skipped: [] };
     for (const [name, value] of Object.entries(values)) {
       const field = this.#find(name);
-      const reason = field ? field.refusal(value) : 'unknown';
-      if (reason || !field) {
-        result.skipped.push({ name, reason: reason ?? 'unknown' });
-        continue;
-      }
-      field.offer(value);
-      result.applied.push(name);
+      const reason = field ? field.offer(value) : 'unknown';
+      if (reason) result.skipped.push({ name, reason });
+      else result.applied.push(name);
     }
     if (result.applied.length > 0) {
-      this.held = false;
+      this.#held = false;
       // Emptied first, so a second batch of the same size is announced again.
       const sentence = suggestsSentence(this.count).split('. ')[0] + '.';
-      this.announcement = '';
-      void tick().then(() => (this.announcement = sentence));
+      this.#announcement = '';
+      void tick().then(() => (this.#announcement = sentence));
     }
     return result;
   }
 
-  accept(name: string): boolean {
-    const field = this.#find(name);
-    if (!field?.pending) return false;
-    field.accept();
-    this.changed();
-    return true;
-  }
-
-  reject(name: string): boolean {
-    const field = this.#find(name);
-    if (!field?.pending) return false;
-    field.reject();
-    this.changed();
-    return true;
-  }
-
   acceptAll() {
-    for (const f of this.fields) f.accept();
+    for (const f of this.#fields) f.accept();
     this.changed();
   }
 
   rejectAll() {
-    for (const f of this.fields) f.reject();
+    for (const f of this.#fields) f.reject();
     this.changed();
   }
 
   pending(): AssistPending[] {
-    return this.fields
+    return this.#fields
       .filter((f) => f.pending)
       .map((f) => ({ name: f.name ?? '', label: f.label, value: copy(f.suggestion) }));
   }
@@ -481,12 +559,18 @@ export function assistField(spec: AssistFieldSpec): AssistField {
   if ('field' in context) return new Nested(context.field);
 
   const form = context.form;
-  const field = new FieldEntry(spec, form);
+  const wrap = getContext<(() => string | undefined) | undefined>(FIELD_LABEL_KEY);
+  const field = new FieldEntry(spec, form, () => wrap?.());
   setContext<Context>(KEY, { field });
 
   $effect(() => {
     if (!spec.name) return;
     return untrack(() => form.add(field));
+  });
+  // Locks a field the moment it becomes a secret, and drops a suggestion it
+  // was holding, which is no longer the assistant's to show.
+  $effect(() => {
+    if (field.withheld) untrack(() => field.reject());
   });
   $effect(() => {
     const now = key($state.snapshot(spec.value));
@@ -495,27 +579,35 @@ export function assistField(spec: AssistFieldSpec): AssistField {
   return field;
 }
 
+/**
+ * Names the controls inside a Field that carry no label of their own, so their
+ * accept and reject buttons say which field they decide. Field calls it.
+ */
+export function provideAssistFieldLabel(label: () => string | undefined): void {
+  setContext(FIELD_LABEL_KEY, label);
+}
+
 /** How a control that only ever sits inside another one learns its tone. */
 export function assistTone(): AssistField {
   const context = getContext<Context | undefined>(KEY);
   return context && 'field' in context ? new Nested(context.field) : INERT;
 }
 
-let registry = $state.raw<AssistForm[]>([]);
+let registry = $state.raw<Listed[]>([]);
 
 /**
  * Lists a form for the page. Called from an effect, never during a server
  * render: a module-level list on the server is shared by every request.
  */
-export function registerAssistForm(form: AssistForm): () => void {
+export function registerAssistForm(form: Listed): () => void {
   // Untracked, so the effect that lists the form does not rerun on the list it changes.
   untrack(() => (registry = [...registry, form]));
   return () => untrack(() => (registry = registry.filter((f) => f !== form)));
 }
 
 /** Every form on screen that a FormAssist wraps, in the order they mounted. */
-export function assistForms(): readonly AssistForm[] {
-  return registry;
+export function assistForms(): readonly FormAssistController[] {
+  return registry.map((f) => f.controller);
 }
 
 /**
@@ -523,9 +615,9 @@ export function assistForms(): readonly AssistForm[] {
  * open dialog or drawer, else the page's form that holds focus, else the
  * page's first.
  */
-export function activeAssistForm(): AssistForm | undefined {
+export function activeAssistForm(): FormAssistController | undefined {
   const inDialog = registry.filter((f) => f.element.closest('[role="dialog"], dialog'));
-  if (inDialog.length > 0) return inDialog[inDialog.length - 1];
+  if (inDialog.length > 0) return inDialog[inDialog.length - 1].controller;
   const focused = typeof document === 'undefined' ? null : document.activeElement;
-  return registry.find((f) => focused && f.element.contains(focused)) ?? registry[0];
+  return (registry.find((f) => focused && f.element.contains(focused)) ?? registry[0])?.controller;
 }

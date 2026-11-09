@@ -39,32 +39,35 @@
   $effect(() => {
     if (!root) return;
     const element = root;
-    return registerAssistForm({
-      get label() {
-        return label;
-      },
-      controller: form,
-      element,
-    });
+    return registerAssistForm({ controller: form.controller, element });
   });
 
   // Capture on the window runs before any listener on the form itself, so a
-  // held submit never reaches use:enhance or the page's own onsubmit.
+  // held submit never reaches use:enhance or the page's own onsubmit. Only
+  // the form around this one counts: a form nested inside posts something else.
   $effect(() => {
     if (!root) return;
     const element: HTMLDivElement = root;
+    const encloses = (target: EventTarget | null) =>
+      target instanceof HTMLFormElement && target.contains(element);
     function hold(event: SubmitEvent) {
-      const target = event.target;
-      if (!(target instanceof HTMLFormElement)) return;
-      if (!target.contains(element) && !element.contains(target)) return;
-      if (form.count === 0) return;
+      if (!encloses(event.target) || form.count === 0) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      form.held = true;
+      form.hold();
       void tick().then(() => bar?.focus());
     }
+    // use:enhance resets the form after a save, and the values it puts back
+    // are no longer the person's edits.
+    function reset(event: Event) {
+      if (encloses(event.target)) form.reset();
+    }
     window.addEventListener('submit', hold, true);
-    return () => window.removeEventListener('submit', hold, true);
+    window.addEventListener('reset', reset, true);
+    return () => {
+      window.removeEventListener('submit', hold, true);
+      window.removeEventListener('reset', reset, true);
+    };
   });
 </script>
 

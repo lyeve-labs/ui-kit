@@ -28,7 +28,8 @@
     children?: Snippet;
     /**
      * The field's FormAssist registration. While it is pending the label gains
-     * the Suggested tag, and a legend also gains the accept and reject buttons.
+     * the Suggested tag, and a legend also gains the accept and reject buttons,
+     * inside it when it is drawn and right after it when it is hidden.
      */
     assist?: AssistField;
     /**
@@ -67,6 +68,11 @@
 
 {#if tag === 'label'}
   <label {id} for={htmlFor} class={cls}>{@render content()}</label>
+{:else if tag === 'legend' && pending && assist && hidden}
+  <!-- A hidden legend keeps its buttons outside it, where they are seen and
+       reached. Inside a visually hidden legend they would take focus unseen. -->
+  <legend {id} class={cls}><span id={nameId}>{@render content()}</span></legend>
+  <AssistActions field={assist} />
 {:else if tag === 'legend' && pending && assist}
   <legend {id} class="{cls} flex w-full items-center gap-2">
     <span id={nameId}>{@render content()}</span>

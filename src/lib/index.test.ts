@@ -134,7 +134,6 @@ const FUNCTIONS = [
   'copyToClipboard',
   'setDocumentTitleFormat',
   'assistField',
-  'assistForms',
   'activeAssistForm',
 ] as const;
 

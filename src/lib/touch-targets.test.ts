@@ -606,7 +606,7 @@ describe('the small controls keep their visual and grow their hit box', () => {
 
   it("a suggested field's accept and reject buttons, which are 27px", async () => {
     const { getByRole } = render(AssistForm);
-    assistForms()[0].controller.suggest({ name: 'website-read' });
+    assistForms()[0].suggest({ name: 'website-read' });
     flushSync();
     await tick();
     expectGrows(getByRole('button', { name: 'Accept the suggestion for Name' }));

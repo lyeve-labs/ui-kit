@@ -207,11 +207,11 @@
   data-no-ai={noAI ? '' : undefined}
   class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
 >
-  {#if label}
-    <AssistRow field={assist}>
+  <AssistRow field={assist}>
+    {#if label}
       <FieldLabel id="{fieldId}-label" for={fieldId} text={label} {required} {assist} />
-    </AssistRow>
-  {/if}
+    {/if}
+  </AssistRow>
 
   <div class="relative" use:anchor>
     <!--

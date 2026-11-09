@@ -309,14 +309,14 @@
   data-no-ai={noAI ? '' : undefined}
   class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
 >
-  {#if label}
+  <AssistRow field={assist}>
     <!-- `for` the date trigger. A button is labelable, so the field's own label
          names it and clicking that label opens the calendar. The group below
          takes its name from this same element. -->
-    <AssistRow field={assist}>
+    {#if label}
       <FieldLabel id="{fieldId}-label" for="{fieldId}-date" text={label} {required} {assist} />
-    </AssistRow>
-  {/if}
+    {/if}
+  </AssistRow>
 
   <!--
     role="group" and no aria-invalid. ARIA does not let a group carry that

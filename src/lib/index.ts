@@ -74,11 +74,9 @@ export { default as FormAssist } from './components/FormAssist.svelte';
 export {
   activeAssistForm,
   assistField,
-  assistForms,
   type AssistField,
   type AssistFieldDescription,
   type AssistFieldSpec,
-  type AssistForm,
   type AssistKind,
   type AssistOption,
   type AssistPending,

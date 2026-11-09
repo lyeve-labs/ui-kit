@@ -196,11 +196,11 @@
   data-no-ai={noAI ? '' : undefined}
   class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
 >
-  {#if label}
-    <AssistRow field={assist}>
+  <AssistRow field={assist}>
+    {#if label}
       <FieldLabel for={fieldId} text={label} {required} {assist} />
-    </AssistRow>
-  {/if}
+    {/if}
+  </AssistRow>
 
   <div class="relative" bind:this={fieldEl} use:anchor>
     <!-- The form posts the chosen option's value. The visible input holds the

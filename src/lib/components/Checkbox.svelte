@@ -1,7 +1,7 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
-  import AssistRow from '../internal/AssistRow.svelte';
+  import AssistActions from '../internal/AssistActions.svelte';
   import { assistField } from '../internal/assist.svelte.js';
   import type { Component } from 'svelte';
   import { ASSIST_WRAP, FIELD_WRAP } from '../internal/field.js';
@@ -101,6 +101,7 @@
   // render and hydration, so every aria-describedby built from it points at an
   // element that does not exist on the client.
   const uid = $props.id();
+  let inputEl = $state<HTMLInputElement | undefined>();
   const fieldId = $derived(id ?? uid);
 
   // Error, then hint, then description. A screen reader announces one message,
@@ -150,6 +151,7 @@
      instead, the same way the browser kept it. -->
 {#snippet control()}
   <input
+    bind:this={inputEl}
     type="checkbox"
     id={fieldId}
     {name}
@@ -223,29 +225,27 @@
   data-no-ai={noAI ? '' : undefined}
   class="{rootClass} {cls}{assist.pending ? ASSIST_WRAP : ''}"
 >
-  <AssistRow field={assist}>
-    {#if variant === 'card'}
-      <!-- The input covers the whole card, so the card surface is the element the
+  {#if variant === 'card'}
+    <!-- The input covers the whole card, so the card surface is the element the
          peer ring can reach and the box inside it is not. That is deliberate:
          one control gets one focus indicator, and a ring on the box drawn
          inside a ring on the card reads as two separate things to focus. -->
-      <label class="relative block">
-        {@render control()}
-        <span class="{choiceWrap('card', on, disabled)} {CHOICE_FOCUS}">
-          {@render mark()}
-          {@render body()}
-        </span>
-      </label>
-    {:else}
-      <label class={choiceWrap('inline', on, disabled)}>
-        <span class="relative flex shrink-0 items-center justify-center">
-          {@render control()}
-          {@render mark()}
-        </span>
+    <label class="relative block">
+      {@render control()}
+      <span class="{choiceWrap('card', on, disabled)} {CHOICE_FOCUS}">
+        {@render mark()}
         {@render body()}
-      </label>
-    {/if}
-  </AssistRow>
+      </span>
+    </label>
+  {:else}
+    <label class={choiceWrap('inline', on, disabled)}>
+      <span class="relative flex shrink-0 items-center justify-center">
+        {@render control()}
+        {@render mark()}
+      </span>
+      {@render body()}
+    </label>
+  {/if}{#if assist.pending}<AssistActions field={assist} focus={() => inputEl} />{/if}
 
   <FieldMessage base={fieldId} {error} {hint} />
 </div>

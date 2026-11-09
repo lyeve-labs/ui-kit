@@ -8,7 +8,7 @@ import type { FormAssistController } from '../internal/assist.svelte.js';
 function controller(): FormAssistController {
   const form = assistForms().find((f) => f.label === 'New key');
   expect(form, 'the form registered').toBeDefined();
-  return form!.controller;
+  return form!;
 }
 
 const input = (name: string) =>
@@ -34,6 +34,7 @@ describe('FormAssist', () => {
     const { unmount } = render(AssistForm);
     expect(assistForms().map((f) => f.label)).toEqual(['New key']);
     expect(activeAssistForm()?.label).toBe('New key');
+    expect(activeAssistForm()).toBe(controller());
     unmount();
     expect(assistForms()).toEqual([]);
   });
@@ -126,8 +127,8 @@ describe('FormAssist', () => {
     expect(result).toEqual({
       applied: ['name', 'role', 'active', 'plan', 'limit'],
       skipped: [
-        { name: 'secret', reason: 'withheld' },
-        { name: 'note', reason: 'withheld' },
+        { name: 'secret', reason: 'unknown' },
+        { name: 'note', reason: 'unknown' },
         { name: 'missing', reason: 'unknown' },
       ],
     });
@@ -176,11 +177,9 @@ describe('FormAssist', () => {
     const { container } = render(AssistForm);
     controller().suggest({ name: 'website-read', role: 'viewer' });
     await settle();
-    expect(
-      screen.getByText('The assistant suggests 2 values. Accept, reject or change each one.'),
-    ).toBeTruthy();
+    expect(screen.getByText('2 suggested values. Accept, reject or change each one.')).toBeTruthy();
     expect(container.querySelector('[aria-live="polite"]')?.textContent).toBe(
-      'The assistant suggests 2 values.',
+      '2 suggested values.',
     );
     expect(screen.getAllByText('Suggested')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Accept the suggestion for Name' })).toBeTruthy();
@@ -227,21 +226,42 @@ describe('FormAssist', () => {
     await settle();
     expect(input('name').value).toBe('b');
     expect(input('limit').value).toBe('40');
-    expect(screen.queryByText(/The assistant suggests/)).toBeNull();
+    expect(screen.queryByText(/suggested values?\./)).toBeNull();
   });
 
-  it('accepts and rejects through the controller by name', async () => {
-    render(AssistForm);
+  it('updates the bar and lifts the hold as each field is decided on its own', async () => {
+    const onsubmit = vi.fn();
+    const { container } = render(AssistForm, { props: { onsubmit } });
     const c = controller();
     c.suggest({ name: 'a', active: true });
     await settle();
-    expect(c.accept('name')).toBe(true);
-    expect(c.accept('name')).toBe(false);
-    expect(c.reject('active')).toBe(true);
-    expect(c.reject('nothing')).toBe(false);
+    submit(container.querySelector('form')!);
+    await settle();
+    expect(
+      screen.getByText('Accept or reject the 2 suggested values before you save.'),
+    ).toBeTruthy();
+    await fireEvent.click(screen.getByRole('button', { name: 'Accept the suggestion for Name' }));
+    await settle();
+    expect(screen.getByText('Accept or reject the suggested value before you save.')).toBeTruthy();
+    await fireEvent.click(screen.getByRole('button', { name: 'Reject the suggestion for Active' }));
     await settle();
     expect(input('active').checked).toBe(false);
     expect(input('name').value).toBe('a');
+    expect(container.querySelector('[aria-live="polite"]')?.textContent).toBe('');
+    submit(container.querySelector('form')!);
+    expect(onsubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('hands the page a controller that reaches no field and no state', () => {
+    render(AssistForm);
+    const c = controller();
+    expect(Object.keys(c).sort()).toEqual(
+      ['acceptAll', 'describe', 'label', 'pending', 'rejectAll', 'suggest'].sort(),
+    );
+    expect(Object.isFrozen(c)).toBe(true);
+    for (const reach of ['fields', 'held', 'announcement', 'accept', 'reject', 'add', 'hold']) {
+      expect((c as unknown as Record<string, unknown>)[reach], reach).toBeUndefined();
+    }
   });
 
   it('makes a changed value the person own, and never overwrites a field they edited', async () => {

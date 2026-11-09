@@ -84,6 +84,9 @@
     get label() {
       return label;
     },
+    get ariaLabel() {
+      return rest['aria-label'] ?? undefined;
+    },
     get hint() {
       return hint;
     },
@@ -110,11 +113,11 @@
   data-no-ai={noAI ? '' : undefined}
   class="{FIELD_WRAP} {klass}{assist.pending ? ASSIST_WRAP : ''}"
 >
-  {#if label}
-    <AssistRow field={assist}>
+  <AssistRow field={assist}>
+    {#if label}
       <FieldLabel for={fieldId} text={label} {required} {assist} />
-    </AssistRow>
-  {/if}
+    {/if}
+  </AssistRow>
 
   <input
     id={fieldId}

@@ -14,9 +14,14 @@
 
   interface Props {
     field: AssistField;
+    /**
+     * The element that takes focus once a button acts. Without it, the first
+     * control in the field around the buttons does.
+     */
+    focus?: () => HTMLElement | null | undefined;
   }
 
-  let { field }: Props = $props();
+  let { field, focus = undefined }: Props = $props();
 
   const button =
     `${TOUCH_GROW} flex size-6.75 items-center justify-center rounded-md text-muted ` +
@@ -27,11 +32,12 @@
     const wrap = (event.currentTarget as HTMLElement).closest('[data-field], [role="group"]');
     run();
     await tick();
-    wrap
-      ?.querySelector<HTMLElement>(
+    const target =
+      focus?.() ??
+      wrap?.querySelector<HTMLElement>(
         'input:not([type="hidden"]):not([disabled]), textarea, button:not([disabled]), [tabindex="0"]',
-      )
-      ?.focus();
+      );
+    target?.focus();
   }
 </script>
 

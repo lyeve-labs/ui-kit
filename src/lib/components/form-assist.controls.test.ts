@@ -170,7 +170,7 @@ async function settle() {
   flushSync();
 }
 
-const controller = () => assistForms().find((f) => f.label === 'One')!.controller;
+const controller = () => assistForms().find((f) => f.label === 'One')!;
 const posted = (name: string) =>
   new FormData(document.querySelector('form')!).getAll(name).map((v) => String(v));
 
@@ -230,7 +230,7 @@ describe('each control inside a FormAssist', () => {
       });
       expect(controller().describe()).toEqual([{ withheld: true, label: 'Field', kind: c.kind }]);
       expect(controller().suggest({ field: c.good }).skipped).toEqual([
-        { name: 'field', reason: 'withheld' },
+        { name: 'field', reason: 'unknown' },
       ]);
       expect(container.querySelector('[data-no-ai]')).not.toBeNull();
     },
@@ -247,7 +247,7 @@ describe('each control inside a FormAssist', () => {
       });
       expect(controller().describe()).toEqual([{ withheld: true, label: 'Field', kind }]);
       expect(controller().suggest({ field: 'x' }).skipped).toEqual([
-        { name: 'field', reason: 'withheld' },
+        { name: 'field', reason: 'unknown' },
       ]);
       expect(container.querySelector('[data-no-ai]')).toBeNull();
       unmount();
