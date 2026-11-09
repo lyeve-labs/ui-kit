@@ -1,29 +1,44 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { createRawSnippet, flushSync, tick } from 'svelte';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppShell from './AppShell.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 const KEY = 'test-panel';
 
-/** Answers the shell's media queries as a window of this many pixels would. */
-function viewport(width: number) {
+let width = 1440;
+const listeners = new Set<() => void>();
+
+/**
+ * Answers the shell's media queries as a window of this many pixels would,
+ * and tells every query listening when the window changes width.
+ */
+function viewport(next: number) {
+  width = next;
   window.matchMedia = ((query: string) => {
     const min = /min-width: (\d+)px/.exec(query);
     const max = /max-width: (\d+)px/.exec(query);
-    const matches = (!min || width >= +min[1]) && (!max || width <= +max[1]);
     return {
-      matches,
+      get matches() {
+        return (!min || width >= +min[1]) && (!max || width <= +max[1]);
+      },
       media: query,
       onchange: null,
-      addEventListener: () => {},
-      removeEventListener: () => {},
+      addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
       addListener: () => {},
       removeListener: () => {},
       dispatchEvent: () => false,
     };
   }) as unknown as typeof window.matchMedia;
+}
+
+/** Resizes the window under a mounted shell. */
+function resize(next: number) {
+  width = next;
+  for (const fn of [...listeners]) fn();
+  flushSync();
 }
 
 const base = {
@@ -37,8 +52,11 @@ const base = {
 
 beforeEach(() => {
   localStorage.clear();
+  listeners.clear();
   viewport(1440);
 });
+
+afterEach(() => vi.restoreAllMocks());
 
 const dock = () => screen.getByTestId('app-panel');
 
@@ -71,7 +89,9 @@ describe('AppShell panel', () => {
     expect(panel).toBe(dock());
     const main = container.querySelector('main')!;
     // Beside main in one row, never laid over it.
-    expect(panel.parentElement).toBe(main.parentElement);
+    const frame = panel.parentElement!;
+    expect(frame.parentElement).toBe(main.parentElement);
+    expect(frame.className).not.toMatch(/\b(fixed|absolute)\b/);
     expect(panel.className).not.toMatch(/\b(fixed|absolute)\b/);
     expect(panel.className).toContain('w-(--panel-w)');
     expect(widthOf(panel)).toBe('400');
@@ -81,8 +101,15 @@ describe('AppShell panel', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('closes to no width and out of reach, keeping its content mounted', () => {
+  it('renders nothing for a panel that has never opened', () => {
     render(AppShell, { props: { ...base, panelOpen: false } });
+    expect(screen.queryByTestId('app-panel')).toBeNull();
+    expect(document.body.textContent).not.toContain('Assistant body');
+  });
+
+  it('closes to no width and out of reach, keeping its content mounted', async () => {
+    const { rerender } = render(AppShell, { props: { ...base, panelOpen: true } });
+    await rerender({ ...base, panelOpen: false });
     const panel = dock();
     expect(panel.className).toContain('w-0');
     expect(panel.className).not.toContain('w-(--panel-w) ');
@@ -93,6 +120,10 @@ describe('AppShell panel', () => {
 
   it('opens and closes as the bound value changes', async () => {
     const { rerender } = render(AppShell, { props: { ...base, panelOpen: false } });
+    await rerender({ ...base, panelOpen: true });
+    expect(inert(dock())).toBe(false);
+    await rerender({ ...base, panelOpen: false });
+    expect(inert(dock())).toBe(true);
     await rerender({ ...base, panelOpen: true });
     expect(inert(dock())).toBe(false);
     await rerender({ ...base, panelOpen: false });
@@ -142,6 +173,24 @@ describe('AppShell panel', () => {
     expect(JSON.parse(localStorage.getItem(KEY)!)).toMatchObject({ width: 450 });
   });
 
+  it('caps the width at the room the row leaves the main area, and announces that cap', async () => {
+    // 1024 wide with the 240px sidebar leaves the row 784px, and main keeps 480 of it.
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.dataset.testid === 'app-panel-row' ? 784 : 0;
+    });
+    localStorage.setItem(KEY, JSON.stringify({ width: 520, locked: false }));
+    render(AppShell, { props: { ...base, panelOpen: true } });
+    flushSync();
+    const grip = screen.getByRole('separator');
+    expect(grip.getAttribute('aria-valuemax')).toBe('320');
+    expect(grip.getAttribute('aria-valuenow')).toBe('320');
+    expect(widthOf(dock())).toBe('320');
+    await fireEvent.keyDown(grip, { key: 'ArrowLeft' });
+    expect(grip.getAttribute('aria-valuenow')).toBe('320');
+  });
+
   it('opens as a modal drawer from the right below lg, and closing it unbinds the panel', async () => {
     viewport(390);
     let open = true;
@@ -157,12 +206,16 @@ describe('AppShell panel', () => {
       },
     });
     flushSync();
-    expect(screen.queryByTestId('app-panel')).toBeNull();
     const dialog = screen.getByRole('dialog', { name: 'Assistant' });
     expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.className).toContain('fixed');
+    expect(dialog.className).toContain('end-0');
     expect(dialog.className).toContain('w-full');
-    expect(dialog.className).toContain('border-s');
+    expect(dialog.className).toContain('duration-slow ease-enter');
+    expect(dialog.contains(dock())).toBe(true);
+    expect(dock().className).toContain('border-s');
     expect(dialog.textContent).toContain('Assistant body');
+    expect(screen.queryByRole('separator')).toBeNull();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(open).toBe(false);
@@ -173,5 +226,32 @@ describe('AppShell panel', () => {
     render(AppShell, { props: { ...base, panelOpen: false } });
     flushSync();
     expect(screen.queryByRole('dialog', { name: 'Assistant' })).toBeNull();
+  });
+
+  it('is one panel at every width, so crossing lg keeps its content mounted', async () => {
+    const { rerender } = render(AppShell, { props: { ...base, panelOpen: true } });
+    const panel = dock();
+    const body = panel.querySelector('span')!;
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    resize(390);
+    expect(dock()).toBe(panel);
+    expect(panel.querySelector('span')).toBe(body);
+    expect(screen.getByRole('dialog', { name: 'Assistant' }).contains(panel)).toBe(true);
+
+    resize(1440);
+    expect(dock()).toBe(panel);
+    expect(panel.querySelector('span')).toBe(body);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(panel.parentElement?.className).toContain('lg:flex');
+
+    // Closed below lg, it slides out and stays mounted out of reach.
+    resize(390);
+    await rerender({ ...base, panelOpen: false });
+    expect(dock()).toBe(panel);
+    expect(panel.parentElement?.className).toContain('invisible');
+    expect(panel.parentElement?.className).toContain('duration-base ease-exit');
+    expect(inert(panel)).toBe(true);
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
