@@ -1,6 +1,7 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import { assistTone } from '../internal/assist.svelte.js';
   import type { Component } from 'svelte';
   import { FIELD_WRAP } from '../internal/field.js';
   import {
@@ -107,6 +108,9 @@
     group = value;
     onchange?.(value);
   }
+
+  // A radio registers nothing. Its group does, and the radio paints with it.
+  const tone = assistTone();
 </script>
 
 {#snippet control()}
@@ -126,9 +130,9 @@
 {/snippet}
 
 {#snippet mark()}
-  <span class="{choiceBox('radio', size, selected, false)} mt-0.5">
+  <span class="{choiceBox('radio', size, selected, false, tone.suggested)} mt-0.5">
     {#if selected}
-      <span class="{DOT[size]} rounded-full bg-brand"></span>
+      <span class="{DOT[size]} rounded-full {tone.suggested ? 'bg-violet' : 'bg-brand'}"></span>
     {/if}
   </span>
 {/snippet}

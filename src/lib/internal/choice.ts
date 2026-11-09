@@ -96,13 +96,20 @@ export function choiceBox(
   size: ChoiceSize,
   checked: boolean,
   mixed: boolean,
+  suggested = false,
 ): string {
   const on = checked || mixed;
   const shape = kind === 'radio' ? 'rounded-full border-2' : 'rounded-xs border';
+  // A suggested choice paints violet where a chosen one paints brand, so the
+  // box the assistant ticked reads as the assistant's until it is reviewed.
   const paint = on
     ? kind === 'radio'
-      ? 'border-brand bg-surface-2'
-      : 'border-brand bg-brand text-ink'
+      ? suggested
+        ? 'border-violet bg-surface-2'
+        : 'border-brand bg-surface-2'
+      : suggested
+        ? 'border-violet bg-violet text-ink'
+        : 'border-brand bg-brand text-ink'
     : 'border-line-strong bg-surface-2';
   return `${BOX_BASE} ${CHOICE_SQUARE[size]} ${shape} ${paint} ${CHOICE_FOCUS}`;
 }

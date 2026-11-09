@@ -1,8 +1,10 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import type { Component } from 'svelte';
-  import { FIELD_WRAP } from '../internal/field.js';
+  import { ASSIST_WRAP, FIELD_WRAP } from '../internal/field.js';
   import {
     CHOICE_DESCRIPTION,
     CHOICE_FOCUS,
@@ -41,6 +43,11 @@
     value?: string;
     class?: string;
     onchange?: (checked: boolean) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -61,7 +68,34 @@
     value = undefined,
     class: cls = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  // Inside a CheckboxGroup this paints with the group and registers nothing.
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'boolean',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get value() {
+      return checked;
+    },
+    set value(v) {
+      checked = v as boolean;
+    },
+  });
 
   // $props.id() and not a random string: a random id differs between the server
   // render and hydration, so every aria-describedby built from it points at an
@@ -134,7 +168,7 @@
 {/snippet}
 
 {#snippet mark()}
-  <span class="{choiceBox('checkbox', size, checked, indeterminate)} mt-0.5">
+  <span class="{choiceBox('checkbox', size, checked, indeterminate, assist.suggested)} mt-0.5">
     {#if on}
       <!-- Both marks are stroked paths on one 10 by 8 grid. A Unicode check
            lands at whatever weight the reader's font gives it, visibly lighter
@@ -172,6 +206,7 @@
               {required}
               class={choiceLabel(size)}
               hidden={labelHidden}
+              {assist}
             />
           {/if}
         </span>
@@ -183,28 +218,34 @@
   {/if}
 {/snippet}
 
-<div data-field class="{rootClass} {cls}">
-  {#if variant === 'card'}
-    <!-- The input covers the whole card, so the card surface is the element the
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{rootClass} {cls}{assist.pending ? ASSIST_WRAP : ''}"
+>
+  <AssistRow field={assist}>
+    {#if variant === 'card'}
+      <!-- The input covers the whole card, so the card surface is the element the
          peer ring can reach and the box inside it is not. That is deliberate:
          one control gets one focus indicator, and a ring on the box drawn
          inside a ring on the card reads as two separate things to focus. -->
-    <label class="relative block">
-      {@render control()}
-      <span class="{choiceWrap('card', on, disabled)} {CHOICE_FOCUS}">
-        {@render mark()}
-        {@render body()}
-      </span>
-    </label>
-  {:else}
-    <label class={choiceWrap('inline', on, disabled)}>
-      <span class="relative flex shrink-0 items-center justify-center">
+      <label class="relative block">
         {@render control()}
-        {@render mark()}
-      </span>
-      {@render body()}
-    </label>
-  {/if}
+        <span class="{choiceWrap('card', on, disabled)} {CHOICE_FOCUS}">
+          {@render mark()}
+          {@render body()}
+        </span>
+      </label>
+    {:else}
+      <label class={choiceWrap('inline', on, disabled)}>
+        <span class="relative flex shrink-0 items-center justify-center">
+          {@render control()}
+          {@render mark()}
+        </span>
+        {@render body()}
+      </label>
+    {/if}
+  </AssistRow>
 
   <FieldMessage base={fieldId} {error} {hint} />
 </div>

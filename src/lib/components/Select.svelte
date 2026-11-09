@@ -28,6 +28,8 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import { ChevronDown } from '@lucide/svelte';
   /**
    * A select: a listbox the kit draws, never the browser's own.
@@ -51,6 +53,7 @@
   import {
     CONTROL_BASE,
     FIELD_WRAP,
+    ASSIST_WRAP,
     controlBorder,
     describedBy,
     joinIds,
@@ -99,6 +102,11 @@
     placeholder?: string;
     /** Fires with the new value once the hidden input holds it, so the form can be submitted from here. */
     onvaluechange?: (value: string) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -118,7 +126,36 @@
     trigger,
     placeholder,
     onvaluechange,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'choice',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return options.map(({ value, label, disabled }) => ({ value, label, disabled }));
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   /*
    * $props.id() and not Math.random(): a random id differs between the server
@@ -275,9 +312,15 @@
   </button>
 {/snippet}
 
-<div data-field class="{FIELD_WRAP} {cls}">
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
+>
   {#if label}
-    <FieldLabel for={fieldId} text={label} {required} />
+    <AssistRow field={assist}>
+      <FieldLabel for={fieldId} text={label} {required} {assist} />
+    </AssistRow>
   {/if}
 
   <div class="relative" use:anchor>
@@ -310,7 +353,10 @@
       aria-required={required ? 'true' : undefined}
       aria-describedby={joinIds(describedBy(fieldId, error, hint), callerIds)}
       {...box.triggerAttrs}
-      class="{CONTROL_BASE} {controlBorder(!!error)} flex cursor-pointer items-center gap-2 pe-8
+      class="{CONTROL_BASE} {controlBorder(
+        !!error,
+        assist.suggested,
+      )} flex cursor-pointer items-center gap-2 pe-8
           text-start"
     >
       {#if trigger}

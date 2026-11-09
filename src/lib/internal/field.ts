@@ -96,12 +96,31 @@ export const CONTROL_MULTILINE =
  * infer, and the error focus was split between `border-danger` and
  * `border-danger/70`.
  */
-export function controlBorder(error: boolean): string {
+export function controlBorder(error: boolean, suggested = false): string {
   // line-strong, not line: at 1.25:1 against the page the resting border was
   // the only thing marking the control and it failed SC 1.4.11. line stays the
   // divider color, where there is no control to identify.
-  return error ? 'border-danger focus:border-danger' : 'border-line-strong focus:border-brand';
+  if (error) return 'border-danger focus:border-danger';
+  return suggested ? ASSIST_BORDER : 'border-line-strong focus:border-brand';
 }
+
+/**
+ * A control holding a value the assistant suggested. Violet replaces both the
+ * resting border and the brand focus border, so the mark stays while the
+ * person works in the field and leaves only when they decide it.
+ */
+const ASSIST_BORDER = 'border-violet focus:border-violet';
+
+/**
+ * The field wrapper while it holds a suggestion: a dashed violet rule down
+ * its start edge, the mark the approved screens give a value nobody has
+ * reviewed yet.
+ */
+export const ASSIST_WRAP =
+  ' relative ps-3 before:absolute before:inset-y-0.5 before:start-0 before:border-s-2 before:border-dashed before:border-violet';
+
+/** The Suggested tag after a field's label. */
+export const ASSIST_TAG = 'ms-2 text-xs font-medium text-violet';
 
 /**
  * Wires a control to whichever of its hint or error is on screen.
@@ -141,9 +160,10 @@ export const CONTROL_SEGMENTED =
   'text-sm text-fg transition-colors inset-shadow-well';
 
 /** As controlBorder, for a wrapper that is only ever focused through a child. */
-export function segmentedBorder(error: boolean): string {
-  return error
-    ? 'border-danger focus-within:border-danger'
+export function segmentedBorder(error: boolean, suggested = false): string {
+  if (error) return 'border-danger focus-within:border-danger';
+  return suggested
+    ? 'border-violet focus-within:border-violet'
     : 'border-line-strong focus-within:border-brand';
 }
 

@@ -1,7 +1,9 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
-  import { FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
+  import { ASSIST_WRAP, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
   import { HIT_AREA } from '../internal/touch.js';
   import { inSentence } from '../internal/words.js';
 
@@ -22,6 +24,11 @@
     error?: string;
     class?: string;
     onchange?: (v: number) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -38,7 +45,38 @@
     error = undefined,
     class: cls = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'number',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    accepts(v) {
+      return (
+        (min === undefined || (v as number) >= min) && (max === undefined || (v as number) <= max)
+      );
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as number;
+    },
+  });
 
   // $props.id() and not the label: two fields under one label on a page took
   // one id, and both labels named the first control. It also matches between
@@ -94,9 +132,15 @@
     'coarse:before:translate-x-0 coarse:before:-translate-y-1/2';
 </script>
 
-<div data-field class="{FIELD_WRAP} {cls}">
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
+>
   {#if label}
-    <FieldLabel for={fieldId} text={label} {required} />
+    <AssistRow field={assist}>
+      <FieldLabel for={fieldId} text={label} {required} {assist} />
+    </AssistRow>
   {/if}
 
   <div class="flex h-control{disabled ? ' opacity-50' : ''}">
@@ -141,7 +185,7 @@
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none
         [&::-webkit-outer-spin-button]:appearance-none
-        {controlBorder(!!error)}"
+        {controlBorder(!!error, assist.suggested)}"
     />
 
     <button

@@ -1,5 +1,6 @@
 <script lang="ts">
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import FieldMessage from '../internal/FieldMessage.svelte';
   import { FIELD_WRAP, describedBy } from '../internal/field.js';
   import { describeAccept } from '../internal/accept.js';
@@ -17,6 +18,11 @@
     class?: string;
     /** Runs with the chosen or dropped files. */
     onchange?: (files: FileList | null) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -30,7 +36,26 @@
     label = undefined,
     class: cls = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  // Withheld by its kind: a file is described by its label alone and never filled.
+  assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    kind: 'file',
+    get noAI() {
+      return noAI;
+    },
+    get value() {
+      return null;
+    },
+    set value(_) {},
+  });
 
   // $props.id() and not the label, as every other field: without an id the
   // label pointed at nothing and the messages had no ids to be described by.
@@ -52,7 +77,7 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} {cls}">
+<div data-field data-no-ai={noAI ? '' : undefined} class="{FIELD_WRAP} {cls}">
   {#if label}
     <FieldLabel for={fieldId} text={label} />
   {/if}

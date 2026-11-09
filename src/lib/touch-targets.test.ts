@@ -13,7 +13,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fireEvent, render } from '@testing-library/svelte';
-import { createRawSnippet } from 'svelte';
+import { createRawSnippet, flushSync, tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Alert from './components/Alert.svelte';
 import AuthShell from './components/AuthShell.svelte';
@@ -46,7 +46,9 @@ import ThemeToggle from './components/ThemeToggle.svelte';
 import TimePicker from './components/TimePicker.svelte';
 import Toggle from './components/Toggle.svelte';
 import TreeView from './components/TreeView.svelte';
+import { assistForms } from './internal/assist.svelte.js';
 import { HIT_AREA, HIT_AREA_POSITIONED, TOUCH_GROW } from './internal/touch.js';
+import AssistForm from '../../tests/fixtures/AssistForm.svelte';
 
 const theme = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8');
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
@@ -600,6 +602,15 @@ describe('the small controls keep their visual and grow their hit box', () => {
       (el) => el.tagName === 'BUTTON' && el.getAttribute('aria-hidden') !== 'true',
     );
     expectHitArea(close ?? null);
+  });
+
+  it("a suggested field's accept and reject buttons, which are 27px", async () => {
+    const { getByRole } = render(AssistForm);
+    assistForms()[0].controller.suggest({ name: 'website-read' });
+    flushSync();
+    await tick();
+    expectGrows(getByRole('button', { name: 'Accept the suggestion for Name' }));
+    expectGrows(getByRole('button', { name: 'Reject the suggestion for Name' }));
   });
 });
 

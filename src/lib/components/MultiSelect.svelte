@@ -1,6 +1,8 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import { ChevronDown, X } from '@lucide/svelte';
   /**
    * Several values from one list, shown as removable chips, with an optional
@@ -13,7 +15,7 @@
    */
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { HIT_AREA } from '../internal/touch.js';
-  import { FIELD_WRAP, describedBy } from '../internal/field.js';
+  import { ASSIST_WRAP, FIELD_WRAP, describedBy } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
     PANEL_EMPTY,
@@ -40,6 +42,13 @@
     disabled?: boolean;
     required?: boolean;
     id?: string;
+    /** Posts each chosen value under this name, as a multiple select does. */
+    name?: string;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
     /**
      * Replaces the default matcher, or false to switch local filtering off
      * because the list arrived already narrowed, by a server query for instance.
@@ -60,10 +69,40 @@
     disabled = false,
     required = false,
     id = undefined,
+    name = undefined,
+    noAI = false,
     filter = undefined,
     class: cls = '',
     onchange = undefined,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'choices',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return options.map(({ value, label, disabled }) => ({ value, label, disabled }));
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string[];
+    },
+  });
 
   /*
    * $props.id() and not a random string: a random id differs between the server
@@ -163,9 +202,15 @@
   });
 </script>
 
-<div data-field class="{FIELD_WRAP} {cls}">
+<div
+  data-field
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
+>
   {#if label}
-    <FieldLabel id="{fieldId}-label" for={fieldId} text={label} {required} />
+    <AssistRow field={assist}>
+      <FieldLabel id="{fieldId}-label" for={fieldId} text={label} {required} {assist} />
+    </AssistRow>
   {/if}
 
   <div class="relative" use:anchor>
@@ -192,7 +237,11 @@
         has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
         has-[[role=combobox]:focus-visible]:ring-brand/35
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
-        {error ? 'border-danger' : 'border-line-strong has-[[role=combobox]:focus]:border-brand'}"
+        {error
+        ? 'border-danger'
+        : assist.suggested
+          ? 'border-violet has-[[role=combobox]:focus]:border-violet'
+          : 'border-line-strong has-[[role=combobox]:focus]:border-brand'}"
     >
       <!--
         A div and not an input: there is nothing to type here. The labels of
@@ -264,6 +313,11 @@
         </span>
       {/each}
     </div>
+    {#if name}
+      {#each value as chosen (chosen)}
+        <input type="hidden" {name} value={chosen} />
+      {/each}
+    {/if}
 
     {#if box.open}
       <div use:placePanel transition:motion.popover|global class="{PANEL_SURFACE} w-full">

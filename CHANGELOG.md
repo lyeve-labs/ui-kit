@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Components for a page drawn for visitors, each rendered on the server with no script: `Section`, a band with an introduction, content and a footer, an optional background image and a light or dark overlay, `Columns`, which stack once a column would fall under the site's minimum width and take an optional cap of two, three or four, `Prose` for markup written elsewhere, `Image`, which reserves its box from its width and height or a ratio, and `Quote`. Each is part of `site.css`.
 - `data-scheme="dark"` or `"light"` on any element draws everything inside in that palette, whatever the page's theme. A `Section` with an overlay names the overlay's scheme, so its body text, muted text and links clear 4.5:1 over any image.
 - Site tokens the new components read: `--spacing-site-xs` to `--spacing-site-xl`, set from `--spacing-site-md`, `--spacing-column-min`, `--spacing-gutter`, and `--color-brand-2`, a second color that follows `violet` until a site sets its own.
+- `FormAssist` wraps a form's fields so an assistant on the page can read them and suggest a value for each. A suggested value goes into its control, drawn in violet with a Suggested tag and buttons to accept or reject it, and a bar above the fields accepts or rejects them all. While a suggestion waits, the form does not submit and the bar asks the person to review it first. A value the person changed is never overwritten, and a password, a file and any control given `noAI` are never reported or filled. `assistForms()` and `activeAssistForm()` find the forms on a page, and `assistField()` registers a control the kit does not ship.
+- Every field control takes `noAI`, which keeps its value from an assistant and marks it `data-no-ai` for a browser agent.
+- `Toggle`, `MultiSelect`, `DatePicker` and `FilterChips` take `name` and post their value with the form.
 
 ### Changed
 

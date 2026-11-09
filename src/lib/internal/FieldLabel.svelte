@@ -8,7 +8,9 @@
    * control, and nobody says "Email star".
    */
   import type { Snippet } from 'svelte';
-  import { FIELD_LABEL } from './field.js';
+  import AssistActions from './AssistActions.svelte';
+  import type { AssistField } from './assist.svelte.js';
+  import { ASSIST_TAG, FIELD_LABEL } from './field.js';
 
   interface Props {
     text: string;
@@ -24,6 +26,17 @@
     class?: string;
     /** Rendered after the marker, inside the label. */
     children?: Snippet;
+    /**
+     * The field's FormAssist registration. While it is pending the label gains
+     * the Suggested tag, and a legend also gains the accept and reject buttons.
+     */
+    assist?: AssistField;
+    /**
+     * The id of the legend's text while the legend holds the buttons, for the
+     * fieldset's aria-labelledby. Read in full, the legend would name the group
+     * after the buttons as well.
+     */
+    nameId?: string;
   }
 
   let {
@@ -35,17 +48,30 @@
     hidden = false,
     class: klass = FIELD_LABEL,
     children,
+    assist = undefined,
+    nameId = undefined,
   }: Props = $props();
+
+  const pending = $derived(assist?.pending === true);
 
   const tag = $derived(as ?? (htmlFor === undefined ? 'span' : 'label'));
   const cls = $derived(hidden ? `${klass} sr-only` : klass);
 </script>
 
+<!-- The tag is hidden from assistive technology so it never joins the name a
+     voice-control user speaks. The buttons beside it say what is suggested. -->
 {#snippet content()}{text}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span
-    >{/if}{@render children?.()}{/snippet}
+    >{/if}{@render children?.()}{#if pending}<span class={ASSIST_TAG} aria-hidden="true"
+      >Suggested</span
+    >{/if}{/snippet}
 
 {#if tag === 'label'}
   <label {id} for={htmlFor} class={cls}>{@render content()}</label>
+{:else if tag === 'legend' && pending && assist}
+  <legend {id} class="{cls} flex w-full items-center gap-2">
+    <span id={nameId}>{@render content()}</span>
+    <AssistActions field={assist} />
+  </legend>
 {:else if tag === 'legend'}
   <legend {id} class={cls}>{@render content()}</legend>
 {:else}

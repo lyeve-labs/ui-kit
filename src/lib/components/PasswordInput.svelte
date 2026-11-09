@@ -1,6 +1,7 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import { Eye, EyeOff } from '@lucide/svelte';
   import { HIT_AREA_POSITIONED } from '../internal/touch.js';
   import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
@@ -26,6 +27,11 @@
     controlClass?: string;
     oninput?: (e: Event & { currentTarget: HTMLInputElement }) => void;
     onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -46,7 +52,27 @@
     controlClass = '',
     oninput = undefined,
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  // Withheld by its kind: the form describes it by label alone, and a
+  // suggestion for it is refused, so it never draws the suggested state.
+  assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    kind: 'secret',
+    get noAI() {
+      return noAI;
+    },
+    get value() {
+      return '';
+    },
+    set value(_) {},
+  });
 
   /**
    * $props.id() returns the same string on the server and on the client. A
@@ -80,7 +106,7 @@
   }
 </script>
 
-<div data-field class="{FIELD_WRAP} {klass}">
+<div data-field data-no-ai={noAI ? '' : undefined} class="{FIELD_WRAP} {klass}">
   {#if label}
     <FieldLabel for={fieldId} text={label} {required} hidden={labelHidden} />
   {/if}

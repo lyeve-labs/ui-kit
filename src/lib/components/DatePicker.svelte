@@ -1,9 +1,17 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import AssistRow from '../internal/AssistRow.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { HIT_AREA } from '../internal/touch.js';
-  import { CONTROL_BASE, FIELD_WRAP, controlBorder, describedBy } from '../internal/field.js';
+  import {
+    ASSIST_WRAP,
+    CONTROL_BASE,
+    FIELD_WRAP,
+    controlBorder,
+    describedBy,
+  } from '../internal/field.js';
   import {
     PANEL_LIST_UNCAPPED,
     PANEL_SURFACE,
@@ -31,6 +39,8 @@
     disabled = false,
     required = false,
     id = undefined,
+    name = undefined,
+    noAI = false,
     class: cls = '',
     onchange = undefined,
   }: {
@@ -48,9 +58,44 @@
     disabled?: boolean;
     required?: boolean;
     id?: string;
+    /** Submits the day with the surrounding form, through a hidden input. */
+    name?: string;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
     class?: string;
     onchange?: (value: string) => void;
   } = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'date',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    accepts(v) {
+      return v === '' || ((!min || (v as string) >= min) && (!max || (v as string) <= max));
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   const MONTHS = [
@@ -142,11 +187,14 @@
 
 <div
   data-field
-  class="{FIELD_WRAP} {cls}"
+  data-no-ai={noAI ? '' : undefined}
+  class="{FIELD_WRAP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
   use:dismissOnOutside={{ open, onoutside: () => (open = false), onescape: close }}
 >
   {#if label}
-    <FieldLabel for={fieldId} text={label} {required} />
+    <AssistRow field={assist}>
+      <FieldLabel for={fieldId} text={label} {required} {assist} />
+    </AssistRow>
   {/if}
 
   <div class="relative">
@@ -175,7 +223,10 @@
       aria-invalid={error ? 'true' : undefined}
       aria-required={required ? 'true' : undefined}
       aria-describedby={describedBy(fieldId, error, hint)}
-      class="{CONTROL_BASE} {controlBorder(!!error)} flex items-center justify-between text-start"
+      class="{CONTROL_BASE} {controlBorder(
+        !!error,
+        assist.suggested,
+      )} flex items-center justify-between text-start"
     >
       <span class={display ? 'text-fg' : 'text-faint'}>{display || placeholder}</span>
       <span class="text-faint shrink-0" aria-hidden="true">
@@ -306,6 +357,10 @@
       </div>
     {/if}
   </div>
+
+  {#if name}
+    <input type="hidden" {name} {value} />
+  {/if}
 
   <FieldMessage base={fieldId} {error} {hint} />
 </div>

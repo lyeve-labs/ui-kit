@@ -27,6 +27,7 @@
 <script lang="ts">
   import FieldMessage from '../internal/FieldMessage.svelte';
   import FieldLabel from '../internal/FieldLabel.svelte';
+  import { assistField } from '../internal/assist.svelte.js';
   import {
     CHOICE_GROUP,
     CHOICE_LEGEND,
@@ -35,7 +36,7 @@
     type ChoiceSize,
     type ChoiceVariant,
   } from '../internal/choice.js';
-  import { describedBy, joinIds } from '../internal/field.js';
+  import { ASSIST_WRAP, describedBy, joinIds } from '../internal/field.js';
   import Radio from './Radio.svelte';
 
   interface Props {
@@ -71,6 +72,11 @@
     disabled?: boolean;
     class?: string;
     onchange?: (value: string) => void;
+    /**
+     * Keeps the value from an assistant: a FormAssist never reports it and
+     * never fills it. Also marks the control `data-no-ai` for a browser agent.
+     */
+    noAI?: boolean;
   }
 
   let {
@@ -90,7 +96,36 @@
     disabled = false,
     class: cls = '',
     onchange = undefined,
+    noAI = false,
   }: Props = $props();
+
+  const assist = assistField({
+    get name() {
+      return name;
+    },
+    get label() {
+      return label;
+    },
+    get hint() {
+      return hint;
+    },
+    kind: 'choice',
+    get required() {
+      return required;
+    },
+    get noAI() {
+      return noAI;
+    },
+    get options() {
+      return options.map(({ value, label, disabled }) => ({ value, label, disabled }));
+    },
+    get value() {
+      return value;
+    },
+    set value(v) {
+      value = v as string;
+    },
+  });
 
   /*
    * The instance id, and through it the shared name, comes from $props.id().
@@ -113,10 +148,12 @@
 -->
 <fieldset
   data-field
+  data-no-ai={noAI ? '' : undefined}
   {id}
-  class="{CHOICE_GROUP} {cls}"
+  class="{CHOICE_GROUP} {cls}{assist.pending ? ASSIST_WRAP : ''}"
   role="radiogroup"
   {disabled}
+  aria-labelledby={assist.pending ? `${uid}-name` : undefined}
   aria-invalid={error ? 'true' : undefined}
   aria-required={required ? 'true' : undefined}
   aria-describedby={joinIds(describedBy(messageBase, error, hint), callerIds)}
@@ -127,7 +164,15 @@
     so a reader moving through the page would meet the options with nothing
     ahead of them saying what the set is for.
   -->
-  <FieldLabel as="legend" text={label} {required} class={CHOICE_LEGEND} hidden={labelHidden} />
+  <FieldLabel
+    as="legend"
+    text={label}
+    {required}
+    class={CHOICE_LEGEND}
+    hidden={labelHidden}
+    {assist}
+    nameId="{uid}-name"
+  />
 
   <div class={choiceGroupList(orientation, size, variant)}>
     {#each options as option (option.value)}

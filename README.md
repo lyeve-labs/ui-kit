@@ -44,7 +44,7 @@ theme provider.
 Card, Panel, AppShell, AuthShell, PageShell, PageHeader, SectionHeading, Divider, Accordion, AccordionItem, Collapsible, Table, DescriptionList, DiffView, Toolbar, TreeView, SortableList, SplitPane
 
 **Forms and inputs**
-Button, ButtonGroup, Input, PasswordInput, CopyField, Textarea, NumberInput, SearchInput, FileInput, ColorField, Label, Field, FormMessage, SegmentedControl, FilterChips, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
+Button, ButtonGroup, Input, PasswordInput, CopyField, Textarea, NumberInput, SearchInput, FileInput, ColorField, Label, Field, FormMessage, FormAssist, SegmentedControl, FilterChips, Select, MultiSelect, Autocomplete, DatePicker, TimePicker, DateTimePicker, Checkbox, CheckboxGroup, Radio, RadioGroup, Toggle
 
 **Navigation**
 Breadcrumb, Tabs, Pagination, StepIndicator, Dropdown, SidebarNav, AccountMenu, AccountMenuItem
