@@ -10,13 +10,14 @@ const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}<
 const ctx = (name: string | undefined) => new Map([['accordion', { name }]]);
 
 describe('AccordionItem', () => {
-  it('is a disclosure the browser opens, titled by a heading in its summary', () => {
+  it('is a disclosure the browser opens, titled in plain text with no heading in its summary', () => {
     const { container } = render(AccordionItem, {
       props: { id: 'a', title: 'Section A', children: text('body') },
       context: ctx('faq'),
     });
-    const details = container.querySelector('details')!;
-    expect(details.querySelector('summary h3')?.textContent).toBe('Section A');
+    const summary = container.querySelector('details > summary')!;
+    expect(summary.textContent?.trim()).toBe('Section A');
+    expect(summary.querySelector('h1, h2, h3, h4, h5, h6, [role="heading"]')).toBeNull();
     expect(container.querySelector('button')).toBeNull();
   });
 
