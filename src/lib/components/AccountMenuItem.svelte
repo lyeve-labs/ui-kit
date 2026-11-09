@@ -28,7 +28,9 @@
     icon?: Component<{ size?: number; class?: string }>;
     /**
      * The submit is in flight. The button refuses a second press and the icon
-     * turns into a spinner of the same size, so the label does not move.
+     * turns into a spinner of the same size, so the label does not move. The
+     * menu closes on the press, so the spinner shows when the reader opens it
+     * again before the submit ends.
      */
     loading?: boolean;
     class?: string;

@@ -118,6 +118,64 @@ describe('AccountMenu', () => {
     expect(document.activeElement).toBe(summary);
   });
 
+  it('closes once a row is picked and gives focus back to the trigger', async () => {
+    // A row moves within the app, and the layout that holds the menu stays
+    // mounted, so a panel left open hangs over the page the reader asked for.
+    const rows = createRawSnippet(() => ({
+      render: () =>
+        `<div><p>Engines</p><a href="#settings">Account settings</a><form><button type="submit">Switch</button></form></div>`,
+    }));
+    const submit = vi.fn((event: Event) => event.preventDefault());
+    const { container } = render(AccountMenu, { props: { name: 'Paid Journey', children: rows } });
+    const details = container.querySelector('details')!;
+    const summary = details.querySelector('summary')!;
+    container.querySelector('form')!.addEventListener('submit', submit);
+    const open = async () => {
+      details.open = true;
+      await fireEvent(details, new Event('toggle'));
+    };
+
+    await open();
+    await fireEvent.click(container.querySelector('p')!);
+    expect(details.open).toBe(true);
+
+    const followed = await fireEvent.click(container.querySelector('a')!);
+    expect(followed, 'the link still runs').toBe(true);
+    expect(details.open).toBe(false);
+    expect(document.activeElement).toBe(summary);
+
+    await open();
+    await fireEvent.click(container.querySelector('button[type="submit"]')!);
+    expect(details.open).toBe(false);
+    expect(submit).toHaveBeenCalledOnce();
+  });
+
+  it('leaves a click its host canceled alone and closes for any button that posts', async () => {
+    // A host that cancels a row's click acts in place, such as asking first,
+    // and closing would take the focus from what it opened. A button with no
+    // type inside a form posts it like any submit, and one outside a form
+    // posts nothing.
+    const rows = createRawSnippet(() => ({
+      render: () =>
+        `<div><a href="#ask">Ask first</a><button>Toggle</button><form><button>Switch</button></form></div>`,
+    }));
+    const { container, getByText } = render(AccountMenu, {
+      props: { name: 'Paid Journey', children: rows },
+    });
+    const details = container.querySelector('details')!;
+    getByText('Ask first').addEventListener('click', (event) => event.preventDefault());
+    container.querySelector('form')!.addEventListener('submit', (event) => event.preventDefault());
+    details.open = true;
+    await fireEvent(details, new Event('toggle'));
+
+    await fireEvent.click(getByText('Ask first'));
+    expect(details.open).toBe(true);
+    await fireEvent.click(getByText('Toggle'));
+    expect(details.open).toBe(true);
+    await fireEvent.click(getByText('Switch'));
+    expect(details.open).toBe(false);
+  });
+
   it('listens to the document only while it is open', async () => {
     const add = vi.spyOn(document, 'addEventListener');
     try {
