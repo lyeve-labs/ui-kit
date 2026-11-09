@@ -1,7 +1,8 @@
 <script lang="ts">
   // A pane whose tabs name what it holds, as a page editor's Blocks, Layers
-  // and Sections pane does, at the width it opens at. The tabs take the header
-  // row, so the pane's name is not shown twice.
+  // and Sections pane does, beside a pane that shows its label. The tabs take
+  // the header row, so the pane's name is not shown twice, and both rows draw
+  // their rules on one line.
   import SplitPane from '../../src/lib/components/SplitPane.svelte';
   import Tabs from '../../src/lib/components/Tabs.svelte';
 
@@ -29,10 +30,21 @@
         ]}
         active={tab}
         onchange={(id) => (tab = id)}
-        class="min-w-0 flex-1 [&_[role=tab]]:flex-1 [&_[role=tab]]:px-2 [&_[role=tablist]]:border-b-0"
+        inHeader
+        class="min-w-0 flex-1 [&_[role=tab]]:flex-1 [&_[role=tab]]:px-2"
       />
     {/snippet}
     <p style="padding:12px">Header, Section, Column</p>
   </SplitPane>
   <main style="flex:1">Canvas</main>
+  <SplitPane
+    storageKey="ct-pane-label"
+    label="Properties"
+    side="end"
+    width={288}
+    breakpoint="md"
+    collapsible
+  >
+    <p style="padding:12px">Form</p>
+  </SplitPane>
 </div>

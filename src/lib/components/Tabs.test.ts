@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/svelte';
+import { cleanup, fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Tabs from './Tabs.svelte';
 
@@ -172,6 +172,23 @@ describe('Tabs on a screen too narrow for the strip', () => {
       props: { items: five, active: 'overview', onchange: vi.fn() },
     });
     expect(getAllByRole('tab')[0].className).toContain('focus-visible:ring-inset');
+  });
+
+  it('leaves the rule to a header row it sits in and takes the row height', () => {
+    // In a pane header the row draws the rule, and a strip that drew its own
+    // put two lines under the tabs and stood the row 2px taller than its
+    // neighbor.
+    const props = { items: five, active: 'overview', onchange: vi.fn() };
+    const ruled = strip(render(Tabs, { props }).container);
+    expect(ruled.className).toContain('border-b');
+    expect(ruled.querySelector('[role="tab"]')!.className).toContain('py-2.5');
+    cleanup();
+    const inRow = strip(render(Tabs, { props: { ...props, inHeader: true } }).container);
+    expect(inRow.className).not.toContain('border-b');
+    expect(inRow.className).toContain('h-full');
+    const tab = inRow.querySelector('[role="tab"]')!;
+    expect(tab.className).toContain('h-full');
+    expect(tab.className).not.toContain('py-2.5');
   });
 
   it('renders the count at the 12px floor', () => {

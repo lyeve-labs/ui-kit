@@ -54,8 +54,10 @@
     meta?: Snippet;
     /**
      * Takes the label's place in the header row, for a pane whose own tabs
-     * already name what it holds. The label still names the pane to a screen
-     * reader, on the strip and on its controls.
+     * already name what it holds. Pass `Tabs` with `inHeader`, which leaves
+     * the rule to the row and keeps the row as tall as its neighbors. The
+     * label still names the pane to a screen reader, on the strip and on its
+     * controls.
      */
     header?: Snippet;
     /** Classes for the aside element itself, for the stacked layout's share of the height. */
@@ -377,16 +379,16 @@
   {/if}
 
   <div class="relative flex h-full min-h-0 flex-1 flex-col {folded ? at.hidden : ''}">
-    <!-- A header's tabs keep their own height, so the row grows to them and
-         stands them on its rule. -->
+    <!-- One control tall with a header too, so a pane of tabs and a pane
+         with a label beside it draw their rules on one line. -->
     <div
-      class="flex {header
-        ? 'min-h-control ps-1'
-        : 'h-control ps-3'} shrink-0 items-center justify-between border-b border-line pe-1"
+      class="flex h-control {header
+        ? 'ps-1'
+        : 'ps-3'} shrink-0 items-center justify-between border-b border-line pe-1"
     >
       {#if header}
-        <div class="flex min-w-0 flex-1 items-end self-stretch">{@render header()}</div>
-        {@render meta?.()}
+        <div class="flex h-full min-w-0 flex-1">{@render header()}</div>
+        {#if meta}<div class="flex shrink-0 items-center gap-2 ps-2">{@render meta()}</div>{/if}
       {:else}
         <SectionHeading level={2} variant="eyebrow" actions={meta}>{label}</SectionHeading>
       {/if}
