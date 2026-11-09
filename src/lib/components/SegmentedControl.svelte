@@ -110,9 +110,19 @@
    * short label such as "6h" takes a 44px target across as well, and the hit
    * boxes of two neighbors do not overlap.
    */
-  const SIZES: Record<Size, { row: string; segment: string; icon: IconPx }> = {
-    sm: { row: 'h-8 coarse:min-h-control', segment: 'gap-1.5 px-2.5 text-xs', icon: 14 },
-    md: { row: 'h-control', segment: 'gap-2 px-3 text-sm', icon: 16 },
+  const SIZES: Record<Size, { row: string; segment: string; stack: string; icon: IconPx }> = {
+    sm: {
+      row: 'h-8 coarse:min-h-control',
+      segment: 'gap-1.5 px-2.5 text-xs',
+      stack: 'min-h-6.5 coarse:min-h-control',
+      icon: 14,
+    },
+    md: {
+      row: 'h-control',
+      segment: 'gap-2 px-3 text-sm',
+      stack: 'min-h-8 coarse:min-h-control',
+      icon: 16,
+    },
   };
 
   /*
@@ -125,6 +135,45 @@
   const describedByIds = $derived(joinIds(describedBy(messageBase, error, hint), callerIds));
 
   let rootEl: HTMLDivElement | undefined = $state();
+
+  /*
+   * A label never breaks inside its segment. In a side panel narrower than
+   * the row, "Read and write" broke into two lines in every segment and the
+   * row read as a block of fragments. A row wider than its container stacks
+   * its options instead, each segment the container's width, and lies back
+   * down once the container holds the width the row was measured at. A
+   * stacked segment is as tall as a segment in the row.
+   *
+   * The width is read from the row while it lies flat, since a stack is as
+   * wide as its container and says nothing about the labels. New labels are
+   * read flat again. A container with no width yet, inside a closed panel,
+   * is read when it opens.
+   */
+  let stacked = $state(false);
+  let natural = 0;
+  const labels = $derived(JSON.stringify(options.map((o) => o.label)));
+
+  function fit() {
+    const room = rootEl?.parentElement?.clientWidth ?? 0;
+    if (rootEl === undefined || room === 0) return;
+    if (!stacked) {
+      natural = rootEl.offsetWidth;
+      if (natural > room) stacked = true;
+    } else if (natural <= room) {
+      stacked = false;
+    }
+  }
+
+  $effect(() => {
+    const wrap = rootEl?.parentElement;
+    void labels;
+    if (rootEl === undefined || !wrap || typeof ResizeObserver === 'undefined') return;
+    stacked = false;
+    const observer = new ResizeObserver(fit);
+    observer.observe(wrap);
+    observer.observe(rootEl);
+    return () => observer.disconnect();
+  });
 
   /*
    * Link mode when every option carries an href. A row that mixes the two is
@@ -249,18 +298,19 @@
     aria-invalid={error && !linked ? 'true' : undefined}
     aria-describedby={describedByIds}
     onfocusout={linked ? onGroupFocusOut : undefined}
-    class="inline-flex items-stretch rounded-lg border {error
+    class="{stacked ? 'flex w-full flex-col' : 'inline-flex'} items-stretch rounded-lg border {error
       ? 'border-danger coarse:outline-danger'
-      : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 inset-shadow-well p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {SIZES[
-      size
-    ].row} {disabled ? 'opacity-50' : ''}"
+      : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 inset-shadow-well p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {stacked
+      ? ''
+      : SIZES[size].row} {disabled ? 'opacity-50' : ''}"
   >
     {#each options as option, i (option.value)}
       {@const selected = option.value === value}
       {@const Icon = option.icon}
       {@const segment =
-        `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
+        `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center whitespace-nowrap rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
         SIZES[size].segment +
+        (stacked ? ` ${SIZES[size].stack}` : '') +
         (selected
           ? ' bg-surface text-brand shadow-raised inset-shadow-highlight ring-1 ring-inset ring-brand/40'
           : ' text-muted hover:text-fg active:bg-surface active:text-fg')}
