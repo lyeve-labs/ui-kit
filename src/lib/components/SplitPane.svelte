@@ -52,6 +52,12 @@
     open?: boolean;
     /** Keeps the header's count or status beside the label. */
     meta?: Snippet;
+    /**
+     * Takes the label's place in the header row, for a pane whose own tabs
+     * already name what it holds. The label still names the pane to a screen
+     * reader, on the strip and on its controls.
+     */
+    header?: Snippet;
     /** Classes for the aside element itself, for the stacked layout's share of the height. */
     class?: string;
     /** The `data-testid` on the aside, its strip and its handle. Defaults to `aside-<storageKey>`. */
@@ -72,6 +78,7 @@
     collapsible = false,
     open = $bindable(true),
     meta,
+    header,
     class: klass = '',
     testId,
     children,
@@ -370,10 +377,19 @@
   {/if}
 
   <div class="relative flex h-full min-h-0 flex-1 flex-col {folded ? at.hidden : ''}">
+    <!-- A header's tabs keep their own height, so the row grows to them and
+         stands them on its rule. -->
     <div
-      class="flex h-control shrink-0 items-center justify-between border-b border-line ps-3 pe-1"
+      class="flex {header
+        ? 'min-h-control ps-1'
+        : 'h-control ps-3'} shrink-0 items-center justify-between border-b border-line pe-1"
     >
-      <SectionHeading level={2} variant="eyebrow" actions={meta}>{label}</SectionHeading>
+      {#if header}
+        <div class="flex min-w-0 flex-1 items-end self-stretch">{@render header()}</div>
+        {@render meta?.()}
+      {:else}
+        <SectionHeading level={2} variant="eyebrow" actions={meta}>{label}</SectionHeading>
+      {/if}
       <div bind:this={controls} class="hidden items-center {at.flex}">
         <Button
           variant="ghost"

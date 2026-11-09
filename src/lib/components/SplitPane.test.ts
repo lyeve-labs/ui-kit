@@ -21,6 +21,7 @@ type Props = Partial<{
   open: boolean;
   class: string;
   meta: typeof count;
+  header: typeof count;
 }>;
 
 function setup(props: Props = {}) {
@@ -227,6 +228,20 @@ describe('SplitPane', () => {
     const heading = getByRole('heading', { level: 2 });
     expect(heading.textContent).toContain('Things');
     expect(heading.parentElement?.contains(getByText('12'))).toBe(true);
+  });
+
+  it('puts a header in the label row and keeps the label as the pane name', () => {
+    // A pane whose own tabs name what it holds read its name twice: the
+    // eyebrow above the tabs, then the tabs.
+    const tabs = createRawSnippet(() => ({
+      render: () => '<div role="tablist"><button role="tab">Blocks</button></div>',
+    }));
+    const { aside, getByRole, getByText, queryByRole } = setup({ header: tabs, meta: count });
+    expect(queryByRole('heading', { level: 2 })).toBeNull();
+    expect(aside.getAttribute('aria-label')).toBe('Things');
+    const row = getByRole('button', { name: 'Lock Things width' }).parentElement!.parentElement!;
+    expect(row.contains(getByRole('tablist'))).toBe(true);
+    expect(row.contains(getByText('12'))).toBe(true);
   });
 });
 
