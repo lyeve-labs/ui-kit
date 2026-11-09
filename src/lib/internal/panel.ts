@@ -70,8 +70,10 @@ export const PANEL_SURFACE =
  * from carrying on into the page behind the open panel. px-1 insets the rows
  * from the frame, so a row's ring and hover tint sit inside the surface's
  * rounded corners instead of being cut by them on the first and last row.
+ * relative makes the list hold a row's visually hidden label, so the surface,
+ * which clips, gets no scroll range a script could use.
  */
-export const PANEL_LIST = 'max-h-panel-max overflow-y-auto overscroll-contain px-1 py-1';
+export const PANEL_LIST = 'relative max-h-panel-max overflow-y-auto overscroll-contain px-1 py-1';
 
 /**
  * One row at rest.

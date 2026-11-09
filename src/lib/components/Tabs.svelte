@@ -134,7 +134,7 @@
     use:fades.track
     onfocusout={onStripFocusOut}
     role="tablist"
-    class="flex gap-0.5 overflow-x-auto border-b border-line [scrollbar-width:none]"
+    class="relative flex gap-0.5 overflow-x-auto border-b border-line [scrollbar-width:none]"
   >
     <!-- The active indicator is the cyan to violet accent, with solid brand
          under it for wherever gradients are not drawn. -->

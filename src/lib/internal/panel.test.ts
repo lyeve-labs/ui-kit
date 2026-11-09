@@ -144,6 +144,14 @@ describe('the scrolling region', () => {
     expect(theme).toMatch(/--spacing-control:[^\n]*\n\s*--spacing-panel-max:\s*15rem;/);
   });
 
+  it('is positioned, so a hidden label in a row cannot scroll the surface', () => {
+    // The surface clips, and a clipping box still scrolls when told to. A
+    // hidden label below the list's fold, held by the surface rather than the
+    // list, gave the surface a scroll range that focusing a row could use,
+    // and the search field above the list went with it.
+    expect(hasAll(PANEL_LIST, 'relative')).toBe(true);
+  });
+
   it('owns the scroll, so the surface does not', () => {
     // Autocomplete scrolled the surface and MultiSelect an inner region. On the
     // surface the sticky search field scrolls away with the options.

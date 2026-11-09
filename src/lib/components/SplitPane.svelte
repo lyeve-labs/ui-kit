@@ -399,7 +399,7 @@
         {/if}
       </div>
     </div>
-    <div class="min-h-0 flex-1 overflow-y-auto">
+    <div class="relative min-h-0 flex-1 overflow-y-auto">
       {@render children()}
     </div>
     {#if !locked}
