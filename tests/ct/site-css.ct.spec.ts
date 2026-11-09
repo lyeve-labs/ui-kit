@@ -16,12 +16,16 @@ import { styleWithKit } from './kit-css.js';
 // inherits changes only once its parent's transition ends, and can start a
 // transition of its own a frame later, so this waits for a frame that starts
 // none. A transition that a newer one replaces rejects its promise, so each
-// one is awaited as settled rather than as fulfilled.
+// one is awaited as settled rather than as fulfilled. The browser skips the
+// body of a shut details, and a transition there never runs, so it is left out.
 async function settled(page: Page) {
   await page.evaluate(async () => {
     const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
     const running = () =>
-      document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity);
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+        .filter((a) => (a.effect as KeyframeEffect | null)?.target?.checkVisibility() !== false);
     for (await frame(); running().length > 0; await frame()) {
       await Promise.allSettled(running().map((a) => a.finished));
     }
@@ -65,8 +69,10 @@ for (const theme of ['dark', 'light', 'system'] as const) {
     await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'light' });
     await mount(SiteBlocksStory);
     const site = await page.addStyleTag({ content: await siteStylesheet() });
+    // Every item of the accordion is opened, so its open state is compared too.
     await page.evaluate((t) => {
       if (t !== 'dark') document.documentElement.dataset.theme = t;
+      for (const item of document.querySelectorAll('details')) item.open = true;
     }, theme);
     await settled(page);
     const compiled = await computed(page);
@@ -277,6 +283,23 @@ test('caps a row of columns at its max', async ({ mount, page }) => {
 // navigation wraps rather than hiding links behind a menu, and nothing makes
 // the page scroll sideways. The gallery's row scrolls inside its own box,
 // takes keyboard focus and has a name.
+// The story's card image is 400 pixels wide by its own size, in a wider card.
+test("draws a card's image across the card, whatever its own size", async ({ mount, page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await mount(SiteBlocksStory);
+  await page.addStyleTag({ content: await siteStylesheet() });
+  await settled(page);
+  const { image, card } = await page.evaluate(() => {
+    const img = document.querySelector('[data-print="keep"] img')!;
+    return {
+      image: img.getBoundingClientRect().width,
+      card: img.closest('[data-print="keep"]')!.clientWidth,
+    };
+  });
+  expect(card).toBeGreaterThan(400);
+  expect(image).toBeCloseTo(card, 0);
+});
+
 test('fits a phone without scrolling the page sideways', async ({ mount, page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await mount(SiteBlocksStory);

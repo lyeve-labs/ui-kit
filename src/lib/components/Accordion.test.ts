@@ -1,17 +1,15 @@
-import { fireEvent, render } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it } from 'vitest';
+import AccordionItems from '../../../tests/fixtures/AccordionItems.svelte';
 import Accordion from './Accordion.svelte';
-import AccordionItem from './AccordionItem.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
-describe('Accordion', () => {
-  it('renders its children', () => {
-    const { getByText } = render(Accordion, { props: { children: text('items') } });
-    expect(getByText('items')).toBeTruthy();
-  });
+const names = (root: ParentNode) =>
+  [...root.querySelectorAll('details')].map((d) => d.getAttribute('name'));
 
+describe('Accordion', () => {
   it('draws a bordered container by default', () => {
     const { container } = render(Accordion, { props: { children: text('x') } });
     const wrap = container.firstElementChild as HTMLElement;
@@ -25,49 +23,29 @@ describe('Accordion', () => {
     expect(wrap.className).toContain('divide-y');
     expect(wrap.className).not.toContain('rounded-xl');
   });
-});
 
-describe('Accordion with items', () => {
-  it('starts with items closed', () => {
-    const content = createRawSnippet(() => ({ render: () => '<p>hidden content</p>' }));
-    const { container } = render(Accordion, {
-      props: {
-        children: createRawSnippet(() => ({
-          render: () => '<div data-testid="item">should render</div>',
-        })),
-      },
-    });
-    // In a real test with AccordionItem, the content panel wouldn't render
-    // when closed. But with createRawSnippet we can't easily compose children.
-    expect(container.firstElementChild).toBeTruthy();
+  it('starts with every item shut', () => {
+    const { container } = render(AccordionItems);
+    const items = [...container.querySelectorAll('details')];
+    expect(items).toHaveLength(2);
+    expect(items.every((d) => !d.open)).toBe(true);
   });
 
-  it('toggles open when an AccordionItem button is clicked', async () => {
-    // Render Accordion with AccordionItem as child
-    const content = createRawSnippet(() => ({ render: () => '<p>panel</p>' }));
-    const { container, getByText } = render(Accordion, {
-      props: {
-        children: createRawSnippet(() => ({
-          render: () => {
-            // We need AccordionItem to be instantiated inside the snippet...
-            // This is the limitation of createRawSnippet.
-            return '<div data-accordion="wrapper"><button>Toggle</button></div>';
-          },
-        })),
-      },
-    });
-    expect(container.querySelector('[data-accordion="wrapper"]')).toBeTruthy();
+  it('gives its items one name, so the browser closes the others when one opens', () => {
+    const { container } = render(AccordionItems);
+    const [first, second] = names(container);
+    expect(first).toMatch(/^accordion-/);
+    expect(second).toBe(first);
   });
 
-  it('draws the rounded frame when flush is off', () => {
-    const { container } = render(Accordion, { props: { children: text('x') } });
-    expect((container.firstElementChild as HTMLElement).className).toContain('rounded-xl');
+  it('gives two accordions on one page different names', () => {
+    const one = render(AccordionItems);
+    const two = render(AccordionItems);
+    expect(names(one.container)[0]).not.toBe(names(two.container)[0]);
   });
 
-  it('keeps the rounded frame in multiple mode', () => {
-    const { container } = render(Accordion, {
-      props: { children: text('x'), multiple: true },
-    });
-    expect((container.firstElementChild as HTMLElement).className).toContain('rounded-xl');
+  it('leaves its items unnamed when several may stay open', () => {
+    const { container } = render(AccordionItems, { props: { multiple: true } });
+    expect(names(container)).toEqual([null, null]);
   });
 });

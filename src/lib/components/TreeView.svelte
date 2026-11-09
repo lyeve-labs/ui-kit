@@ -344,7 +344,7 @@
       </div>
 
       <!--
-        A branch opens and shuts on grid-template-rows, the AccordionItem
+        A branch opens and shuts on grid-template-rows, the Collapsible
         collapse, so its children slide rather than appear in one frame. Shut,
         they are inert: out of the tab order and the accessibility tree while
         they stay mounted for the collapse to play, and they unmount when it

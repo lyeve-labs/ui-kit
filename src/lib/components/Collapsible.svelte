@@ -10,8 +10,9 @@
    * hit has no way in. `open` here is bindable, so the page and the trigger
    * share one value.
    *
-   * Accordion is the component for a set of these. It decides which of its
-   * items is open, and an item asks it. This decides nothing beyond itself.
+   * Accordion is the component for a set of disclosures. It is built on
+   * `details`, so a page with no script can open its items, and it gives up
+   * the animation for that. This one decides nothing beyond itself.
    */
   import type { Component, Snippet } from 'svelte';
   import { TOUCH_GROW } from '../internal/touch.js';

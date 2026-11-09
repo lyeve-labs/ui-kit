@@ -29,7 +29,11 @@
 
 <SectionHeading>Plans</SectionHeading>
 <SectionHeading level={3} variant="eyebrow">Pricing</SectionHeading>
-<Card title="Starter" description="For a first site.">
+<Card
+  title="Starter"
+  description="For a first site."
+  image={{ src: picture, alt: '', width: 400, height: 300 }}
+>
   <p>Everything a small site needs.</p>
   {#snippet footer()}
     <Button href="/start">Start</Button>
@@ -41,7 +45,7 @@
 <Badge tone="success">New</Badge>
 <Badge tone="brand" size="sm" dot>Popular</Badge>
 <Badge tone="violet"><svg width="12" height="12" aria-hidden="true"></svg>With an icon</Badge>
-<Accordion>
+<Accordion multiple>
   <AccordionItem id="included" title="What is included?">Every block.</AccordionItem>
   <AccordionItem id="cancel" title="Can I cancel?">At any time.</AccordionItem>
 </Accordion>

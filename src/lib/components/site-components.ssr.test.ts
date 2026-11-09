@@ -3,6 +3,8 @@
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
+import AccordionItems from '../../../tests/fixtures/AccordionItems.svelte';
+import Card from './Card.svelte';
 import Columns from './Columns.svelte';
 import Footer from './Footer.svelte';
 import Gallery from './Gallery.svelte';
@@ -22,6 +24,15 @@ const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}<
  * handler gets `onload` and `onerror` from the server render.
  */
 const pages = {
+  Accordion: () => render(AccordionItems).body,
+  Card: () =>
+    render(Card, {
+      props: {
+        title: 'Studio',
+        image: { src: '/studio.jpg', alt: 'A desk' },
+        children: text('Body'),
+      },
+    }).body,
   Section: () =>
     render(Section, {
       props: {
@@ -78,7 +89,28 @@ describe('the site components, rendered on the server', () => {
     }
   });
 
+  it('carries every question and answer, shut and sharing one name', () => {
+    const html = pages.Accordion();
+    for (const part of ['What is included?', 'Every block.', 'Can I cancel?', 'At any time.']) {
+      expect(html).toContain(part);
+    }
+    const names = [...html.matchAll(/<details[^>]*\sname="([^"]+)"/g)].map((m) => m[1]);
+    expect(names).toHaveLength(2);
+    expect(names[1]).toBe(names[0]);
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
+  });
+
+  it('names two accordions apart only when each render has its own id prefix', () => {
+    const name = (idPrefix?: string) =>
+      /<details[^>]*\sname="([^"]+)"/.exec(render(AccordionItems, { idPrefix }).body)![1];
+    // Each render counts its ids from the start, so two renders repeat them.
+    expect(name()).toBe(name());
+    expect(name('faq')).not.toBe(name('plans'));
+  });
+
   it('carries the content of the rest', () => {
+    expect(pages.Card()).toContain('Studio');
+    expect(pages.Card()).toContain('Body');
     expect(pages.Columns()).toContain('Column');
     expect(pages.Prose()).toContain('Paragraph');
     expect(pages.Quote()).toContain('Words');
@@ -100,5 +132,6 @@ describe('the site components, rendered on the server', () => {
     expect(unsized).toMatch(/<img[^>]*class="[^"]*aspect-video/);
     expect(pages.NavBar()).toMatch(/<img[^>]*width="64"[^>]*height="32"/);
     expect(pages.Gallery()).toMatch(/<img[^>]*class="[^"]*aspect-\[4\/3\]/);
+    expect(pages.Card()).toMatch(/<img[^>]*class="[^"]*aspect-video/);
   });
 });
