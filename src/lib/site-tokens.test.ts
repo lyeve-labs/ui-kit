@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { sectionHeading } from './internal/layout.js';
 
 /**
- * A page drawn for visitors sets a radius and a heading face on its root and
- * the components follow. Each rung is written in terms of md, so a rung
- * declared as a fixed length would stay put while the rest of the scale
- * moved. The consoles set neither and must draw exactly as before.
+ * A page drawn for visitors sets a radius, a spacing step, a heading face and
+ * a second color on its root and the components follow. Each rung is written
+ * in terms of md, so a rung declared as a fixed length would stay put while
+ * the rest of the scale moved. The consoles set none of them and must draw
+ * exactly as before.
  */
 
 const css = readFileSync(join(__dirname, 'styles/theme.css'), 'utf8').replace(
@@ -51,5 +52,24 @@ describe('the heading face', () => {
     expect(sectionHeading(2).split(' ')).toContain('font-heading');
     expect(sectionHeading(3).split(' ')).toContain('font-heading');
     expect(sectionHeading(2, 'eyebrow').split(' ')).not.toContain('font-heading');
+  });
+});
+
+describe('the site spacing scale', () => {
+  it('sets four steps from md, at a quarter, a half, two and four times it', () => {
+    expect(token('--spacing-site-md')).toBe('1rem');
+    const steps = Object.fromEntries(
+      ['xs', 'sm', 'lg', 'xl'].map((step) => [
+        step,
+        factor(`--spacing-site-${step}`, '--spacing-site-md'),
+      ]),
+    );
+    expect(steps).toEqual({ xs: 0.25, sm: 0.5, lg: 2, xl: 4 });
+  });
+});
+
+describe('the second color', () => {
+  it('follows violet, so it takes violet in every palette a site does not set it in', () => {
+    expect(token('--color-brand-2')).toBe('var(--color-violet)');
   });
 });

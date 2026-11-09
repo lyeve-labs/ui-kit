@@ -107,6 +107,7 @@ test("takes a site's radius and heading face from its root", async ({ mount, pag
   await page.addStyleTag({
     content: ':root { --radius-md: 0px; --font-heading: Georgia, serif; }',
   });
+  await settled(page);
   const site = await read();
 
   const rungs = ['4px', '6px', '8px', '12px', '16px', '20px', '24px'];
@@ -131,4 +132,143 @@ test("takes a site's radius and heading face from its root", async ({ mount, pag
   expect(faces.Plans).toBe('Georgia');
   expect(faces.Pricing).not.toBe('Georgia');
   expect(faces.Starter).toBe('Georgia');
+});
+
+// The site's spacing step, its column width and gutter, and its second color
+// are custom properties the components read, so a value set on the root
+// reaches them through the compiled file. At 600 pixels three columns of 240
+// do not fit and the third wraps, and at a minimum of 100 they stand in a row.
+test("takes a site's spacing, columns and second color from its root", async ({ mount, page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await mount(SiteBlocksStory);
+  await page.addStyleTag({ content: await siteStylesheet() });
+  const read = () =>
+    page.evaluate(() => {
+      const section = document.querySelector('section')!;
+      const columns = [...document.querySelectorAll('div.grid')].find((el) =>
+        el.textContent?.includes('Three'),
+      )!;
+      const quotes = [...document.querySelectorAll('figure > blockquote')].map(
+        (q) => q.parentElement!,
+      );
+      const quote = quotes.find((q) => !q.closest('section'))!;
+      const banded = quotes.find((q) => q.closest('section[data-scheme="dark"]'))!;
+      return {
+        padding: getComputedStyle(section).paddingTop,
+        gap: getComputedStyle(columns).columnGap,
+        tracks: getComputedStyle(columns)
+          .gridTemplateColumns.split(' ')
+          .filter((t) => t !== '0px').length,
+        rule: getComputedStyle(quote).borderInlineStartColor,
+        banded: getComputedStyle(banded).borderInlineStartColor,
+      };
+    });
+  await page.setViewportSize({ width: 600, height: 800 });
+  await settled(page);
+  const kit = await read();
+  await page.addStyleTag({
+    content: `:root {
+      --spacing-site-md: 2rem;
+      --spacing-column-min: 100px;
+      --spacing-gutter: 40px;
+      --color-brand-2: rgb(255, 0, 0);
+    }
+    [data-scheme='dark'] {
+      --color-brand-2: rgb(0, 128, 0);
+    }`,
+  });
+  // Under reduced motion every property still transitions for a millisecond,
+  // and a style read inside one returns the old value.
+  await settled(page);
+  const site = await read();
+
+  expect(kit).toEqual({
+    padding: '64px',
+    gap: '16px',
+    tracks: 2,
+    rule: 'rgb(149, 135, 242)',
+    banded: 'rgb(149, 135, 242)',
+  });
+  // Four columns of 100 would fit at 600 pixels, so three is the cap holding.
+  // A band works out its second color from its own palette, so a site sets it
+  // there as well.
+  expect(site).toEqual({
+    padding: '128px',
+    gap: '40px',
+    tracks: 3,
+    rule: 'rgb(255, 0, 0)',
+    banded: 'rgb(0, 128, 0)',
+  });
+});
+
+// A band with an overlay names its scheme, and everything inside draws in that
+// palette whatever the page's own: a dark band on a light page keeps the dark
+// palette's text, and a light band on a dark page the light palette's.
+for (const build of ['compiled', 'built'] as const) {
+  test(`draws a band in its own scheme, ${build}`, async ({ mount, page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(SiteBlocksStory);
+    const textIn = (scheme: string) =>
+      page.evaluate(
+        (s) => getComputedStyle(document.querySelector(`section[data-scheme="${s}"] p`)!).color,
+        scheme,
+      );
+    for (const theme of ['light', 'dark'] as const) {
+      await page.evaluate((t) => {
+        document.documentElement.dataset.theme = t;
+      }, theme);
+      if (build === 'compiled') await page.addStyleTag({ content: await siteStylesheet() });
+      else await styleWithKit(page, theme);
+      await settled(page);
+      expect(await textIn('dark')).toBe('rgb(230, 232, 238)');
+      expect(await textIn('light')).toBe('rgb(17, 24, 39)');
+    }
+  });
+}
+
+// Prose styles the bare markup it holds and leaves a kit component inside it
+// alone: a Button drawn as a link keeps its label color and no underline.
+test('styles bare markup in prose and leaves a kit component alone', async ({ mount, page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await mount(SiteBlocksStory);
+  await page.addStyleTag({ content: await siteStylesheet() });
+  await settled(page);
+  const read = await page.evaluate(() => {
+    const prose = document.querySelector('h3:not([class])')!.parentElement!;
+    const style = (el: Element) => getComputedStyle(el);
+    const inside = [...prose.querySelectorAll('a')].find(
+      (a) => a.textContent?.trim() === 'See plans',
+    )!;
+    const outside = [...document.querySelectorAll('a')].find(
+      (a) => a.textContent?.trim() === 'Start',
+    )!;
+    return {
+      button: [style(inside).color, style(inside).textDecorationLine],
+      kit: [style(outside).color, style(outside).textDecorationLine],
+      h3: style(prose.querySelector('h3')!).marginTop,
+      paragraph: style(prose.querySelector('h3 + p, h2 + p')!).marginTop,
+      list: style(prose.querySelector('ul')!).listStyleType,
+    };
+  });
+  expect(read.button).toEqual(read.kit);
+  expect(read.button[1]).toBe('none');
+  expect(read).toMatchObject({ h3: '16px', paragraph: '8px', list: 'disc' });
+});
+
+// At 1440 pixels four columns of 240 fit, so the row of four under a cap of
+// three stands three wide and the fourth wraps.
+test('caps a row of columns at its max', async ({ mount, page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await mount(SiteBlocksStory);
+  await page.addStyleTag({ content: await siteStylesheet() });
+  await settled(page);
+  const tracks = await page.evaluate(() => {
+    const grid = [...document.querySelectorAll('div.grid')].find((el) =>
+      el.textContent?.includes('Four'),
+    )!;
+    return getComputedStyle(grid)
+      .gridTemplateColumns.split(' ')
+      .filter((t) => t !== '0px').length;
+  });
+  expect(tracks).toBe(3);
 });
