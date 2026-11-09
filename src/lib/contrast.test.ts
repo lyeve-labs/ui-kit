@@ -606,3 +606,33 @@ describe.each([
     },
   );
 });
+
+/**
+ * A section lays its scheme's page color over its background image, and the
+ * image can be anything. Its words are body text, muted text and links, so
+ * each has to clear 4.5:1 over the overlay on a white image and on a black
+ * one. Faint and the status colors are not drawn loose on an overlay.
+ */
+describe('a section overlay', () => {
+  const share =
+    Number(
+      /bg-ink\/(\d+)/.exec(readFileSync(join(__dirname, 'components/Section.svelte'), 'utf8'))?.[1],
+    ) / 100;
+
+  it('reads its strength from the component', () => {
+    expect(share).toBeGreaterThan(0.5);
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)('keeps body, muted and link text at 4.5:1 in the %s scheme', (_, tokens) => {
+    const failing = ['#ffffff', '#000000'].flatMap((image) => {
+      const ground = over(tokens.ink, image, share);
+      return ['fg', 'muted', 'brand']
+        .map((name) => ({ name, image, ratio: ratio(tokens[name], ground) }))
+        .filter((r) => r.ratio < 4.5);
+    });
+    expect(failing).toEqual([]);
+  });
+});

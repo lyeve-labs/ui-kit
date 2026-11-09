@@ -35,6 +35,11 @@ const BLOCK_COMPONENTS = [
   'Label',
   'SectionHeading',
   'Textarea',
+  'Section',
+  'Columns',
+  'Prose',
+  'Image',
+  'Quote',
 ];
 
 /**
