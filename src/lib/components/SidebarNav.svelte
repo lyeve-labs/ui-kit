@@ -141,7 +141,7 @@
     `${TOUCH_GROW} flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted ` +
     'transition-colors outline-none hover:bg-surface-2 hover:text-fg ' +
     'active:bg-line active:text-fg ' +
-    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
   const BADGE_TONE: Record<AccentTone, string> = {
     neutral: 'bg-surface-2 text-faint',

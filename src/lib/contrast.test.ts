@@ -58,6 +58,17 @@ function palette(scope: 'dark' | 'light'): Record<string, string> {
 const dark = palette('dark');
 const light = palette('light');
 
+/**
+ * The focus color a palette paints. The token is declared once, inline, so
+ * each element reads the color it names where it stands: brand-deep, which
+ * every palette already holds to 4.5:1 as text.
+ */
+function focusColor(_scope: 'dark' | 'light', tokens: Record<string, string>): string {
+  const named = /@theme inline \{[^}]*--color-focus: var\(--color-([a-z-]+)\);/.exec(css);
+  expect(named, 'no inline focus color').toBeTruthy();
+  return tokens[named![1]];
+}
+
 /** Body text sits on one of these three. A token has to clear the worst. */
 const GROUNDS = ['ink', 'surface', 'surface-2'] as const;
 
@@ -115,12 +126,11 @@ describe.each([
   });
 
   it('draws the focus ring at 3:1 or better', () => {
-    // SC 1.4.11. The ring is solid brand. A color-mix down to 60 percent put
-    // it at 2.39:1 on the light palette.
+    // SC 1.4.11. A transparent mix of brand at 60 percent put it at 2.39:1 on
+    // the light palette, so each palette names an opaque token for it.
+    const focus = focusColor(scope, tokens);
     for (const ground of GROUNDS) {
-      expect(ratio(tokens.brand, tokens[ground]), `focus ring on ${ground}`).toBeGreaterThanOrEqual(
-        3,
-      );
+      expect(ratio(focus, tokens[ground]), `focus ring on ${ground}`).toBeGreaterThanOrEqual(3);
     }
   });
 
@@ -279,8 +289,22 @@ describe('focus ring', () => {
     // focus outline of its own, in the system highlight.
     const base = css.slice(css.indexOf('@layer base'));
     const rule = base.slice(base.indexOf(':focus-visible'), base.indexOf(':focus:not('));
-    expect(rule).toContain('outline: 2px solid var(--color-brand)');
+    expect(rule).toContain('outline: 2px solid var(--color-brand-deep)');
     expect(rule).not.toContain('color-mix');
+    // One declaration, inline, naming an opaque token. A second one in a
+    // palette block would resolve on the root and stop following a part of
+    // the page that sets its own brand.
+    const declared = [...css.matchAll(/--color-focus:([^;]+);/g)].map(([, value]) => value.trim());
+    expect(declared).toEqual(['var(--color-brand-deep)']);
+  });
+
+  it('reads softer than brand on the dark palette', () => {
+    // A 2px ring at full brand read 10.43:1 on ink and glared brighter than
+    // anything else on the screen, round a menu row or a chosen segment.
+    const focus = focusColor('dark', dark);
+    for (const ground of GROUNDS) {
+      expect(ratio(focus, dark[ground]), `focus ring on ${ground}`).toBeLessThan(6);
+    }
   });
 });
 
@@ -394,9 +418,10 @@ describe.each([
   it('keeps the focus ring at 3:1 on top of its own glow', () => {
     // The glow fills the gap between a control and its ring and spreads past
     // it, so the ring is read against glow over the ground, not the ground.
+    const focus = focusColor(scope, tokens);
     for (const ground of GROUNDS) {
       const halo = flat('glow', tokens[ground]);
-      expect(ratio(tokens.brand, halo), `ring over glow on ${ground}`).toBeGreaterThanOrEqual(3);
+      expect(ratio(focus, halo), `ring over glow on ${ground}`).toBeGreaterThanOrEqual(3);
     }
   });
 

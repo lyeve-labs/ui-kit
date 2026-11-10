@@ -432,14 +432,33 @@ describe('component consistency', () => {
 
   it('gives every control one focus border, at full strength', () => {
     const offenders = files
-      .filter((f) => /focus:border-brand\/|focus:border-danger\//.test(f.src))
+      .filter((f) => /focus:border-(?:brand|focus)\/|focus:border-danger\//.test(f.src))
+      .map((f) => f.name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('draws every focus ring and focus outline in the focus color', () => {
+    // A 2px ring at full brand read 10.43:1 on the dark page and glared
+    // brighter than anything else on the screen, round a menu row, a chosen
+    // segment or the account menu. The focus token is the one color for it,
+    // on a ring, an outline, a field's border and the active row of a list.
+    // A field's ring beside its border is the same token at half strength.
+    const internalModules = readdirSync(INTERNAL)
+      .filter((n) => n.endsWith('.ts') && !n.endsWith('.test.ts'))
+      .map((n) => ({ name: `internal/${n}`, src: readFileSync(join(INTERNAL, n), 'utf8') }));
+    const offenders = [...files, ...internalModules]
+      .filter((f) =>
+        /(?:focus(?:-visible|-within)?|:focus(?:-visible)?\])\S*:(?:ring|outline|border)-brand(?![\w-])/.test(
+          f.src,
+        ),
+      )
       .map((f) => f.name);
     expect(offenders).toEqual([]);
   });
 
   it.each(FIELDS)('%s draws the 2px ring wherever it turns the outline off', (name) => {
-    // Input, Select's trigger and Textarea draw the brand ring on focus. A
-    // control that writes outline-none and keeps only focus:border-brand
+    // Input, Select's trigger and Textarea draw the focus ring on focus. A
+    // control that writes outline-none and keeps only focus:border-focus
     // shows a keyboard user a 1px color change, which NumberInput, the
     // MultiSelect trigger and both panel search boxes did. A ring on a
     // wrapper, through has-[...:focus-visible], counts for the control inside.
@@ -673,7 +692,7 @@ describe('component consistency', () => {
     // nothing. One wrapper ring per file used to excuse every outline-none in
     // that file, so each bare element below passed.
     const fixture = [
-      `<div class="has-[input:focus]:border-brand has-[input:focus-visible]:ring-2">`,
+      `<div class="has-[input:focus]:border-focus has-[input:focus-visible]:ring-2">`,
       `  <input class="outline-none" />`,
       `  <div role="combobox" class="outline-none"></div>`,
       `</div>`,

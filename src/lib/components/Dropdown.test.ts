@@ -90,6 +90,20 @@ describe('the menu keyboard contract', () => {
     expect(document.activeElement).toBe(menuItems(container)[0]);
   });
 
+  it('fills the focused row the way the pointer fills it', async () => {
+    // A ring alone drew the row the keyboard is on as a box round the text,
+    // unlike every hovered row. Each row fills in its own tint for both.
+    const { container } = render(Dropdown, { props: { items, trigger: liveTrigger } });
+    await openMenu(container);
+    const [plain, danger] = menuItems(container).map((el) => el.className.split(/\s+/));
+    expect(plain).toEqual(
+      expect.arrayContaining(['hover:bg-surface-2', 'focus-visible:bg-surface-2']),
+    );
+    expect(danger).toEqual(
+      expect.arrayContaining(['hover:bg-danger/10', 'focus-visible:bg-danger/10']),
+    );
+  });
+
   it('opens on ArrowDown at the first item', async () => {
     const { container } = render(Dropdown, { props: { items, trigger: liveTrigger } });
     await fireEvent.keyDown(container.querySelector('button') as HTMLButtonElement, {

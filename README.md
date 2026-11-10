@@ -199,6 +199,12 @@ html[data-theme='light'] {
 }
 ```
 
+Focus rings, the focus outline and a focused field's border draw in
+`brand-deep`, through the `focus` color (`ring-focus`, `outline-focus`,
+`border-focus`). Set all three brand tokens, or the rings keep the kit's
+color beside your brand. The color is read where each control sits, so a
+wrapper that sets its own brand tokens recolors the rings inside it too.
+
 A page that names `system` takes its light palette from a copy of that rule
 inside `@media (prefers-color-scheme: light)`, so its light overrides go there
 too:

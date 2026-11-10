@@ -234,7 +234,7 @@ describe('PageShell', () => {
       expect(cls).toContain('hover:text-fg');
       expect(cls).toContain('outline-none');
       expect(cls).toContain('focus-visible:ring-2');
-      expect(cls).toContain('focus-visible:ring-brand');
+      expect(cls).toContain('focus-visible:ring-focus');
       expect(cls).toMatch(/transition-colors(?!\s+duration-)/);
       expect(cls).not.toMatch(/#[0-9a-f]{3,6}/i);
     });

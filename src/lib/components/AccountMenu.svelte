@@ -126,7 +126,7 @@
        trigger keeps its hover fill, so the panel reads as coming from it. -->
   <summary
     aria-label="{name}, account menu"
-    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 [[open]>&]:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+    class="{TOUCH_GROW} flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 outline-none transition-colors hover:bg-surface-2 [[open]>&]:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
   >
     <span
       class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold {AVATAR_TONE[

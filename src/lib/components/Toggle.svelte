@@ -125,7 +125,7 @@
     {disabled}
     onclick={handleClick}
     class="{HIT_AREA} shrink-0 rounded-full border transition-colors outline-none
-      focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1
+      focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-1
       focus-visible:ring-offset-ink mt-0.5
       {track[size]}
       {checked ? (assist.suggested ? trackPaint.suggested : trackPaint.on) : trackPaint.off}"

@@ -185,7 +185,7 @@ describe('FormAssist', () => {
     expect(screen.getByRole('button', { name: 'Accept the suggestion for Name' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Reject the suggestion for Role' })).toBeTruthy();
     expect(input('name').className).toContain('border-violet');
-    expect(input('name').className).not.toContain('focus:border-brand');
+    expect(input('name').className).not.toContain('focus:border-focus');
     // The tag stays out of the name a voice-control user speaks.
     expect(screen.getByRole('textbox', { name: 'Name' })).toBe(input('name'));
   });

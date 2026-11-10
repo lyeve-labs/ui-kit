@@ -78,11 +78,14 @@ describe('panel class strings', () => {
 });
 
 describe('the surface', () => {
-  it('draws a boundary that clears 3:1', () => {
-    // All four panels used border-line, which reads 1.25:1 and was the only
-    // thing separating the panel from the content under it.
-    expect(hasAll(PANEL_SURFACE, 'border-line-strong')).toBe(true);
-    expect(PANEL_SURFACE).not.toMatch(/border-line(?!-strong)/);
+  it('draws the border every other floating surface draws, lifted by its shadow and lit edge', () => {
+    // line-strong drew a gray frame round every menu and listbox, harder than
+    // the account menu, the dialog and the card beside them, and it buried the
+    // top highlight. The shadow and the highlight set the panel apart now.
+    expect(hasAll(PANEL_SURFACE, 'border-line')).toBe(true);
+    expect(PANEL_SURFACE).not.toMatch(/border-line-strong/);
+    expect(hasAll(PANEL_SURFACE, 'shadow-popover')).toBe(true);
+    expect(hasAll(PANEL_SURFACE, 'inset-shadow-highlight')).toBe(true);
   });
 
   it('clips its rows to its rounded shape', () => {
@@ -119,6 +122,12 @@ describe('the rows inside the frame', () => {
     expect(hasAll(PANEL_LIST, 'px-1')).toBe(true);
     expect(hasAll(PANEL_OPTION, 'rounded-lg')).toBe(true);
     expect(hasAll(PANEL_OPTION_ACTIVE, 'ring-inset')).toBe(true);
+  });
+
+  it('marks the row the keyboard is on in the focus color', () => {
+    // The active row is where focus is in a list whose input holds DOM focus,
+    // so it draws the focus ring's color rather than full brand.
+    expect(hasAll(PANEL_OPTION_ACTIVE, 'ring-focus')).toBe(true);
   });
 
   it('keeps the heading and the empty line flush with row text', () => {

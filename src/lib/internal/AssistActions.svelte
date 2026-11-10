@@ -26,7 +26,7 @@
   const button =
     `${TOUCH_GROW} flex size-6.75 items-center justify-center rounded-md text-muted ` +
     'outline-none transition-colors hover:bg-surface-2 hover:text-fg ' +
-    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
   async function act(event: MouseEvent, run: () => void) {
     const wrap = (event.currentTarget as HTMLElement).closest('[data-field], [role="group"]');

@@ -104,14 +104,14 @@ describe('AccountMenuItem', () => {
     }
   });
 
-  it('draws the inset brand ring where it turns the outline off', () => {
+  it('draws the inset focus ring where it turns the outline off', () => {
     const { getByRole } = render(AccountMenuItem, { props: { children: label('Row') } });
     const classes = getByRole('button').className.split(/\s+/);
     for (const c of [
       'outline-none',
       'focus-visible:ring-2',
       'focus-visible:ring-inset',
-      'focus-visible:ring-brand',
+      'focus-visible:ring-focus',
     ]) {
       expect(classes).toContain(c);
     }

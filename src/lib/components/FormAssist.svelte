@@ -77,7 +77,7 @@
     <div
       bind:this={bar}
       tabindex="-1"
-      class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-violet/45 bg-violet/8 py-2 ps-3 pe-2 text-sm text-fg outline-none focus-visible:ring-2 focus-visible:ring-brand"
+      class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-violet/45 bg-violet/8 py-2 ps-3 pe-2 text-sm text-fg outline-none focus-visible:ring-2 focus-visible:ring-focus"
     >
       <Sparkles size={16} class="shrink-0 text-violet" aria-hidden="true" />
       <p class="min-w-0 flex-1">{form.held ? heldSentence(count) : suggestsSentence(count)}</p>

@@ -28,7 +28,7 @@
     type="button"
     onclick={onclose}
     class="{HIT_AREA} -m-1 shrink-0 rounded p-1 text-faint transition-colors hover:text-fg
-           outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+           outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
     aria-label="Close"
   >
     <X size={16} aria-hidden="true" />

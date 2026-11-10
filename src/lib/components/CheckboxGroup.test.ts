@@ -29,7 +29,7 @@ const code = source
 const FOCUS = [
   'peer-focus-visible:outline',
   'peer-focus-visible:outline-2',
-  'peer-focus-visible:outline-brand',
+  'peer-focus-visible:outline-focus',
   'peer-focus-visible:outline-offset-2',
 ];
 
