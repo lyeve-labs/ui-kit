@@ -68,6 +68,18 @@ describe('Select: never the native element', () => {
     expect(trigger(container).className).toContain('border-danger');
   });
 
+  it('rests the trigger on the soft line border and firms it under the pointer', () => {
+    // The value and the chevron identify the trigger, the chevron at 4.6:1 or
+    // better, so its border is not the only mark of the control and takes the
+    // card's soft line. line-strong drew a gray frame round every select.
+    const { container } = render(Select, { props: { options: PLANS } });
+    const classes = trigger(container).className.split(/\s+/);
+    expect(classes).toContain('border-line');
+    expect(classes).not.toContain('border-line-strong');
+    expect(classes).toContain('hover:border-line-strong');
+    expect(classes).toContain('focus:border-focus');
+  });
+
   it('disables the trigger and the submitted value together', () => {
     const { container } = render(Select, {
       props: { name: 'plan', options: PLANS, disabled: true },

@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The secondary and outline `Button` variants and the `Select` trigger draw the soft `line` border a `Card` draws instead of `line-strong`. A button's label and a select's value and chevron identify the control, so the border does not have to. The `Select` trigger firms to `line-strong` under the pointer. Text fields, checkboxes, radios, toggles and `SegmentedControl` keep `line-strong`, because their border is what marks them.
+
 ## [0.57.0] - 2026-11-10
 
 ### Added
