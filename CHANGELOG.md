@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- A focused field shows focus by its border alone, which turns the focus color at its own 1px. The 1px ring inside it made a 2px edge, heavier than the 1px edge of a highlighted option in a list. A field in error or holding a suggestion keeps its red or violet border, so it still adds a 1px ring in that color inside the border while it has focus. This holds for `Input`, `Textarea`, `PasswordInput`, `SearchInput`, `NumberInput`, `Select`, `Autocomplete`, `DatePicker`, `ColorField`, `MultiSelect`, `CopyField` and the search box at the top of a list.
+
 ## [0.60.0] - 2026-11-10
 
 ### Changed
