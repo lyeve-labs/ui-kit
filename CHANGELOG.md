@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The panels of `Dropdown`, `Select`, `Autocomplete`, `MultiSelect` and `DatePicker` draw the soft `line` border that `AccountMenu`, `Modal` and `Card` draw. The shadow and the lit top edge set them apart from the page.
+- Scroll bars take the palette's colors.
 
 ## [0.56.0] - 2026-11-09
 

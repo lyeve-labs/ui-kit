@@ -901,6 +901,17 @@ html[data-theme='light'] {
   }
 
   /*
+   * A scroll bar in the palette. Left to the browser, a listbox or a side
+   * panel on a desktop that draws classic bars showed a gray bar with arrow
+   * buttons that matched no surface round it. scrollbar-color is inherited,
+   * so this one rule reaches every box on the page. A forced colors scheme
+   * draws its own.
+   */
+  html {
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  /*
    * SC 1.4.11 puts a 3:1 floor on the focus indicator. Mixing brand down to
    * 60% alpha left it at 2.39:1 on the light palette, so the one affordance a
    * keyboard user has for locating themselves was the element that failed.
