@@ -130,7 +130,7 @@ export const PANEL_EMPTY = 'px-2 py-2 text-sm text-faint';
 
 /** The search box at the top of a Select or MultiSelect panel. */
 export const PANEL_SEARCH =
-  'w-full rounded-md border border-line hover:border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-focus focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-focus';
+  'w-full rounded-md border border-line hover:border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-focus';
 
 /**
  * A group heading inside the list. Not focusable, so it takes no row classes,

@@ -54,14 +54,14 @@ export const FIELD_ERROR = 'text-xs text-danger';
 const CONTROL_DEPTH = 'inset-shadow-well';
 
 /**
- * The second pixel of a focused field's edge. The border turns the focus
- * color and this inset ring repeats it just inside, so focus reads as one
- * 2px edge in one color. A 2px ring at half strength inside the border read
- * as two lines, one inside the other. The ring's color comes from
- * controlBorder with the border's, so a field in error or holding a
- * suggestion keeps its own color while it has focus. It appears with the
- * border rather than easing in, because a focus indicator that fades is late
- * for the key press that moved it.
+ * The focus mark of a field whose border cannot turn the focus color: a field
+ * in error keeps its red border and one holding a suggestion its violet, so a
+ * 1px inset ring in that color repeats the border while it has focus. A field
+ * in neither state draws no ring. Its border turning the focus color is the
+ * whole indicator, one 1px edge, as on a highlighted option in a list, and a
+ * second pixel inside it read as a heavier edge than the select beside it.
+ * The ring appears with the border rather than easing in, because a focus
+ * indicator that fades is late for the key press that moved it.
  */
 export const CONTROL_FOCUS_RING = 'focus-visible:ring-1 focus-visible:ring-inset';
 
@@ -73,21 +73,21 @@ export const CONTROL_FOCUS_RING = 'focus-visible:ring-1 focus-visible:ring-inset
  * MultiSelect chip well) use `CONTROL_MULTILINE` instead and keep the token as
  * a minimum.
  *
- * `outline-none` is paired with CONTROL_FOCUS_RING, because a utility beats the
- * global `:focus-visible` outline in theme.css and would otherwise leave focus
- * as a 1px border-color change.
+ * `outline-none` turns off the global `:focus-visible` outline in theme.css,
+ * so a field shows focus by its border alone, which controlBorder turns the
+ * focus color.
  */
 export const CONTROL_BASE =
   'w-full h-control rounded-lg bg-surface-2 border px-3 text-sm text-fg ' +
   'placeholder:text-faint transition-colors outline-none ' +
-  `${CONTROL_DEPTH} ${CONTROL_FOCUS_RING} ` +
+  `${CONTROL_DEPTH} ` +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /** As CONTROL_BASE, for controls whose height is driven by their content. */
 export const CONTROL_MULTILINE =
   'w-full min-h-control rounded-lg bg-surface-2 border px-3 py-2 text-sm text-fg ' +
   'placeholder:text-faint transition-colors outline-none ' +
-  `${CONTROL_DEPTH} ${CONTROL_FOCUS_RING} ` +
+  `${CONTROL_DEPTH} ` +
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /**
@@ -98,21 +98,21 @@ export const CONTROL_MULTILINE =
  * placeholder or value mark it, and line-strong drew a gray frame round every
  * field on the navy grounds. Focus moves the border to the focus color, at
  * full strength, because a focus border at reduced alpha reads as a weaker
- * focus for no reason a user could infer. Each branch also colors the
- * CONTROL_FOCUS_RING inside it, so the focused edge is 2px of one color in
- * every state, red in error and violet while a suggestion stands.
+ * focus for no reason a user could infer. A field in error stays red and one
+ * holding a suggestion stays violet, so those two branches add
+ * CONTROL_FOCUS_RING in their own color to mark the focus.
  *
  * hover comes before focus in the order Tailwind emits variants, so a
  * focused field under the pointer keeps its focus border.
  */
 export function controlBorder(error: boolean, suggested = false): string {
-  if (error) return 'border-danger focus:border-danger focus-visible:ring-danger';
+  if (error)
+    return `border-danger focus:border-danger ${CONTROL_FOCUS_RING} focus-visible:ring-danger`;
   return suggested ? ASSIST_BORDER : CONTROL_EDGE;
 }
 
 /** The resting, hovered and focused border of a field that takes focus itself. */
-const CONTROL_EDGE =
-  'border-line hover:border-line-strong focus:border-focus focus-visible:ring-focus';
+const CONTROL_EDGE = 'border-line hover:border-line-strong focus:border-focus';
 
 /**
  * The hover border of a frame that holds the focusable part, such as a
@@ -127,7 +127,7 @@ export const FRAME_HOVER = 'hover:not-focus-within:border-line-strong';
  * resting border and the focus border, so the mark stays while the
  * person works in the field and leaves only when they decide it.
  */
-const ASSIST_BORDER = 'border-violet focus:border-violet focus-visible:ring-violet';
+const ASSIST_BORDER = `border-violet focus:border-violet ${CONTROL_FOCUS_RING} focus-visible:ring-violet`;
 
 /**
  * The field wrapper while it holds a suggestion: a dashed violet rule down

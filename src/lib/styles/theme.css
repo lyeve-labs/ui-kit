@@ -150,8 +150,9 @@
   --shadow-card: 0 1px 2px 0 var(--color-shade), 0 8px 24px -12px var(--color-shade);
   --shadow-popover: 0 4px 8px -2px var(--color-shade), 0 16px 32px -8px var(--color-shade);
   --shadow-overlay: 0 12px 24px -6px var(--color-shade), 0 32px 64px -16px var(--color-shade);
-  /* No control in the kit draws a glow: focus is the 2px outline or ring
-   * alone, and the primary button sits on the raised shadow in every state.
+  /* No control in the kit draws a glow: focus is a field's border, or the
+   * 2px outline or ring alone, and the primary button sits on the raised
+   * shadow in every state.
    * These stay defined because a consumer may read them, and the two primary
    * ones hold the raised value so nothing that reads them paints a pool of
    * light. */
@@ -828,13 +829,13 @@ html[data-theme='light'] {
   }
 
   /*
-   * A field, a menu row and a nav row show focus with a ring, and a ring is a
-   * box shadow, which a forced colors scheme removes. The reader was left with
-   * no focus indicator on exactly the controls typed into. An outline in the
-   * system highlight takes its place. Unlayered, so it wins over the
-   * outline-none those controls carry. A control that draws its ring inset
-   * does so because a scrolling box would clip anything outside it, so its
-   * outline sits inside too.
+   * A field shows focus by its border's color, which a forced colors scheme
+   * replaces with its own, and a menu row and a nav row by a ring, a box
+   * shadow the scheme removes. The reader was left with no focus indicator on
+   * exactly the controls typed into. An outline in the system highlight takes
+   * its place. Unlayered, so it wins over the outline-none those controls
+   * carry. A control that draws its ring inset does so because a scrolling
+   * box would clip anything outside it, so its outline sits inside too.
    */
   :focus-visible {
     outline: 2px solid Highlight;
