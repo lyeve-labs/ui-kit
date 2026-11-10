@@ -15,15 +15,15 @@ function input(container: HTMLElement): HTMLInputElement {
 }
 
 describe('FileInput', () => {
-  it('draws the focus ring on the drop target, since the input itself is sr-only', () => {
+  it('shows focus on the drop target as one solid edge, since the input itself is sr-only', () => {
+    // A ring beside the dashed border read as a second outline.
     const { container } = render(FileInput, { props: { id: 'f', label: 'Logo' } });
     const input = container.querySelector('input[type="file"]');
     expect(input?.classList).toContain('sr-only');
     const target = input?.closest('label');
-    expect(target?.classList).toContain('has-[input:focus-visible]:ring-2');
-    expect(target?.classList).toContain('has-[input:focus-visible]:ring-focus/50');
+    expect(target?.classList).toContain('has-[input:focus-visible]:border-solid');
     expect(target?.classList).toContain('has-[input:focus-visible]:border-focus');
-    expect(target?.classList).not.toContain('has-[input:focus-visible]:ring-focus');
+    expect([...(target?.classList ?? [])].filter((c) => c.includes('ring'))).toEqual([]);
   });
 
   it('renders the upload prompt', () => {
