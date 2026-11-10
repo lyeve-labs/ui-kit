@@ -328,7 +328,7 @@
                   <span
                     class={cn(
                       'pointer-events-none mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-xs border transition-colors',
-                      on ? 'border-brand bg-brand text-ink' : 'border-line-strong bg-surface-2',
+                      on ? 'border-brand bg-brand text-ink' : 'border-line-strong/60 bg-surface-2',
                     )}
                     aria-hidden="true"
                   >

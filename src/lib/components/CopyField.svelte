@@ -112,8 +112,8 @@
        those boxes stay where they are. -->
   <div
     class="flex w-full gap-0.5 coarse:gap-4.25 rounded-lg border bg-surface-2 pe-1 transition-colors border-line {FRAME_HOVER} {wrapped
-      ? 'min-h-control items-start py-1 has-[textarea:focus]:border-focus has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-inset has-[textarea:focus-visible]:ring-focus/50'
-      : 'h-control items-center has-[input:focus]:border-focus has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-inset has-[input:focus-visible]:ring-focus/50'}"
+      ? 'min-h-control items-start py-1 has-[textarea:focus]:border-focus has-[textarea:focus-visible]:ring-1 has-[textarea:focus-visible]:ring-inset has-[textarea:focus-visible]:ring-focus'
+      : 'h-control items-center has-[input:focus]:border-focus has-[input:focus-visible]:ring-1 has-[input:focus-visible]:ring-inset has-[input:focus-visible]:ring-focus'}"
   >
     {#if wrapped}
       <!-- An input holds one line, so the wrapped value is a read-only

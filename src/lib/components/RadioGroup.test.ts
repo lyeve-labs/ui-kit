@@ -102,15 +102,15 @@ describe('RadioGroup', () => {
     }
   });
 
-  it('rests an unselected ring on line-strong and never on line', () => {
-    // The group drew its circle with border-line, at 1.25:1 against the page,
-    // where Radio and Checkbox had already moved to line-strong. The border is
+  it('rests an unselected ring on line-strong at 60% and never on line', () => {
+    // The group drew its circle with border-line, at 1.15:1 on the ring's
+    // fill, where Radio and Checkbox had already moved off it. The border is
     // the only thing marking an empty option as a control.
     const { container } = render(RadioGroup, {
       props: { label: 'Plan', options, value: 'free' },
     });
     for (const input of inputs(container).filter((i) => !i.checked)) {
-      expect(classes(box(input))).toContain('border-line-strong');
+      expect(classes(box(input))).toContain('border-line-strong/60');
       expect(classes(box(input))).not.toContain('border-line');
     }
   });
