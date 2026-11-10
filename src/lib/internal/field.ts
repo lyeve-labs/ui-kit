@@ -106,6 +106,18 @@ export function controlBorder(error: boolean, suggested = false): string {
 }
 
 /**
+ * The border of a trigger that opens a list, such as a Select. Its value and
+ * its chevron identify it, the chevron at 4.6:1 or better, so the border is
+ * not the only mark of the control and rests on the soft line a card draws.
+ * It firms to line-strong under the pointer. A text field keeps
+ * controlBorder, because its box is the only thing that marks it.
+ */
+export function triggerBorder(error: boolean, suggested = false): string {
+  if (error) return 'border-danger focus:border-danger';
+  return suggested ? ASSIST_BORDER : 'border-line hover:border-line-strong focus:border-focus';
+}
+
+/**
  * A control holding a value the assistant suggested. Violet replaces both the
  * resting border and the focus border, so the mark stays while the
  * person works in the field and leaves only when they decide it.

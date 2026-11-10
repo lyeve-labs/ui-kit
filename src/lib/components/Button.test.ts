@@ -48,6 +48,15 @@ describe('Button', () => {
     expect(container.querySelector('button')?.className).toContain('bg-surface-2');
   });
 
+  it('draws the secondary and outline borders in the soft line, since the label marks the button', () => {
+    for (const variant of ['secondary', 'outline'] as const) {
+      const { container } = render(Button, { props: { children: text('x'), variant } });
+      const classes = (container.querySelector('button')?.className ?? '').split(/\s+/);
+      expect(classes, variant).toContain('border-line');
+      expect(classes, variant).not.toContain('border-line-strong');
+    }
+  });
+
   it('applies the lg size class', () => {
     const { container } = render(Button, {
       props: { children: text('x'), size: 'lg' },

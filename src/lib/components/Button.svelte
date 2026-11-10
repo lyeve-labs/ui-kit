@@ -103,6 +103,10 @@
    * one, and a filled button drew 2px shorter than a secondary button beside
    * it. The lift starts at the border edge, or its gradient would repeat into
    * the bottom pixel as a light line.
+   *
+   * The secondary and outline borders are the soft line a card draws. The
+   * label marks the button, so SC 1.4.11 asks nothing of its edge, and
+   * line-strong drew a gray frame round every one.
    */
   const variants: Record<Variant, string> = {
     primary:
@@ -110,12 +114,11 @@
       `active:bg-brand-deep inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     violet: `bg-violet text-ink hover:brightness-110 active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     secondary:
-      'bg-surface-2 text-fg border border-line-strong hover:bg-line active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
+      'bg-surface-2 text-fg border border-line hover:bg-line active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
     danger: `bg-danger text-ink hover:brightness-110 active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     ghost:
       'text-muted border border-transparent hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg',
-    outline:
-      'border border-line-strong text-fg hover:border-brand hover:text-brand active:bg-brand/10',
+    outline: 'border border-line text-fg hover:border-brand hover:text-brand active:bg-brand/10',
   };
 
   /*
