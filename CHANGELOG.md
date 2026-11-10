@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The panels of `Dropdown`, `Select`, `Autocomplete`, `MultiSelect` and `DatePicker` draw the soft `line` border that `AccountMenu`, `Modal` and `Card` draw. The shadow and the lit top edge set them apart from the page.
+
 ## [0.56.0] - 2026-11-09
 
 ### Added

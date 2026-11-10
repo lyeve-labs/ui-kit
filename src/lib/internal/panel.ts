@@ -19,9 +19,10 @@
  * inner region in one, on the surface itself in another and nowhere in the
  * other two, so a Dropdown of eighty items runs past the bottom of the window
  * and the last item cannot be reached. Two panels cap their height at max-h-60
- * and two never cap it. All four draw the boundary with border-line, which
- * reads 1.25:1 and is the only thing separating the panel from whatever it
- * happens to float over. The shadow is the one thing they agreed on.
+ * and two never cap it. All four drew the boundary with border-line under a
+ * flat shadow-2xl, so on a dark page the 1.25:1 edge was all that set the
+ * panel apart from whatever it floated over. The shadow was the one thing
+ * they agreed on.
  *
  * Width stays at the call site: a menu sized to its trigger and a calendar
  * sized to seven columns are different requirements. Everything else is here.
@@ -44,8 +45,11 @@ import { TOUCH_GROW } from './touch.js';
 /**
  * The floating surface every popover paints.
  *
- * border-line-strong, not border-line: a panel floating over arbitrary content
- * needs a boundary that clears 3:1, which line does not. It carries the
+ * border-line, the account menu's, the dialog's and the card's border. SC
+ * 1.4.11 asks 3:1 of a boundary only where it is what identifies a control,
+ * and nothing here is: each row is named by its text, the shadow lifts the
+ * panel off the page and the top highlight lights its edge. line-strong drew a
+ * gray frame round every menu and buried that highlight. It carries the
  * resting text color so a row can override it with a single utility.
  *
  * overflow-hidden is a backstop, not the shape: the rows sit inset with
@@ -60,7 +64,7 @@ import { TOUCH_GROW } from './touch.js';
  * as lifted off it rather than as part of it.
  */
 export const PANEL_SURFACE =
-  'absolute z-dropdown overflow-hidden rounded-xl border border-line-strong bg-surface text-fg shadow-popover inset-shadow-highlight';
+  'absolute z-dropdown overflow-hidden rounded-xl border border-line bg-surface text-fg shadow-popover inset-shadow-highlight';
 
 /**
  * The scrolling region inside it.
