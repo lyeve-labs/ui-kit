@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Every field rests on the soft `line` border a `Card` and a `Button` draw and firms to `line-strong` under the pointer: `Input`, `Textarea`, `SearchInput`, `PasswordInput`, `NumberInput` with its steppers, `Select`, `Autocomplete`, `MultiSelect`, `DatePicker`, `TimePicker`, `ColorField`, `CopyField`, the `FileInput` drop zone and the search box inside a list panel. Focus still moves the border to the focus color. A frame focused through a part inside it keeps its focus border under the pointer. Checkboxes, radios and toggles keep `line-strong`, because an empty one has nothing else to mark it.
+- The chosen `SegmentedControl` segment is a brand-tinted fill with brand text, drawn the way the sidebar draws the current page, instead of a raised chip with a thin brand ring. The track rests on `line`.
 
 ### Fixed
 

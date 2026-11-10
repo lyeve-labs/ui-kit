@@ -363,7 +363,7 @@
       ? 'flex max-w-full flex-col'
       : 'inline-flex'} items-stretch rounded-lg border {error
       ? 'border-danger coarse:outline-danger'
-      : 'border-line-strong coarse:outline-line-strong'} bg-surface-2 inset-shadow-well p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {stacked
+      : 'border-line coarse:outline-line'} bg-surface-2 inset-shadow-well p-0.5 coarse:border-0 coarse:p-0.75 coarse:outline coarse:outline-1 coarse:-outline-offset-1 {stacked
       ? ''
       : SIZES[size].row} {disabled ? 'opacity-50' : ''}"
   >
@@ -375,7 +375,7 @@
         SIZES[size].segment +
         (stacked ? ` ${SIZES[size].stack}` : '') +
         (selected
-          ? ' bg-surface text-brand shadow-raised inset-shadow-highlight ring-1 ring-inset ring-brand/40'
+          ? ' bg-brand/12 text-brand'
           : ' text-muted hover:text-fg active:bg-surface active:text-fg')}
       {#snippet content()}
         {#if Icon}

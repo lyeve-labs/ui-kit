@@ -57,3 +57,22 @@ test('a frame focused through its segment keeps the focus border under the point
   await frame.hover();
   await expect.poll(() => frame.evaluate(top)).toBe(FOCUS);
 });
+
+test('the chosen segment is a tinted fill with no edge', async ({ mount, page }) => {
+  await mount(FieldEdgesStory);
+  await styleWithKit(page, 'dark');
+
+  const track = page.getByRole('radiogroup', { name: 'View' });
+  await expect.poll(() => track.evaluate(top)).toBe(LINE);
+  const chosen = page.getByRole('radio', { name: 'List' });
+  // The segment eases its colors, so read them once the transition settles.
+  await expect
+    .poll(() => chosen.evaluate((el) => getComputedStyle(el).color))
+    .toBe('rgb(0, 212, 255)');
+  const paint = await chosen.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { fill: s.backgroundColor, shadow: s.boxShadow };
+  });
+  expect(paint.shadow).toBe('none');
+  expect(paint.fill).not.toBe('rgba(0, 0, 0, 0)');
+});
