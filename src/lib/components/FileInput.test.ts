@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest';
 import FileInput from './FileInput.svelte';
 
 /** The bare divider token, which must never identify a control on its own. */
-const WEAK_BORDER = /border-line(?!-strong)/;
 
 /** The dashed drop target, which is the first label only when there is no field label. */
 function dropzone(container: HTMLElement): HTMLElement {
@@ -99,7 +98,7 @@ describe('FileInput', () => {
     const label = dropzone(container);
 
     const classBefore = label.className;
-    expect(classBefore).toContain('border-line-strong');
+    expect(classBefore.split(/\s+/)).toContain('border-line');
     expect(classBefore).not.toContain('bg-brand/8');
 
     await fireEvent.dragOver(label);
@@ -110,15 +109,14 @@ describe('FileInput', () => {
     await fireEvent.dragLeave(label);
     const classAfter = label.className;
     expect(classAfter).not.toContain('bg-brand/8');
-    expect(classAfter).toContain('border-line-strong');
+    expect(classAfter.split(/\s+/)).toContain('border-line');
   });
 
-  it('rests the dropzone on line-strong, never on the bare divider color', () => {
-    // The dashed border is the only thing identifying this region as a control,
-    // and line reads 1.25:1, so at rest it failed SC 1.4.11.
+  it('rests the dropzone on the soft line every field draws', () => {
     const { container } = render(FileInput, { props: {} });
-    expect(dropzone(container).className).toContain('border-line-strong');
-    expect(dropzone(container).className).not.toMatch(WEAK_BORDER);
+    const tokens = dropzone(container).className.split(/\s+/);
+    expect(tokens).toContain('border-line');
+    expect(tokens).not.toContain('border-line-strong');
   });
 
   it('hovers to full-strength brand, never a focus color at reduced alpha', () => {
@@ -136,7 +134,7 @@ describe('FileInput', () => {
     const { container } = render(FileInput, { props: { error: 'Too big' } });
     const cls = dropzone(container).className;
     expect(cls).toContain('border-danger');
-    expect(cls).not.toContain('border-line-strong');
+    expect(cls.split(/\s+/)).not.toContain('border-line');
   });
 
   it('points aria-describedby at whichever message is on screen', () => {

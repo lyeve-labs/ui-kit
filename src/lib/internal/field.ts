@@ -90,32 +90,33 @@ export const CONTROL_MULTILINE =
   'disabled:opacity-50 disabled:cursor-not-allowed';
 
 /**
- * The border a control carries at rest and on focus.
+ * The border a control carries at rest, under the pointer and on focus.
  *
- * Focus moves the border to full-strength brand. Two controls previously used
- * `border-brand/50`, which reads as a weaker focus for no reason a user could
- * infer, and the error focus was split between `border-danger` and
- * `border-danger/70`.
+ * It rests on line, the soft edge a card and a button draw, and firms to
+ * line-strong under the pointer. The field's label, its fill and its
+ * placeholder or value mark it, and line-strong drew a gray frame round every
+ * field on the navy grounds. Focus moves the border to the focus color, at
+ * full strength, because a focus border at reduced alpha reads as a weaker
+ * focus for no reason a user could infer.
+ *
+ * hover comes before focus in the order Tailwind emits variants, so a
+ * focused field under the pointer keeps its focus border.
  */
 export function controlBorder(error: boolean, suggested = false): string {
-  // line-strong, not line: at 1.25:1 against the page the resting border was
-  // the only thing marking the control and it failed SC 1.4.11. line stays the
-  // divider color, where there is no control to identify.
   if (error) return 'border-danger focus:border-danger';
-  return suggested ? ASSIST_BORDER : 'border-line-strong focus:border-focus';
+  return suggested ? ASSIST_BORDER : CONTROL_EDGE;
 }
 
+/** The resting, hovered and focused border of a field that takes focus itself. */
+const CONTROL_EDGE = 'border-line hover:border-line-strong focus:border-focus';
+
 /**
- * The border of a trigger that opens a list, such as a Select. Its value and
- * its chevron identify it, the chevron at 4.6:1 or better, so the border is
- * not the only mark of the control and rests on the soft line a card draws.
- * It firms to line-strong under the pointer. A text field keeps
- * controlBorder, because its box is the only thing that marks it.
+ * The hover border of a frame that holds the focusable part, such as a
+ * MultiSelect's chip well or a CopyField. Its focus border comes from a
+ * focus-within or has- variant, which Tailwind emits before hover, so the
+ * hover yields while anything inside holds focus.
  */
-export function triggerBorder(error: boolean, suggested = false): string {
-  if (error) return 'border-danger focus:border-danger';
-  return suggested ? ASSIST_BORDER : 'border-line hover:border-line-strong focus:border-focus';
-}
+export const FRAME_HOVER = 'hover:not-focus-within:border-line-strong';
 
 /**
  * A control holding a value the assistant suggested. Violet replaces both the
@@ -177,7 +178,7 @@ export function segmentedBorder(error: boolean, suggested = false): string {
   if (error) return 'border-danger focus-within:border-danger';
   return suggested
     ? 'border-violet focus-within:border-violet'
-    : 'border-line-strong focus-within:border-focus';
+    : `border-line ${FRAME_HOVER} focus-within:border-focus`;
 }
 
 /**

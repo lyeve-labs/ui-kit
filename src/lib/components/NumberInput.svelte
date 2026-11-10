@@ -126,7 +126,7 @@
   // through and read as a dark hole in the control. A disabled control fades
   // as one, from its row.
   const step_ =
-    `${HIT_AREA} flex w-control shrink-0 items-center justify-center border-line-strong bg-surface-2 text-muted coarse:w-8 ` +
+    `${HIT_AREA} flex w-control shrink-0 items-center justify-center border-line group-hover/number:border-line-strong bg-surface-2 text-muted coarse:w-8 ` +
     'transition-colors hover:bg-line hover:text-fg ' +
     'disabled:text-faint disabled:hover:bg-surface-2 disabled:cursor-not-allowed ' +
     'coarse:before:translate-x-0 coarse:before:-translate-y-1/2';
@@ -143,7 +143,7 @@
     {/if}
   </AssistRow>
 
-  <div class="flex h-control{disabled ? ' opacity-50' : ''}">
+  <div class="group/number flex h-control{disabled ? ' opacity-50' : ''}">
     <button
       type="button"
       onclick={dec}
@@ -185,7 +185,9 @@
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none
         [&::-webkit-outer-spin-button]:appearance-none
-        {controlBorder(!!error, assist.suggested)}"
+        {controlBorder(!!error, assist.suggested)}{error || assist.suggested
+        ? ''
+        : ' group-hover/number:border-line-strong'}"
     />
 
     <button
