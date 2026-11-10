@@ -50,22 +50,55 @@
   const GAP = 8;
 
   let anchor = $state({ top: 0, left: 0 });
+  let side = $state<Position>();
 
+  const opposite: Record<Position, Position> = {
+    top: 'bottom',
+    bottom: 'top',
+    left: 'right',
+    right: 'left',
+  };
+
+  /** Keeps `c`, the center of a box of length `size`, `GAP` inside `0..max`. */
+  function clamp(c: number, size: number, max: number) {
+    return Math.max(GAP + size / 2, Math.min(c, max - GAP - size / 2));
+  }
+
+  /**
+   * The asked side wins unless the box does not fit there and does fit on the
+   * opposite one, since a hint centered on a trigger at the window's edge was
+   * cut off. The box is always rendered, so its size can be read before it
+   * shows.
+   */
   function place() {
     const r = wrapper?.getBoundingClientRect();
-    if (!r) return;
-    switch (position) {
+    const box = document.getElementById(id);
+    if (!r || !box) return;
+    const w = box.offsetWidth;
+    const h = box.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const fits: Record<Position, boolean> = {
+      top: r.top - GAP - h >= GAP,
+      bottom: r.bottom + GAP + h <= vh - GAP,
+      left: r.left - GAP - w >= GAP,
+      right: r.right + GAP + w <= vw - GAP,
+    };
+    side = !fits[position] && fits[opposite[position]] ? opposite[position] : position;
+    const x = clamp(r.left + r.width / 2, w, vw);
+    const y = clamp(r.top + r.height / 2, h, vh);
+    switch (side) {
       case 'top':
-        anchor = { top: r.top - GAP, left: r.left + r.width / 2 };
+        anchor = { top: r.top - GAP, left: x };
         break;
       case 'bottom':
-        anchor = { top: r.bottom + GAP, left: r.left + r.width / 2 };
+        anchor = { top: r.bottom + GAP, left: x };
         break;
       case 'left':
-        anchor = { top: r.top + r.height / 2, left: r.left - GAP };
+        anchor = { top: y, left: r.left - GAP };
         break;
       case 'right':
-        anchor = { top: r.top + r.height / 2, left: r.right + GAP };
+        anchor = { top: y, left: r.right + GAP };
         break;
     }
   }
@@ -137,7 +170,7 @@
     role={describe ? 'tooltip' : undefined}
     aria-hidden={describe ? undefined : 'true'}
     style="top: {anchor.top}px; left: {anchor.left}px"
-    class="fixed {pos[position]} z-tooltip w-max max-w-[min(16rem,calc(100vw-2rem))]
+    class="fixed {pos[side ?? position]} z-tooltip w-max max-w-[min(16rem,calc(100vw-2rem))]
       rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs text-fg shadow-popover inset-shadow-highlight
       transition {visible
       ? 'duration-base ease-enter'

@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A `Tooltip` stays inside the browser window. A hint on a trigger near an edge moves along that edge to stay 8px inside it, and a hint with no room on its own side opens on the opposite side when that side has room.
+
 ## [0.58.0] - 2026-11-10
 
 ### Changed
