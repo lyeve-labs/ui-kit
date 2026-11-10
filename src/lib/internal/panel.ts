@@ -91,16 +91,17 @@ export const PANEL_LIST = 'relative max-h-panel-max overflow-y-auto overscroll-c
 export const PANEL_OPTION =
   `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ` +
   'transition-colors outline-none hover:bg-surface-2 ' +
-  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
 /**
  * The active descendant.
  *
  * A tint alone reads 1.09:1 against the panel, which is not a visible state,
- * so the active row also carries an inset brand ring. Inset because the row
- * fills the list's inner width and an outset ring would run into the frame.
+ * so the active row also carries an inset ring in the focus color, the row
+ * being where the keyboard is. Inset because the row fills the list's inner
+ * width and an outset ring would run into the frame.
  */
-export const PANEL_OPTION_ACTIVE = 'bg-surface-2 ring-1 ring-inset ring-brand';
+export const PANEL_OPTION_ACTIVE = 'bg-surface-2 ring-1 ring-inset ring-focus';
 
 /**
  * A row whose value is selected, which is orthogonal to being active.
@@ -129,7 +130,7 @@ export const PANEL_EMPTY = 'px-2 py-2 text-sm text-faint';
 
 /** The search box at the top of a Select or MultiSelect panel. */
 export const PANEL_SEARCH =
-  'w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35';
+  'w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-focus focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus/50';
 
 /**
  * A group heading inside the list. Not focusable, so it takes no row classes,

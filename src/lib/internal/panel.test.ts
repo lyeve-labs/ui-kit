@@ -124,6 +124,12 @@ describe('the rows inside the frame', () => {
     expect(hasAll(PANEL_OPTION_ACTIVE, 'ring-inset')).toBe(true);
   });
 
+  it('marks the row the keyboard is on in the focus color', () => {
+    // The active row is where focus is in a list whose input holds DOM focus,
+    // so it draws the focus ring's color rather than full brand.
+    expect(hasAll(PANEL_OPTION_ACTIVE, 'ring-focus')).toBe(true);
+  });
+
   it('keeps the heading and the empty line flush with row text', () => {
     // The list's inset moved the rows in. A heading at its old padding would
     // hang past the labels under it.

@@ -104,7 +104,7 @@ describe('Checkbox', () => {
     const { container } = render(Checkbox, { props: { ...props, label: 'x' } });
     const box = container.querySelector('input + span') as HTMLElement;
     expect(box.className).toContain('peer-focus-visible:outline');
-    expect(box.className).toContain('peer-focus-visible:outline-brand');
+    expect(box.className).toContain('peer-focus-visible:outline-focus');
     expect(box.className).toContain('peer-focus-visible:outline-offset-2');
   });
 

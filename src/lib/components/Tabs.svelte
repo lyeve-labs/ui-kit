@@ -132,7 +132,7 @@
   const TAB =
     'relative shrink-0 px-4 text-sm font-medium whitespace-nowrap ' +
     'transition-colors outline-none ' +
-    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
   // min-h-control under a finger is the height the buttons and fields beside
   // the strip take there. In a header row the row is already a control tall
   // at every pointer, so a tab takes its height and grows only sideways.

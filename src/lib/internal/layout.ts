@@ -321,7 +321,7 @@ export const APP_SIDEBAR_BAND = 'shrink-0 border-t border-line px-inline py-3';
  * in a box that clips or scrolls, which crops a ring drawn outside the row.
  */
 export const NAV_ROW =
-  'flex w-full items-center gap-2.5 rounded-lg py-2 text-sm text-start transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  'flex w-full items-center gap-2.5 rounded-lg py-2 text-sm text-start transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
 /** A navigation row at rest, which answers the pointer and a held finger. */
 export const NAV_ROW_REST =

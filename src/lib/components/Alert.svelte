@@ -92,7 +92,7 @@
       <button
         type="button"
         onclick={notice.close}
-        class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
         aria-label="Close"
       >
         <X size={16} aria-hidden="true" />

@@ -490,6 +490,23 @@
 }
 
 /*
+ * The focus indicator: every focus ring, focus outline and focused field border
+ * in the kit. Solid brand read 10.43:1 on ink, so a 2px ring round a menu row or
+ * a chosen segment glared brighter than anything else on the screen. brand-deep
+ * reads 5.59:1 on ink and 5.07:1 on surface-2, over the 3:1 SC 1.4.11 asks of
+ * it, and every palette already holds it to 4.5:1 as text, an app's own
+ * included.
+ *
+ * Inline, so ring-focus compiles to var(--color-brand-deep) and each element
+ * reads brand-deep where it stands. A variable set on the root would resolve
+ * there once, and a part of the page that sets its own brand, such as a
+ * tenant's accent on a wrapper, would keep the root's ring.
+ */
+@theme inline {
+  --color-focus: var(--color-brand-deep);
+}
+
+/*
  * Touch targets.
  *
  * Measured over 48 admin routes at 400px: 2,007 of 2,097 visible controls
@@ -912,13 +929,15 @@ html[data-theme='light'] {
   }
 
   /*
-   * SC 1.4.11 puts a 3:1 floor on the focus indicator. Mixing brand down to
-   * 60% alpha left it at 2.39:1 on the light palette, so the one affordance a
-   * keyboard user has for locating themselves was the element that failed.
-   * Solid brand reads 9.85:1 on dark and 7.70:1 on light.
+   * SC 1.4.11 puts a 3:1 floor on the focus indicator. A transparent mix of
+   * brand at 60% left it at 2.39:1 on the light palette, so the one affordance
+   * a keyboard user has for locating themselves was the element that failed.
+   * The outline is brand-deep, the focus token's color, solid in each palette
+   * instead: 5.07:1 or better on dark and 8.55:1 or better on light. It names
+   * brand-deep itself so it resolves on the focused element.
    */
   :focus-visible {
-    outline: 2px solid var(--color-brand);
+    outline: 2px solid var(--color-brand-deep);
     outline-offset: 2px;
   }
 

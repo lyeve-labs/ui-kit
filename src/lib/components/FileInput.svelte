@@ -93,12 +93,12 @@
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
       border-2 border-dashed px-4 py-8 text-center transition-colors
-      has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand/35
+      has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus/50
       {error
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver
         ? 'border-brand bg-brand/8'
-        : 'border-line-strong bg-surface-2/40 hover:border-brand hover:bg-brand/5 has-[input:focus-visible]:border-brand'}
+        : 'border-line-strong bg-surface-2/40 hover:border-brand hover:bg-brand/5 has-[input:focus-visible]:border-focus'}
       {disabled ? 'cursor-not-allowed opacity-50' : ''}"
     ondragover={(e) => {
       e.preventDefault();

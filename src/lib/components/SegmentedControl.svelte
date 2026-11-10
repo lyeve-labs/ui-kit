@@ -371,7 +371,7 @@
       {@const selected = option.value === value}
       {@const Icon = option.icon}
       {@const segment =
-        `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center whitespace-nowrap rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed ` +
+        `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center whitespace-nowrap rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus disabled:cursor-not-allowed ` +
         SIZES[size].segment +
         (stacked ? ` ${SIZES[size].stack}` : '') +
         (selected

@@ -354,7 +354,7 @@ describe('SegmentedControl presentation', () => {
       const classes = segment.className.split(/\s+/);
       expect(classes, segment.textContent ?? '').toContain('focus-visible:ring-2');
       expect(classes).toContain('focus-visible:ring-inset');
-      expect(classes).toContain('focus-visible:ring-brand');
+      expect(classes).toContain('focus-visible:ring-focus');
     }
   });
 });

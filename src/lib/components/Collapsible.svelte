@@ -76,7 +76,7 @@
     onclick={toggle}
     class="{TOUCH_GROW} flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm font-medium
       text-fg transition-colors outline-none focus-visible:ring-2
-      focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-not-allowed
+      focus-visible:ring-inset focus-visible:ring-focus disabled:cursor-not-allowed
       disabled:opacity-50 {disabled ? '' : 'hover:bg-surface-2'}"
   >
     <!-- The chevron points along the axis the content moves on: right while the

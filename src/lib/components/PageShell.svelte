@@ -145,7 +145,7 @@
   const BACK =
     `${HIT_AREA} -ms-1 inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs text-muted ` +
     'outline-none transition-colors hover:text-fg ' +
-    'focus-visible:ring-2 focus-visible:ring-brand';
+    'focus-visible:ring-2 focus-visible:ring-focus';
 </script>
 
 <svelte:head>

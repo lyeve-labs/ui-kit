@@ -271,7 +271,7 @@
       aria-selected={selected === node.id}
       aria-checked={checkable ? ariaChecked(state) : undefined}
       aria-disabled={node.disabled ? 'true' : undefined}
-      class="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+      class="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
       onclick={(e) => onRowClick(e, node)}
       onkeydown={(e) => onRowKeydown(e, node, parentId)}
       onfocus={() => (activeId = node.id)}

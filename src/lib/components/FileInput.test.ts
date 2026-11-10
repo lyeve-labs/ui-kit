@@ -22,9 +22,9 @@ describe('FileInput', () => {
     expect(input?.classList).toContain('sr-only');
     const target = input?.closest('label');
     expect(target?.classList).toContain('has-[input:focus-visible]:ring-2');
-    expect(target?.classList).toContain('has-[input:focus-visible]:ring-brand/35');
-    expect(target?.classList).toContain('has-[input:focus-visible]:border-brand');
-    expect(target?.classList).not.toContain('has-[input:focus-visible]:ring-brand');
+    expect(target?.classList).toContain('has-[input:focus-visible]:ring-focus/50');
+    expect(target?.classList).toContain('has-[input:focus-visible]:border-focus');
+    expect(target?.classList).not.toContain('has-[input:focus-visible]:ring-focus');
   });
 
   it('renders the upload prompt', () => {

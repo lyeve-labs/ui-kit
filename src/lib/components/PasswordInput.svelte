@@ -144,7 +144,7 @@
         aria-pressed={revealed}
         aria-controls={fieldId}
         aria-label={revealed ? 'Hide password' : 'Show password'}
-        class="{HIT_AREA_POSITIONED} absolute top-1/2 end-1 flex size-6.75 -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA_POSITIONED} absolute top-1/2 end-1 flex size-6.75 -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
       >
         {#if revealed}
           <EyeOff size={14} aria-hidden="true" />

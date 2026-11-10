@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A `focus` color, the one color for every focus ring, focus outline and focused field border, used as `ring-focus`, `outline-focus` and `border-focus`. It is `brand-deep` wherever the control sits, so a part of a page that sets its own brand draws its rings in that brand.
+
 ### Changed
 
+- Focus rings, the focus outline and a focused field's border draw in `brand-deep` instead of `brand`. In the dark palette a ring reads 5.59:1 on the page instead of 10.43:1, so a ring round a menu row or a chosen segment no longer outshines everything else on the screen, and it still clears 3:1 on every surface. A field's inner ring is the same color at half strength. A theme that sets `brand` also sets `brand-deep`, or its rings keep the kit's color.
+- The row the keyboard is on in a `Dropdown` fills like a hovered row under its ring.
 - The panels of `Dropdown`, `Select`, `Autocomplete`, `MultiSelect` and `DatePicker` draw the soft `line` border that `AccountMenu`, `Modal` and `Card` draw. The shadow and the lit top edge set them apart from the page.
 - Scroll bars take the palette's colors.
+- `checkPalette` reports a focus ring problem under `brand-deep`, the color the ring is drawn in, where it reported `brand`.
 
 ## [0.56.0] - 2026-11-09
 

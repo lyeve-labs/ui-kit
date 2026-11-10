@@ -374,7 +374,7 @@
   <a
     href="#content"
     data-print="hide"
-    class="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-skip-link focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-fg focus:outline-none focus:ring-2 focus:ring-brand"
+    class="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-skip-link focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:text-fg focus:outline-none focus:ring-2 focus:ring-focus"
   >
     Skip to content
   </a>
@@ -461,7 +461,7 @@
                still lines up with the page content below. -->
             <button
               type="button"
-              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
               aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
               aria-expanded={navOpen}
               onclick={() => (navOpen = !navOpen)}
@@ -473,7 +473,7 @@
                the header's first control sits in one place at every width. -->
             <button
               type="button"
-              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
               aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
               aria-expanded={!collapsed}
               onclick={() => (collapsed = !collapsed)}
@@ -593,7 +593,7 @@
         <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
-          class="absolute inset-y-0 start-0 w-2 cursor-col-resize outline-none hover:bg-brand/40 focus-visible:bg-brand/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand {panelDrag
+          class="absolute inset-y-0 start-0 w-2 cursor-col-resize outline-none hover:bg-brand/40 focus-visible:bg-brand/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus {panelDrag
             ? 'bg-brand/40'
             : ''}"
           role="separator"

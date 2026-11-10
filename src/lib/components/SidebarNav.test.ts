@@ -294,7 +294,7 @@ describe('SidebarNav disclosure', () => {
       expect(cls).toContain('outline-none');
       expect(cls).toContain('focus-visible:ring-2');
       expect(cls).toContain('focus-visible:ring-inset');
-      expect(cls).toContain('focus-visible:ring-brand');
+      expect(cls).toContain('focus-visible:ring-focus');
     }
   });
 });
