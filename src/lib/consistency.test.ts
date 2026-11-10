@@ -266,17 +266,19 @@ function matchesSelector(element: MarkupElement, selector: string): boolean {
 }
 
 /**
- * The class text of every element that turns its outline off with no ring
- * to replace it. An element passes on its own focus-visible ring, or on the
- * ring a wrapper draws for it through has-[...:focus-visible]:ring-1 or
- * ring-2, where the wrapper is one of its ancestors and the selector picks it
- * out. A field's ring is 1px inset under a border that turns the same color.
+ * The class text of every element that turns its outline off with nothing to
+ * mark focus in its place. An element passes on its own focus-visible ring or
+ * focus border, on the border controlBorder gives it, or on the ring or border
+ * a wrapper draws for it through has-[...:focus-visible]:ring-1 or ring-2 or
+ * has-[...:focus]:border-focus, where the wrapper is one of its ancestors and
+ * the selector picks it out. A field marks focus by its border turning the
+ * focus color.
  */
-function outlinesWithoutRing(src: string): string[] {
-  const ringFor = (element: MarkupElement): boolean => {
+function outlinesWithoutFocusMark(src: string): string[] {
+  const markedFor = (element: MarkupElement): boolean => {
     for (let up = element.parent; up !== undefined; up = up.parent) {
       for (const [, selector] of classOf(up.tag).matchAll(
-        /has-\[(\S+?):focus-visible\]:ring-[12]\b/g,
+        /has-\[(\S+?):focus(?:-visible)?\]:(?:ring-[12]|border-focus)\b/g,
       )) {
         if (selector.startsWith('>') && up !== element.parent) continue;
         if (matchesSelector(element, selector)) return true;
@@ -287,7 +289,11 @@ function outlinesWithoutRing(src: string): string[] {
   return markupElements(src)
     .map((element) => ({ element, cls: classOf(element.tag).replace(/\s+/g, ' ') }))
     .filter(({ cls }) => /(?<![\w:-])outline-none(?![\w-])/.test(cls))
-    .filter(({ element, cls }) => !/focus-visible:ring-[12]\b/.test(cls) && !ringFor(element))
+    .filter(
+      ({ element, cls }) =>
+        !/focus-visible:ring-[12]\b|(?<![\w-])focus:border-focus\b|controlBorder\(/.test(cls) &&
+        !markedFor(element),
+    )
     .map(({ cls }) => cls);
 }
 
@@ -459,16 +465,15 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
-  it.each(FIELDS)('%s draws a focus ring wherever it turns the outline off', (name) => {
-    // Input, Select's trigger and Textarea draw the focus ring on focus. A
-    // control that writes outline-none and keeps only focus:border-focus
-    // shows a keyboard user a 1px color change, which NumberInput, the
-    // MultiSelect trigger and both panel search boxes did. A field's ring is
-    // 1px inset under its focus border, so the edge is 2px. A ring on a
-    // wrapper, through has-[...:focus-visible], counts for the control inside.
-    // The wrapper's ring counts only for the element it is drawn for: one
+  it.each(FIELDS)('%s marks focus wherever it turns the outline off', (name) => {
+    // A control that writes outline-none has to mark focus some other way. A
+    // field turns its border the focus color, through controlBorder or a
+    // focus:border-focus of its own, and a frame does it for the part inside
+    // it through has-[...:focus]. A ring counts too, and a field in error or
+    // holding a suggestion draws one, because its border keeps its color.
+    // The wrapper's mark counts only for the element it is drawn for: one
     // wrapper ring in a file used to excuse every outline-none in it.
-    expect(outlinesWithoutRing(files.find((x) => x.name === name)!.src)).toEqual([]);
+    expect(outlinesWithoutFocusMark(files.find((x) => x.name === name)!.src)).toEqual([]);
   });
 
   it.each(FIELDS)('%s composes its classes from the shared field contract', (name) => {
@@ -691,12 +696,12 @@ describe('component consistency', () => {
     expect(ariaRequiredRoles(fixture)).toEqual(['button', 'group', 'combobox', 'spinbutton']);
   });
 
-  it('excuses an outline-none only by its own ring or the wrapper drawing one for it', () => {
+  it('excuses an outline-none only by its own mark or the wrapper drawing one for it', () => {
     // The field rule above is a filter, so it passes on a scanner that reads
     // nothing. One wrapper ring per file used to excuse every outline-none in
     // that file, so each bare element below passed.
     const fixture = [
-      `<div class="has-[input:focus]:border-focus has-[input:focus-visible]:ring-2">`,
+      `<div class="has-[input:focus]:border-focus">`,
       `  <input class="outline-none" />`,
       `  <div role="combobox" class="outline-none"></div>`,
       `</div>`,
@@ -706,13 +711,17 @@ describe('component consistency', () => {
       `</div>`,
       `<textarea class="outline-none"></textarea>`,
       `<input class="outline-none focus-visible:ring-2" />`,
+      `<input class="outline-none focus:border-focus" />`,
+      `<input class="outline-none {controlBorder(!!error)}" />`,
+      `<input class="outline-none has-[input:focus]:border-focus" />`,
     ].join('\n');
-    expect(outlinesWithoutRing(fixture)).toEqual([
+    expect(outlinesWithoutFocusMark(fixture)).toEqual([
       'outline-none',
       "open ? 'outline-none' : ''",
       'outline-none',
+      'outline-none has-[input:focus]:border-focus',
     ]);
-    expect(markupElements(fixture).filter((e) => e.parent === undefined)).toHaveLength(5);
+    expect(markupElements(fixture).filter((e) => e.parent === undefined)).toHaveLength(8);
   });
 
   it('reads every lucide import and a class written as an expression', () => {

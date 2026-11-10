@@ -180,7 +180,6 @@
       aria-describedby={describedBy(fieldId, error, hint)}
       class="min-w-0 flex-1 border-y bg-surface-2 text-center text-sm text-fg
         outline-none transition-colors
-        focus-visible:ring-1 focus-visible:ring-inset
         disabled:cursor-not-allowed
         [appearance:textfield]
         [&::-webkit-inner-spin-button]:appearance-none

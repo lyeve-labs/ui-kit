@@ -234,13 +234,12 @@
       onclick={onFrameClick}
       class="relative flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 coarse:gap-x-2 coarse:gap-y-6 rounded-lg
         border bg-surface-2 py-1.5 coarse:py-2.75 ps-2.5 pe-7 text-start text-sm transition-colors
-        has-[[role=combobox]:focus-visible]:ring-1 has-[[role=combobox]:focus-visible]:ring-inset
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
         {error
-        ? 'border-danger has-[[role=combobox]:focus-visible]:ring-danger'
+        ? 'border-danger has-[[role=combobox]:focus-visible]:ring-1 has-[[role=combobox]:focus-visible]:ring-inset has-[[role=combobox]:focus-visible]:ring-danger'
         : assist.suggested
-          ? 'border-violet has-[[role=combobox]:focus]:border-violet has-[[role=combobox]:focus-visible]:ring-violet'
-          : `border-line ${FRAME_HOVER} has-[[role=combobox]:focus]:border-focus has-[[role=combobox]:focus-visible]:ring-focus`}"
+          ? 'border-violet has-[[role=combobox]:focus]:border-violet has-[[role=combobox]:focus-visible]:ring-1 has-[[role=combobox]:focus-visible]:ring-inset has-[[role=combobox]:focus-visible]:ring-violet'
+          : `border-line ${FRAME_HOVER} has-[[role=combobox]:focus]:border-focus`}"
     >
       <!--
         A div and not an input: there is nothing to type here. The labels of

@@ -12,44 +12,59 @@ import {
 } from './field';
 
 // theme.css declares a global :focus-visible outline, chosen for its contrast,
-// and a utility beats the base layer. outline-none without a replacement
-// therefore leaves a control with no focus indicator at all beyond a 1px
-// border-color change, which is what CONTROL_BASE and CONTROL_MULTILINE
-// shipped: every text input, textarea, number and select in the kit.
-// CONTROL_SEGMENT and SidebarNav's buttons already pair the two correctly.
+// and a utility beats the base layer. outline-none therefore hands the focus
+// indicator to whatever the control draws instead. A field draws its border
+// in the focus color, and a segment, which has no border of its own, a ring.
 describe('control bases keep a focus indicator', () => {
-  const bases = { CONTROL_BASE, CONTROL_MULTILINE, CONTROL_SEGMENT };
+  it('CONTROL_SEGMENT pairs outline-none with a focus ring', () => {
+    expect(CONTROL_SEGMENT).toContain('outline-none');
+    expect(CONTROL_SEGMENT).toMatch(/focus-visible:ring-[12](\s|$)/);
+  });
 
-  for (const [name, cls] of Object.entries(bases)) {
-    it(`${name} pairs outline-none with a focus ring`, () => {
-      if (!cls.includes('outline-none')) return;
-      expect(cls, `${name} silences the outline`).toMatch(/focus-visible:ring-[12](\s|$)/);
-    });
-  }
+  it.each([
+    { state: 'at rest', border: controlBorder(false) },
+    { state: 'in error', border: controlBorder(true) },
+    { state: 'holding a suggestion', border: controlBorder(false, true) },
+  ])('marks focus on a field $state', ({ border }) => {
+    // A border that keeps its color on focus marks nothing, so it needs a ring.
+    const rest = border.split(/\s+/)[0].replace('border-', '');
+    const focus = /(?:^|\s)focus:border-(\S+)/.exec(border)?.[1];
+    expect(focus === rest ? /focus-visible:ring-1/.test(border) : focus === 'focus').toBe(true);
+  });
 });
 
-// A focused field showed a brand border with a half-strength ring inside it,
-// which read as two lines, one inside the other. The border turns the focus
-// color and a 1px inset ring repeats it, so focus is one 2px edge in one
-// color, and nothing glows.
+// A focused field drew a 1px inset ring inside its focus border, and that 2px
+// edge read heavier than the select beside it and the highlighted option in
+// its list. The border alone turns the focus color, and nothing glows. A field
+// in error or holding a suggestion keeps its color, so a 1px inset ring in that
+// color marks its focus.
 describe('a focused field', () => {
   const classes = (cls: string) => cls.split(/\s+/);
 
   for (const [name, cls] of Object.entries({ CONTROL_BASE, CONTROL_MULTILINE })) {
-    it(`${name} draws a 1px inset ring and no glow`, () => {
-      expect(classes(cls)).toContain('focus-visible:ring-1');
-      expect(classes(cls)).toContain('focus-visible:ring-inset');
-      expect(cls).not.toMatch(/ring-2|ring-focus\/|shadow-glow/);
+    it(`${name} draws no ring and no glow`, () => {
+      expect(classes(cls).filter((c) => c.includes('ring'))).toEqual([]);
+      expect(cls).not.toMatch(/shadow-glow/);
     });
   }
 
+  it('turns the border of a field at rest the focus color, with no ring', () => {
+    expect(classes(controlBorder(false))).toContain('focus:border-focus');
+    expect(controlBorder(false)).not.toMatch(/ring/);
+  });
+
   it.each([
-    { state: 'at rest', border: controlBorder(false), color: 'focus' },
     { state: 'in error', border: controlBorder(true), color: 'danger' },
     { state: 'holding a suggestion', border: controlBorder(false, true), color: 'violet' },
-  ])('colors the ring as the focused border $state', ({ border, color }) => {
-    expect(classes(border)).toContain(`focus:border-${color}`);
-    expect(classes(border)).toContain(`focus-visible:ring-${color}`);
+  ])('repeats the border of a field $state with a 1px inset ring', ({ border, color }) => {
+    expect(classes(border)).toEqual(
+      expect.arrayContaining([
+        `focus:border-${color}`,
+        'focus-visible:ring-1',
+        'focus-visible:ring-inset',
+        `focus-visible:ring-${color}`,
+      ]),
+    );
   });
 
   it('keeps the focus ring on a segment, where nothing else marks focus', () => {
@@ -105,7 +120,6 @@ describe('field borders', () => {
       'border-line',
       'hover:border-line-strong',
       'focus:border-focus',
-      'focus-visible:ring-focus',
     ]);
     expect(tokens(segmentedBorder(false))).toEqual([
       'border-line',
