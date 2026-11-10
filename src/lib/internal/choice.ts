@@ -56,10 +56,17 @@ const WRAP_CARD = 'flex select-none items-start gap-2.5 rounded-lg border p-3 tr
 export function choiceWrap(variant: ChoiceVariant, checked: boolean, disabled: boolean): string {
   const cursor = disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer';
   if (variant === 'card') {
-    // A selected card is tinted rather than filled: the label sits on it, and
-    // solid brand behind body text drops the contrast below AA.
-    const paint = checked ? 'border-brand bg-brand/8' : 'border-line-strong bg-surface-2';
-    return `${WRAP_CARD} ${paint} ${cursor}`;
+    // A card rests on the soft line a Card draws and firms under the pointer.
+    // A selected card is tinted with no brand edge: the filled box or dot
+    // inside it is the mark, and a full brand border round the card drew the
+    // brightest line on the page. The tint stays at 8%, because the faint
+    // description on a 12% tint falls under 4.5:1 on the light page. It is a
+    // tint rather than a fill because the label sits on it, and solid brand
+    // behind body text drops the contrast below AA. The input covers the
+    // card, so the pointer is over the input and the hover is a peer's.
+    const paint = checked ? 'border-line bg-brand/8' : 'border-line bg-surface-2';
+    const hover = disabled ? '' : ' peer-hover:border-line-strong';
+    return `${WRAP_CARD} ${paint}${hover} ${cursor}`;
   }
   return `${WRAP_INLINE} ${cursor}`;
 }
@@ -81,12 +88,15 @@ const BOX_BASE = 'pointer-events-none flex shrink-0 items-center justify-center 
  * The painted box or circle. Square for a checkbox, round for a radio, sized by
  * ChoiceSize.
  *
- * The resting border is `border-line-strong`. `border-line` reads 1.25:1
- * against the page, and the border is the only thing identifying an empty
- * checkbox as a control, so at that contrast the control is invisible until it
- * is used. A radio keeps a 2px ring because its selected state is a dot inside
- * the ring rather than a fill, and a 1px ring reads as a smudge beside the dot
- * at 14px.
+ * The resting border is `border-line-strong` at 60%, about 2:1 on every
+ * ground in both themes, and it firms to full `line-strong` under the
+ * pointer. Full line-strong drew a gray frame round every box. `border-line`
+ * reads 1.15:1 on the box's own fill, and the border is the only thing that
+ * shows an empty checkbox is there, so at that contrast the box disappears
+ * until it is used. A radio keeps a 2px ring because its selected state is a
+ * dot inside the ring rather than a fill, and a 1px ring reads as a smudge
+ * beside the dot at 14px. In a card the input covers the card, not the box,
+ * so the card's own border firms and the box keeps its resting edge.
  *
  * `mixed` paints exactly what `checked` paints. A part-selected parent is on,
  * not a third state with a color of its own. Only the mark it holds differs.
@@ -110,9 +120,13 @@ export function choiceBox(
       : suggested
         ? 'border-violet bg-violet text-ink'
         : 'border-brand bg-brand text-ink'
-    : 'border-line-strong bg-surface-2';
+    : CHOICE_EDGE;
   return `${BOX_BASE} ${CHOICE_SQUARE[size]} ${shape} ${paint} ${CHOICE_FOCUS}`;
 }
+
+/** The edge of an empty box or ring, which firms under the pointer unless the input is disabled. */
+export const CHOICE_EDGE =
+  'border-line-strong/60 bg-surface-2 peer-enabled:peer-hover:border-line-strong';
 
 /**
  * The focus ring, stated ONCE and outside every checked branch.

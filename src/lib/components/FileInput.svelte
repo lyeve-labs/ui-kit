@@ -87,13 +87,14 @@
        hover is full-strength brand, because a focus-adjacent color dropped to
        half alpha reads as a weaker affordance for no reason a user can infer.
        The input is sr-only, so the ring the browser draws on it lands on a
-       clipped 1px box nobody sees. The drop target draws it instead: its
-       border turns brand, as a field's does, and that border is the
-       indicator that clears 3:1, so the ring beside it is soft. -->
+       clipped 1px box nobody sees. The drop target shows focus on its own
+       edge instead: the dashes close into a solid line in every state, and
+       outside an error the line turns the focus color, as a field's does. A
+       ring beside the dashes read as a second outline. -->
   <label
     class="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl
       border-2 border-dashed px-4 py-8 text-center transition-colors
-      has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus/50
+      has-[input:focus-visible]:border-solid
       {error
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver

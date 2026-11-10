@@ -65,16 +65,17 @@
 
   /*
    * Off, the track is surface-2 and so is the panel most forms sit on, so
-   * without an edge only the knob showed. line-strong is the resting border
-   * a checkbox and a radio draw (see choiceBox) and clears 3:1 against both
-   * surface levels in both themes. A field rests on line, because its label
-   * and its fill mark it, and an empty switch track has neither. On, the border takes the
-   * fill's color so the fill looks as it did and the track keeps one size.
+   * without an edge only the knob showed. It rests on the edge a checkbox
+   * and a radio draw (CHOICE_EDGE in choice.ts), line-strong at 60%, about
+   * 2:1 on every ground, and firms to full line-strong under the pointer. A
+   * field rests on line, because its label and its fill mark it, and an
+   * empty switch track has neither. On, the border takes the fill's color so
+   * the fill looks as it did and the track keeps one size.
    */
   const trackPaint = {
     on: 'border-brand bg-brand',
     suggested: 'border-violet bg-violet',
-    off: 'border-line-strong bg-surface-2',
+    off: 'border-line-strong/60 bg-surface-2 enabled:hover:border-line-strong',
   };
 
   const assist = assistField({

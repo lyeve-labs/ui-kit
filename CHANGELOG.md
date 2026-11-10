@@ -5,6 +5,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- An empty checkbox, radio or toggle rests on `line-strong` at 60%, about 2:1 on every ground, and firms to full `line-strong` under the pointer. Full `line-strong` drew a gray frame round every box. This covers `Checkbox`, `CheckboxGroup`, `RadioGroup`, `Toggle`, the option boxes in `MultiSelect` and the boxes in `PluginCart`.
+- An option card in `Checkbox`, `CheckboxGroup` and `RadioGroup` rests on the soft `line` border and firms to `line-strong` under the pointer. A selected card keeps its brand tint and no longer draws a brand border, so the filled box or dot inside it marks the choice.
+- A focused field draws one 2px edge in one color: the border turns the focus color and a 1px ring just inside repeats it. The 2px half-strength ring inside the border read as a second line. A field in error keeps one red edge while it has focus, where it drew a blue ring inside the red border, and a field holding a suggestion stays violet. This covers every text field, select and autocomplete, `NumberInput`, `MultiSelect`, `CopyField` and the search box inside a list panel.
+- The `FileInput` drop zone shows focus by closing its dashes into a solid line, in the focus color outside an error, with no ring beside it.
+
 ## [0.59.0] - 2026-11-10
 
 ### Changed

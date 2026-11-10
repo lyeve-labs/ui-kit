@@ -66,9 +66,15 @@ describe('choiceBox', () => {
   );
 
   it.each(KINDS.flatMap((kind) => SIZES.map((size) => ({ kind, size }))))(
-    'rests a $size $kind on border-line-strong',
+    'rests a $size $kind on line-strong at 60% and firms it under the pointer',
     ({ kind, size }) => {
-      expect(classes(choiceBox(kind, size, false, false))).toContain('border-line-strong');
+      // Full line-strong drew a gray frame round every box, and line at 1.15:1
+      // on the box's fill hid an empty box until it was used.
+      const box = classes(choiceBox(kind, size, false, false));
+      expect(box).toContain('border-line-strong/60');
+      expect(box).toContain('peer-enabled:peer-hover:border-line-strong');
+      expect(box).not.toContain('border-line');
+      expect(box).not.toContain('border-line-strong');
     },
   );
 
@@ -123,10 +129,28 @@ describe('choiceWrap', () => {
     expect(wrap.filter((c) => c.startsWith('cursor-'))).toEqual(['cursor-not-allowed']);
   });
 
-  it('tints a selected card and borders an unselected one at full strength', () => {
-    expect(classes(choiceWrap('card', true, false))).toContain('border-brand');
-    expect(classes(choiceWrap('card', false, false))).toContain('border-line-strong');
-    expect(classes(choiceWrap('card', false, false))).not.toContain('border-line');
+  it('rests every card on the soft line and tints a selected one with no brand edge', () => {
+    // A brand border round the selected card drew the brightest line on the
+    // page. The filled box or dot inside it is the mark.
+    const selected = classes(choiceWrap('card', true, false));
+    const unselected = classes(choiceWrap('card', false, false));
+    expect(selected).toContain('bg-brand/8');
+    expect(unselected).toContain('bg-surface-2');
+    for (const card of [selected, unselected]) {
+      expect(card).toContain('border-line');
+      expect(card.filter((c) => c.startsWith('border-brand'))).toEqual([]);
+    }
+  });
+
+  it('firms a card under the pointer unless it is disabled', () => {
+    // The input covers the card, so the pointer is over the input and the
+    // card's hover is a peer's.
+    for (const checked of FLAGS) {
+      expect(classes(choiceWrap('card', checked, false))).toContain(
+        'peer-hover:border-line-strong',
+      );
+      expect(choiceWrap('card', checked, true)).not.toContain('hover:');
+    }
   });
 
   it('leaves the inline wrapper unpainted, so it takes the surface behind it', () => {

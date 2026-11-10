@@ -40,10 +40,13 @@
   /* line reads 1.23:1 against surface. That is fine for a divider, which
    * carries no information, and fails SC 1.4.11 for anything whose boundary
    * is the only thing identifying it as a control. Checkboxes, radios and
-   * toggles use line-strong, which clears 3:1 on every surface in the
-   * palette. Fields, selects, buttons and segmented controls rest on line,
-   * because a label, a fill, a value or a chevron identifies each, and they
-   * firm to line-strong under the pointer. */
+   * toggles rest on line-strong at 60%, about 2:1. That is under the 3:1 the
+   * criterion asks, chosen so a page of options draws no gray frame round
+   * every box, and it is the floor: line hides an empty box. They firm to
+   * line-strong, which clears 3:1 on every surface, under the pointer.
+   * Fields, selects, buttons, segmented controls and option cards rest on
+   * line, because a label, a fill, a value or a chevron identifies each, and
+   * they firm to line-strong under the pointer. */
   --color-line-strong: #616d80;
   --color-fg: #e6e8ee;
   --color-muted: #9aa1ad;

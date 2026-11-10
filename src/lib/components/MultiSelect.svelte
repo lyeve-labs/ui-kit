@@ -234,14 +234,13 @@
       onclick={onFrameClick}
       class="relative flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 coarse:gap-x-2 coarse:gap-y-6 rounded-lg
         border bg-surface-2 py-1.5 coarse:py-2.75 ps-2.5 pe-7 text-start text-sm transition-colors
-        has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
-        has-[[role=combobox]:focus-visible]:ring-focus/50
+        has-[[role=combobox]:focus-visible]:ring-1 has-[[role=combobox]:focus-visible]:ring-inset
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
         {error
-        ? 'border-danger'
+        ? 'border-danger has-[[role=combobox]:focus-visible]:ring-danger'
         : assist.suggested
-          ? 'border-violet has-[[role=combobox]:focus]:border-violet'
-          : `border-line ${FRAME_HOVER} has-[[role=combobox]:focus]:border-focus`}"
+          ? 'border-violet has-[[role=combobox]:focus]:border-violet has-[[role=combobox]:focus-visible]:ring-violet'
+          : `border-line ${FRAME_HOVER} has-[[role=combobox]:focus]:border-focus has-[[role=combobox]:focus-visible]:ring-focus`}"
     >
       <!--
         A div and not an input: there is nothing to type here. The labels of
@@ -379,7 +378,7 @@
                   transition-colors
                   {isSelected
                   ? 'border-brand bg-brand text-ink'
-                  : 'border-line-strong bg-surface-2'}"
+                  : 'border-line-strong/60 bg-surface-2'}"
               >
                 {#if isSelected}
                   <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">

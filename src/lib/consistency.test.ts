@@ -266,15 +266,18 @@ function matchesSelector(element: MarkupElement, selector: string): boolean {
 }
 
 /**
- * The class text of every element that turns its outline off with no 2px
- * ring to replace it. An element passes on its own focus-visible ring, or on
- * the ring a wrapper draws for it through has-[...:focus-visible]:ring-2,
- * where the wrapper is one of its ancestors and the selector picks it out.
+ * The class text of every element that turns its outline off with no ring
+ * to replace it. An element passes on its own focus-visible ring, or on the
+ * ring a wrapper draws for it through has-[...:focus-visible]:ring-1 or
+ * ring-2, where the wrapper is one of its ancestors and the selector picks it
+ * out. A field's ring is 1px inset under a border that turns the same color.
  */
 function outlinesWithoutRing(src: string): string[] {
   const ringFor = (element: MarkupElement): boolean => {
     for (let up = element.parent; up !== undefined; up = up.parent) {
-      for (const [, selector] of classOf(up.tag).matchAll(/has-\[(\S+?):focus-visible\]:ring-2/g)) {
+      for (const [, selector] of classOf(up.tag).matchAll(
+        /has-\[(\S+?):focus-visible\]:ring-[12]\b/g,
+      )) {
         if (selector.startsWith('>') && up !== element.parent) continue;
         if (matchesSelector(element, selector)) return true;
       }
@@ -284,7 +287,7 @@ function outlinesWithoutRing(src: string): string[] {
   return markupElements(src)
     .map((element) => ({ element, cls: classOf(element.tag).replace(/\s+/g, ' ') }))
     .filter(({ cls }) => /(?<![\w:-])outline-none(?![\w-])/.test(cls))
-    .filter(({ element, cls }) => !cls.includes('focus-visible:ring-2') && !ringFor(element))
+    .filter(({ element, cls }) => !/focus-visible:ring-[12]\b/.test(cls) && !ringFor(element))
     .map(({ cls }) => cls);
 }
 
@@ -456,11 +459,12 @@ describe('component consistency', () => {
     expect(offenders).toEqual([]);
   });
 
-  it.each(FIELDS)('%s draws the 2px ring wherever it turns the outline off', (name) => {
+  it.each(FIELDS)('%s draws a focus ring wherever it turns the outline off', (name) => {
     // Input, Select's trigger and Textarea draw the focus ring on focus. A
     // control that writes outline-none and keeps only focus:border-focus
     // shows a keyboard user a 1px color change, which NumberInput, the
-    // MultiSelect trigger and both panel search boxes did. A ring on a
+    // MultiSelect trigger and both panel search boxes did. A field's ring is
+    // 1px inset under its focus border, so the edge is 2px. A ring on a
     // wrapper, through has-[...:focus-visible], counts for the control inside.
     // The wrapper's ring counts only for the element it is drawn for: one
     // wrapper ring in a file used to excuse every outline-none in it.
