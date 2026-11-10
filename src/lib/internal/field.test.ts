@@ -5,7 +5,10 @@ import {
   CONTROL_MULTILINE,
   CONTROL_SEGMENT,
   CONTROL_SEGMENTED,
+  FRAME_HOVER,
+  controlBorder,
   countFields,
+  segmentedBorder,
 } from './field';
 
 // theme.css declares a global :focus-visible outline, chosen for its contrast,
@@ -81,5 +84,40 @@ describe('countFields', () => {
   it('counts a field nested in a layout, which is where a form puts its pairs', () => {
     const paired = `<div class="grid">${'<div data-field></div>'.repeat(2)}</div>`;
     expect(countFields(body(paired))).toBe(2);
+  });
+});
+
+describe('field borders', () => {
+  const tokens = (classes: string) => classes.split(/\s+/);
+
+  it('rests every field on the soft line and firms it under the pointer', () => {
+    // line-strong drew a gray frame round every field on the navy grounds.
+    // The label, the fill and the placeholder or value mark the field.
+    expect(tokens(controlBorder(false))).toEqual([
+      'border-line',
+      'hover:border-line-strong',
+      'focus:border-focus',
+    ]);
+    expect(tokens(segmentedBorder(false))).toEqual([
+      'border-line',
+      FRAME_HOVER,
+      'focus-within:border-focus',
+    ]);
+  });
+
+  it('lets a frame focused through its child keep the focus border under the pointer', () => {
+    // focus-within and has- are emitted before hover, so an unconditional
+    // hover would repaint a focused frame gray.
+    expect(FRAME_HOVER).toBe('hover:not-focus-within:border-line-strong');
+  });
+
+  it('keeps the error and the suggestion borders still under the pointer', () => {
+    for (const classes of [
+      controlBorder(true),
+      controlBorder(false, true),
+      segmentedBorder(true),
+      segmentedBorder(false, true),
+    ])
+      expect(classes).not.toContain('hover:');
   });
 });

@@ -4,7 +4,6 @@ import NumberInput from './NumberInput.svelte';
 import { CONTROL_BASE, controlBorder } from '../internal/field.js';
 
 /** The bare divider token, which must never identify a control on its own. */
-const WEAK_BORDER = /border-line(?!-strong)/;
 
 function field(container: HTMLElement): HTMLInputElement {
   return container.querySelector('input[type="number"]') as HTMLInputElement;
@@ -81,14 +80,21 @@ describe('NumberInput', () => {
     }
   });
 
-  it('rests on line-strong, never on the bare divider color', () => {
-    // line reads 1.25:1 and fails SC 1.4.11 wherever the border is the only
-    // thing identifying the control.
+  it('rests the field and both steppers on the soft line and firms them together under the pointer', () => {
+    // The steppers and the number are one control. A hover that firmed only
+    // the part under the pointer drew the frame in two colors.
     const { container, getByLabelText } = render(NumberInput, { props: { value: 1 } });
-    expect(field(container).className).not.toMatch(WEAK_BORDER);
-    expect(getByLabelText('Decrease').className).toContain('border-line-strong');
-    expect(getByLabelText('Decrease').className).not.toMatch(WEAK_BORDER);
-    expect(getByLabelText('Increase').className).not.toMatch(WEAK_BORDER);
+    for (const part of [field(container), getByLabelText('Decrease'), getByLabelText('Increase')]) {
+      const tokens = part.className.split(/\s+/);
+      expect(tokens).toContain('border-line');
+      expect(tokens).not.toContain('border-line-strong');
+      expect(tokens).toContain('group-hover/number:border-line-strong');
+    }
+  });
+
+  it('keeps the error border under the pointer', () => {
+    const { container } = render(NumberInput, { props: { value: 1, error: 'Bad' } });
+    expect(field(container).className).not.toContain('group-hover/number:border-line-strong');
   });
 
   it('never states a focus border at reduced alpha', () => {

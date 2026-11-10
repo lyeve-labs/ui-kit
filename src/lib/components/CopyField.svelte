@@ -33,6 +33,7 @@
     FIELD_HINT,
     FIELD_LABEL,
     FIELD_WRAP,
+    FRAME_HOVER,
     describedBy,
   } from '../internal/field.js';
 
@@ -110,7 +111,7 @@
        hold their 27px around a 14px icon, the rung of the text beside it, so
        those boxes stay where they are. -->
   <div
-    class="flex w-full gap-0.5 coarse:gap-4.25 rounded-lg border bg-surface-2 pe-1 transition-colors border-line-strong {wrapped
+    class="flex w-full gap-0.5 coarse:gap-4.25 rounded-lg border bg-surface-2 pe-1 transition-colors border-line {FRAME_HOVER} {wrapped
       ? 'min-h-control items-start py-1 has-[textarea:focus]:border-focus has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-inset has-[textarea:focus-visible]:ring-focus/50'
       : 'h-control items-center has-[input:focus]:border-focus has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-inset has-[input:focus-visible]:ring-focus/50'}"
   >

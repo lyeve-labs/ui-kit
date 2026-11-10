@@ -82,8 +82,8 @@
     <FieldLabel for={fieldId} text={label} />
   {/if}
 
-  <!-- The dashed border is the only thing marking this region as a control, so
-       it rests on line-strong: line reads 1.25:1 and failed SC 1.4.11. The
+  <!-- The dashed border rests on line, the soft edge every field draws, and
+       the prompt inside names the region. The
        hover is full-strength brand, because a focus-adjacent color dropped to
        half alpha reads as a weaker affordance for no reason a user can infer.
        The input is sr-only, so the ring the browser draws on it lands on a
@@ -98,7 +98,7 @@
       ? 'border-danger bg-danger/5 hover:bg-danger/8'
       : dragOver
         ? 'border-brand bg-brand/8'
-        : 'border-line-strong bg-surface-2/40 hover:border-brand hover:bg-brand/5 has-[input:focus-visible]:border-focus'}
+        : 'border-line bg-surface-2/40 hover:border-brand hover:bg-brand/5 has-[input:focus-visible]:border-focus'}
       {disabled ? 'cursor-not-allowed opacity-50' : ''}"
     ondragover={(e) => {
       e.preventDefault();

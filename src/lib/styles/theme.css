@@ -39,10 +39,11 @@
   --color-line: #192a3d;
   /* line reads 1.23:1 against surface. That is fine for a divider, which
    * carries no information, and fails SC 1.4.11 for anything whose boundary
-   * is the only thing identifying it as a control. Inputs, checkboxes,
-   * radios, toggles and segmented controls use line-strong, which clears 3:1
-   * on every surface in the palette. A button and a select rest on line,
-   * because the label and the chevron identify them. */
+   * is the only thing identifying it as a control. Checkboxes, radios and
+   * toggles use line-strong, which clears 3:1 on every surface in the
+   * palette. Fields, selects, buttons and segmented controls rest on line,
+   * because a label, a fill, a value or a chevron identifies each, and they
+   * firm to line-strong under the pointer. */
   --color-line-strong: #616d80;
   --color-fg: #e6e8ee;
   --color-muted: #9aa1ad;
