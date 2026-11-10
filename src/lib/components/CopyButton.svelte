@@ -47,8 +47,8 @@
    * read as an action of their own, so they take the muted step the kit sets
    * other text actions in, and the padding a word needs around it.
    */
-  const ICON_ONLY = `${HIT_AREA} inline-flex items-center justify-center rounded-md p-1 text-faint outline-none transition-colors hover:text-fg active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand`;
-  const WITH_TEXT = `${HIT_AREA} inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted outline-none transition-colors hover:text-fg active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand`;
+  const ICON_ONLY = `${HIT_AREA} inline-flex items-center justify-center rounded-md p-1 text-faint outline-none transition-colors hover:text-fg active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus`;
+  const WITH_TEXT = `${HIT_AREA} inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted outline-none transition-colors hover:text-fg active:bg-surface-2 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus`;
 
   const copier = new CopyState();
 

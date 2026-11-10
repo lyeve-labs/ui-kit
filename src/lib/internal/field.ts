@@ -54,14 +54,15 @@ export const FIELD_ERROR = 'text-xs text-danger';
 const CONTROL_DEPTH = 'inset-shadow-well';
 
 /**
- * The ring inside a focused field. The brand border is the indicator that
- * clears 3:1, so the ring beside it only has to soften the edge, and at full
- * brand the two together read as 3px of glare. It appears with the border
- * rather than easing in, because a focus indicator that fades is late for the
- * key press that moved it.
+ * The ring inside a focused field. The border in the focus color is the
+ * indicator that clears 3:1, and the ring is the same color at half strength,
+ * so the field reads as focused by its area as well as its edge. Full brand
+ * on both read as 3px of glare. It appears with the border rather than easing
+ * in, because a focus indicator that fades is late for the key press that
+ * moved it.
  */
 export const CONTROL_FOCUS_RING =
-  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35';
+  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus/50';
 
 /**
  * Everything a single-line control needs except its border color.
@@ -101,12 +102,12 @@ export function controlBorder(error: boolean, suggested = false): string {
   // the only thing marking the control and it failed SC 1.4.11. line stays the
   // divider color, where there is no control to identify.
   if (error) return 'border-danger focus:border-danger';
-  return suggested ? ASSIST_BORDER : 'border-line-strong focus:border-brand';
+  return suggested ? ASSIST_BORDER : 'border-line-strong focus:border-focus';
 }
 
 /**
  * A control holding a value the assistant suggested. Violet replaces both the
- * resting border and the brand focus border, so the mark stays while the
+ * resting border and the focus border, so the mark stays while the
  * person works in the field and leaves only when they decide it.
  */
 const ASSIST_BORDER = 'border-violet focus:border-violet';
@@ -151,7 +152,7 @@ export function describedBy(
  * Input placed in the same row still line up.
  *
  * The focus border is driven by `focus-within`. The wrapper is a div, it never
- * receives focus itself, and `focus:border-brand` on it can therefore never
+ * receives focus itself, and `focus:border-focus` on it can therefore never
  * match: the control would sit at its resting border while one of its segments
  * held the caret.
  */
@@ -164,7 +165,7 @@ export function segmentedBorder(error: boolean, suggested = false): string {
   if (error) return 'border-danger focus-within:border-danger';
   return suggested
     ? 'border-violet focus-within:border-violet'
-    : 'border-line-strong focus-within:border-brand';
+    : 'border-line-strong focus-within:border-focus';
 }
 
 /**
@@ -178,12 +179,12 @@ export function segmentedBorder(error: boolean, suggested = false): string {
  *
  * The focus ring is inset. The segment sits flush inside the wrapper's border,
  * so the global 2px outset outline would be drawn over that border and clipped
- * by the wrapper's own rounding. It keeps the full brand rather than the
- * field's softer ring, because nothing else marks which segment has focus.
+ * by the wrapper's own rounding. It draws the full focus ring rather than the
+ * field's softer one, because nothing else marks which segment has focus.
  */
 export const CONTROL_SEGMENT =
   'shrink-0 rounded-sm border-0 bg-transparent p-0 text-center text-sm text-fg tabular-nums ' +
-  'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand ' +
+  'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus ' +
   'disabled:cursor-not-allowed';
 
 /**

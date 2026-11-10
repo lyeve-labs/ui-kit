@@ -19,9 +19,10 @@
  * inner region in one, on the surface itself in another and nowhere in the
  * other two, so a Dropdown of eighty items runs past the bottom of the window
  * and the last item cannot be reached. Two panels cap their height at max-h-60
- * and two never cap it. All four draw the boundary with border-line, which
- * reads 1.25:1 and is the only thing separating the panel from whatever it
- * happens to float over. The shadow is the one thing they agreed on.
+ * and two never cap it. All four drew the boundary with border-line under a
+ * flat shadow-2xl, so on a dark page the 1.25:1 edge was all that set the
+ * panel apart from whatever it floated over. The shadow was the one thing
+ * they agreed on.
  *
  * Width stays at the call site: a menu sized to its trigger and a calendar
  * sized to seven columns are different requirements. Everything else is here.
@@ -44,8 +45,11 @@ import { TOUCH_GROW } from './touch.js';
 /**
  * The floating surface every popover paints.
  *
- * border-line-strong, not border-line: a panel floating over arbitrary content
- * needs a boundary that clears 3:1, which line does not. It carries the
+ * border-line, the account menu's, the dialog's and the card's border. SC
+ * 1.4.11 asks 3:1 of a boundary only where it is what identifies a control,
+ * and nothing here is: each row is named by its text, the shadow lifts the
+ * panel off the page and the top highlight lights its edge. line-strong drew a
+ * gray frame round every menu and buried that highlight. It carries the
  * resting text color so a row can override it with a single utility.
  *
  * overflow-hidden is a backstop, not the shape: the rows sit inset with
@@ -60,7 +64,7 @@ import { TOUCH_GROW } from './touch.js';
  * as lifted off it rather than as part of it.
  */
 export const PANEL_SURFACE =
-  'absolute z-dropdown overflow-hidden rounded-xl border border-line-strong bg-surface text-fg shadow-popover inset-shadow-highlight';
+  'absolute z-dropdown overflow-hidden rounded-xl border border-line bg-surface text-fg shadow-popover inset-shadow-highlight';
 
 /**
  * The scrolling region inside it.
@@ -87,16 +91,17 @@ export const PANEL_LIST = 'relative max-h-panel-max overflow-y-auto overscroll-c
 export const PANEL_OPTION =
   `${TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm ` +
   'transition-colors outline-none hover:bg-surface-2 ' +
-  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand';
+  'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
 /**
  * The active descendant.
  *
  * A tint alone reads 1.09:1 against the panel, which is not a visible state,
- * so the active row also carries an inset brand ring. Inset because the row
- * fills the list's inner width and an outset ring would run into the frame.
+ * so the active row also carries an inset ring in the focus color, the row
+ * being where the keyboard is. Inset because the row fills the list's inner
+ * width and an outset ring would run into the frame.
  */
-export const PANEL_OPTION_ACTIVE = 'bg-surface-2 ring-1 ring-inset ring-brand';
+export const PANEL_OPTION_ACTIVE = 'bg-surface-2 ring-1 ring-inset ring-focus';
 
 /**
  * A row whose value is selected, which is orthogonal to being active.
@@ -125,7 +130,7 @@ export const PANEL_EMPTY = 'px-2 py-2 text-sm text-faint';
 
 /** The search box at the top of a Select or MultiSelect panel. */
 export const PANEL_SEARCH =
-  'w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-brand focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/35';
+  'w-full rounded-md border border-line-strong bg-surface-2 px-2.5 py-1.5 text-sm text-fg outline-none transition-colors placeholder:text-faint focus:border-focus focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus/50';
 
 /**
  * A group heading inside the list. Not focusable, so it takes no row classes,

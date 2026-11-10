@@ -80,7 +80,7 @@
              heading where it was. -->
         <a
           {href}
-          class="{HIT_AREA} mb-5 inline-flex rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          class="{HIT_AREA} mb-5 inline-flex rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >
           {#if lockup}
             {@render lockup()}

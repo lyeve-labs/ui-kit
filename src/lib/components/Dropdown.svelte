@@ -258,8 +258,10 @@
             onclick={() => handleItemClick(item)}
             class="{TOUCH_GROW} flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm whitespace-nowrap transition-colors
               outline-none focus-visible:ring-2 focus-visible:ring-inset
-              focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-40
-              {item.variant === 'danger' ? 'text-danger hover:bg-danger/10' : 'hover:bg-surface-2'}"
+              focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-40
+              {item.variant === 'danger'
+              ? 'text-danger hover:bg-danger/10 focus-visible:bg-danger/10'
+              : 'hover:bg-surface-2 focus-visible:bg-surface-2'}"
           >
             {#if item.icon}
               {@const Icon = item.icon}

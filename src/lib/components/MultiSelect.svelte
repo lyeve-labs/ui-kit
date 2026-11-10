@@ -235,13 +235,13 @@
       class="relative flex min-h-control w-full cursor-pointer flex-wrap items-center gap-1.5 coarse:gap-x-2 coarse:gap-y-6 rounded-lg
         border bg-surface-2 py-1.5 coarse:py-2.75 ps-2.5 pe-7 text-start text-sm transition-colors
         has-[[role=combobox]:focus-visible]:ring-2 has-[[role=combobox]:focus-visible]:ring-inset
-        has-[[role=combobox]:focus-visible]:ring-brand/35
+        has-[[role=combobox]:focus-visible]:ring-focus/50
         {disabled ? 'cursor-not-allowed opacity-50' : ''}
         {error
         ? 'border-danger'
         : assist.suggested
           ? 'border-violet has-[[role=combobox]:focus]:border-violet'
-          : 'border-line-strong has-[[role=combobox]:focus]:border-brand'}"
+          : 'border-line-strong has-[[role=combobox]:focus]:border-focus'}"
     >
       <!--
         A div and not an input: there is nothing to type here. The labels of

@@ -32,7 +32,7 @@
   <summary
     class="flex w-full cursor-pointer list-none items-center justify-between px-5 py-4 text-start text-sm font-medium
       text-fg transition-colors hover:bg-surface-2/50 [[open]>&]:bg-surface-2/40
-      outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand
+      outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus
       [&::-webkit-details-marker]:hidden"
   >
     <span>{title}</span>

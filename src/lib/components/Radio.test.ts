@@ -76,7 +76,7 @@ describe('Radio', () => {
     const { container } = render(Radio, { props: { value: 'a', group, label: 'x' } });
     const ring = container.querySelector('input + span') as HTMLElement;
     expect(ring.className).toContain('peer-focus-visible:outline');
-    expect(ring.className).toContain('peer-focus-visible:outline-brand');
+    expect(ring.className).toContain('peer-focus-visible:outline-focus');
     expect(ring.className).toContain('peer-focus-visible:outline-offset-2');
   });
 

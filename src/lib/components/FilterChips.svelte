@@ -149,7 +149,7 @@
     return cn(
       HIT_AREA,
       'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
-      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
       pressed
         ? 'border-brand bg-brand/10 text-fg'
         : 'border-line text-muted hover:border-line-strong hover:text-fg',

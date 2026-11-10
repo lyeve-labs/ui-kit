@@ -375,8 +375,8 @@ export function checkPalette(overrides: PaletteOverrides = {}): PaletteProblem[]
     }
     for (const ground of GROUNDS) {
       check('button edge', 'brand-light', `glow over ${ground}`, glowOver(p[ground]), 3);
-      check('focus ring', 'brand', ground, p[ground], 3);
-      check('focus ring', 'brand', `glow over ${ground}`, glowOver(p[ground]), 3);
+      check('focus ring', 'brand-deep', ground, p[ground], 3);
+      check('focus ring', 'brand-deep', `glow over ${ground}`, glowOver(p[ground]), 3);
     }
     for (const ground of ['surface', 'surface-2'] as const) {
       check('control border', 'line-strong', ground, p[ground], 3);

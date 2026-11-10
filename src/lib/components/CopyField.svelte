@@ -101,8 +101,9 @@
   <!-- The frame is the control: the value and its buttons sit in one row
        inside it, so the caller's actions, the reveal and the copy all fit
        without the value running under them and without measuring anything.
-       The frame takes the focus ring and the brand border from the input or
-       the textarea inside it. A focused button draws its own ring and not the frame's.
+       The frame takes the focus ring and the focus border from the input or
+       the textarea inside it. A focused button draws its own ring and not the
+       frame's.
        Under a finger each 27px button takes a 44px box centered on it, so the
        row opens 17px between its items: neighboring boxes meet instead of
        overlapping, and the first box stops short of the value. The buttons
@@ -110,8 +111,8 @@
        those boxes stay where they are. -->
   <div
     class="flex w-full gap-0.5 coarse:gap-4.25 rounded-lg border bg-surface-2 pe-1 transition-colors border-line-strong {wrapped
-      ? 'min-h-control items-start py-1 has-[textarea:focus]:border-brand has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-inset has-[textarea:focus-visible]:ring-brand/35'
-      : 'h-control items-center has-[input:focus]:border-brand has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-inset has-[input:focus-visible]:ring-brand/35'}"
+      ? 'min-h-control items-start py-1 has-[textarea:focus]:border-focus has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-inset has-[textarea:focus-visible]:ring-focus/50'
+      : 'h-control items-center has-[input:focus]:border-focus has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-inset has-[input:focus-visible]:ring-focus/50'}"
   >
     {#if wrapped}
       <!-- An input holds one line, so the wrapped value is a read-only
@@ -165,7 +166,7 @@
         aria-pressed={revealed}
         aria-controls={fieldId}
         aria-label={revealed ? 'Hide value' : 'Show value'}
-        class="{HIT_AREA} flex size-6.75 shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+        class="{HIT_AREA} flex size-6.75 shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
       >
         {#if revealed}
           <EyeOff size={14} aria-hidden="true" />
@@ -178,7 +179,7 @@
       type="button"
       aria-label={buttonName}
       onclick={() => copier.copy(value)}
-      class="{HIT_AREA} flex size-6.75 shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+      class="{HIT_AREA} flex size-6.75 shrink-0 items-center justify-center rounded-md p-1.5 text-faint outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
     >
       <CopyGlyph copied={copier.status === 'copied'} size={14} />
     </button>

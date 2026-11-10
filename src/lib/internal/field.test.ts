@@ -21,27 +21,28 @@ describe('control bases keep a focus indicator', () => {
     it(`${name} pairs outline-none with a focus ring`, () => {
       if (!cls.includes('outline-none')) return;
       expect(cls, `${name} silences the outline`).toContain('focus-visible:ring-2');
-      expect(cls, `${name} names a ring color`).toContain('focus-visible:ring-brand');
+      expect(cls, `${name} names a ring color`).toMatch(/focus-visible:ring-focus(\/50)?(\s|$)/);
     });
   }
 });
 
 // A focused field showed a brand border, a full brand ring inside it and a
 // glow outside it, which read as 3px of glare. The border is the indicator
-// that clears 3:1, so the ring beside it is soft and nothing glows.
+// that clears 3:1, so the ring beside it is the focus color at half strength
+// and nothing glows.
 describe('a focused field', () => {
   const classes = (cls: string) => cls.split(/\s+/);
 
   for (const [name, cls] of Object.entries({ CONTROL_BASE, CONTROL_MULTILINE })) {
-    it(`${name} draws a 35% ring and no glow`, () => {
-      expect(classes(cls)).toContain('focus-visible:ring-brand/35');
-      expect(classes(cls)).not.toContain('focus-visible:ring-brand');
+    it(`${name} draws a half-strength ring and no glow`, () => {
+      expect(classes(cls)).toContain('focus-visible:ring-focus/50');
+      expect(classes(cls)).not.toContain('focus-visible:ring-focus');
       expect(cls).not.toMatch(/shadow-glow/);
     });
   }
 
-  it('keeps the full brand on a segment, where nothing else marks focus', () => {
-    expect(classes(CONTROL_SEGMENT)).toContain('focus-visible:ring-brand');
+  it('keeps the focus ring on a segment, where nothing else marks focus', () => {
+    expect(classes(CONTROL_SEGMENT)).toContain('focus-visible:ring-focus');
   });
 
   it('puts no glow on a segmented wrapper', () => {

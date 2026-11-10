@@ -78,6 +78,8 @@ describe('checkPalette measures what the kit paints', () => {
         css,
       );
     expect(brandInSurface('tint')).toBe(TINT_SHARE);
+    // The focus ring the check measures is brand-deep in both themes.
+    expect(css).toMatch(/@theme inline \{\s*--color-focus: var\(--color-brand-deep\);\s*\}/);
     expect(brandInSurface('band')).toBe(BAND_SHARE);
     expect(
       percent(
@@ -177,15 +179,27 @@ describe('checkPalette', () => {
     expect(problems.every((p) => p.theme === 'light')).toBe(true);
     expect(problems).toContainEqual({
       theme: 'light',
-      use: 'focus ring',
+      use: 'text',
       foreground: 'brand',
+      background: 'surface',
+      ratio: 1.77,
+      minimum: 4.5,
+    });
+    expect(new Set(problems.map((p) => p.use))).toEqual(
+      new Set(['text', 'badge', 'avatar', 'row chip', 'button label']),
+    );
+  });
+
+  it('measures the focus ring in brand-deep, the color it is drawn in', () => {
+    const problems = checkPalette({ light: { 'brand-deep': '#00d4ff' } });
+    expect(problems).toContainEqual({
+      theme: 'light',
+      use: 'focus ring',
+      foreground: 'brand-deep',
       background: 'surface',
       ratio: 1.77,
       minimum: 3,
     });
-    expect(new Set(problems.map((p) => p.use))).toEqual(
-      new Set(['text', 'badge', 'avatar', 'row chip', 'button label', 'focus ring']),
-    );
   });
 
   it('measures the label at the top of a hovered button, under the lift', () => {

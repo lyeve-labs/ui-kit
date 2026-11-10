@@ -123,7 +123,7 @@ export function choiceBox(
  * leaves a border-only focus state with nothing to say.
  */
 export const CHOICE_FOCUS =
-  'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand peer-focus-visible:outline-offset-2';
+  'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-focus peer-focus-visible:outline-offset-2';
 
 /**
  * The label stack beside or under the box.
