@@ -223,7 +223,7 @@ describe('the small controls keep their visual and grow their hit box', () => {
         'coarse:-outline-offset-1',
       ])
         expect(track, c).toContain(c);
-      expect(track).toContain(error ? 'coarse:outline-danger' : 'coarse:outline-line-strong');
+      expect(track).toContain(error ? 'coarse:outline-danger' : 'coarse:outline-line');
       expect(
         track.some((c) => c.startsWith('coarse:ring')),
         'no shadow frame',

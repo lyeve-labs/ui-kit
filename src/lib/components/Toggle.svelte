@@ -66,8 +66,9 @@
   /*
    * Off, the track is surface-2 and so is the panel most forms sit on, so
    * without an edge only the knob showed. line-strong is the resting border
-   * every other control draws (see controlBorder and choiceBox) and clears
-   * 3:1 against both surface levels in both themes. On, the border takes the
+   * a checkbox and a radio draw (see choiceBox) and clears 3:1 against both
+   * surface levels in both themes. A field rests on line, because its label
+   * and its fill mark it, and an empty switch track has neither. On, the border takes the
    * fill's color so the fill looks as it did and the track keeps one size.
    */
   const trackPaint = {

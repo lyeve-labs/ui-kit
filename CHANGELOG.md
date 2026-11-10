@@ -5,6 +5,17 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.59.0] - 2026-11-10
+
+### Changed
+
+- Every field rests on the soft `line` border a `Card` and a `Button` draw and firms to `line-strong` under the pointer: `Input`, `Textarea`, `SearchInput`, `PasswordInput`, `NumberInput` with its steppers, `Select`, `Autocomplete`, `MultiSelect`, `DatePicker`, `TimePicker`, `ColorField`, `CopyField`, the `FileInput` drop zone and the search box inside a list panel. Focus still moves the border to the focus color. A frame focused through a part inside it keeps its focus border under the pointer. Checkboxes, radios and toggles keep `line-strong`, because an empty one has nothing else to mark it.
+- The chosen `SegmentedControl` segment is a brand-tinted fill with brand text, drawn the way the sidebar draws the current page, instead of a raised chip with a thin brand ring. The track rests on `line`.
+
+### Fixed
+
+- A `Tooltip` stays inside the browser window. A hint on a trigger near an edge moves along that edge to stay 8px inside it, and a hint with no room on its own side opens on the opposite side when that side has room.
+
 ## [0.58.0] - 2026-11-10
 
 ### Changed

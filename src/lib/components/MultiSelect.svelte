@@ -15,7 +15,7 @@
    */
   import { applyFilter, type FilterInput } from '../internal/filter.js';
   import { HIT_AREA } from '../internal/touch.js';
-  import { ASSIST_WRAP, FIELD_WRAP, describedBy } from '../internal/field.js';
+  import { ASSIST_WRAP, FIELD_WRAP, FRAME_HOVER, describedBy } from '../internal/field.js';
   import { createListbox } from '../internal/listbox.svelte.js';
   import {
     PANEL_EMPTY,
@@ -241,7 +241,7 @@
         ? 'border-danger'
         : assist.suggested
           ? 'border-violet has-[[role=combobox]:focus]:border-violet'
-          : 'border-line-strong has-[[role=combobox]:focus]:border-focus'}"
+          : `border-line ${FRAME_HOVER} has-[[role=combobox]:focus]:border-focus`}"
     >
       <!--
         A div and not an input: there is nothing to type here. The labels of

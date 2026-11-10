@@ -168,11 +168,13 @@ describe('PasswordInput', () => {
     expect(input(container).value).toBe('s3cret');
   });
 
-  it('marks the control with the stronger resting border, not the divider color', () => {
-    // line is 1.25:1 against the page. The border is the only thing marking an
-    // empty control, so at that contrast the field is invisible until it is used.
+  it('rests on the soft line every field draws and firms under the pointer', () => {
     const { container } = render(PasswordInput, { props: { label: 'Key' } });
-    expect(input(container).className).toContain('border-line-strong');
+    const tokens = input(container).className.split(/\s+/);
+    expect(tokens).toContain('border-line');
+    expect(tokens).not.toContain('border-line-strong');
+    expect(tokens).toContain('hover:border-line-strong');
+    expect(tokens).toContain('focus:border-focus');
   });
 
   it('keeps the button clear of the text and its focus ring inside the control', () => {

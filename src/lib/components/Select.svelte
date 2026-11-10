@@ -54,7 +54,7 @@
     CONTROL_BASE,
     FIELD_WRAP,
     ASSIST_WRAP,
-    triggerBorder,
+    controlBorder,
     describedBy,
     joinIds,
   } from '../internal/field.js';
@@ -353,7 +353,7 @@
       aria-required={required ? 'true' : undefined}
       aria-describedby={joinIds(describedBy(fieldId, error, hint), callerIds)}
       {...box.triggerAttrs}
-      class="{CONTROL_BASE} {triggerBorder(
+      class="{CONTROL_BASE} {controlBorder(
         !!error,
         assist.suggested,
       )} flex cursor-pointer items-center gap-2 pe-8

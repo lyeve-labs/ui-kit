@@ -333,15 +333,14 @@ describe('SegmentedControl presentation', () => {
     expect(getByRole('radiogroup').className).toContain(row);
   });
 
-  it('rests its border on line-strong, never on line', () => {
-    // line reads 1.25:1 against the page, and the border is the only thing
-    // marking the row as a control.
+  it('rests its track on the soft line a button draws, since the labels mark it', () => {
     const { getByRole } = render(SegmentedControl, {
       props: { label: 'Theme', options, value: 'light' },
     });
     const classes = getByRole('radiogroup').className.split(/\s+/);
-    expect(classes).toContain('border-line-strong');
-    expect(classes).not.toContain('border-line');
+    expect(classes).toContain('border-line');
+    expect(classes).toContain('coarse:outline-line');
+    expect(classes).not.toContain('border-line-strong');
   });
 
   it('draws its focus ring inset, once, outside the selected branch', () => {
@@ -565,6 +564,23 @@ describe('SegmentedControl href mode', () => {
     for (const s of segments(container).filter((x) => x !== chosen))
       expect(s.className).not.toContain('text-brand');
   });
+
+  it('fills the chosen segment with the brand tint and draws no edge round it', () => {
+    // The chosen segment is drawn as the sidebar draws the page you are on.
+    // A thin cyan ring and a raised chip round it read harsh beside the soft
+    // edges every other control rests on.
+    const { container } = render(SegmentedControl, {
+      props: { label: 'Theme', options, value: 'dark' },
+    });
+    const chosen = segments(container).find(
+      (s) => s.getAttribute('aria-checked') === 'true',
+    ) as HTMLElement;
+    const tokens = chosen.className.split(/\s+/);
+    expect(tokens).toContain('bg-brand/12');
+    expect(
+      tokens.filter((t) => /^(ring-1|ring-brand|shadow-raised|inset-shadow-highlight)/.test(t)),
+    ).toEqual([]);
+  });
 });
 
 describe('SegmentedControl, field props', () => {
@@ -614,7 +630,7 @@ describe('SegmentedControl, field props', () => {
     expect(group.getAttribute('aria-describedby')).toBe('plan-error');
     expect(group.getAttribute('aria-invalid')).toBe('true');
     expect(group.className).toContain('border-danger');
-    expect(group.className).not.toContain('border-line-strong');
+    expect(group.className.split(/\s+/)).not.toContain('border-line');
   });
 
   it('gives the messages a generated id when the caller names none', () => {

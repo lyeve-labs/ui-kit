@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import Tooltip from './Tooltip.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
@@ -118,5 +118,76 @@ describe('Tooltip placement', () => {
     await fireEvent.scroll(window);
 
     expect(tip.classList.contains('invisible')).toBe(true);
+  });
+});
+
+/*
+ * jsdom has no layout, so the trigger's box, the hint's size and the window
+ * are stubbed. A hint centered on a trigger at the window's edge was cut off.
+ */
+describe('Tooltip stays inside the window', () => {
+  const real = { width: window.innerWidth, height: window.innerHeight };
+
+  function windowSize(width: number, height: number) {
+    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
+    Object.defineProperty(window, 'innerHeight', { value: height, configurable: true });
+  }
+
+  afterEach(() => windowSize(real.width, real.height));
+
+  async function open(
+    rect: { top: number; left: number; width: number; height: number },
+    position: 'top' | 'bottom' | 'left' | 'right' = 'top',
+  ) {
+    windowSize(1440, 900);
+    const { container } = render(Tooltip, {
+      props: { text: 'Delete', position, children: trigger },
+    });
+    const wrapper = container.firstElementChild as HTMLElement;
+    wrapper.getBoundingClientRect = () =>
+      ({
+        ...rect,
+        right: rect.left + rect.width,
+        bottom: rect.top + rect.height,
+      }) as DOMRect;
+    const tip = container.querySelector<HTMLElement>('[role="tooltip"]')!;
+    Object.defineProperty(tip, 'offsetWidth', { value: 120, configurable: true });
+    Object.defineProperty(tip, 'offsetHeight', { value: 30, configurable: true });
+    await fireEvent.mouseEnter(wrapper);
+    return tip;
+  }
+
+  it('keeps a hint on a trigger at the right edge 8px inside the window', async () => {
+    const tip = await open({ top: 100, left: 1410, width: 20, height: 30 });
+    const center = parseFloat(tip.style.left);
+    expect(center + 60).toBeLessThanOrEqual(1432);
+    expect(center - 60).toBeGreaterThanOrEqual(8);
+  });
+
+  it('flips below a trigger at the top of the window', async () => {
+    const tip = await open({ top: 4, left: 400, width: 30, height: 30 });
+    expect(tip.style.top).toBe('42px');
+    expect(tip.className).not.toContain('-translate-y-full');
+  });
+
+  it('places a hint with room on every side exactly as before', async () => {
+    const tip = await open({ top: 100, left: 400, width: 30, height: 30 });
+    expect(tip.style.top).toBe('92px');
+    expect(tip.style.left).toBe('415px');
+    expect(tip.className).toContain('-translate-x-1/2 -translate-y-full');
+  });
+
+  it('flips a left hint to the right of a trigger at the left edge', async () => {
+    const tip = await open({ top: 400, left: 10, width: 30, height: 30 }, 'left');
+    expect(tip.style.left).toBe('48px');
+    expect(tip.style.top).toBe('415px');
+    expect(tip.className).not.toContain('-translate-x-full');
+  });
+
+  it('flips a right hint to the left of a trigger at the right edge', async () => {
+    const tip = await open({ top: 400, left: 1400, width: 30, height: 30 }, 'right');
+    expect(tip.style.left).toBe('1392px');
+    expect(tip.style.top).toBe('415px');
+    expect(tip.className).toContain('-translate-x-full');
   });
 });
