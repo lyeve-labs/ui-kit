@@ -52,8 +52,11 @@
     /**
      * Replaces the default matcher, or false to switch local filtering off
      * because the list arrived already narrowed, by a server query for instance.
+     * A host narrows the list itself with false and bind:query.
      */
     filter?: FilterInput<ListOption>;
+    /** The text in the panel's search field. Empties when the panel closes. */
+    query?: string;
     class?: string;
     onchange?: (value: string[]) => void;
   }
@@ -72,6 +75,7 @@
     name = undefined,
     noAI = false,
     filter = undefined,
+    query = $bindable(''),
     class: cls = '',
     onchange = undefined,
   }: Props = $props();
@@ -113,7 +117,6 @@
   const uid = $props.id();
   const fieldId = $derived(id ?? uid);
 
-  let query = $state('');
   let triggerEl = $state<HTMLDivElement | undefined>();
   let searchEl = $state<HTMLInputElement | undefined>();
 
