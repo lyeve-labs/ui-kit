@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `MultiSelect` and `Select` take a bindable `query`, the text in the panel's search field. It follows every keystroke and empties when the panel closes, as the search did before. With `filter={false}` and `bind:query`, an app narrows the options itself, from a server or a large local list, and the panel draws exactly the options it passes.
+
 ## [0.60.1] - 2026-11-10
 
 ### Changed

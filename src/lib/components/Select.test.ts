@@ -232,6 +232,59 @@ describe('Select: filtering', () => {
   });
 });
 
+describe('Select: the search a host can read', () => {
+  /** Props whose query the control writes back, the way bind:query does. */
+  function bound(extra: Record<string, unknown> = {}) {
+    const host = { query: '' };
+    const props = {
+      options: PLANS,
+      searchable: true,
+      ...extra,
+      get query() {
+        return host.query;
+      },
+      set query(next: string) {
+        host.query = next;
+      },
+    };
+    return { host, props };
+  }
+
+  const searchBox = (container: HTMLElement): HTMLInputElement =>
+    container.querySelector('input[type="text"]') as HTMLInputElement;
+
+  it('reports every keystroke in the search box', async () => {
+    const { host, props } = bound();
+    const { container } = render(Select, { props });
+    await fireEvent.click(trigger(container));
+    await fireEvent.input(searchBox(container), { target: { value: 'se' } });
+    expect(host.query).toBe('se');
+    await fireEvent.input(searchBox(container), { target: { value: 'sec' } });
+    expect(host.query).toBe('sec');
+  });
+
+  it('reports the empty search it resets to on close', async () => {
+    const { host, props } = bound();
+    const { container } = render(Select, { props });
+    await fireEvent.click(trigger(container));
+    await fireEvent.input(searchBox(container), { target: { value: 'sec' } });
+    expect(host.query).toBe('sec');
+    await fireEvent.keyDown(searchBox(container), { key: 'Escape' });
+    expect(host.query).toBe('');
+  });
+
+  it('draws exactly the rows a host narrowed for the search', async () => {
+    // Second matches nothing in 'zz', so only the host's list can put it here.
+    const { host, props } = bound({ filter: false });
+    const { container, rerender } = render(Select, { props });
+    await fireEvent.click(trigger(container));
+    await fireEvent.input(searchBox(container), { target: { value: 'zz' } });
+    expect(host.query).toBe('zz');
+    await rerender({ options: [PLANS[1]] });
+    expect(labels(container)).toEqual(['Second']);
+  });
+});
+
 describe('Select: icons and a custom trigger', () => {
   it('draws an option icon', async () => {
     const { container } = render(Select, { props: { options: ICONS } });
