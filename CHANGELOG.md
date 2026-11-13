@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - A loading `Button` no longer sets the native `disabled` attribute. It carries `aria-disabled="true"` and stays focusable, and a loading link button keeps its `href`. A test that asserts jest-dom's `toBeDisabled()`, reads the `disabled` property or selects `:disabled` on a loading button now finds it enabled, so read `aria-disabled` instead. A style an app sets on `:disabled` no longer reaches a loading button, so add `[aria-disabled="true"]` beside it. Playwright's `toBeDisabled()` counts `aria-disabled` and still passes.
+- A loading `AccountMenuItem` no longer sets the native `disabled` attribute. It carries `aria-disabled="true"` and stays focusable. A test that asserts jest-dom's `toBeDisabled()` or reads the `disabled` property on a loading item now finds it enabled, so read `aria-disabled` instead.
 
 ### Fixed
 
 - A loading `Button` keeps keyboard focus. It set the native `disabled` attribute, and a browser moves focus off a disabled control, so a person who pressed the button from the keyboard landed on the page body while the action ran. A loading button now stays enabled, carries `aria-disabled` and `aria-busy`, and refuses a click, Enter and Space itself. A loading submit button still stops a second submit, the Enter in a field of its form included. A loading link button keeps its address and its place in the tab order and refuses activation the same way. It still draws at half strength, shows no pressed color while held, and in forced colors draws its label and border in GrayText, as a disabled button does.
+- A loading `AccountMenuItem` keeps keyboard focus. It set the native `disabled` attribute, so a person who chose the item from the keyboard landed on the page body while the action ran, and a reader who opened the menu again could not reach the item to hear that it was busy. It now stays enabled, carries `aria-disabled` and `aria-busy`, and refuses a click, Enter and Space itself, so the menu stays open and nothing posts twice. It shows no pressed color while held, and in forced colors draws its label in GrayText, as a disabled item did.
 
 ## [0.61.0] - 2026-11-13
 

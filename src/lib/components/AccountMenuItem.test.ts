@@ -2,6 +2,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { User } from '@lucide/svelte';
+import AccountMenu from './AccountMenu.svelte';
 import AccountMenuItem from './AccountMenuItem.svelte';
 
 const label = (text: string) => createRawSnippet(() => ({ render: () => `<span>${text}</span>` }));
@@ -66,13 +67,12 @@ describe('AccountMenuItem', () => {
     expect(getByRole('button').textContent?.trim()).toBe('My profile');
   });
 
-  it('shows a pending submit: disabled, busy, and a spinner in the icon slot', () => {
-    // A second press while the first sign-out is in flight posts it twice.
+  it('shows a pending submit: marked disabled, busy, and a spinner in the icon slot', () => {
     const { container, getByRole } = render(AccountMenuItem, {
       props: { type: 'submit', icon: User, loading: true, children: label('Sign out') },
     });
     const button = getByRole('button') as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
     const svgs = container.querySelectorAll('svg');
     expect(svgs).toHaveLength(1);
@@ -83,7 +83,7 @@ describe('AccountMenuItem', () => {
   it('is not busy at rest', () => {
     const { getByRole } = render(AccountMenuItem, { props: { children: label('Sign out') } });
     expect(getByRole('button').hasAttribute('aria-busy')).toBe(false);
-    expect((getByRole('button') as HTMLButtonElement).disabled).toBe(false);
+    expect(getByRole('button').hasAttribute('aria-disabled')).toBe(false);
   });
 
   it('rests with no border, shadow or fill, as a sidebar row does', () => {
@@ -120,5 +120,78 @@ describe('AccountMenuItem', () => {
   it('grows to 44px under a finger', () => {
     const { getByRole } = render(AccountMenuItem, { props: { children: label('Row') } });
     expect(getByRole('button').className).toContain('coarse:min-h-control');
+  });
+});
+
+/*
+ * A browser moves focus off a control that turns disabled, so a person who
+ * chose the item from the keyboard was left on the page body while the action
+ * ran. A loading item stays enabled and refuses activation itself.
+ */
+describe('AccountMenuItem while loading', () => {
+  const inForm = () => {
+    const form = document.body.appendChild(document.createElement('form'));
+    const onsubmit = vi.fn((e: Event) => e.preventDefault());
+    form.addEventListener('submit', onsubmit);
+    return { form, onsubmit };
+  };
+
+  it('keeps focus once it starts loading', async () => {
+    const { getByRole, rerender } = render(AccountMenuItem, {
+      props: { type: 'submit', children: label('Sign out') },
+    });
+    const button = getByRole('button') as HTMLButtonElement;
+    button.focus();
+    await rerender({ loading: true });
+    expect(button.disabled).toBe(false);
+    expect(document.activeElement).toBe(button);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+    expect(button.getAttribute('aria-busy')).toBe('true');
+  });
+
+  // Enter and Space on a button arrive as a click, so this is the press from
+  // the keyboard too. Svelte delegates a declared onclick to the root, where
+  // an ancestor that stopped the click would skip the guard.
+  it('refuses a press on the focused item, even when an ancestor stops the click', async () => {
+    const { form, onsubmit } = inForm();
+    const wrapper = form.appendChild(document.createElement('div'));
+    wrapper.addEventListener('click', (e) => e.stopPropagation());
+    const { getByRole } = render(AccountMenuItem, {
+      target: wrapper,
+      props: { type: 'submit', loading: true, children: label('Sign out') },
+    });
+    const button = getByRole('button');
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    const pressed = await fireEvent.click(button);
+    expect(pressed, 'the click is canceled').toBe(false);
+    expect(onsubmit).not.toHaveBeenCalled();
+    form.remove();
+  });
+
+  // The menu leaves a click canceled on its row alone, so a press on a
+  // loading item neither posts again nor takes the focus to the trigger.
+  it('leaves the menu open and the focus on the item when pressed', async () => {
+    const footer = createRawSnippet(() => ({ render: () => '<form></form>' }));
+    const menu = render(AccountMenu, {
+      props: { name: 'Paid Journey', children: label(''), footer },
+    });
+    const details = menu.container.querySelector('details')!;
+    const form = details.querySelector('form')!;
+    const onsubmit = vi.fn((e: Event) => e.preventDefault());
+    form.addEventListener('submit', onsubmit);
+    const { getByRole } = render(AccountMenuItem, {
+      target: form,
+      props: { type: 'submit', loading: true, children: label('Sign out') },
+    });
+    details.open = true;
+    await fireEvent(details, new Event('toggle'));
+    const button = getByRole('button', { name: 'Sign out' });
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    await fireEvent.click(button);
+    expect(details.open).toBe(true);
+    expect(document.activeElement).toBe(button);
+    expect(onsubmit).not.toHaveBeenCalled();
   });
 });
