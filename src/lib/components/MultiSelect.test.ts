@@ -298,6 +298,57 @@ describe('matching', () => {
   });
 });
 
+describe('the search a host can read', () => {
+  /** Props whose query the control writes back, the way bind:query does. */
+  function bound(extra: Record<string, unknown> = {}) {
+    const host = { query: '' };
+    const props = {
+      options,
+      ...extra,
+      get query() {
+        return host.query;
+      },
+      set query(next: string) {
+        host.query = next;
+      },
+    };
+    return { host, props };
+  }
+
+  it('reports every keystroke in the search box', async () => {
+    const { host, props } = bound();
+    const { container } = render(MultiSelect, { props });
+    await fireEvent.click(trigger(container));
+    await fireEvent.input(searchBox(container), { target: { value: 'ga' } });
+    expect(host.query).toBe('ga');
+    await fireEvent.input(searchBox(container), { target: { value: 'gam' } });
+    expect(host.query).toBe('gam');
+  });
+
+  it('reports the empty search it resets to on close', async () => {
+    const { host, props } = bound();
+    const { container } = render(MultiSelect, { props });
+    await fireEvent.click(trigger(container));
+    await fireEvent.input(searchBox(container), { target: { value: 'gam' } });
+    expect(host.query).toBe('gam');
+    await fireEvent.keyDown(searchBox(container), { key: 'Escape' });
+    expect(host.query).toBe('');
+  });
+
+  it('draws exactly the rows a host narrowed for the search', async () => {
+    // Beta matches nothing in 'zz', so only the host's list can put it here.
+    const { host, props } = bound({ filter: false });
+    const { container, getAllByRole, rerender } = render(MultiSelect, { props });
+    await fireEvent.click(trigger(container));
+    await fireEvent.input(searchBox(container), { target: { value: 'zz' } });
+    expect(host.query).toBe('zz');
+    await rerender({ options: [options[1]] });
+    const rows = getAllByRole('option');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].textContent).toContain('Beta');
+  });
+});
+
 describe('the parts it no longer owns', () => {
   it('shares one option type with Autocomplete rather than declaring a second', () => {
     // The interface was written out in both files, character for character.

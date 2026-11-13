@@ -2,6 +2,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { FileText, Globe, Settings } from '@lucide/svelte';
 import SidebarNav from './SidebarNav.svelte';
 import type { NavTree } from '../internal/nav-tree.js';
 
@@ -415,6 +416,61 @@ describe('SidebarNav collapsed rail', () => {
     expect(getByRole('link', { name: 'Dashboard' })).toBeTruthy();
   });
 
+  describe('an entry on the rail', () => {
+    /** Each entry a link with a Lucide icon, the way every console passes one. */
+    const iconItems: NavTree = [
+      { id: 'sites', label: 'Sites', href: '/sites', icon: Globe },
+      { id: 'pages', label: 'Pages', href: '/pages', icon: FileText },
+      { id: 'settings', label: 'Settings', href: '/settings', icon: Settings },
+    ];
+    const rail = () =>
+      render(SidebarNav, { props: { items: iconItems, activePath: '/pages', collapsed: true } });
+
+    it('draws its icon at the 20px rung, because nothing sits beside it', () => {
+      const { container } = rail();
+      const sizes = [...container.querySelectorAll('nav a svg')].map((svg) =>
+        svg.getAttribute('width'),
+      );
+      expect(sizes).toEqual(['20', '20', '20']);
+    });
+
+    it('keeps the 16px rung beside a label in the full column', () => {
+      const { container } = render(SidebarNav, {
+        props: { items: iconItems, activePath: '/pages' },
+      });
+      const sizes = [...container.querySelectorAll('nav a svg')].map((svg) =>
+        svg.getAttribute('width'),
+      );
+      expect(sizes).toEqual(['16', '16', '16']);
+    });
+
+    it('is one centered square, the current one included', () => {
+      // A full-width row with its label hidden put the icon left of center and
+      // ran the current fill under the rail's edge.
+      const { container } = rail();
+      const rows = [...container.querySelectorAll('nav a')];
+      for (const row of rows) {
+        const classes = row.className.split(/\s+/);
+        expect(classes).toEqual(expect.arrayContaining(['size-10', 'mx-auto', 'justify-center']));
+        expect(classes).not.toContain('w-full');
+      }
+    });
+
+    it('marks the current entry by its fill alone, with no bar at the edge', () => {
+      const { getByRole } = rail();
+      const current = getByRole('link', { name: 'Pages' });
+      expect(current.getAttribute('aria-current')).toBe('page');
+      expect(current.className.split(/\s+/).filter((c) => c.startsWith('after:'))).toEqual([]);
+      expect(current.className).toContain('bg-tint');
+    });
+
+    it('names every entry', () => {
+      const { getByRole } = rail();
+      for (const label of ['Sites', 'Pages', 'Settings'])
+        expect(getByRole('link', { name: label })).toBeTruthy();
+    });
+  });
+
   it('drops the indent, which a rail has no room for', () => {
     const { container } = mount({ collapsed: true, activePath: '/settings/billing/invoices' });
     expect(container.querySelectorAll('.ms-nav-indent')).toHaveLength(0);
@@ -465,12 +521,12 @@ describe('SidebarNav collapsed rail', () => {
       const { container } = mount({ collapsed: true });
       const row = pair(container);
       const classes = row.className.split(/\s+/);
-      expect(classes).toEqual(expect.arrayContaining(['flex', 'flex-col', 'items-start']));
+      expect(classes).toEqual(expect.arrayContaining(['flex', 'flex-col', 'items-center']));
       // Stated for every pointer, not under a variant only one of them matches.
       expect(classes.filter((c) => c.includes(':'))).toEqual([]);
-      // The link comes first and keeps the rail's full width.
+      // The link comes first and is the rail's square, like every other entry.
       expect(row.firstElementChild?.tagName).toBe('A');
-      expect(row.firstElementChild?.className.split(/\s+/)).toContain('w-full');
+      expect(row.firstElementChild?.className.split(/\s+/)).toContain('size-10');
       expect(row.lastElementChild?.getAttribute('aria-controls')).toBeTruthy();
     });
 

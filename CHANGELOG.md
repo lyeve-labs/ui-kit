@@ -5,6 +5,19 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.0] - 2026-11-13
+
+### Added
+
+- `MultiSelect` and `Select` take a bindable `query`, the text in the panel's search field. It follows every keystroke and empties when the panel closes, as the search did before. With `filter={false}` and `bind:query`, an app narrows the options itself, from a server or a large local list, and the panel draws exactly the options it passes.
+
+### Fixed
+
+- Each entry on the `SidebarNav` icon rail is a 40px square centered in the rail, with its icon at 20px, and grows to 44px under a finger. The entries were the full column's rows with their labels hidden: a 16px icon 10px left of center, and a current entry whose fill ran from the rail's start edge under its end edge, with its bar at the start edge apart from the icon. The current entry is now the same square, filled, with the same space on both sides and no bar. Entries keep one 4px step. The rail sets its own inset, so the inline padding an app passes for the full column no longer squeezes the squares. A section with no link of its own shows its chevron in the square's corner. In the row beside the icon, the chevron pushed the icon 8px left of center.
+- The `SidebarNav` rail draws no scroll bar. On a desktop that draws classic scroll bars, one took 15px of the rail and put every square against its start edge. The wheel, a finger and the keyboard still scroll it.
+- `AppShell` centers the mark in the brand row on the rail. It kept the full column's inset and sat 6px left of the icons under it.
+- The `SidebarNav` column no longer runs 1px under the sidebar's edge, in the rail or the full column.
+
 ## [0.60.1] - 2026-11-10
 
 ### Changed

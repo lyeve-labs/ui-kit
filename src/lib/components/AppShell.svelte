@@ -57,6 +57,7 @@
   import * as motion from '../motion.js';
   import {
     APP_BRAND,
+    APP_BRAND_RAIL,
     APP_HEADER,
     APP_SIDEBAR,
     APP_SIDEBAR_BAND,
@@ -628,7 +629,7 @@
     aria-hidden={hidden ? 'true' : undefined}
   >
     {#if brand}
-      <div class="{APP_BRAND} {rail ? 'overflow-hidden' : ''}">{@render brand({ rail })}</div>
+      <div class={rail ? APP_BRAND_RAIL : APP_BRAND}>{@render brand({ rail })}</div>
     {/if}
     {#if nav}
       {@render nav({ rail })}

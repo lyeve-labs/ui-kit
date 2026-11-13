@@ -94,8 +94,11 @@
     /**
      * Replaces the default matcher, or false to switch local filtering off
      * because the list arrived already narrowed, by a server query for instance.
+     * A host narrows the list itself with false and bind:query.
      */
     filter?: FilterInput<SelectOption>;
+    /** The text in the panel's search field. Empties when the panel closes. */
+    query?: string;
     /** Fills the trigger. Receives the selected row and the open state. */
     trigger?: Snippet<[{ selected: SelectOption | undefined; open: boolean }]>;
     /** Shown when nothing is selected. */
@@ -123,6 +126,7 @@
     options = [],
     searchable = false,
     filter,
+    query = $bindable(''),
     trigger,
     placeholder,
     onvaluechange,
@@ -168,7 +172,6 @@
   const uid = $props.id();
   const fieldId = $derived(id ?? uid);
 
-  let query = $state('');
   let triggerEl = $state<HTMLButtonElement | undefined>();
   let searchEl = $state<HTMLInputElement | undefined>();
 
