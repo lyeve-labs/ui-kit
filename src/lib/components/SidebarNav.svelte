@@ -3,7 +3,7 @@
   import { activeTrail, flattenNav, type NavNode, type NavTree } from '../internal/nav-tree.js';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
-  import { NAV_ROW, NAV_ROW_REST } from '../internal/layout.js';
+  import { NAV_RAIL_ROW, NAV_ROW, NAV_ROW_REST } from '../internal/layout.js';
   import { createNavExpansion } from '../internal/nav-expansion.svelte.js';
   import { ROW_CHIP_TONE, type AccentTone } from '../internal/tone.js';
 
@@ -72,10 +72,11 @@
   }
 
   /**
-   * The row, without the colors any one state paints. Every row at every depth
-   * takes exactly these classes: a nested row is indented by its list, not by
-   * its own padding, so its fill, radius and current bar start where its own
-   * label does rather than in its parent's column.
+   * The row, without the colors any one state paints. Every row of the full
+   * column, at every depth, takes exactly these classes: a nested row is
+   * indented by its list, not by its own padding, so its fill, radius and
+   * current bar start where its own label does rather than in its parent's
+   * column.
    *
    * The start border is on every row and transparent in every state, so the
    * current page's mark cannot shift its row two pixels sideways. It shows only
@@ -86,7 +87,12 @@
    * outside its element, so an outer ring on a row near the edge shows as a
    * stray line or as nothing at all.
    */
-  const ROW = `${TOUCH_GROW} ${NAV_ROW} border-s-2 ps-inline pe-2`;
+  const ROW_WIDE = `${TOUCH_GROW} ${NAV_ROW} border-s-2 ps-inline pe-2`;
+
+  /** The rail's entry: one centered square at every depth, which grows to 44px under a finger. */
+  const ROW_RAIL = `${TOUCH_GROW} ${NAV_RAIL_ROW}`;
+
+  const ROW = $derived(collapsed ? ROW_RAIL : ROW_WIDE);
 
   /**
    * Exactly one border color, one background and one text color per state.
@@ -116,14 +122,20 @@
    * that holds the current page shows it by being open, with its label in full
    * text color. A second mark of another shape on the section read as two
    * places you are.
+   *
+   * On the rail the filled square is the mark and no bar is drawn. The bar
+   * stood at the rail's edge, 8px from a fill that ran into the other edge,
+   * and read as a stray line beside a clipped box.
    */
   function rowPaint(state: 'current' | 'ancestor' | 'rest'): string {
     if (state === 'current')
       return (
-        'relative border-transparent forced-colors:border-[CanvasText] bg-tint ' +
-        'font-medium text-brand hover:bg-line active:bg-line ' +
-        'after:absolute after:inset-y-1.5 after:-start-0.5 after:w-0.5 after:rounded-full ' +
-        'after:bg-brand after:bg-accent-y after:shadow-mark'
+        'border-transparent forced-colors:border-[CanvasText] bg-tint ' +
+        'font-medium text-brand hover:bg-line active:bg-line' +
+        (collapsed
+          ? ''
+          : ' relative after:absolute after:inset-y-1.5 after:-start-0.5 after:w-0.5 ' +
+            'after:rounded-full after:bg-brand after:bg-accent-y after:shadow-mark')
       );
     if (state === 'ancestor') return 'border-transparent text-fg hover:bg-surface-2 active:bg-line';
     return `border-transparent ${NAV_ROW_REST}`;
@@ -157,13 +169,23 @@
   a test looking for the one navigation region finds two and a screen reader
   user hears the sidebar announced twice.
 -->
+<!--
+  On the rail the nav owns its inset. Its squares are centered in the rail, so
+  the inline padding an app passes for the full column (px-inline in every
+  console) left 39px for a 40px square, and the important modifier is what
+  outranks a class the app passes. max-w-full keeps the nav off the sidebar's
+  1px edge, which the aside draws inside its own width: at the token's width
+  the nav ran 1px under it, and so did every row. The rail draws no scroll bar:
+  a classic one took 15px of the rail and put every square against its start
+  edge. The wheel, a finger and the keyboard still scroll it.
+-->
 <nav
   aria-label={label}
   class="{collapsed
-    ? 'w-nav-rail'
-    : 'w-sidebar'} relative shrink-0 overflow-y-auto overscroll-contain py-2 {klass}"
+    ? 'w-nav-rail max-w-full px-0! [scrollbar-width:none]'
+    : 'w-sidebar max-w-full'} relative shrink-0 overflow-y-auto overscroll-contain py-2 {klass}"
 >
-  <ul class="flex flex-col gap-0.5">
+  <ul class="flex flex-col {collapsed ? 'gap-1' : 'gap-0.5'}">
     {#each items as node (node.id)}
       {@render row(node)}
     {/each}
@@ -189,17 +211,17 @@
       </span>
     {:else if node.href && branch}
       <!--
-        The rail stacks the disclosure under the link, under a mouse and under
-        a finger alike, so the link keeps the rail's width. Side by side the two
-        did not fit. Under a finger the pair took 92px and scrolled the nav
-        sideways. Under a mouse the link shrank to its own padding with its icon
-        under the chevron, and a rail with a gutter scrolled as well.
+        The rail stacks the disclosure under the link's square, under a mouse
+        and under a finger alike. Side by side the two did not fit. Under a
+        finger the pair took 92px and scrolled the nav sideways. Under a mouse
+        the link shrank to its own padding with its icon under the chevron, and
+        a rail with a gutter scrolled as well.
       -->
-      <div class={collapsed ? 'flex flex-col items-start gap-1' : 'flex items-center gap-1'}>
+      <div class={collapsed ? 'flex flex-col items-center gap-1' : 'flex items-center gap-1'}>
         <a
           href={safeHref(node.href)}
           aria-current={current ? 'page' : undefined}
-          class="{ROW} {paint} min-w-0 flex-1"
+          class="{ROW} {paint} {collapsed ? '' : 'min-w-0 flex-1'}"
         >
           {@render body(node)}
         </a>
@@ -216,16 +238,21 @@
         </button>
       </div>
     {:else if branch}
+      <!--
+        On the rail the chevron sits in the square's corner, out of the flow. In
+        the flow beside the 20px icon it filled the square and put the icon 8px
+        left of center.
+      -->
       <button
         type="button"
-        class="{ROW} {paint}"
+        class="{ROW} {paint} {collapsed ? 'relative' : ''}"
         aria-expanded={open}
         aria-controls={listId(node.id)}
         aria-current={ancestor ? 'true' : undefined}
         onclick={() => expansion.toggle(node.id)}
       >
         {@render body(node)}
-        {@render chevron(open)}
+        {@render chevron(open, collapsed)}
       </button>
     {:else if node.href}
       <a
@@ -277,7 +304,7 @@
           <ul
             id={listId(node.id)}
             inert={!shown}
-            class="mt-0.5 flex flex-col gap-0.5 {collapsed ? '' : 'ms-nav-indent'}"
+            class="flex flex-col {collapsed ? 'mt-1 gap-1' : 'ms-nav-indent mt-0.5 gap-0.5'}"
           >
             {#each children as child (child.id)}
               {@render row(child)}
@@ -292,7 +319,9 @@
 {#snippet body(node: NavNode)}
   {#if node.icon}
     {@const Icon = node.icon}
-    <Icon size={16} class="shrink-0" />
+    <!-- The 20px rung on the rail, where the icon stands alone in its square,
+         and the 16px rung beside a label. -->
+    <Icon size={collapsed ? 20 : 16} class="shrink-0" />
   {/if}
   <!--
     The label stays in the accessible name on a collapsed rail. Dropping it
@@ -305,12 +334,14 @@
   {/if}
 {/snippet}
 
-{#snippet chevron(open: boolean)}
+{#snippet chevron(open: boolean, corner = false)}
   <!-- Stroked SVG, not a Unicode arrow: a glyph lands at whatever weight the
        reader's font gives it, visibly apart from every other icon here. -->
   <ChevronRight
-    size={14}
-    class="shrink-0 transition-transform duration-base {open ? 'rotate-90' : 'rtl:rotate-180'}"
+    size={corner ? 12 : 14}
+    class="{corner
+      ? 'absolute end-0 bottom-0'
+      : ''} shrink-0 transition-transform duration-base {open ? 'rotate-90' : 'rtl:rotate-180'}"
     aria-hidden="true"
   />
 {/snippet}

@@ -407,6 +407,23 @@ describe('AppShell between md: and lg:', () => {
     expect(getByTestId('foot').parentElement?.className).toContain('overflow-hidden');
   });
 
+  it('centers the mark on the rail and keeps the inset in the full column', () => {
+    // The rail kept the column's inset, so the 28px mark sat 6px left of the
+    // icons under it.
+    const mark = createRawSnippet(() => ({ render: () => '<span data-testid="mark">M</span>' }));
+    width('tablet');
+    const rail = render(AppShell, { props: { ...railBase, brand: mark } });
+    const railRow = rail.getByTestId('mark').parentElement!.className.split(/\s+/);
+    expect(railRow).toContain('justify-center-safe');
+    expect(railRow).not.toContain('px-inline');
+    rail.unmount();
+    width('desktop');
+    const wide = render(AppShell, { props: { ...railBase, brand: mark } });
+    const wideRow = wide.getByTestId('mark').parentElement!.className.split(/\s+/);
+    expect(wideRow).toContain('px-inline');
+    expect(wideRow).not.toContain('justify-center');
+  });
+
   it('renders a nav written for the old contract, which took no argument', () => {
     width('tablet');
     const { getByText } = render(AppShell, { props: base });
