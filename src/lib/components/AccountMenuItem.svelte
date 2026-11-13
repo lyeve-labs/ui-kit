@@ -60,14 +60,13 @@
   const ROW = `${TOUCH_GROW} ${NAV_ROW} px-2 ${NAV_ROW_REST}`;
 
   /*
-   * A loading button draws the way a disabled one did. It holds the paint
-   * under the pointer while pressed, because the held step reads as a press
-   * accepted. In forced colors the browser draws a disabled button in GrayText
-   * and does nothing for aria-disabled, so the label takes GrayText here.
+   * A loading button draws the way a disabled one did. A held row keeps what
+   * it showed before the press, because the row's held step waits for
+   * not-aria-disabled. In forced colors the browser draws a disabled button in
+   * GrayText and does nothing for aria-disabled, so the label takes GrayText
+   * here.
    */
-  const BUSY =
-    'aria-disabled:cursor-progress aria-disabled:active:bg-surface-2 ' +
-    'aria-disabled:active:text-fg forced-colors:aria-disabled:text-[color:GrayText]';
+  const BUSY = 'aria-disabled:cursor-progress forced-colors:aria-disabled:text-[color:GrayText]';
 
   /*
    * The guard listens on the element. Svelte delegates a declared onclick to

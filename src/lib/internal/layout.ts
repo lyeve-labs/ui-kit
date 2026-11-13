@@ -343,6 +343,10 @@ export const NAV_ROW =
 export const NAV_RAIL_ROW =
   'mx-auto flex size-10 shrink-0 items-center justify-center gap-0.5 rounded-lg border-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
-/** A navigation row at rest, which answers the pointer and a held finger. */
+/**
+ * A navigation row at rest, which answers the pointer and a held finger. The
+ * held step waits for not-aria-disabled, because a busy row stays enabled and
+ * a press must not read as accepted.
+ */
 export const NAV_ROW_REST =
-  'text-muted hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg';
+  'text-muted hover:bg-surface-2 hover:text-fg not-aria-disabled:active:bg-line not-aria-disabled:active:text-fg';

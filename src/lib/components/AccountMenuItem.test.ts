@@ -98,7 +98,7 @@ describe('AccountMenuItem', () => {
       expect(classes.filter((c) => /^bg-/.test(c))).toEqual([]);
       expect(classes).toContain('text-muted');
       expect(classes).toContain('hover:bg-surface-2');
-      expect(classes).toContain('active:bg-line');
+      expect(classes).toContain('not-aria-disabled:active:bg-line');
       expect(classes).toContain('transition-colors');
       unmount();
     }
@@ -154,13 +154,15 @@ describe('AccountMenuItem while loading', () => {
   // an ancestor that stopped the click would skip the guard.
   it('refuses a press on the focused item, even when an ancestor stops the click', async () => {
     const { form, onsubmit } = inForm();
-    const wrapper = form.appendChild(document.createElement('div'));
-    wrapper.addEventListener('click', (e) => e.stopPropagation());
     const { getByRole } = render(AccountMenuItem, {
-      target: wrapper,
+      target: form,
       props: { type: 'submit', loading: true, children: label('Sign out') },
     });
     const button = getByRole('button');
+    const wrapper = document.createElement('div');
+    button.before(wrapper);
+    wrapper.append(button);
+    wrapper.addEventListener('click', (e) => e.stopPropagation());
     button.focus();
     expect(document.activeElement).toBe(button);
     const pressed = await fireEvent.click(button);

@@ -4,7 +4,7 @@
  * body. A loading item stays enabled, keeps the focus and refuses the press
  * itself, and draws the way a disabled one does.
  */
-import { test, expect } from '@playwright/experimental-ct-svelte';
+import { test, expect, type Locator } from '@playwright/experimental-ct-svelte';
 import AccountMenuItemLoadingStory from './AccountMenuItemLoadingStory.svelte';
 import AccountMenuItemStatesStory from './AccountMenuItemStatesStory.svelte';
 import { styleWithKit } from './kit-css.js';
@@ -39,36 +39,71 @@ test('keeps focus while loading and refuses every second press', async ({ mount,
 });
 
 /*
- * A natively disabled button never matches :active, and on a touch screen
- * the held color is the only sign a press landed. A loading item stays
- * enabled, so it must not show it either. The pointer stays over the item,
- * so the color under the pointer is the baseline, and an idle item proves
- * the press shows.
+ * On a touch screen the held color is the only sign a press landed. A loading
+ * item stays enabled, so a held row keeps what it showed before the press, or
+ * the press reads as accepted. An idle item proves the press shows.
  */
-test('a loading item shows no held color', async ({ mount, page }) => {
+const paint = (item: Locator) =>
+  item.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return `${s.backgroundColor} ${s.color}`;
+  });
+
+// Reduced motion leaves a 1ms transition, so a read waits for it to end.
+const settled = async (item: Locator, state: ':hover' | ':active') => {
+  await expect.poll(() => item.evaluate((el, s) => el.matches(s), state)).toBe(true);
+  await item.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+  return paint(item);
+};
+
+const center = async (item: Locator) => {
+  const box = (await item.boundingBox())!;
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+};
+
+test('a loading item shows no held color under the mouse', async ({ mount, page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await mount(AccountMenuItemStatesStory);
   await styleWithKit(page, 'dark');
   for (const state of ['idle', 'loading'] as const) {
     const item = page.getByTestId(state).getByRole('button');
-    const paint = () =>
-      item.evaluate((el) => {
-        const s = getComputedStyle(el);
-        return `${s.backgroundColor} ${s.color}`;
-      });
-    const box = (await item.boundingBox())!;
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.waitForTimeout(50);
-    const over = await paint();
+    const { x, y } = await center(item);
+    await page.mouse.move(x, y);
+    const over = await settled(item, ':hover');
     await page.mouse.down();
-    if (state === 'idle') {
-      await expect.poll(paint, { message: 'idle' }).not.toBe(over);
-    } else {
-      await page.waitForTimeout(50);
-      expect(await paint(), 'loading').toBe(over);
-    }
+    const held = await settled(item, ':active');
+    if (state === 'idle') expect(held, 'idle').not.toBe(over);
+    else expect(held, 'loading').toBe(over);
     await page.mouse.up();
   }
+});
+
+/*
+ * On a touch screen no hover paint applies, so a row rests transparent and
+ * muted. Headless Chromium sets no :active for a synthesized touch, so the
+ * press here is the mouse's on a page emulating a touch device, where
+ * (hover: hover) is false as it is under a finger.
+ */
+test.describe('on a touch device', () => {
+  test.use({ hasTouch: true, isMobile: true });
+
+  test('a loading item shows no held color', async ({ mount, page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(AccountMenuItemStatesStory);
+    await styleWithKit(page, 'dark');
+    expect(await page.evaluate(() => matchMedia('(hover: hover)').matches)).toBe(false);
+    for (const state of ['idle', 'loading'] as const) {
+      const item = page.getByTestId(state).getByRole('button');
+      const rest = await paint(item);
+      const { x, y } = await center(item);
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      const held = await settled(item, ':active');
+      if (state === 'idle') expect(held, 'idle').not.toBe(rest);
+      else expect(held, 'loading').toBe(rest);
+      await page.mouse.up();
+    }
+  });
 });
 
 /*
