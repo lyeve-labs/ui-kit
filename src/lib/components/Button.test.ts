@@ -203,6 +203,29 @@ describe('Button while loading', () => {
     form.remove();
   });
 
+  // Svelte delegates a declared onclick to the root, so an ancestor that
+  // stops the click on its way up kept a delegated guard from running and the
+  // form submitted again.
+  it('does not submit its form while loading when an ancestor stops the click', async () => {
+    const form = document.body.appendChild(document.createElement('form'));
+    const onsubmit = vi.fn((e: Event) => e.preventDefault());
+    form.addEventListener('submit', onsubmit);
+    const onclick = vi.fn();
+    const { getByRole } = render(Button, {
+      target: form,
+      props: { type: 'submit', loading: true, onclick, children: text('Save') },
+    });
+    const button = getByRole('button');
+    const wrapper = document.createElement('div');
+    button.before(wrapper);
+    wrapper.append(button);
+    wrapper.addEventListener('click', (e) => e.stopPropagation());
+    await fireEvent.click(button);
+    expect(onsubmit).not.toHaveBeenCalled();
+    expect(onclick).not.toHaveBeenCalled();
+    form.remove();
+  });
+
   it('keeps a disabled button disabled while it loads', () => {
     const { getByRole } = render(Button, {
       props: { disabled: true, loading: true, children: text('Save') },
@@ -244,6 +267,9 @@ describe('Button in forced colors', () => {
 
 describe('Button pressed state', () => {
   const variants = ['primary', 'secondary', 'danger', 'ghost', 'outline', 'violet'] as const;
+  // A held step applies only while the button is not aria-disabled, because a
+  // loading button stays enabled and a press must not read as accepted.
+  const HELD = 'not-aria-disabled:active:';
 
   const classesOf = (variant: (typeof variants)[number]) => {
     const { container } = render(Button, { props: { children: text('x'), variant } });
@@ -275,9 +301,18 @@ describe('Button pressed state', () => {
     }
   });
 
+  it('shows no held step on a loading button', () => {
+    for (const variant of variants) {
+      const ungated = classesOf(variant).filter(
+        (c) => c.includes('active:') && !c.startsWith(HELD),
+      );
+      expect({ variant, ungated }).toEqual({ variant, ungated: [] });
+    }
+  });
+
   it('gives every variant something to show while it is held', () => {
     for (const variant of variants) {
-      const held = classesOf(variant).filter((c) => c.startsWith('active:'));
+      const held = classesOf(variant).filter((c) => c.startsWith(HELD));
       expect({ variant, held: held.length }).toEqual({ variant, held: held.length || -1 });
       expect(held.length).toBeGreaterThan(0);
     }
@@ -294,7 +329,7 @@ describe('Button pressed state', () => {
   it('never spells the held state as the resting one', () => {
     for (const variant of variants) {
       const cls = classesOf(variant);
-      const held = cls.filter((c) => c.startsWith('active:')).map((c) => c.slice(7));
+      const held = cls.filter((c) => c.startsWith(HELD)).map((c) => c.slice(HELD.length));
       for (const step of held) {
         expect({ variant, step, alsoAtRest: cls.includes(step) }).toEqual({
           variant,
