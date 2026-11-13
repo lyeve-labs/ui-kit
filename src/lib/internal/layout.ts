@@ -312,6 +312,15 @@ export const APP_HEADER =
  */
 export const APP_BRAND = 'flex h-header shrink-0 items-center gap-2 border-b border-line px-inline';
 
+/**
+ * The brand row on the rail. The rail's entries are centered squares, so the
+ * mark is centered over them. With the column's inset it sat 6px left of the
+ * icons under it. A brand wider than the rail keeps its start, as the clipped
+ * row always has.
+ */
+export const APP_BRAND_RAIL =
+  'flex h-header shrink-0 items-center justify-center-safe overflow-hidden border-b border-line';
+
 /** A band at the foot of the sidebar, on the nav's own inset. */
 export const APP_SIDEBAR_BAND = 'shrink-0 border-t border-line px-inline py-3';
 
@@ -322,6 +331,17 @@ export const APP_SIDEBAR_BAND = 'shrink-0 border-t border-line px-inline py-3';
  */
 export const NAV_ROW =
   'flex w-full items-center gap-2.5 rounded-lg py-2 text-sm text-start transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
+
+/**
+ * An entry on the icon rail. Nothing sits beside its icon, so it is a 40px
+ * square centered in the rail, the same box at rest, under the pointer and
+ * current. A full-width row with its label hidden put the icon 10px left of
+ * center and ran the current fill under the rail's edge. The 2px border is
+ * transparent in every state and shows only in a forced colors scheme, on the
+ * current entry, where it is the whole mark.
+ */
+export const NAV_RAIL_ROW =
+  'mx-auto flex size-10 shrink-0 items-center justify-center gap-0.5 rounded-lg border-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus';
 
 /** A navigation row at rest, which answers the pointer and a held finger. */
 export const NAV_ROW_REST =
