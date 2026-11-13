@@ -95,7 +95,8 @@
    */
   const FILLED_EDGE =
     'forced-colors:outline-solid forced-colors:outline-1 forced-colors:-outline-offset-1 ' +
-    'forced-colors:outline-[color:ButtonText] forced-colors:disabled:outline-[color:GrayText]';
+    'forced-colors:outline-[color:ButtonText] forced-colors:disabled:outline-[color:GrayText] ' +
+    'forced-colors:aria-disabled:outline-[color:GrayText]';
 
   /*
    * Every variant carries a 1px border, transparent where it draws none, so
@@ -149,11 +150,15 @@
    * which is 44px there, so a button and the input beside it grow together.
    * A mouse sees 34px, 38px and 46px by size, md level with the 38px
    * control height, and an icon-only button its icon plus 16px.
+   *
+   * aria-disabled: a loading button stays enabled and is marked this way, so
+   * it draws the way a disabled one does.
    */
   const cls = $derived(
     `inline-flex items-center justify-center font-medium whitespace-nowrap ` +
       `transition-colors ` +
-      `disabled:opacity-50 disabled:cursor-not-allowed select-none ${TOUCH_GROW} ` +
+      `disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 ` +
+      `aria-disabled:cursor-not-allowed select-none ${TOUCH_GROW} ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );
 
@@ -168,18 +173,35 @@
    * ordinary and navigated on click, and `disabled:opacity-50` never matched
    * because that pseudo-class does not apply to `a`. Dropping the href is what
    * actually takes it out of the tab order and stops activation.
+   *
+   * Loading is not disabled. A browser moves focus off a control that turns
+   * disabled or loses its href, which left a person who pressed the button
+   * from the keyboard on the page body while the action ran. A loading
+   * control keeps its focus and refuses activation here instead. A click,
+   * Enter and Space all arrive as a click, and so does the Enter in a field
+   * that submits a form through its submit button, so canceling the click
+   * also stops a second submit.
    */
   const inert = $derived(disabled || loading);
+
+  function activate(e: MouseEvent) {
+    if (inert) {
+      e.preventDefault();
+      return;
+    }
+    onclick?.(e);
+  }
 </script>
 
 {#snippet control()}
   {#if href}
     <a
-      href={inert ? undefined : resolvedHref}
+      href={disabled ? undefined : resolvedHref}
       class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
       aria-disabled={inert ? 'true' : undefined}
-      tabindex={inert ? -1 : undefined}
-      onclick={inert ? undefined : onclick}
+      aria-busy={loading ? 'true' : undefined}
+      tabindex={disabled ? -1 : undefined}
+      onclick={activate}
       {...rest}
     >
       {#if loading}<Spinner size={spinnerSize} />{/if}
@@ -188,9 +210,10 @@
   {:else}
     <button
       {type}
-      disabled={disabled || loading}
+      {disabled}
+      aria-disabled={loading ? 'true' : undefined}
       aria-busy={loading ? 'true' : undefined}
-      {onclick}
+      onclick={activate}
       class={cls}
       {...rest}
     >

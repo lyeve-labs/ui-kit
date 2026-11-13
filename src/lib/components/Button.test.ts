@@ -92,11 +92,11 @@ describe('Button', () => {
     expect((container.querySelector('button') as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it('is disabled and shows a spinner when loading=true', () => {
+  it('is marked disabled and shows a spinner when loading=true', () => {
     const { container } = render(Button, {
       props: { children: text('x'), loading: true },
     });
-    expect((container.querySelector('button') as HTMLButtonElement).disabled).toBe(true);
+    expect(container.querySelector('button')?.getAttribute('aria-disabled')).toBe('true');
     expect(container.querySelector('svg.animate-spin')).toBeTruthy();
   });
 
@@ -128,8 +128,8 @@ describe('Button', () => {
     expect(onclick.mock.calls[0][0].defaultPrevented).toBe(true);
   });
 
-  // An inert link has no href, but assistive technology or a script can still
-  // click it, and the button branch's disabled attribute is what stops that.
+  // Assistive technology or a script can still click an inert link, so the
+  // click handler refuses it.
   it.each([
     ['disabled', { disabled: true }],
     ['loading', { loading: true }],
@@ -155,19 +155,75 @@ describe('Button', () => {
     expect(a.getAttribute('tabindex')).toBe('-1');
   });
 
-  it('does not navigate while a link button is loading', () => {
-    const { container } = render(Button, {
-      props: { href: '/somewhere', loading: true, children: text('Go') },
-    });
-    const a = container.querySelector('a') as HTMLAnchorElement;
-    expect(a.hasAttribute('href')).toBe(false);
-  });
-
   it('reports a submit in flight to assistive technology', () => {
     const { container } = render(Button, { props: { loading: true, children: text('Save') } });
     const button = container.querySelector('button') as HTMLButtonElement;
     expect(button.getAttribute('aria-busy')).toBe('true');
-    expect(button.disabled).toBe(true);
+  });
+});
+
+/*
+ * A browser moves focus off a control that turns disabled, so a person who
+ * pressed the button from the keyboard was left on the page body while the
+ * action ran. A loading button stays enabled and refuses activation itself.
+ */
+describe('Button while loading', () => {
+  it('keeps focus on the button once it starts loading', async () => {
+    const { getByRole, rerender } = render(Button, { props: { children: text('Save') } });
+    const button = getByRole('button') as HTMLButtonElement;
+    button.focus();
+    await rerender({ loading: true });
+    expect(button.disabled).toBe(false);
+    expect(document.activeElement).toBe(button);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+    expect(button.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('does not call onclick while loading', async () => {
+    const onclick = vi.fn();
+    const { getByRole } = render(Button, {
+      props: { loading: true, onclick, children: text('Save') },
+    });
+    await fireEvent.click(getByRole('button'));
+    expect(onclick).not.toHaveBeenCalled();
+  });
+
+  it('does not submit its form while loading', async () => {
+    const form = document.body.appendChild(document.createElement('form'));
+    const onsubmit = vi.fn((e: Event) => e.preventDefault());
+    form.addEventListener('submit', onsubmit);
+    const { getByRole } = render(Button, {
+      target: form,
+      props: { type: 'submit', loading: true, children: text('Save') },
+    });
+    const button = getByRole('button') as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+    await fireEvent.click(button);
+    expect(onsubmit).not.toHaveBeenCalled();
+    form.remove();
+  });
+
+  it('keeps a disabled button disabled while it loads', () => {
+    const { getByRole } = render(Button, {
+      props: { disabled: true, loading: true, children: text('Save') },
+    });
+    expect((getByRole('button') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('keeps a loading link button in the tab order and refuses its click', async () => {
+    const onclick = vi.fn();
+    const { container } = render(Button, {
+      props: { href: '/go', loading: true, onclick, children: text('Go') },
+    });
+    const a = container.querySelector('a') as HTMLAnchorElement;
+    a.focus();
+    expect(document.activeElement).toBe(a);
+    expect(a.getAttribute('aria-disabled')).toBe('true');
+    expect(a.getAttribute('aria-busy')).toBe('true');
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    a.dispatchEvent(click);
+    expect(click.defaultPrevented).toBe(true);
+    expect(onclick).not.toHaveBeenCalled();
   });
 });
 

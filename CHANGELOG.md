@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A loading `Button` keeps keyboard focus. It set the native `disabled` attribute, and a browser moves focus off a disabled control, so a person who pressed the button from the keyboard landed on the page body while the action ran. A loading button now stays enabled, carries `aria-disabled` and `aria-busy`, and refuses a click, Enter and Space itself. A loading submit button still stops a second submit, the Enter in a field of its form included. A loading link button keeps its address and its place in the tab order and refuses activation the same way. It still draws at half strength. A test that read `disabled` on a loading button reads `aria-disabled` instead.
+
 ## [0.61.0] - 2026-11-13
 
 ### Added
