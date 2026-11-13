@@ -80,9 +80,11 @@
    * the filtered variants darken rather than brighten, so a press does not read
    * as one gesture in one theme and its opposite in the other.
    *
-   * A natively disabled button never matches :active, and a loading one
-   * stays enabled, so every pressed step waits for `not-aria-disabled`. A
-   * held loading button showing its pressed color read as a press accepted.
+   * Chromium matches :active on a natively disabled button while it is held,
+   * and a loading button stays enabled, so every pressed step waits for both
+   * `not-disabled` and `not-aria-disabled`. A held disabled or loading button
+   * showing its pressed color read as a press accepted. `enabled:` would not
+   * do, because :enabled never matches the link variant.
    *
    * The filled and secondary variants are raised: a bright edge along the top
    * and a short drop under them. The primary action is marked by its fill
@@ -118,15 +120,15 @@
   const variants: Record<Variant, string> = {
     primary:
       'bg-brand bg-lift bg-origin-border text-ink border border-transparent hover:bg-brand-light ' +
-      `not-aria-disabled:active:bg-brand-deep inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
-    violet: `bg-violet text-ink hover:brightness-110 not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+      `not-disabled:not-aria-disabled:active:bg-brand-deep inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+    violet: `bg-violet text-ink hover:brightness-110 not-disabled:not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     secondary:
-      'bg-surface-2 text-fg border border-line hover:bg-line not-aria-disabled:active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
-    danger: `bg-danger text-ink hover:brightness-110 not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+      'bg-surface-2 text-fg border border-line hover:bg-line not-disabled:not-aria-disabled:active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
+    danger: `bg-danger text-ink hover:brightness-110 not-disabled:not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     ghost:
-      'text-muted border border-transparent hover:bg-surface-2 hover:text-fg not-aria-disabled:active:bg-line not-aria-disabled:active:text-fg',
+      'text-muted border border-transparent hover:bg-surface-2 hover:text-fg not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg',
     outline:
-      'border border-line text-fg hover:border-brand hover:text-brand not-aria-disabled:active:bg-brand/10',
+      'border border-line text-fg hover:border-brand hover:text-brand not-disabled:not-aria-disabled:active:bg-brand/10',
   };
 
   /*
