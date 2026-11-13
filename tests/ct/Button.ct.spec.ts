@@ -95,34 +95,39 @@ test.describe('Button', () => {
   });
 
   /*
-   * A natively disabled button never matches :active, and on a touch screen
-   * the held color is the only sign a press landed. A loading button stays
-   * enabled, so it must not show it either, or a press reads as accepted.
-   * The pointer stays over the button, so the color under the pointer is the
-   * baseline, and an idle button of each variant proves the press shows.
+   * On a touch screen the held color is the only sign a press landed, so a
+   * button that ignores the press must not show it. Chromium matches :active
+   * on a natively disabled button while it is held, and a loading button
+   * stays enabled, so neither state may paint its pressed step. The pointer
+   * stays over the button, so the color under the pointer is the baseline,
+   * and an idle button of each variant proves the press shows. Transitions
+   * are off, so the paint read once :active matches is the settled one.
    */
-  test('a loading button shows no held color', async ({ mount, page }) => {
+  test('a loading or disabled button shows no held color', async ({ mount, page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await mount(ButtonStatesStory);
     await styleWithKit(page, 'dark');
+    await page.addStyleTag({ content: '* { transition: none !important; }' });
     for (const variant of VARIANTS) {
-      for (const state of ['idle', 'loading'] as const) {
+      for (const state of ['idle', 'loading', 'disabled'] as const) {
         const button = page.getByTestId(`${variant}-${state}`);
         const paint = () =>
           button.evaluate((el) => {
             const s = getComputedStyle(el);
             return `${s.backgroundColor} ${s.color} ${s.filter}`;
           });
+        const matches = (selector: string) => () =>
+          button.evaluate((el, sel) => el.matches(sel), selector);
         const box = (await button.boundingBox())!;
         await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-        await page.waitForTimeout(50);
+        await expect.poll(matches(':hover'), { message: `${variant} ${state} hover` }).toBe(true);
         const over = await paint();
         await page.mouse.down();
         if (state === 'idle') {
           await expect.poll(paint, { message: `${variant} idle` }).not.toBe(over);
         } else {
-          await page.waitForTimeout(50);
-          expect(await paint(), `${variant} loading`).toBe(over);
+          await expect.poll(matches(':active'), { message: `${variant} ${state} held` }).toBe(true);
+          expect.soft(await paint(), `${variant} ${state}`).toBe(over);
         }
         await page.mouse.up();
       }

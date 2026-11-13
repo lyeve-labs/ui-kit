@@ -267,9 +267,11 @@ describe('Button in forced colors', () => {
 
 describe('Button pressed state', () => {
   const variants = ['primary', 'secondary', 'danger', 'ghost', 'outline', 'violet'] as const;
-  // A held step applies only while the button is not aria-disabled, because a
-  // loading button stays enabled and a press must not read as accepted.
-  const HELD = 'not-aria-disabled:active:';
+  // A held step applies only while the button is neither disabled nor
+  // aria-disabled. Chromium matches :active on a disabled button, and a
+  // loading button stays enabled, and a press on either must not read as
+  // accepted.
+  const HELD = 'not-disabled:not-aria-disabled:active:';
 
   const classesOf = (variant: (typeof variants)[number]) => {
     const { container } = render(Button, { props: { children: text('x'), variant } });
@@ -301,7 +303,7 @@ describe('Button pressed state', () => {
     }
   });
 
-  it('shows no held step on a loading button', () => {
+  it('shows no held step on a disabled or loading button', () => {
     for (const variant of variants) {
       const ungated = classesOf(variant).filter(
         (c) => c.includes('active:') && !c.startsWith(HELD),
