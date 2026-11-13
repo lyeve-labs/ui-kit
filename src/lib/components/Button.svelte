@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { Attachment } from 'svelte/attachments';
+  import { on } from 'svelte/events';
   import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import Spinner from './Spinner.svelte';
   import Tooltip from './Tooltip.svelte';
@@ -78,6 +80,10 @@
    * the filtered variants darken rather than brighten, so a press does not read
    * as one gesture in one theme and its opposite in the other.
    *
+   * A natively disabled button never matches :active, and a loading one
+   * stays enabled, so every pressed step waits for `not-aria-disabled`. A
+   * held loading button showing its pressed color read as a press accepted.
+   *
    * The filled and secondary variants are raised: a bright edge along the top
    * and a short drop under them. The primary action is marked by its fill
    * alone, with no pool of light around it: a glow under the one bright
@@ -95,7 +101,8 @@
    */
   const FILLED_EDGE =
     'forced-colors:outline-solid forced-colors:outline-1 forced-colors:-outline-offset-1 ' +
-    'forced-colors:outline-[color:ButtonText] forced-colors:disabled:outline-[color:GrayText]';
+    'forced-colors:outline-[color:ButtonText] forced-colors:disabled:outline-[color:GrayText] ' +
+    'forced-colors:aria-disabled:outline-[color:GrayText]';
 
   /*
    * Every variant carries a 1px border, transparent where it draws none, so
@@ -111,14 +118,15 @@
   const variants: Record<Variant, string> = {
     primary:
       'bg-brand bg-lift bg-origin-border text-ink border border-transparent hover:bg-brand-light ' +
-      `active:bg-brand-deep inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
-    violet: `bg-violet text-ink hover:brightness-110 active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+      `not-aria-disabled:active:bg-brand-deep inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+    violet: `bg-violet text-ink hover:brightness-110 not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     secondary:
-      'bg-surface-2 text-fg border border-line hover:bg-line active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
-    danger: `bg-danger text-ink hover:brightness-110 active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
+      'bg-surface-2 text-fg border border-line hover:bg-line not-aria-disabled:active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
+    danger: `bg-danger text-ink hover:brightness-110 not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     ghost:
-      'text-muted border border-transparent hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg',
-    outline: 'border border-line text-fg hover:border-brand hover:text-brand active:bg-brand/10',
+      'text-muted border border-transparent hover:bg-surface-2 hover:text-fg not-aria-disabled:active:bg-line not-aria-disabled:active:text-fg',
+    outline:
+      'border border-line text-fg hover:border-brand hover:text-brand not-aria-disabled:active:bg-brand/10',
   };
 
   /*
@@ -149,11 +157,18 @@
    * which is 44px there, so a button and the input beside it grow together.
    * A mouse sees 34px, 38px and 46px by size, md level with the 38px
    * control height, and an icon-only button its icon plus 16px.
+   *
+   * aria-disabled: a loading button stays enabled and is marked this way, so
+   * it draws the way a disabled one does. In forced colors the browser draws
+   * a natively disabled button in GrayText and does nothing for
+   * aria-disabled, so the label and the border take GrayText here.
    */
   const cls = $derived(
     `inline-flex items-center justify-center font-medium whitespace-nowrap ` +
       `transition-colors ` +
-      `disabled:opacity-50 disabled:cursor-not-allowed select-none ${TOUCH_GROW} ` +
+      `disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 ` +
+      `aria-disabled:cursor-not-allowed forced-colors:aria-disabled:text-[color:GrayText] ` +
+      `forced-colors:aria-disabled:border-[color:GrayText] select-none ${TOUCH_GROW} ` +
       `${full ? 'w-full' : ''} ${variants[variant]} ${sizes[size]} ${klass}`,
   );
 
@@ -168,18 +183,40 @@
    * ordinary and navigated on click, and `disabled:opacity-50` never matched
    * because that pseudo-class does not apply to `a`. Dropping the href is what
    * actually takes it out of the tab order and stops activation.
+   *
+   * Loading is not disabled. A browser moves focus off a control that turns
+   * disabled or loses its href, which left a person who pressed the button
+   * from the keyboard on the page body while the action ran. A loading
+   * control keeps its focus and refuses activation here instead. A click,
+   * Enter and Space all arrive as a click, and so does the Enter in a field
+   * that submits a form through its submit button, so canceling the click
+   * also stops a second submit.
+   *
+   * The guard listens on the element. Svelte delegates a declared onclick to
+   * the root, so an ancestor that stopped the click on its way up kept the
+   * guard from running and the form submitted again.
    */
   const inert = $derived(disabled || loading);
+
+  const activate: Attachment<HTMLElement> = (node) =>
+    on(node, 'click', (e) => {
+      if (inert) {
+        e.preventDefault();
+        return;
+      }
+      onclick?.(e);
+    });
 </script>
 
 {#snippet control()}
   {#if href}
     <a
-      href={inert ? undefined : resolvedHref}
+      href={disabled ? undefined : resolvedHref}
       class="{cls} {inert ? 'pointer-events-none opacity-50' : ''}"
       aria-disabled={inert ? 'true' : undefined}
-      tabindex={inert ? -1 : undefined}
-      onclick={inert ? undefined : onclick}
+      aria-busy={loading ? 'true' : undefined}
+      tabindex={disabled ? -1 : undefined}
+      {@attach activate}
       {...rest}
     >
       {#if loading}<Spinner size={spinnerSize} />{/if}
@@ -188,9 +225,10 @@
   {:else}
     <button
       {type}
-      disabled={disabled || loading}
+      {disabled}
+      aria-disabled={loading ? 'true' : undefined}
       aria-busy={loading ? 'true' : undefined}
-      {onclick}
+      {@attach activate}
       class={cls}
       {...rest}
     >

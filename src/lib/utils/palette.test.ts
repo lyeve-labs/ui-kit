@@ -132,7 +132,9 @@ describe('checkPalette measures what the kit paints', () => {
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .replace(/<!--[\s\S]*?-->/g, '');
     const filtered = [
-      ...button.matchAll(/bg-([a-z-]+) text-ink hover:brightness-(\d+) active:brightness-(\d+)/g),
+      ...button.matchAll(
+        /bg-([a-z-]+) text-ink hover:brightness-(\d+) not-aria-disabled:active:brightness-(\d+)/g,
+      ),
     ].map(([, fill, hover, held]) => [fill, Number(hover) / 100, Number(held) / 100]);
     expect(filtered).toEqual(
       FILTERED_FILLS.map((fill) => [fill, HOVER_BRIGHTNESS, HELD_BRIGHTNESS]),
