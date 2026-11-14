@@ -246,8 +246,14 @@
    * Stated once rather than spelled out on the previous button, the next button
    * and every numbered one. It was written three times, and a state added to
    * one copy is a state missing from two.
+   *
+   * Chromium matches :active on a natively disabled button while it is held,
+   * and previous and next are disabled at either end, so the pressed step
+   * waits for `not-disabled` and `not-aria-disabled`. `enabled:` would not do,
+   * because :enabled never matches the link a step becomes.
    */
-  const btnRest = 'text-muted hover:text-fg hover:bg-surface-2 active:bg-line active:text-fg';
+  const btnRest =
+    'text-muted hover:text-fg hover:bg-surface-2 not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg';
 
   const btnCurrent = 'bg-brand text-ink';
 </script>
