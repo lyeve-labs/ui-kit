@@ -12,6 +12,7 @@
    * and Escape and Tab both close and hand focus back to the trigger.
    */
   import type { Component, Snippet } from 'svelte';
+  import { Check } from '@lucide/svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
   import { PANEL_LIST, PANEL_SURFACE, dismissOnOutside, placePanel } from '../internal/panel.js';
   import * as motion from '../motion.js';
@@ -21,6 +22,11 @@
     icon?: Component<{ size?: number; class?: string }>;
     variant?: 'default' | 'danger';
     disabled?: boolean;
+    /**
+     * Makes the row a checkbox in the menu, drawn with a check mark while true.
+     * Left out, the row is a plain action.
+     */
+    checked?: boolean;
     onclick: () => void;
   }
 
@@ -30,7 +36,10 @@
     class: cls = '',
     trigger,
   }: {
-    /** The menu's rows. A `danger` row takes the danger tone, and a disabled row is skipped by the arrows. */
+    /**
+     * The menu's rows. A `danger` row takes the danger tone, a row with
+     * `checked` is a checkbox, and a disabled row is skipped by the arrows.
+     */
     items: DropdownItem[];
     /** Which edge of the trigger the menu lines up with. */
     align?: 'left' | 'right';
@@ -64,7 +73,9 @@
 
   function itemNodes(): HTMLButtonElement[] {
     if (menuEl === undefined) return [];
-    return [...menuEl.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')];
+    return [
+      ...menuEl.querySelectorAll<HTMLButtonElement>('[role="menuitem"], [role="menuitemcheckbox"]'),
+    ];
   }
 
   function enabled(index: number): boolean {
@@ -252,7 +263,8 @@
         {#each items as item, index}
           <button
             type="button"
-            role="menuitem"
+            role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
+            aria-checked={item.checked}
             disabled={item.disabled}
             tabindex={index === active ? 0 : -1}
             onclick={() => handleItemClick(item)}
@@ -263,6 +275,11 @@
               ? 'text-danger not-disabled:not-aria-disabled:hover:bg-danger/10 focus-visible:bg-danger/10'
               : 'not-disabled:not-aria-disabled:hover:bg-surface-2 focus-visible:bg-surface-2'}"
           >
+            <!-- An unchecked row keeps the mark's room, so the labels of a
+                 group of checkbox rows start on one line. -->
+            {#if item.checked !== undefined}
+              <Check size={14} class="shrink-0 {item.checked ? '' : 'invisible'}" />
+            {/if}
             {#if item.icon}
               {@const Icon = item.icon}
               <Icon size={14} class="shrink-0" />
