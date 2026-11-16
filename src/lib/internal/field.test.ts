@@ -118,7 +118,7 @@ describe('field borders', () => {
     // The label, the fill and the placeholder or value mark the field.
     expect(tokens(controlBorder(false))).toEqual([
       'border-line',
-      'hover:border-line-strong',
+      'not-disabled:not-aria-disabled:not-focus:hover:border-line-strong',
       'focus:border-focus',
     ]);
     expect(tokens(segmentedBorder(false))).toEqual([
@@ -131,7 +131,9 @@ describe('field borders', () => {
   it('lets a frame focused through its child keep the focus border under the pointer', () => {
     // focus-within and has- are emitted before hover, so an unconditional
     // hover would repaint a focused frame gray.
-    expect(FRAME_HOVER).toBe('hover:not-focus-within:border-line-strong');
+    expect(FRAME_HOVER).toBe(
+      'not-has-disabled:not-has-aria-disabled:hover:not-focus-within:border-line-strong',
+    );
   });
 
   it('keeps the error and the suggestion borders still under the pointer', () => {

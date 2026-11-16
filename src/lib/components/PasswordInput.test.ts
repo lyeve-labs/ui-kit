@@ -173,7 +173,7 @@ describe('PasswordInput', () => {
     const tokens = input(container).className.split(/\s+/);
     expect(tokens).toContain('border-line');
     expect(tokens).not.toContain('border-line-strong');
-    expect(tokens).toContain('hover:border-line-strong');
+    expect(tokens).toContain('not-disabled:not-aria-disabled:not-focus:hover:border-line-strong');
     expect(tokens).toContain('focus:border-focus');
   });
 

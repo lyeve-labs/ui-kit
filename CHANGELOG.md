@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A disabled or loading control no longer changes color under a mouse. A disabled ghost `Button` in dark turned from transparent to its hover fill, a disabled primary turned lighter, and the other variants changed their fill, text, border or brightness the same way, as if a press would land. `Pagination`'s previous and next steps at either end, a disabled `SegmentedControl` of radios or links, a loading `AccountMenuItem`, a disabled `Dropdown` row, a disabled day in `DatePicker`, and a disabled `Input`, `Textarea`, `Select`, `MultiSelect`, `Autocomplete`, `NumberInput`, `PasswordInput`, `SearchInput`, `ColorField`, `DatePicker`, `TimePicker` or `FileInput` did the same. Each now keeps its resting color under the pointer, as it already did while held, and an enabled control answers the pointer as before. The hover step now matches at a higher specificity, so a `hover:` class a host passes through `class` to one of these controls may need the same `not-disabled:not-aria-disabled:` prefix to win.
+
 ## [0.61.1] - 2026-11-16
 
 ### Changed

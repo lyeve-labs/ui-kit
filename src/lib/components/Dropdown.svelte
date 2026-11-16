@@ -260,8 +260,8 @@
               outline-none focus-visible:ring-2 focus-visible:ring-inset
               focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-40
               {item.variant === 'danger'
-              ? 'text-danger hover:bg-danger/10 focus-visible:bg-danger/10'
-              : 'hover:bg-surface-2 focus-visible:bg-surface-2'}"
+              ? 'text-danger not-disabled:not-aria-disabled:hover:bg-danger/10 focus-visible:bg-danger/10'
+              : 'not-disabled:not-aria-disabled:hover:bg-surface-2 focus-visible:bg-surface-2'}"
           >
             {#if item.icon}
               {@const Icon = item.icon}

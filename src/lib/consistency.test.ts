@@ -452,12 +452,14 @@ describe('component consistency', () => {
     // segment or the account menu. The focus token is the one color for it,
     // on a ring, an outline, a field's border and the active row of a list.
     // A field's ring beside its border is the same token at half strength.
+    // A negated focus variant, such as a hover that waits for not-has-focus-
+    // visible, draws nothing while focused and is not a focus mark.
     const internalModules = readdirSync(INTERNAL)
       .filter((n) => n.endsWith('.ts') && !n.endsWith('.test.ts'))
       .map((n) => ({ name: `internal/${n}`, src: readFileSync(join(INTERNAL, n), 'utf8') }));
     const offenders = [...files, ...internalModules]
       .filter((f) =>
-        /(?:focus(?:-visible|-within)?|:focus(?:-visible)?\])\S*:(?:ring|outline|border)-brand(?![\w-])/.test(
+        /(?<!not-(?:has-)?)(?:focus(?:-visible|-within)?|:focus(?:-visible)?\])\S*:(?:ring|outline|border)-brand(?![\w-])/.test(
           f.src,
         ),
       )

@@ -96,10 +96,10 @@
       border-2 border-dashed px-4 py-8 text-center transition-colors
       has-[input:focus-visible]:border-solid
       {error
-      ? 'border-danger bg-danger/5 hover:bg-danger/8'
+      ? 'border-danger bg-danger/5 not-has-disabled:hover:bg-danger/8'
       : dragOver
         ? 'border-brand bg-brand/8'
-        : 'border-line bg-surface-2/40 hover:border-brand hover:bg-brand/5 has-[input:focus-visible]:border-focus'}
+        : 'border-line bg-surface-2/40 not-has-disabled:not-has-focus-visible:hover:border-brand not-has-disabled:hover:bg-brand/5 has-[input:focus-visible]:border-focus'}
       {disabled ? 'cursor-not-allowed opacity-50' : ''}"
     ondragover={(e) => {
       e.preventDefault();

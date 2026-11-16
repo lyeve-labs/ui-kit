@@ -76,7 +76,7 @@ describe('Select: never the native element', () => {
     const classes = trigger(container).className.split(/\s+/);
     expect(classes).toContain('border-line');
     expect(classes).not.toContain('border-line-strong');
-    expect(classes).toContain('hover:border-line-strong');
+    expect(classes).toContain('not-disabled:not-aria-disabled:not-focus:hover:border-line-strong');
     expect(classes).toContain('focus:border-focus');
   });
 

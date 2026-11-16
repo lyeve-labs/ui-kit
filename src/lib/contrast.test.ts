@@ -263,8 +263,16 @@ describe('an account menu row', () => {
   const rest = src.includes('NAV_ROW_REST') ? `${src} ${NAV_ROW_REST}` : src;
   const paints = [
     ['muted', 'surface', 'text-muted'],
-    ['fg', 'surface-2', 'hover:bg-surface-2 hover:text-fg'],
-    ['fg', 'line', 'not-aria-disabled:active:bg-line not-aria-disabled:active:text-fg'],
+    [
+      'fg',
+      'surface-2',
+      'not-disabled:not-aria-disabled:hover:bg-surface-2 not-disabled:not-aria-disabled:hover:text-fg',
+    ],
+    [
+      'fg',
+      'line',
+      'not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg',
+    ],
   ] as const;
 
   it('paints the three steps measured below', () => {
