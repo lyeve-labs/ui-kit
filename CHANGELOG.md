@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- A `Dropdown` item takes `checked`. The row is then a `menuitemcheckbox` with `aria-checked`, and draws a check mark while checked. An unchecked row keeps the mark's room, so the labels line up.
+
 ## [0.61.2] - 2026-11-16
 
 ### Fixed

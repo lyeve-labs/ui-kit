@@ -305,3 +305,57 @@ describe('Dropdown places its menu', () => {
     for (const item of menuItems(container)) expect(item.className).toContain('whitespace-nowrap');
   });
 });
+
+describe('a checked item', () => {
+  const choices = [
+    { label: 'Wrap lines', checked: true, onclick: vi.fn() },
+    { label: 'Show numbers', checked: false, onclick: vi.fn() },
+    { label: 'Reset', onclick: vi.fn() },
+  ];
+
+  const rows = (container: HTMLElement) => [
+    ...container.querySelectorAll<HTMLButtonElement>('[role="menu"] button'),
+  ];
+
+  it('is a menuitemcheckbox that states its state, and a row without one stays a menuitem', async () => {
+    const { container } = render(Dropdown, { props: { items: choices, trigger: liveTrigger } });
+    await openMenu(container);
+    expect(
+      rows(container).map((r) => [r.getAttribute('role'), r.getAttribute('aria-checked')]),
+    ).toEqual([
+      ['menuitemcheckbox', 'true'],
+      ['menuitemcheckbox', 'false'],
+      ['menuitem', null],
+    ]);
+  });
+
+  it('draws the check mark only while checked, and keeps its room while not', async () => {
+    // The room keeps the labels of a group of checkbox rows on one line.
+    const { container } = render(Dropdown, { props: { items: choices, trigger: liveTrigger } });
+    await openMenu(container);
+    const [on, off, plain] = rows(container).map((r) => r.querySelector('svg'));
+    expect(on?.getAttribute('class')).not.toContain('invisible');
+    expect(off?.getAttribute('class')).toContain('invisible');
+    expect(plain).toBeNull();
+  });
+
+  it('walks with the arrows like any other row', async () => {
+    const { container } = render(Dropdown, { props: { items: choices, trigger: liveTrigger } });
+    await openMenu(container);
+    const [first, second, third] = rows(container);
+    expect(document.activeElement).toBe(first);
+    await fireEvent.keyDown(first, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(second);
+    await fireEvent.keyDown(second, { key: 'End' });
+    expect(document.activeElement).toBe(third);
+    await fireEvent.keyDown(third, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(first);
+  });
+
+  it('runs its action on a click', async () => {
+    const { container } = render(Dropdown, { props: { items: choices, trigger: liveTrigger } });
+    await openMenu(container);
+    await fireEvent.click(rows(container)[1]);
+    expect(choices[1].onclick).toHaveBeenCalledOnce();
+  });
+});
