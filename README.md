@@ -98,7 +98,7 @@ pnpm add -D tailwindcss @tailwindcss/vite
 
 ```ts
 // vite.config.ts
-import { sveltekit } from '@sveltejs/vite-plugin-svelte';
+import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
