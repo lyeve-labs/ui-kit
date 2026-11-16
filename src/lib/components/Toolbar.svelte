@@ -28,9 +28,10 @@
      * Makes the row's buttons one Tab stop. The stop is the last button used
      * while it stays enabled, else the first enabled one. Left and Right move
      * across the enabled buttons and wrap at the ends, and Home and End jump to
-     * them. A disabled button is skipped, and a button inside an open menu
-     * belongs to the menu. For a row of buttons only: the arrows would leave a
-     * text field in the row unable to move its caret.
+     * them. A disabled button is skipped, and a button inside an open menu,
+     * listbox, dialog or radio group belongs to that widget. Only buttons
+     * rove, so a text field in the row stays its own Tab stop. With Alt, Ctrl
+     * or Meta held, the keys are left to the browser.
      */
     roving?: boolean;
     /** Packs the controls 2px apart on one line that does not wrap. */
@@ -53,8 +54,18 @@
   let row: HTMLDivElement | undefined = $state();
   /** The button that holds the Tab stop. */
   let stop: HTMLButtonElement | null = null;
+  /** Whether the focus is in the row, or was lost by a button of it turning disabled. */
+  let held = false;
 
-  const own = (b: HTMLButtonElement) => b.closest('[role="menu"]') === null;
+  /**
+   * A widget inside the row moves its own focus. Only one inside the row
+   * counts: a toolbar in a dialog still roves.
+   */
+  const WIDGETS = '[role="menu"], [role="listbox"], [role="dialog"], [role="radiogroup"]';
+  const own = (b: HTMLButtonElement) => {
+    const widget = b.closest(WIDGETS);
+    return widget === null || row === undefined || widget.contains(row);
+  };
   const controls = () => [...(row?.querySelectorAll('button') ?? [])].filter(own);
   const enabled = () => controls().filter((b) => !b.disabled);
 
@@ -84,10 +95,21 @@
    * The buttons are the caller's, so the stop is placed again whenever one
    * comes, goes or turns disabled. A disabled stop cannot take focus, and a
    * row whose only tabindex 0 sat on one could not be reached at all.
+   *
+   * A focused button that turns disabled or goes, such as Redo running out of
+   * history under the keyboard, drops the focus to the page, where the next
+   * arrow scrolls it. The focus follows the stop instead, unless it has moved
+   * on to something else since.
    */
   const rovingFocus: Attachment<HTMLDivElement> = (node) => {
     place();
-    const watch = new MutationObserver(place);
+    const watch = new MutationObserver(() => {
+      const was = stop;
+      place();
+      if (!held || was === null || (!was.disabled && was.isConnected)) return;
+      const at = document.activeElement;
+      if (at === null || at === document.body || at === was) stop?.focus();
+    });
     watch.observe(node, {
       childList: true,
       subtree: true,
@@ -95,6 +117,8 @@
       attributeFilter: ['disabled'],
     });
     const offKey = on(node, 'keydown', (e) => {
+      // Alt+ArrowLeft is Back, and the other modifiers carry shortcuts too.
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
       const list = enabled();
       const at = list.indexOf(e.target as HTMLButtonElement);
       if (at < 0) return;
@@ -106,12 +130,25 @@
       next.focus();
     });
     const offFocus = on(node, 'focusin', (e) => {
+      held = true;
       if (e.target instanceof HTMLButtonElement && own(e.target)) rove(e.target);
+    });
+    // A focus that leaves for nothing, from a button that is still enabled and
+    // in the row, was taken away by the reader, such as a click on the page.
+    const offBlur = on(node, 'focusout', (e) => {
+      const to = e.relatedTarget;
+      const from = e.target;
+      held =
+        to instanceof Node
+          ? node.contains(to)
+          : from instanceof HTMLButtonElement && (from.disabled || !from.isConnected);
     });
     return () => {
       watch.disconnect();
       offKey();
       offFocus();
+      offBlur();
+      held = false;
       for (const b of controls()) b.removeAttribute('tabindex');
       stop = null;
     };

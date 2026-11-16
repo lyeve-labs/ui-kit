@@ -76,6 +76,22 @@ test.describe('a roving Toolbar', () => {
     expect(await focused(page)).toBe('Italic');
   });
 
+  test('keeps the focus in the row when the focused button turns disabled', async ({
+    mount,
+    page,
+  }) => {
+    // Redo runs out of history under the keyboard. The browser drops the
+    // focus of a disabled button to the page, where the next arrow scrolls it.
+    await mount(ToolbarRovingStory);
+    const redo = page.getByRole('button', { name: 'Redo' });
+    await redo.focus();
+    await page.keyboard.press('Enter');
+    await expect(redo).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Bold' })).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    expect(await focused(page)).toBe('Italic');
+  });
+
   test('opens a menu of checkbox rows from the row', async ({ mount, page }) => {
     await mount(ToolbarRovingStory);
     await page.getByRole('button', { name: 'More' }).focus();

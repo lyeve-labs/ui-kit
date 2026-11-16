@@ -476,8 +476,11 @@ origin without TLS, it falls back to the legacy copy command.
 A formatting row is a `Toolbar` with `roving` and `tight`. `roving` makes its
 buttons one Tab stop: Left and Right move across the enabled buttons and wrap
 at the ends, Home and End jump to them, and a disabled button is skipped. The
-stop stays on the last button used while it is enabled. Leave `roving` off a
-row that holds a text field, whose caret needs the arrows. `tight` packs the
+stop stays on the last button used while it is enabled, and when the focused
+button turns disabled or goes, the focus moves to the new stop. Only buttons
+rove, so a text field in the row stays its own Tab stop, and the buttons of a
+menu, listbox, dialog or radio group in the row are left to it. With Alt, Ctrl
+or Meta held, the keys are left to the browser. `tight` packs the
 controls 2px apart on one line. Pass `class="flex-wrap"` to let a tight row
 fold. A shortcut that reaches the row from elsewhere, such as Alt+F10 in an
 editor, calls the toolbar's `focus()` through `bind:this`.

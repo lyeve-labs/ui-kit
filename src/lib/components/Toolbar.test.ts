@@ -206,6 +206,72 @@ describe('Toolbar with roving focus', () => {
     expect(button('Bold').tabIndex).toBe(0);
   });
 
+  it('leaves the radios of a group in the row to the group', async () => {
+    const { button, getByRole } = roving(
+      '<button>Bold</button><span role="radiogroup"><button role="radio">Left</button><button role="radio">Center</button></span>',
+    );
+    expect(getByRole('radiogroup').querySelectorAll('[tabindex]')).toHaveLength(0);
+    const left = getByRole('radio', { name: 'Left' });
+    left.focus();
+    await fireEvent.focusIn(left);
+    await fireEvent.keyDown(left, { key: 'End' });
+    expect(document.activeElement).toBe(left);
+    expect(button('Bold').tabIndex).toBe(0);
+  });
+
+  it('still roves inside a dialog around it', () => {
+    const dialog = document.body.appendChild(document.createElement('div'));
+    dialog.setAttribute('role', 'dialog');
+    const { getByRole } = render(Toolbar, {
+      target: dialog,
+      props: { roving: true, children: buttons(ROW) },
+    });
+    const tabs = [...getByRole('toolbar').querySelectorAll('button')].map((b) => b.tabIndex);
+    expect(tabs).toEqual([0, -1, -1, -1]);
+    dialog.remove();
+  });
+
+  it.each(['altKey', 'ctrlKey', 'metaKey'])(
+    'leaves the keys to the browser with %s held',
+    (mod) => {
+      // Alt+ArrowLeft is Back.
+      const { button } = roving();
+      button('Italic').focus();
+      const left = new KeyboardEvent('keydown', {
+        key: 'ArrowLeft',
+        [mod]: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      button('Italic').dispatchEvent(left);
+      expect(left.defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(button('Italic'));
+    },
+  );
+
+  it('puts the focus on the new stop when the focused button goes', async () => {
+    const { button } = roving();
+    const insert = button('Insert');
+    insert.focus();
+    await fireEvent.focusIn(insert);
+    insert.remove();
+    await settled();
+    expect(document.activeElement).toBe(button('Bold'));
+  });
+
+  it('leaves the focus where the reader took it when the old stop turns disabled', async () => {
+    const outside = document.body.appendChild(document.createElement('button'));
+    const { button } = roving();
+    button('Insert').focus();
+    await fireEvent.focusIn(button('Insert'));
+    outside.focus();
+    await fireEvent.focusOut(button('Insert'), { relatedTarget: outside });
+    button('Insert').disabled = true;
+    await settled();
+    expect(document.activeElement).toBe(outside);
+    outside.remove();
+  });
+
   it('focuses its stop when asked, for a shortcut that reaches the row from elsewhere', async () => {
     const { component, button } = roving();
     button('Italic').focus();
