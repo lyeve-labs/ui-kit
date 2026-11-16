@@ -5,6 +5,22 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.1] - 2026-11-16
+
+### Changed
+
+- A loading `Button` no longer sets the native `disabled` attribute. It carries `aria-disabled="true"` and stays focusable, and a loading link button keeps its `href`. A test that asserts jest-dom's `toBeDisabled()`, reads the `disabled` property or selects `:disabled` on a loading button now finds it enabled, so read `aria-disabled` instead. A style an app sets on `:disabled` no longer reaches a loading button, so add `[aria-disabled="true"]` beside it. Playwright's `toBeDisabled()` counts `aria-disabled` and still passes.
+- A loading `AccountMenuItem` no longer sets the native `disabled` attribute. It carries `aria-disabled="true"` and stays focusable. A test that asserts jest-dom's `toBeDisabled()` or reads the `disabled` property on a loading item now finds it enabled, so read `aria-disabled` instead. A `disabled:` style a host passes through `class` no longer reaches a loading item, so add `[aria-disabled="true"]` beside it. Playwright's `toBeDisabled()` counts `aria-disabled` and still passes.
+- `Pagination` opens its summary in sentence case when it is given a `noun`, so `noun="files"` reads "Files 51 to 100 of 4,210" and "Files, page 3". An empty list still reads "No files", and a noun that starts with a capital, such as "API keys", is unchanged. A test that matches the lowercase summary needs the capital.
+
+### Fixed
+
+- A loading `Button` keeps keyboard focus. It set the native `disabled` attribute, and a browser moves focus off a disabled control, so a person who pressed the button from the keyboard landed on the page body while the action ran. A loading button now stays enabled, carries `aria-disabled` and `aria-busy`, and refuses a click, Enter and Space itself. A loading submit button still stops a second submit, the Enter in a field of its form included. A loading link button keeps its address and its place in the tab order and refuses activation the same way. It still draws at half strength, shows no pressed color while held, and in forced colors draws its label and border in GrayText, as a disabled button does.
+- A loading `AccountMenuItem` keeps keyboard focus. It set the native `disabled` attribute, so a person who chose the item from the keyboard landed on the page body while the action ran, and a reader who opened the menu again could not reach the item to hear that it was busy. It now stays enabled, carries `aria-disabled` and `aria-busy`, and refuses a click, Enter and Space itself, so the menu stays open and nothing posts twice. It shows no pressed color while held, and in forced colors draws its label in GrayText, as a disabled item did.
+- A disabled `Button` no longer shows its pressed color while held. Chromium treats a held disabled button as pressed, so a disabled button of every variant changed its fill, text or brightness under a held pointer or finger.
+- A disabled previous or next button in `Pagination` and a disabled `SegmentedControl` segment no longer show their pressed color while held. Chromium treats a held disabled button as pressed, and a disabled row of link segments still matches a press, so each changed its fill and text under a held pointer or finger.
+- An icon on the `SidebarNav` icon rail is 16px, the size it has beside its label in the full column. At 20px on the rail since 0.61.0, every nav icon grew when the sidebar collapsed and shrank when it opened, so one entry showed at two sizes. The rail's 40px squares are unchanged.
+
 ## [0.61.0] - 2026-11-13
 
 ### Added

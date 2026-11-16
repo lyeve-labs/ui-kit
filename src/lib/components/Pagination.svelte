@@ -205,20 +205,28 @@
    *
    * Every figure is grouped, because a pager sits under a table that groups its
    * own figures and the pager is where the largest number on the screen is.
+   *
+   * The line opens in sentence case. Callers pass the noun lowercase, because
+   * "No files" reads it mid-sentence, so the first letter is raised here once
+   * rather than at every call site.
    */
   let summary = $derived.by(() => {
     if (!counted) {
       if (safeCount !== undefined) {
         const start = (safePage - 1) * perPage + 1;
         const span = `${formatCount(start)} to ${formatCount(start + safeCount - 1)}`;
-        return label ? `${label} ${span}` : span;
+        return label ? sentence(`${label} ${span}`) : span;
       }
-      return label ? `${label}, page ${formatCount(safePage)}` : `Page ${formatCount(safePage)}`;
+      return label ? sentence(`${label}, page ${formatCount(safePage)}`) : `Page ${formatCount(safePage)}`;
     }
     if (safeTotal === 0) return label ? `No ${label}` : 'No results';
     const range = `${formatCount(from)} to ${formatCount(to)} of ${formatCount(safeTotal)}`;
-    return label ? `${label} ${range}` : range;
+    return label ? sentence(`${label} ${range}`) : range;
   });
+
+  function sentence(line: string): string {
+    return line.charAt(0).toUpperCase() + line.slice(1);
+  }
 
   /** The target of a control, sanitized, or nothing when the builder's URL is refused. */
   function linkTo(target: number): string | undefined {
@@ -246,8 +254,14 @@
    * Stated once rather than spelled out on the previous button, the next button
    * and every numbered one. It was written three times, and a state added to
    * one copy is a state missing from two.
+   *
+   * Chromium matches :active on a natively disabled button while it is held,
+   * and previous and next are disabled at either end, so the pressed step
+   * waits for `not-disabled` and `not-aria-disabled`. `enabled:` would not do,
+   * because :enabled never matches the link a step becomes.
    */
-  const btnRest = 'text-muted hover:text-fg hover:bg-surface-2 active:bg-line active:text-fg';
+  const btnRest =
+    'text-muted hover:text-fg hover:bg-surface-2 not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg';
 
   const btnCurrent = 'bg-brand text-ink';
 </script>

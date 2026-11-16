@@ -370,14 +370,16 @@ describe('Pagination naming what it pages', () => {
     const { container } = render(Pagination, {
       props: { page: 2, total: 4210, perPage: 50, noun: 'files', onchange: vi.fn() },
     });
-    expect(summary(container)).toBe('files 51 to 100 of 4,210');
+    // Callers pass the noun lowercase, because 'No files' reads it mid-sentence.
+    // The summary still opens in sentence case.
+    expect(summary(container)).toBe('Files 51 to 100 of 4,210');
   });
 
   it('names it on an uncounted list as well', () => {
     const { container } = render(Pagination, {
       props: { page: 3, hasNext: true, noun: 'jobs', onchange: vi.fn() },
     });
-    expect(summary(container)).toBe('jobs, page 3');
+    expect(summary(container)).toBe('Jobs, page 3');
   });
 
   it('names it when the list holds nothing', () => {
@@ -476,7 +478,7 @@ describe('Pagination stating a range without a total', () => {
     const { container } = render(Pagination, {
       props: { page: 2, perPage: 50, hasNext: true, count: 50, noun: 'jobs', ...nav },
     });
-    expect(summary(container)).toBe('jobs 51 to 100');
+    expect(summary(container)).toBe('Jobs 51 to 100');
   });
 
   /*
@@ -487,7 +489,7 @@ describe('Pagination stating a range without a total', () => {
     const { container } = render(Pagination, {
       props: { page: 3, perPage: 50, hasNext: false, count: 12, noun: 'jobs', ...nav },
     });
-    expect(summary(container)).toBe('jobs 101 to 112');
+    expect(summary(container)).toBe('Jobs 101 to 112');
   });
 
   it('states the range with no noun', () => {
@@ -501,27 +503,27 @@ describe('Pagination stating a range without a total', () => {
     const { container } = render(Pagination, {
       props: { page: 2, perPage: 20, hasNext: true, noun: 'jobs', ...nav },
     });
-    expect(summary(container)).toBe('jobs, page 2');
+    expect(summary(container)).toBe('Jobs, page 2');
   });
 
   it('names the page rather than inverting a range on an empty page', () => {
     const { container } = render(Pagination, {
       props: { page: 2, perPage: 20, hasNext: false, count: 0, noun: 'jobs', ...nav },
     });
-    expect(summary(container)).toBe('jobs, page 2');
+    expect(summary(container)).toBe('Jobs, page 2');
   });
 
   it('groups a large range', () => {
     const { container } = render(Pagination, {
       props: { page: 101, perPage: 50, hasNext: true, count: 50, noun: 'files', ...nav },
     });
-    expect(summary(container)).toBe('files 5,001 to 5,050');
+    expect(summary(container)).toBe('Files 5,001 to 5,050');
   });
 
   it('ignores count when a total is stated', () => {
     const { container } = render(Pagination, {
       props: { page: 2, perPage: 50, total: 4210, count: 7, noun: 'files', ...nav },
     });
-    expect(summary(container)).toBe('files 51 to 100 of 4,210');
+    expect(summary(container)).toBe('Files 51 to 100 of 4,210');
   });
 });

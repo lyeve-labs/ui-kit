@@ -7,6 +7,7 @@
  */
 import { test, expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
 import { fileURLToPath } from 'node:url';
+import SegmentedControl from '../../src/lib/components/SegmentedControl.svelte';
 import SegmentedFitStory from './SegmentedFitStory.svelte';
 import { styleWithKit } from './kit-css.js';
 
@@ -95,4 +96,57 @@ test.describe('SegmentedControl fit', () => {
     );
     expect(ring).toBe(false);
   });
+});
+
+test.describe('SegmentedControl press', () => {
+  /*
+   * Chromium matches :active on a natively disabled button while it is held,
+   * and a disabled row of links carries aria-disabled on anchors that still
+   * match :active. On a touch screen the held color is the only sign a press
+   * landed, so a disabled segment must keep the color it shows under the
+   * pointer. The enabled row proves the press shows on a segment that takes it.
+   */
+  for (const kind of ['radio', 'link'] as const) {
+    for (const disabled of [false, true]) {
+      const state = disabled ? 'disabled' : 'enabled';
+      test(`a held ${state} ${kind} segment ${disabled ? 'keeps its resting color' : 'shows its held color'}`, async ({
+        mount,
+        page,
+      }) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        const options = [
+          { value: 'light', label: 'Light', href: kind === 'link' ? '?theme=light' : undefined },
+          { value: 'dark', label: 'Dark', href: kind === 'link' ? '?theme=dark' : undefined },
+        ];
+        const mounted = await mount(SegmentedControl, {
+          props: { label: 'Theme', value: 'dark', options, disabled },
+        });
+        await styled(mounted, page);
+        await page.addStyleTag({ content: '* { transition: none !important; }' });
+        const segment = page.locator('[data-segment]').first();
+        if (disabled && kind === 'radio') await expect(segment).toBeDisabled();
+        if (disabled && kind === 'link')
+          await expect(segment).toHaveAttribute('aria-disabled', 'true');
+        const paint = () =>
+          segment.evaluate((el) => {
+            const s = getComputedStyle(el);
+            return `${s.backgroundColor} ${s.color}`;
+          });
+        const matches = (selector: string) => () =>
+          segment.evaluate((el, sel) => el.matches(sel), selector);
+        const box = (await segment.boundingBox())!;
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await expect.poll(matches(':hover'), { message: 'hover' }).toBe(true);
+        const over = await paint();
+        await page.mouse.down();
+        if (disabled) {
+          await expect.poll(matches(':active'), { message: 'held' }).toBe(true);
+          expect(await paint()).toBe(over);
+        } else {
+          await expect.poll(paint, { message: 'held' }).not.toBe(over);
+        }
+        await page.mouse.up();
+      });
+    }
+  }
 });

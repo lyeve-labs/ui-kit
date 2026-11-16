@@ -376,7 +376,7 @@
         (stacked ? ` ${SIZES[size].stack}` : '') +
         (selected
           ? ' bg-brand/12 text-brand'
-          : ' text-muted hover:text-fg active:bg-surface active:text-fg')}
+          : ' text-muted hover:text-fg not-disabled:not-aria-disabled:active:bg-surface not-disabled:not-aria-disabled:active:text-fg')}
       {#snippet content()}
         {#if Icon}
           <Icon size={SIZES[size].icon} class="shrink-0" />

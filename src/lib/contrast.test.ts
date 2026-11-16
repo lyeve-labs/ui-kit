@@ -264,7 +264,7 @@ describe('an account menu row', () => {
   const paints = [
     ['muted', 'surface', 'text-muted'],
     ['fg', 'surface-2', 'hover:bg-surface-2 hover:text-fg'],
-    ['fg', 'line', 'active:bg-line active:text-fg'],
+    ['fg', 'line', 'not-aria-disabled:active:bg-line not-aria-disabled:active:text-fg'],
   ] as const;
 
   it('paints the three steps measured below', () => {
