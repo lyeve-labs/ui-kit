@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A loading `Button` no longer sets the native `disabled` attribute. It carries `aria-disabled="true"` and stays focusable, and a loading link button keeps its `href`. A test that asserts jest-dom's `toBeDisabled()`, reads the `disabled` property or selects `:disabled` on a loading button now finds it enabled, so read `aria-disabled` instead. A style an app sets on `:disabled` no longer reaches a loading button, so add `[aria-disabled="true"]` beside it. Playwright's `toBeDisabled()` counts `aria-disabled` and still passes.
 - A loading `AccountMenuItem` no longer sets the native `disabled` attribute. It carries `aria-disabled="true"` and stays focusable. A test that asserts jest-dom's `toBeDisabled()` or reads the `disabled` property on a loading item now finds it enabled, so read `aria-disabled` instead. A `disabled:` style a host passes through `class` no longer reaches a loading item, so add `[aria-disabled="true"]` beside it. Playwright's `toBeDisabled()` counts `aria-disabled` and still passes.
+- `Pagination` opens its summary in sentence case when it is given a `noun`, so `noun="files"` reads "Files 51 to 100 of 4,210" and "Files, page 3". An empty list still reads "No files", and a noun that starts with a capital, such as "API keys", is unchanged. A test that matches the lowercase summary needs the capital.
 
 ### Fixed
 
