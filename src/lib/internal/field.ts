@@ -102,8 +102,10 @@ export const CONTROL_MULTILINE =
  * holding a suggestion stays violet, so those two branches add
  * CONTROL_FOCUS_RING in their own color to mark the focus.
  *
- * hover comes before focus in the order Tailwind emits variants, so a
- * focused field under the pointer keeps its focus border.
+ * A disabled field does not answer the pointer, so the hover waits for
+ * not-disabled and not-aria-disabled. Those raise its specificity above the
+ * focus border's, so the hover also waits for not-focus, and a focused field
+ * under the pointer keeps its focus border.
  */
 export function controlBorder(error: boolean, suggested = false): string {
   if (error)
@@ -112,15 +114,19 @@ export function controlBorder(error: boolean, suggested = false): string {
 }
 
 /** The resting, hovered and focused border of a field that takes focus itself. */
-const CONTROL_EDGE = 'border-line hover:border-line-strong focus:border-focus';
+const CONTROL_EDGE =
+  'border-line not-disabled:not-aria-disabled:not-focus:hover:border-line-strong focus:border-focus';
 
 /**
  * The hover border of a frame that holds the focusable part, such as a
  * MultiSelect's chip well or a CopyField. Its focus border comes from a
  * focus-within or has- variant, which Tailwind emits before hover, so the
- * hover yields while anything inside holds focus.
+ * hover yields while anything inside holds focus. It also yields while the
+ * frame holds a disabled control, because a disabled field does not answer
+ * the pointer.
  */
-export const FRAME_HOVER = 'hover:not-focus-within:border-line-strong';
+export const FRAME_HOVER =
+  'not-has-disabled:not-has-aria-disabled:hover:not-focus-within:border-line-strong';
 
 /**
  * A control holding a value the assistant suggested. Violet replaces both the

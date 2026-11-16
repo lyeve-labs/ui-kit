@@ -143,7 +143,7 @@
     {/if}
   </AssistRow>
 
-  <div class="group/number flex h-control{disabled ? ' opacity-50' : ''}">
+  <div class="{disabled ? 'opacity-50' : 'group/number'} flex h-control">
     <button
       type="button"
       onclick={dec}

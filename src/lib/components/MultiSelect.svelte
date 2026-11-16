@@ -298,7 +298,7 @@
               event.stopPropagation();
               remove(option.value);
             }}
-            class="{HIT_AREA} -m-1.5 p-1.5 transition-colors hover:text-brand-light"
+            class="{HIT_AREA} -m-1.5 p-1.5 transition-colors not-disabled:not-aria-disabled:hover:text-brand-light"
           >
             <!--
               12px inside 6px of padding is a 24px target, which is the floor

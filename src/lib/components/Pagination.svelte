@@ -217,7 +217,9 @@
         const span = `${formatCount(start)} to ${formatCount(start + safeCount - 1)}`;
         return label ? sentence(`${label} ${span}`) : span;
       }
-      return label ? sentence(`${label}, page ${formatCount(safePage)}`) : `Page ${formatCount(safePage)}`;
+      return label
+        ? sentence(`${label}, page ${formatCount(safePage)}`)
+        : `Page ${formatCount(safePage)}`;
     }
     if (safeTotal === 0) return label ? `No ${label}` : 'No results';
     const range = `${formatCount(from)} to ${formatCount(to)} of ${formatCount(safeTotal)}`;
@@ -256,12 +258,13 @@
    * one copy is a state missing from two.
    *
    * Chromium matches :active on a natively disabled button while it is held,
-   * and previous and next are disabled at either end, so the pressed step
-   * waits for `not-disabled` and `not-aria-disabled`. `enabled:` would not do,
-   * because :enabled never matches the link a step becomes.
+   * and previous and next are disabled at either end, so the hover and pressed
+   * steps wait for `not-disabled` and `not-aria-disabled`. A step that goes
+   * nowhere does not answer the pointer. `enabled:` would not do, because
+   * :enabled never matches the link a step becomes.
    */
   const btnRest =
-    'text-muted hover:text-fg hover:bg-surface-2 not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg';
+    'text-muted not-disabled:not-aria-disabled:hover:text-fg not-disabled:not-aria-disabled:hover:bg-surface-2 not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg';
 
   const btnCurrent = 'bg-brand text-ink';
 </script>

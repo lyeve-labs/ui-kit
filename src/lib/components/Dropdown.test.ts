@@ -97,10 +97,16 @@ describe('the menu keyboard contract', () => {
     await openMenu(container);
     const [plain, danger] = menuItems(container).map((el) => el.className.split(/\s+/));
     expect(plain).toEqual(
-      expect.arrayContaining(['hover:bg-surface-2', 'focus-visible:bg-surface-2']),
+      expect.arrayContaining([
+        'not-disabled:not-aria-disabled:hover:bg-surface-2',
+        'focus-visible:bg-surface-2',
+      ]),
     );
     expect(danger).toEqual(
-      expect.arrayContaining(['hover:bg-danger/10', 'focus-visible:bg-danger/10']),
+      expect.arrayContaining([
+        'not-disabled:not-aria-disabled:hover:bg-danger/10',
+        'focus-visible:bg-danger/10',
+      ]),
     );
   });
 

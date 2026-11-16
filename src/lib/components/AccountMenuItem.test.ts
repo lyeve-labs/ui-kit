@@ -97,8 +97,8 @@ describe('AccountMenuItem', () => {
       expect(classes.filter((c) => /^(?:border|shadow|ring)(?:-|$)/.test(c))).toEqual([]);
       expect(classes.filter((c) => /^bg-/.test(c))).toEqual([]);
       expect(classes).toContain('text-muted');
-      expect(classes).toContain('hover:bg-surface-2');
-      expect(classes).toContain('not-aria-disabled:active:bg-line');
+      expect(classes).toContain('not-disabled:not-aria-disabled:hover:bg-surface-2');
+      expect(classes).toContain('not-disabled:not-aria-disabled:active:bg-line');
       expect(classes).toContain('transition-colors');
       unmount();
     }
