@@ -1,5 +1,5 @@
-import { render } from '@testing-library/svelte';
-import { createRawSnippet } from 'svelte';
+import { fireEvent, render } from '@testing-library/svelte';
+import { createRawSnippet, tick } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import Toolbar from './Toolbar.svelte';
 
@@ -83,5 +83,164 @@ describe('Toolbar', () => {
     const cls = getByRole('toolbar').className.split(/\s+/).filter(Boolean);
     expect(cls).toContain('mb-4');
     expect(cls.filter((c) => c !== 'mb-4').some((c) => /^-?m[trblxy]?-/.test(c))).toBe(false);
+  });
+});
+
+/** A row of buttons in one element, since a raw snippet renders one root. */
+const buttons = (html: string) =>
+  createRawSnippet(() => ({ render: () => `<span>${html}</span>` }));
+
+const ROW =
+  '<button>Bold</button><button>Italic</button><button disabled>Link</button><button>Insert</button>';
+
+function roving(html = ROW) {
+  const result = render(Toolbar, {
+    props: { label: 'Text formatting', roving: true, children: buttons(html) },
+  });
+  const button = (name: string) => result.getByRole('button', { name }) as HTMLButtonElement;
+  const stops = () =>
+    [...result.getByRole('toolbar').querySelectorAll('button')].filter((b) => b.tabIndex === 0);
+  return { ...result, button, stops };
+}
+
+/** The observer that places the stop again reports on a microtask. */
+const settled = () => tick().then(() => Promise.resolve());
+
+describe('Toolbar with roving focus', () => {
+  it('leaves every button in the tab sequence without it', () => {
+    const { getByRole } = render(Toolbar, { props: { children: buttons(ROW) } });
+    for (const b of getByRole('toolbar').querySelectorAll('button')) {
+      expect(b.hasAttribute('tabindex')).toBe(false);
+    }
+  });
+
+  it('is one Tab stop, on the first enabled button', () => {
+    const { button, stops } = roving('<button disabled>Undo</button>' + ROW);
+    expect(stops()).toEqual([button('Bold')]);
+    expect(button('Undo').tabIndex).toBe(-1);
+  });
+
+  it('moves with Left and Right, wraps at the ends and skips a disabled button', async () => {
+    const { button, stops } = roving();
+    button('Bold').focus();
+    await fireEvent.keyDown(button('Bold'), { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(button('Italic'));
+    // Link is disabled, so Right from Italic lands on Insert.
+    await fireEvent.keyDown(button('Italic'), { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(button('Insert'));
+    await fireEvent.keyDown(button('Insert'), { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(button('Bold'));
+    await fireEvent.keyDown(button('Bold'), { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(button('Insert'));
+    expect(stops()).toEqual([button('Insert')]);
+  });
+
+  it('jumps to the ends with Home and End', async () => {
+    const { button, stops } = roving();
+    button('Italic').focus();
+    await fireEvent.keyDown(button('Italic'), { key: 'End' });
+    expect(document.activeElement).toBe(button('Insert'));
+    await fireEvent.keyDown(button('Insert'), { key: 'Home' });
+    expect(document.activeElement).toBe(button('Bold'));
+    expect(stops()).toEqual([button('Bold')]);
+  });
+
+  it('claims only the keys it moves on', async () => {
+    const { button } = roving();
+    button('Bold').focus();
+    const right = new KeyboardEvent('keydown', {
+      key: 'ArrowRight',
+      bubbles: true,
+      cancelable: true,
+    });
+    const down = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true,
+    });
+    button('Bold').dispatchEvent(right);
+    button('Italic').dispatchEvent(down);
+    expect(right.defaultPrevented).toBe(true);
+    expect(down.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(button('Italic'));
+  });
+
+  it('keeps the stop on the button last used', async () => {
+    const { button, stops } = roving();
+    button('Insert').focus();
+    await fireEvent.focusIn(button('Insert'));
+    expect(stops()).toEqual([button('Insert')]);
+  });
+
+  it('moves the stop to the first enabled button when the stop turns disabled', async () => {
+    // A disabled button cannot take focus, so a stop left on one would take
+    // the whole row out of the tab sequence.
+    const { button, stops } = roving();
+    button('Insert').focus();
+    await fireEvent.focusIn(button('Insert'));
+    button('Insert').disabled = true;
+    await settled();
+    expect(stops()).toEqual([button('Bold')]);
+  });
+
+  it('takes a button that arrives later out of the tab sequence', async () => {
+    const { getByRole, stops, button } = roving();
+    const late = document.createElement('button');
+    late.textContent = 'Table';
+    getByRole('toolbar').append(late);
+    await settled();
+    expect(late.tabIndex).toBe(-1);
+    expect(stops()).toEqual([button('Bold')]);
+  });
+
+  it('leaves the buttons of an open menu to the menu', async () => {
+    const { button, getByRole } = roving(
+      '<button>Bold</button><span role="menu"><button>Heading</button><button>Quote</button></span>',
+    );
+    expect(getByRole('menu').querySelectorAll('[tabindex]')).toHaveLength(0);
+    const heading = button('Heading');
+    heading.focus();
+    await fireEvent.focusIn(heading);
+    await fireEvent.keyDown(heading, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(heading);
+    expect(button('Bold').tabIndex).toBe(0);
+  });
+
+  it('focuses its stop when asked, for a shortcut that reaches the row from elsewhere', async () => {
+    const { component, button } = roving();
+    button('Italic').focus();
+    await fireEvent.focusIn(button('Italic'));
+    button('Italic').blur();
+    expect(component.focus()).toBe(true);
+    expect(document.activeElement).toBe(button('Italic'));
+  });
+
+  it('reports no stop in a row with no enabled button', () => {
+    const { component } = roving('<button disabled>Bold</button>');
+    expect(component.focus()).toBe(false);
+  });
+});
+
+describe('a tight Toolbar', () => {
+  it('packs its controls 2px apart on one line', () => {
+    // A formatting row is a strip of icon buttons. The filter row's 12px gap
+    // and wrap spread it into a second row inside a narrow bar.
+    const { getByRole, getByText } = render(Toolbar, {
+      props: { tight: true, children: text('Bold'), actions: text('More') },
+    });
+    for (const el of [getByRole('toolbar'), getByText('More').parentElement as HTMLElement]) {
+      const cls = el.className.split(/\s+/);
+      expect(cls).toContain('gap-0.5');
+      expect(cls).not.toContain('flex-wrap');
+      expect(cls.filter((c) => c.startsWith('gap-'))).toEqual(['gap-0.5']);
+    }
+  });
+
+  it('wraps when the caller asks, with no wrap utility of its own to compete', () => {
+    const { getByRole } = render(Toolbar, {
+      props: { tight: true, class: 'flex-wrap', children: text('Bold') },
+    });
+    const cls = getByRole('toolbar').className.split(/\s+/);
+    expect(cls.filter((c) => c.startsWith('flex-') && c !== 'flex')).toEqual(['flex-wrap']);
   });
 });
