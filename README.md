@@ -499,7 +499,7 @@ palettes. A `Dropdown` item with `checked` is a `menuitemcheckbox` with
     aria-pressed={bold ? 'true' : 'false'}
     onclick={toggleBold}
   >
-    <Bold size={16} />
+    <Bold size={14} />
   </Button>
   <Dropdown items={[{ label: 'Wrap lines', checked: wrap, onclick: toggleWrap }]}>
     {#snippet trigger({ toggle })}
