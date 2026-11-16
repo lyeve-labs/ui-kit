@@ -102,6 +102,15 @@
    * There it draws an outline in the button text color, inset by its own
    * width. An outline takes no space, so nothing moves, and the focus
    * outline in theme.css replaces it while the button has focus.
+   *
+   * A ghost button that toggles something carries `aria-pressed`, and while
+   * it is "true" the button draws the hover fill and text with a line-strong
+   * border. A screen reader heard the state and a sighted reader saw none, so
+   * Bold on and Bold off looked the same. The border carries the state: it
+   * clears 3:1 against the surface and the ink ground in both palettes, which
+   * the fill alone does not. The border is there at every state as a
+   * transparent one, so it changes color under `transition-colors` and
+   * nothing moves.
    */
   const FILLED_EDGE =
     'forced-colors:outline-solid forced-colors:outline-1 forced-colors:-outline-offset-1 ' +
@@ -128,7 +137,8 @@
       'bg-surface-2 text-fg border border-line not-disabled:not-aria-disabled:hover:bg-line not-disabled:not-aria-disabled:active:bg-line-strong/30 inset-shadow-highlight shadow-raised',
     danger: `bg-danger text-ink not-disabled:not-aria-disabled:hover:brightness-110 not-disabled:not-aria-disabled:active:brightness-90 border border-transparent inset-shadow-bevel shadow-raised ${FILLED_EDGE}`,
     ghost:
-      'text-muted border border-transparent not-disabled:not-aria-disabled:hover:bg-surface-2 not-disabled:not-aria-disabled:hover:text-fg not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg',
+      'text-muted border border-transparent not-disabled:not-aria-disabled:hover:bg-surface-2 not-disabled:not-aria-disabled:hover:text-fg not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg ' +
+      'aria-pressed:border-line-strong aria-pressed:bg-surface-2 aria-pressed:text-fg',
     outline:
       'border border-line text-fg not-disabled:not-aria-disabled:hover:border-brand not-disabled:not-aria-disabled:hover:text-brand not-disabled:not-aria-disabled:active:bg-brand/10',
   };

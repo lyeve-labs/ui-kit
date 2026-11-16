@@ -355,6 +355,49 @@ describe('Button pressed state', () => {
   });
 });
 
+describe('a ghost Button with aria-pressed', () => {
+  const PRESSED = [
+    'aria-pressed:border-line-strong',
+    'aria-pressed:bg-surface-2',
+    'aria-pressed:text-fg',
+  ];
+  const classesOf = (variant: 'ghost' | 'secondary', pressed?: 'true' | 'false') => {
+    const { container } = render(Button, {
+      props: { children: text('B'), variant, 'aria-pressed': pressed },
+    });
+    const button = container.querySelector('button')!;
+    return { button, cls: button.className.split(/\s+/).filter(Boolean) };
+  };
+
+  it('draws its pressed look from the attribute, so a toggle needs no class of its own', () => {
+    // A screen reader heard Bold on and a sighted reader saw no difference.
+    const { button, cls } = classesOf('ghost', 'true');
+    expect(cls).toEqual(expect.arrayContaining(PRESSED));
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('forwards aria-pressed="false", which the look does not match', () => {
+    const { button } = classesOf('ghost', 'false');
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('changes the color of a border it always has, so the press moves nothing', () => {
+    const { cls } = classesOf('ghost', 'true');
+    expect(cls).toEqual(expect.arrayContaining(['border', 'border-transparent']));
+    expect(cls.filter((c) => /^aria-pressed:(?:border(?:-\d|$)|p[xytb]?-)/.test(c))).toEqual([]);
+  });
+
+  it('keeps the button transition-colors, which carries the border as well as the fill', () => {
+    const { cls } = classesOf('ghost', 'true');
+    expect(cls).toContain('transition-colors');
+  });
+
+  it('gives no other variant the ghost pressed look', () => {
+    const { cls } = classesOf('secondary', 'true');
+    expect(cls.filter((c) => c.startsWith('aria-pressed:'))).toEqual([]);
+  });
+});
+
 /*
  * An icon-only button is named by aria-label, which a pointer user never
  * sees. The name doubles as a hover and focus hint, and because the button

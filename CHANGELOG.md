@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - A `Dropdown` item takes `checked`. The row is then a `menuitemcheckbox` with `aria-checked`, and draws a check mark while checked. An unchecked row keeps the mark's room, so the labels line up.
+- A ghost `Button` with `aria-pressed="true"` draws a pressed look: the hover fill and text with a `line-strong` border, which measures 4.12:1 against the surface in light and 3.43:1 in dark. The border changes color under the button's `transition-colors`, so nothing moves. The lock button on a `SplitPane` shows it while the width is locked.
 
 ## [0.61.2] - 2026-11-16
 
