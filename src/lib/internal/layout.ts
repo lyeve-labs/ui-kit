@@ -345,8 +345,9 @@ export const NAV_RAIL_ROW =
 
 /**
  * A navigation row at rest, which answers the pointer and a held finger. The
- * held step waits for not-aria-disabled, because a busy row stays enabled and
- * a press must not read as accepted.
+ * hover and held steps wait for not-disabled and not-aria-disabled, because a
+ * busy row stays enabled and must not react as if a press would land.
  */
 export const NAV_ROW_REST =
-  'text-muted hover:bg-surface-2 hover:text-fg not-aria-disabled:active:bg-line not-aria-disabled:active:text-fg';
+  'text-muted not-disabled:not-aria-disabled:hover:bg-surface-2 not-disabled:not-aria-disabled:hover:text-fg ' +
+  'not-disabled:not-aria-disabled:active:bg-line not-disabled:not-aria-disabled:active:text-fg';

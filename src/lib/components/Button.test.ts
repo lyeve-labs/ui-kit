@@ -312,6 +312,17 @@ describe('Button pressed state', () => {
     }
   });
 
+  it('shows no hover step on a disabled or loading button', () => {
+    // A button that refuses the press does not answer the pointer either.
+    const HOVER = 'not-disabled:not-aria-disabled:hover:';
+    for (const variant of variants) {
+      const ungated = classesOf(variant).filter(
+        (c) => c.includes('hover:') && !c.startsWith(HOVER),
+      );
+      expect({ variant, ungated }).toEqual({ variant, ungated: [] });
+    }
+  });
+
   it('gives every variant something to show while it is held', () => {
     for (const variant of variants) {
       const held = classesOf(variant).filter((c) => c.startsWith(HELD));

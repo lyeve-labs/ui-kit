@@ -347,8 +347,9 @@
                   {iso === value
                     ? 'bg-brand text-ink font-medium'
                     : iso === todayISO
-                      ? 'text-brand font-medium hover:bg-surface-2'
-                      : 'text-fg hover:bg-surface-2'}">{cell.date.d}</button
+                      ? 'text-brand font-medium not-disabled:not-aria-disabled:hover:bg-surface-2'
+                      : 'text-fg not-disabled:not-aria-disabled:hover:bg-surface-2'}"
+                  >{cell.date.d}</button
                 >
               {/if}
             {/each}
