@@ -1,7 +1,8 @@
 /**
  * The icon rail as a reader sees it: each entry a centered square with its
- * icon at the 20px rung, the current one filled inside the rail with the same
- * space on both sides, one even step between entries, and the mark centered
+ * icon at the 16px rung it has beside a label, the current one filled inside
+ * the rail with the same space on both sides, one even step between entries,
+ * and the mark centered
  * in a brand row as tall as the header. jsdom has no layout, so only a
  * browser can say where a box lands.
  *
@@ -95,7 +96,7 @@ for (const [app, navClass] of Object.entries(APPS))
         await expect(page.getByTestId('app-rail')).toBeVisible();
       });
 
-      test('draws each entry as a centered square with a 20px icon', async ({ page }, info) => {
+      test('draws each entry as a centered square with a 16px icon', async ({ page }, info) => {
         await page.screenshot({
           path: info.outputPath(`rail-1440-${app}-${theme}.png`),
           clip: { x: 0, y: 0, width: 200, height: 420 },
@@ -111,7 +112,7 @@ for (const [app, navClass] of Object.entries(APPS))
           expect(e.height).toBeCloseTo(e.width, 0);
           expect(Math.abs(e.left - e.right)).toBeLessThanOrEqual(0.5);
           expect(e.left).toBeGreaterThan(0);
-          expect(e.icon).toBe(20);
+          expect(e.icon).toBe(16);
           expect(Math.abs(e.iconOffsetX)).toBeLessThanOrEqual(0.5);
           expect(Math.abs(e.iconOffsetY)).toBeLessThanOrEqual(0.5);
         }
@@ -172,7 +173,7 @@ for (const [app, navClass] of Object.entries(APPS))
           expect(e.width).toBeGreaterThanOrEqual(40);
           expect(e.height).toBeCloseTo(e.width, 0);
           expect(Math.abs(e.left - e.right)).toBeLessThanOrEqual(0.5);
-          expect(e.icon).toBe(20);
+          expect(e.icon).toBe(16);
           expect(Math.abs(e.iconOffsetX)).toBeLessThanOrEqual(0.5);
           expect(Math.abs(e.iconOffsetY)).toBeLessThanOrEqual(0.5);
         }
