@@ -61,7 +61,7 @@
    * A widget inside the row moves its own focus. Only one inside the row
    * counts: a toolbar in a dialog still roves.
    */
-  const WIDGETS = '[role="menu"], [role="listbox"], [role="dialog"], [role="radiogroup"]';
+  const WIDGETS = "[role='menu'], [role='listbox'], [role='dialog'], [role='radiogroup']";
   const own = (b: HTMLButtonElement) => {
     const widget = b.closest(WIDGETS);
     return widget === null || row === undefined || widget.contains(row);
