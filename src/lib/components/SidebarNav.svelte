@@ -240,7 +240,7 @@
     {:else if branch}
       <!--
         On the rail the chevron sits in the square's corner, out of the flow. In
-        the flow beside the 20px icon it filled the square and put the icon 8px
+        the flow beside the icon it filled the square and put the icon 8px
         left of center.
       -->
       <button
@@ -319,9 +319,9 @@
 {#snippet body(node: NavNode)}
   {#if node.icon}
     {@const Icon = node.icon}
-    <!-- The 20px rung on the rail, where the icon stands alone in its square,
-         and the 16px rung beside a label. -->
-    <Icon size={collapsed ? 20 : 16} class="shrink-0" />
+    <!-- One size on the rail and beside a label. At 20px on the rail every
+         icon grew when the shell collapsed and shrank when it opened. -->
+    <Icon size={16} class="shrink-0" />
   {/if}
   <!--
     The label stays in the accessible name on a collapsed rail. Dropping it

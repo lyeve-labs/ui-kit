@@ -426,12 +426,14 @@ describe('SidebarNav collapsed rail', () => {
     const rail = () =>
       render(SidebarNav, { props: { items: iconItems, activePath: '/pages', collapsed: true } });
 
-    it('draws its icon at the 20px rung, because nothing sits beside it', () => {
+    it('draws its icon at the 16px rung, the size it has beside a label', () => {
+      // At 20px each icon grew when the shell collapsed to the rail and shrank
+      // when it opened, so one entry showed at two sizes.
       const { container } = rail();
       const sizes = [...container.querySelectorAll('nav a svg')].map((svg) =>
         svg.getAttribute('width'),
       );
-      expect(sizes).toEqual(['20', '20', '20']);
+      expect(sizes).toEqual(['16', '16', '16']);
     });
 
     it('keeps the 16px rung beside a label in the full column', () => {

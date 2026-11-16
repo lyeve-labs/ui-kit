@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A loading `AccountMenuItem` keeps keyboard focus. It set the native `disabled` attribute, so a person who chose the item from the keyboard landed on the page body while the action ran, and a reader who opened the menu again could not reach the item to hear that it was busy. It now stays enabled, carries `aria-disabled` and `aria-busy`, and refuses a click, Enter and Space itself, so the menu stays open and nothing posts twice. It shows no pressed color while held, and in forced colors draws its label in GrayText, as a disabled item did.
 - A disabled `Button` no longer shows its pressed color while held. Chromium treats a held disabled button as pressed, so a disabled button of every variant changed its fill, text or brightness under a held pointer or finger.
 - A disabled previous or next button in `Pagination` and a disabled `SegmentedControl` segment no longer show their pressed color while held. Chromium treats a held disabled button as pressed, and a disabled row of link segments still matches a press, so each changed its fill and text under a held pointer or finger.
+- An icon on the `SidebarNav` icon rail is 16px, the size it has beside its label in the full column. At 20px on the rail since 0.61.0, every nav icon grew when the sidebar collapsed and shrank when it opened, so one entry showed at two sizes. The rail's 40px squares are unchanged.
 
 ## [0.61.0] - 2026-11-13
 
