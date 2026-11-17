@@ -291,6 +291,37 @@ describe('an account menu row', () => {
   });
 });
 
+describe('a pressed ghost button', () => {
+  // A ghost toggle with aria-pressed="true" draws the hover fill and text with
+  // a line-strong border. The fill sits 1.07:1 and 1.23:1 off the surface, so
+  // the border carries the state and needs the 3:1 SC 1.4.11 asks of it, on
+  // the surface a toolbar sits on, on the page's ink ground, and against the
+  // pressed fill inside it.
+  const src = readFileSync(join(__dirname, 'components/Button.svelte'), 'utf8');
+
+  it('paints the look measured below', () => {
+    expect(src).toContain(
+      'aria-pressed:border-line-strong aria-pressed:bg-surface-2 aria-pressed:text-fg',
+    );
+  });
+
+  it.each([
+    ['dark', dark],
+    ['light', light],
+  ] as const)(
+    'draws its border at 3:1 and its label at 4.5:1 in the %s palette',
+    (_scope, tokens) => {
+      for (const ground of ['surface', 'ink', 'surface-2'] as const) {
+        expect(
+          ratio(tokens['line-strong'], tokens[ground]),
+          `line-strong on ${ground}`,
+        ).toBeGreaterThanOrEqual(3);
+      }
+      expect(ratio(tokens.fg, tokens['surface-2']), 'fg on surface-2').toBeGreaterThanOrEqual(4.5);
+    },
+  );
+});
+
 describe('focus ring', () => {
   it('is a solid token, not a transparent mix', () => {
     // Read from the base layer. The forced colors block above it states a

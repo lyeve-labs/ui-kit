@@ -5,6 +5,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.62.0] - 2026-11-16
+
+### Added
+
+- `Toolbar` takes `roving`, which makes the buttons in the row one Tab stop. Left and Right move across the enabled buttons and wrap at the ends, Home and End jump to the first and last, and a disabled button is skipped. The stop stays on the last button used, and moves to the first enabled one when that button turns disabled or goes, taking the focus with it when the button had it. A button inside a menu, listbox, dialog or radio group in the row is left to that widget, and a text field stays its own Tab stop. With Alt, Ctrl or Meta held, the keys are left to the browser. The toolbar's `focus()` moves the focus to the stop, for a shortcut such as Alt+F10 that reaches the row from elsewhere.
+- `Toolbar` takes `tight`, which packs the controls 2px apart on one line that does not wrap. A row that should fold passes `class="flex-wrap"`.
+- A `Dropdown` item takes `checked`. The row is then a `menuitemcheckbox` with `aria-checked`, and draws a check mark while checked. An unchecked row keeps the mark's room, so the labels line up.
+- A ghost `Button` with `aria-pressed="true"` draws a pressed look: the hover fill and text with a `line-strong` border, which measures 4.12:1 against the surface in light and 3.43:1 in dark. The border changes color under the button's `transition-colors`, so nothing moves. This applies to every ghost `Button` that sets `aria-pressed`, the lock button on a `SplitPane` included.
+
 ## [0.61.2] - 2026-11-16
 
 ### Fixed

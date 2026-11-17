@@ -471,6 +471,44 @@ read `status` in markup, and dispose of it when the component unmounts.
 worked and never throws. Where the async clipboard is missing, as it is on an
 origin without TLS, it falls back to the legacy copy command.
 
+### A row of toggles
+
+A formatting row is a `Toolbar` with `roving` and `tight`. `roving` makes its
+buttons one Tab stop: Left and Right move across the enabled buttons and wrap
+at the ends, Home and End jump to them, and a disabled button is skipped. The
+stop stays on the last button used while it is enabled, and when the focused
+button turns disabled or goes, the focus moves to the new stop. Only buttons
+rove, so a text field in the row stays its own Tab stop, and the buttons of a
+menu, listbox, dialog or radio group in the row are left to it. With Alt, Ctrl
+or Meta held, the keys are left to the browser. `tight` packs the
+controls 2px apart on one line. Pass `class="flex-wrap"` to let a tight row
+fold. A shortcut that reaches the row from elsewhere, such as Alt+F10 in an
+editor, calls the toolbar's `focus()` through `bind:this`.
+
+A ghost `Button` with `aria-pressed="true"` draws its pressed look: the hover
+fill with a `line-strong` border, at 3:1 or better against the surface in both
+palettes. A `Dropdown` item with `checked` is a `menuitemcheckbox` with
+`aria-checked` and a check mark.
+
+```svelte
+<Toolbar label="Text formatting" roving tight bind:this={bar}>
+  <Button
+    variant="ghost"
+    size="icon"
+    aria-label="Bold"
+    aria-pressed={bold ? 'true' : 'false'}
+    onclick={toggleBold}
+  >
+    <Bold size={14} />
+  </Button>
+  <Dropdown items={[{ label: 'Wrap lines', checked: wrap, onclick: toggleWrap }]}>
+    {#snippet trigger({ toggle })}
+      <Button variant="ghost" size="sm" onclick={toggle}>More</Button>
+    {/snippet}
+  </Dropdown>
+</Toolbar>
+```
+
 ### Page titles
 
 `PageShell` renders the document title once an app states its format, in its
