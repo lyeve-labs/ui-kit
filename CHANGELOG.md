@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The check that a `CopyButton` or a `CopyField` shows after a copy grows and fades in on the base rung while the copy icon shrinks and fades out on the fast rung, and the two cross back the same way. Only the fade played, because the icons were sized by the separate `scale` property, which their transition never moved. An icon at rest draws as before.
+
 ## [0.63.0] - 2026-11-18
 
 ### Added

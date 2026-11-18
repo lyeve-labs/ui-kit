@@ -6,6 +6,8 @@
    * control never changes width and the change reads as the same button
    * confirming rather than a new one arriving. The arriving icon eases in on
    * the base rung and the leaving one goes a rung faster, as every exit does.
+   * The scale is a transform, because Tailwind's `scale-*` sets the separate
+   * `scale` property, which a transition on transform never moves.
    */
   import { Check, Copy } from '@lucide/svelte';
 
@@ -16,8 +18,8 @@
 
   let { copied, size }: Props = $props();
 
-  const SHOWN = 'scale-100 opacity-100 duration-base ease-enter';
-  const HIDDEN = 'scale-50 opacity-0 duration-fast ease-exit';
+  const SHOWN = 'transform-none opacity-100 duration-base ease-enter';
+  const HIDDEN = 'transform-[scale(0.5)] opacity-0 duration-fast ease-exit';
 </script>
 
 <span
