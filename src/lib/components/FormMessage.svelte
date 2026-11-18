@@ -32,7 +32,8 @@
    * region has no permanent host the way Toaster's does. Its text is deferred
    * so the region is read as a change.
    */
-  const fill = deferFill(() => true);
+  const region = $props.id();
+  const fill = deferFill(() => true, region);
 </script>
 
 <!--
@@ -54,6 +55,7 @@
 -->
 <div
   class="grid text-sm {tones[tone]} {klass}"
+  data-fill={region}
   role={tone === 'danger' ? 'alert' : undefined}
   aria-live={tone === 'danger' ? 'assertive' : 'polite'}
   aria-atomic={tone === 'danger' ? undefined : 'true'}
