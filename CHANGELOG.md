@@ -7,11 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The glyph and the text of a `FormMessage` sit in one inner element, which fills the region's row and aligns them to its top with `items-start`. A class passed to `FormMessage` that arranges its children now arranges that one element, so `items-center` no longer centers the glyph against the text and a `gap-*` no longer spaces them. Write such a class with the `*:` variant, such as `*:items-center`, so it reaches the inner element.
+
 ### Fixed
 
 - A dialog pushed back by a newer one shrinks and drops back on the base rung, 200ms on `--ease-move`. It moved on the slow rung, as long as the entrance of the dialog arriving in front of it, though it is a movement in place.
 - A collapsible `SplitPane` folds to its strip and opens again on its width, 200ms on `--ease-move`, as the side panel of `AppShell` does. It changed width in one frame. A step of the edge from the keyboard moves the same way. A drag on the edge still follows the pointer with no transition, and an overlay pane still slides and fades only under its breakpoint.
 - The suggestion bar of `FormAssist` arrives and leaves on the toast preset, as `Alert` does: it rises and fades in on the base rung and leaves one rung faster. It appeared and vanished in one frame, after Accept all or Reject all too.
+- The outcome a `FormMessage` reports arrives and leaves on the toast preset, as an `Alert` beside it does. It filled its live region in one frame, and vanished in one frame when the page removed it. The live region is still the element the page mounts, and only the message inside it moves, so a screen reader still hears the region change.
 
 ## [0.62.0] - 2026-11-16
 

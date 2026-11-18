@@ -2,8 +2,14 @@ import { render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRawSnippet } from 'svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import * as motion from '../motion.js';
 import FormMessage from './FormMessage.svelte';
+
+vi.mock('../motion.js', async (original) => {
+  const real = await original<typeof import('../motion.js')>();
+  return { ...real, toast: vi.fn(real.toast) };
+});
 
 const source = readFileSync(join(__dirname, 'FormMessage.svelte'), 'utf8');
 
@@ -90,6 +96,24 @@ describe('FormMessage', () => {
     await frame();
     expect(region(container).textContent?.trim()).toBe('');
     expect(await findByText('Saved')).toBeTruthy();
+  });
+
+  it('brings the message in on the toast preset, inside the region that stays', async () => {
+    // As an Alert beside it arrives. The preset sits on the message and never
+    // on the region, which has to be in the document before its text is.
+    vi.mocked(motion.toast).mockClear();
+    const { container, findByText } = render(FormMessage, {
+      props: { tone: 'success', children: text('Saved') },
+    });
+    const live = region(container);
+    expect(vi.mocked(motion.toast)).not.toHaveBeenCalled();
+    const message = await findByText('Saved');
+    const calls = vi.mocked(motion.toast).mock.calls.map(([node]) => node);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).not.toBe(live);
+    expect(live.contains(calls[0])).toBe(true);
+    expect(calls[0].contains(message)).toBe(true);
+    expect(calls[0].querySelector('svg')).toBeTruthy();
   });
 
   it('marks the region and never the message', async () => {

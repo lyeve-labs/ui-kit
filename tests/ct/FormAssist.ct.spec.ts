@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/experimental-ct-svelte';
 import FormAssistStory from './FormAssistStory.svelte';
-import { playing } from './motion.js';
+import { playing, settled } from './motion.js';
 
 const MOVES = ['opacity', 'transform'];
 
@@ -21,6 +21,7 @@ test('the suggestion bar enters on the base rung and leaves one rung faster', as
   expect(enter.map((a) => a.duration)).toEqual([200]);
   expect(enter[0].properties).toEqual(MOVES);
   expect(enter[0].from.opacity).toBe('0');
+  await settled(bar);
 
   await page.getByRole('button', { name: 'Reject all' }).click();
   const exit = await playing(bar);

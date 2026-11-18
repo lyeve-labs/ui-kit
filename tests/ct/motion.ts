@@ -36,3 +36,11 @@ export function playing(target: Locator): Promise<Played[]> {
       .sort((a, b) => b.duration - a.duration),
   );
 }
+
+/**
+ * Waits for the element's animations to end. An exit that starts while the
+ * entrance is still running plays only the share the entrance had covered.
+ */
+export async function settled(target: Locator): Promise<void> {
+  await target.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+}
