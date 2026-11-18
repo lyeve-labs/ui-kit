@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import { deferFill } from '../internal/notice.svelte.js';
   import ToneGlyph from '../internal/ToneGlyph.svelte';
+  import * as motion from '../motion.js';
 
   /** The two outcomes a submit has. Anything else is a hint, not a result. */
   type Tone = 'danger' | 'success';
@@ -49,9 +50,13 @@
   aria-atomic={tone === 'danger' ? undefined : 'true'}
 >
   {#if fill.filled}
-    <!-- Color alone would be the only thing telling a failure from a
+    <!-- The message arrives and leaves as an Alert does. The preset sits on
+         the message, because the region has to be in the document before its
+         text is. Color alone would be the only thing telling a failure from a
          confirmation, so the glyph says it in a shape too. -->
-    <ToneGlyph {tone} framed={false} />
-    <p class="min-w-0 flex-1">{@render children()}</p>
+    <div transition:motion.toast|global class="flex min-w-0 flex-1 items-start gap-2">
+      <ToneGlyph {tone} framed={false} />
+      <p class="min-w-0 flex-1">{@render children()}</p>
+    </div>
   {/if}
 </div>

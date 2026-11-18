@@ -3,7 +3,8 @@
  *
  *     <div transition:motion.dialog|global>
  *     <div transition:motion.popover|global>
- *     <li animate:motion.reorder>
+ *     <li transition:motion.fade|global animate:motion.reorder>
+ *     <div class="grid" transition:motion.collapse|global><div class="min-h-0">
  *
  * `|global` is not optional. A Svelte transition is local by default and
  * plays only when its own block toggles. A page that wraps a Modal in its own
@@ -230,6 +231,24 @@ export const toast = surface(
   'base',
   (t, u) => `opacity: ${t}; transform: translateY(${8 * u}px) scale(${0.96 + 0.04 * t})`,
 );
+
+/**
+ * An item that appears or leaves in place, such as a row in a list. Opacity
+ * alone, so it never moves. Beside `animate:motion.reorder`, Svelte pins a
+ * leaving item where it stood while its siblings close the gap, so the row
+ * fades out on its own spot rather than vanishing under them.
+ */
+export const fade = surface('base', (t) => `opacity: ${t}`);
+
+/**
+ * The row a surface holds in the flow of a page, opening as it arrives and
+ * closing as it leaves, so the content below moves with it rather than
+ * jumping once the surface has gone. The node is a `grid` whose one child
+ * takes `min-h-0`, so a row at `0fr` holds no height. The node clips only in
+ * these frames, and Svelte restores its overflow when the entrance ends, so a
+ * focus ring or a shadow at rest is never cut.
+ */
+export const collapse = surface('base', (t) => `grid-template-rows: ${t}fr; overflow: hidden`);
 
 /**
  * Siblings closing the gap a removed item leaves, for `animate:`. Svelte's

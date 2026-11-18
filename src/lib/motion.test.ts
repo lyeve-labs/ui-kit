@@ -4,10 +4,12 @@ import { join } from 'node:path';
 import type { TransitionConfig } from 'svelte/transition';
 import {
   bezier,
+  collapse,
   dialog,
   drawer,
   duration,
   easing,
+  fade,
   FALLBACK,
   popover,
   scrim,
@@ -183,6 +185,8 @@ describe('the presets', () => {
     ['scrim', scrim, 'slow', 'base'],
     ['popover', popover, 'base', 'fast'],
     ['toast', toast, 'base', 'fast'],
+    ['fade', fade, 'base', 'fast'],
+    ['collapse', collapse, 'base', 'fast'],
   ] as const)('%s leaves one rung faster than it enters', (_name, fn, inRung, outRung) => {
     const { enter, exit } = run(fn);
     expect(enter.duration).toBe(FALLBACK.duration[inRung]);
@@ -230,6 +234,30 @@ describe('the presets', () => {
     );
   });
 
+  it('fades an item in place and moves nothing', () => {
+    // Beside animate:motion.reorder, Svelte pins a leaving row where it stood
+    // with an inline transform. The fade leaves that transform alone, so the
+    // row fades out on its own spot while its siblings close the gap.
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const node = animatable() as HTMLElement;
+    const motion = fade(node);
+    node.style.transform = 'translate(0px, -40px)';
+    const exit = resolve(motion, 'out');
+    vi.unstubAllGlobals();
+    expect(exit.css!(0, 1)).toBe('opacity: 0');
+    expect(exit.css!(1, 0)).toBe('opacity: 1');
+  });
+
+  it('opens a row from nothing to its full height and clips it only while it moves', () => {
+    // The node is a grid whose one child takes min-h-0, so a row at 0fr holds
+    // no height. Overflow is hidden in the frames alone, so a notice at rest
+    // keeps its focus ring and its shadow whole.
+    const { enter } = run(collapse);
+    expect(enter.css!(0, 1)).toBe('grid-template-rows: 0fr; overflow: hidden');
+    expect(enter.css!(1, 0)).toBe('grid-template-rows: 1fr; overflow: hidden');
+    expect(collapse(document.createElement('div'))).toEqual({ duration: 0 });
+  });
+
   it('leaves a frame with no transform as it is', () => {
     vi.stubGlobal('matchMedia', () => ({ matches: false }));
     const node = animatable() as HTMLElement;
@@ -261,7 +289,7 @@ describe('the presets', () => {
 
   it('moves only opacity and transform', () => {
     // Anything else animates layout, which is paid for on every frame.
-    for (const fn of [dialog, scrim, popover, toast]) {
+    for (const fn of [dialog, scrim, popover, toast, fade]) {
       const { enter } = run(fn);
       const props = [...enter.css!(0.5, 0.5).matchAll(/([a-z-]+):/g)].map((m) => m[1]);
       expect(props.every((p) => p === 'opacity' || p === 'transform')).toBe(true);

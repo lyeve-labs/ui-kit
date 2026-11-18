@@ -67,37 +67,42 @@
 
 {#if !notice.closed}
   <!-- It leaves on the toast preset, as Alert does, rather than vanishing in
-       one frame. -->
-  <div
-    transition:motion.toast|global
-    role={notice.live ? 'alert' : undefined}
-    aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
-    aria-atomic={notice.outcome ? 'true' : undefined}
-    class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[t]} {cls}"
-    onmouseenter={notice.closable ? () => notice.hold(true) : undefined}
-    onmouseleave={notice.closable ? () => notice.hold(false) : undefined}
-    onfocusin={notice.closable ? () => notice.hold(true) : undefined}
-    onfocusout={notice.closable ? () => notice.hold(false) : undefined}
-  >
-    {#if notice.filled}
-      <div class="flex flex-1 items-center justify-center gap-3 text-fg">
-        {@render children()}
-      </div>
-    {/if}
-
-    {#if action}
-      <div class="shrink-0">{@render action()}</div>
-    {/if}
-
-    {#if notice.closable}
-      <button
-        type="button"
-        onclick={notice.close}
-        aria-label="Close"
-        class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
+       one frame, and the row around it closes so the content below moves with
+       it. A class places the banner in the page, so it sits on the row. -->
+  <div class="grid {cls}" transition:motion.collapse|global>
+    <div class="min-h-0">
+      <div
+        transition:motion.toast|global
+        role={notice.live ? 'alert' : undefined}
+        aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
+        aria-atomic={notice.outcome ? 'true' : undefined}
+        class="relative flex items-center gap-3 border-b px-4 py-3 text-sm {tones[t]}"
+        onmouseenter={notice.closable ? () => notice.hold(true) : undefined}
+        onmouseleave={notice.closable ? () => notice.hold(false) : undefined}
+        onfocusin={notice.closable ? () => notice.hold(true) : undefined}
+        onfocusout={notice.closable ? () => notice.hold(false) : undefined}
       >
-        <X size={16} aria-hidden="true" />
-      </button>
-    {/if}
+        {#if notice.filled}
+          <div class="flex flex-1 items-center justify-center gap-3 text-fg">
+            {@render children()}
+          </div>
+        {/if}
+
+        {#if action}
+          <div class="shrink-0">{@render action()}</div>
+        {/if}
+
+        {#if notice.closable}
+          <button
+            type="button"
+            onclick={notice.close}
+            aria-label="Close"
+            class="{HIT_AREA} shrink-0 text-faint transition-colors hover:text-fg"
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        {/if}
+      </div>
+    </div>
   </div>
 {/if}

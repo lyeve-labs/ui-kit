@@ -131,9 +131,17 @@
 
 {#snippet mark()}
   <span class="{choiceBox('radio', size, selected, false, tone.suggested)} mt-0.5">
-    {#if selected}
-      <span class="{DOT[size]} rounded-full {tone.suggested ? 'bg-violet' : 'bg-brand'}"></span>
-    {/if}
+    <!-- The dot stays mounted and moves opacity and scale on the fast rung,
+         as a checkbox's mark does, so choosing reads as the ring filling in.
+         The scale is a transform: Tailwind's scale-* sets the separate scale
+         property, which a transition on transform never moves. -->
+    <span
+      class="{DOT[size]} rounded-full {tone.suggested
+        ? 'bg-violet'
+        : 'bg-brand'} transition-[opacity,transform] {selected
+        ? 'opacity-100 transform-none'
+        : 'opacity-0 transform-[scale(0.5)]'}"
+    ></span>
   </span>
 {/snippet}
 

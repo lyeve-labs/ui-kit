@@ -7,6 +7,7 @@
   import Tooltip from './Tooltip.svelte';
   import { safeHref } from '../internal/href.js';
   import { TOUCH_GROW } from '../internal/touch.js';
+  import * as motion from '../motion.js';
 
   type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'violet';
   type Size = 'sm' | 'md' | 'lg' | 'icon';
@@ -222,6 +223,30 @@
     });
 </script>
 
+<!-- The spinner draws over the label, which keeps its box and fades, so a
+     button that starts loading keeps its width and height. The stack hands
+     the button's gap and justification on to the label, which lays out an
+     icon and its words as the button itself did. Its one track fills the
+     button, because a start or spread justification would size an auto
+     track to the label and leave a spacer such as ml-auto short of the far
+     edge. -->
+{#snippet content()}
+  <span class="grid min-w-0 grow grid-cols-[minmax(0,1fr)] gap-[inherit] [justify-content:inherit]">
+    <span
+      class="[grid-area:1/1] inline-flex min-w-0 items-center gap-[inherit] [justify-content:inherit] transition-opacity {loading
+        ? 'opacity-0'
+        : ''}"
+    >
+      {@render children()}
+    </span>
+    {#if loading}
+      <span class="[grid-area:1/1] grid place-items-center" transition:motion.fade|global>
+        <Spinner size={spinnerSize} />
+      </span>
+    {/if}
+  </span>
+{/snippet}
+
 {#snippet control()}
   {#if href}
     <a
@@ -233,8 +258,7 @@
       {@attach activate}
       {...rest}
     >
-      {#if loading}<Spinner size={spinnerSize} />{/if}
-      {@render children()}
+      {@render content()}
     </a>
   {:else}
     <button
@@ -246,8 +270,7 @@
       class={cls}
       {...rest}
     >
-      {#if loading}<Spinner size={spinnerSize} />{/if}
-      {@render children()}
+      {@render content()}
     </button>
   {/if}
 {/snippet}

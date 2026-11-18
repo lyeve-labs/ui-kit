@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { createScrollFades } from '../internal/scroll-fades.svelte.js';
   import ScrollFades from '../internal/ScrollFades.svelte';
   import { TOUCH_GROW } from '../internal/touch.js';
@@ -125,6 +126,87 @@
   }
 
   /*
+   * One underline for the strip, moved to the chosen tab. An underline under
+   * each tab left one tab and arrived under the next in one frame. This one
+   * moves on transform alone: a translate to where the tab starts and a scale
+   * for its width, on a box as wide as the strip. A box that wide is drawn at
+   * the strip's resolution and only ever scaled down, so the accent stays
+   * sharp, where a one-pixel box scaled up would smear it.
+   *
+   * Until the strip is measured, the chosen tab draws its own line in the same
+   * place. A server render and a page whose scripts never run measure nothing,
+   * so they keep it, and the moving line takes over in the frame it is placed.
+   *
+   * Only a change of tab travels. A change of size (a font arriving, a label
+   * or a count changing, the window resizing) puts the line under its tab in
+   * the same frame, because a line easing after a tab that has already grown
+   * reads as lag, not as movement.
+   */
+  let anchor: HTMLElement | undefined = $state();
+  let line: { transform: string; travel: boolean } | null = $state(null);
+  let placedFor: string | null = null;
+
+  /** Rounded so a measurement that has not changed is seen as the same place. */
+  const px = (n: number) => Math.round(n * 100) / 100;
+
+  function place() {
+    const tab = activeIndex === -1 ? undefined : tabAt(activeIndex);
+    const box = anchor?.getBoundingClientRect();
+    const at = tab?.getBoundingClientRect();
+    if (!scroller || !box || !at || box.width === 0 || at.width === 0) {
+      line = null;
+      placedFor = null;
+      return;
+    }
+    // The boxes are on screen, so a dialog scaling in around the strip scales
+    // them too. The anchor's own width is its width before any transform, and
+    // the ratio of the two undoes the scale.
+    const scale = box.width / (parseFloat(getComputedStyle(anchor!).width) || box.width);
+    const x = (at.left - box.left) / scale;
+    const width = at.width / box.width;
+    // The accent runs from the reading start, so under right-to-left the line
+    // is mirrored by the same rtl: scale as the chosen tab's own line. The
+    // scale property applies after transform, about the strip's left edge, so
+    // the box is placed at the mirror of where it is drawn.
+    const ratio = px(width * 10000) / 10000;
+    // The computed direction follows the dir attribute the rtl: variant
+    // matches, so the mirror and its placement agree. A :dir() selector would
+    // throw on an engine that lacks it, and this runs from an effect and a
+    // resize callback.
+    const rtl = getComputedStyle(scroller).direction === 'rtl';
+    const transform = rtl
+      ? `translateX(${-px(x + at.width / scale)}px) scaleX(${ratio})`
+      : `translateX(${px(x)}px) scaleX(${ratio})`;
+    if (line?.transform === transform) return;
+    line = { transform, travel: placedFor !== null && placedFor !== active };
+    placedFor = active;
+  }
+
+  $effect(() => {
+    void active;
+    void activeIndex;
+    untrack(place);
+  });
+
+  // A tab changing size moves every tab after it, so each one is watched,
+  // and the strip itself for the window.
+  $effect(() => {
+    const el = scroller;
+    if (!el || typeof ResizeObserver !== 'function') return;
+    const watch = new ResizeObserver(() => place());
+    watch.observe(el);
+    // Read so a new list of tabs, which the keyed loop renders as new
+    // elements, is watched again.
+    void items.map((t) => t.id);
+    for (const tab of el.querySelectorAll('[role="tab"]')) watch.observe(tab);
+    return () => watch.disconnect();
+  });
+
+  /** The chosen tab's own line, drawn until the moving one is placed. */
+  const UNDERLINE =
+    'after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:bg-accent after:rounded-t rtl:after:-scale-x-100';
+
+  /*
    * The focus ring is inset: the tabs sit in a box that clips to scroll, and
    * the global outline sits 2px outside its element, so on the strip's top
    * edge it was cut off.
@@ -164,9 +246,7 @@
         onfocus={() => (roving = i)}
         onkeydown={(e) => onTabKeydown(e, i)}
         class="{TAB} {SIZE}
-          {active === tab.id
-          ? 'text-fg after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-brand after:bg-accent after:rounded-t rtl:after:-scale-x-100'
-          : 'text-faint hover:text-fg'}"
+          {active === tab.id ? `text-fg ${line ? '' : UNDERLINE}` : 'text-faint hover:text-fg'}"
       >
         {tab.label}
         {#if tab.count !== undefined}
@@ -185,6 +265,23 @@
         {/if}
       </button>
     {/each}
+    <!-- The strip's width at the foot of the tabs, which the moving line is
+         drawn from. It scrolls with the tabs, so the line stays under its tab
+         as the strip scrolls. -->
+    <span
+      bind:this={anchor}
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-0.5"
+    >
+      {#if line}
+        <span
+          class="block h-full w-full origin-left rounded-t bg-brand bg-accent rtl:-scale-x-100 {line.travel
+            ? 'transition-transform duration-base'
+            : ''}"
+          style:transform={line.transform}
+        ></span>
+      {/if}
+    </span>
   </div>
 
   <ScrollFades before={fades.before} after={fades.after} testId="tabs" />

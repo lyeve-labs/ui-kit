@@ -2,9 +2,7 @@
   import type { AccentTone } from '../internal/tone.js';
   type Size = 'xs' | 'sm' | 'md';
 
-  interface Props {
-    /** How far along, out of `max`. Clamped to the bar. */
-    value: number;
+  interface Common {
     /** The value that fills the bar. */
     max?: number;
     tone?: AccentTone;
@@ -17,8 +15,28 @@
     class?: string;
   }
 
+  /**
+   * A bar shows how far along a wait is, or, with `indeterminate`, that it is
+   * running with no end anyone can state, such as a page load. The two are
+   * exclusive, so a bar with no value has to say which wait it is.
+   */
+  type Props = Common &
+    (
+      | {
+          /** How far along, out of `max`. Clamped to the bar. */
+          value: number;
+          indeterminate?: false;
+        }
+      | {
+          value?: undefined;
+          /** Sweeps a segment across the track and reports no value. */
+          indeterminate: true;
+        }
+    );
+
   let {
-    value,
+    value = undefined,
+    indeterminate = false,
     max = 100,
     tone = 'brand',
     size = 'sm',
@@ -28,8 +46,11 @@
     class: cls = '',
   }: Props = $props();
 
+  /** A percentage exists only for a wait that has a value. */
+  const showPct = $derived(showValue && !indeterminate);
+
   let pct = $derived(
-    isFinite(value) && isFinite(max) && max > 0
+    value !== undefined && isFinite(value) && isFinite(max) && max > 0
       ? Math.min(100, Math.max(0, (value / max) * 100))
       : 0,
   );
@@ -63,17 +84,17 @@
 </script>
 
 <div class={cls}>
-  {#if label || showValue}
+  {#if label || showPct}
     <div class="flex items-center justify-between mb-1.5">
       {#if label}<span class="text-xs font-medium text-muted">{label}</span>{/if}
-      {#if showValue}<span class="text-xs tabular-nums text-faint">{Math.round(pct)}%</span>{/if}
+      {#if showPct}<span class="text-xs tabular-nums text-faint">{Math.round(pct)}%</span>{/if}
     </div>
   {/if}
   <div
     class="w-full overflow-hidden rounded-full bg-surface-2 inset-shadow-well {sizes[size]}
       forced-colors:border forced-colors:border-[color:CanvasText]"
     role="progressbar"
-    aria-valuenow={value}
+    aria-valuenow={indeterminate ? undefined : value}
     aria-valuemin={0}
     aria-valuemax={max}
     aria-label={label}
@@ -82,8 +103,8 @@
       class="h-full rounded-full transition-[width] duration-progress rtl:-scale-x-100
         forced-colors:forced-color-adjust-none forced-colors:bg-[color:CanvasText]
         {tones[tone]}
-        {animated ? 'animate-pulse' : ''}"
-      style="width: {pct}%"
+        {indeterminate ? 'mx-auto w-2/5 animate-progress-sweep' : animated ? 'animate-pulse' : ''}"
+      style={indeterminate ? undefined : `width: ${pct}%`}
     ></div>
   </div>
 </div>

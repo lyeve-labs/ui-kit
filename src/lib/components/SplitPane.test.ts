@@ -194,6 +194,25 @@ describe('SplitPane', () => {
     expect(getByText('body')).toBeTruthy();
   });
 
+  it('folds and opens on the width, and holds still under a drag', async () => {
+    // The fold is a sideways disclosure, so it travels on the base rung as
+    // the shell's side panel does. A drag follows the pointer with nothing
+    // trailing behind it.
+    const travel = ['xl:transition-[width]', 'xl:duration-base', 'xl:ease-move'];
+    for (const below of ['stack', 'overlay'] as const) {
+      const { aside, getByRole, handle } = setup({ collapsible: true, below });
+      expect(classesOf(aside)).toEqual(expect.arrayContaining(travel));
+      const h = handle() as HTMLElement;
+      await pointer(h, 'pointerdown', { button: 0, clientX: 260 });
+      for (const c of travel) expect(classesOf(aside)).not.toContain(c);
+      expect(classesOf(aside)).toContain('xl:transition-none');
+      await pointer(h, 'pointerup', { clientX: 260 });
+      await fireEvent.click(getByRole('button', { name: 'Collapse Things' }));
+      expect(classesOf(aside)).toEqual(expect.arrayContaining(['xl:w-8', ...travel]));
+      cleanup();
+    }
+  });
+
   it('stacks in the page flow under the breakpoint and docks at its width above it', () => {
     const { aside, handle } = setup({ breakpoint: 'md', class: 'max-h-2/5' });
     const list = classesOf(aside);
@@ -352,7 +371,8 @@ describe('SplitPane as an overlay', () => {
     expect(classesOf(aside)).not.toContain('ease-exit');
   });
 
-  it('docks at the breakpoint with nothing moving or transitioning, open or closed', () => {
+  it('docks at the breakpoint with nothing sliding or fading, open or closed', () => {
+    // Only the width transitions there, for the fold to the strip.
     for (const overlay of [false, true]) {
       expect(classesOf(setup({ below: 'overlay', overlay }).aside)).toEqual(
         expect.arrayContaining([
@@ -361,7 +381,7 @@ describe('SplitPane as an overlay', () => {
           'xl:visible',
           'xl:translate-none',
           'xl:opacity-100',
-          'xl:transition-none',
+          'xl:transition-[width]',
         ]),
       );
       cleanup();

@@ -1,10 +1,11 @@
 <script lang="ts" module>
   /**
    * What the sidebar snippets are told about their column. `rail` is true
-   * while the sidebar is the 56px icon rail, so a SidebarNav takes it as
-   * `collapsed`, a brand row renders its mark without the wordmark, and a
-   * footer band renders what fits. A snippet that ignores the argument still
-   * renders. It is simply drawn at 56px and clipped.
+   * while the sidebar is the 56px icon rail, and while a sidebar that opens
+   * to the rail is put away, so a SidebarNav takes it as `collapsed`, a brand
+   * row renders its mark without the wordmark, and a footer band renders what
+   * fits. A snippet that ignores the argument still renders. It is simply
+   * drawn at 56px and clipped.
    */
   export interface SidebarState {
     rail: boolean;
@@ -307,14 +308,49 @@
    * State rather than a hover rule, because the nav snippet has to be told
    * the labels are wanted, and a stylesheet cannot tell it.
    */
-  const railMode = $derived(!isMobile && !railHidden && (rail || isNarrow));
+  const railWanted = $derived(!isMobile && (rail || isNarrow));
+  const railMode = $derived(railWanted && !railHidden);
   let railOpen = $state(false);
-  const railIcons = $derived(railMode && !railOpen);
+  /**
+   * The width the sidebar's content is drawn at, and what the snippets are
+   * told. A shut sidebar keeps the width it would open to, so it travels shut
+   * and open clipped rather than reflowing into a narrowing column.
+   */
+  const railIcons = $derived(railWanted && !railOpen);
   let railRest: ReturnType<typeof setTimeout> | undefined;
+
+  /**
+   * One column at every width above md:, mounted whether it is the full
+   * column, the rail or put away, so each change of state moves its width.
+   * The column is the room the page leaves it: 224px, 56px or nothing. The
+   * layer inside it carries what the reader sees. It is as wide as the
+   * column, except on the open rail, where it lies over the page at the full
+   * column's width. It clips the sidebar to its own width, so a sidebar
+   * traveling shut is cut off at the moving edge, not squeezed into it.
+   */
+  const columnWidth = $derived(railHidden ? 'w-0' : railMode ? APP_SIDEBAR_RAIL : APP_SIDEBAR_WIDE);
+  const layerWidth = $derived(railHidden ? 'w-0' : railIcons ? APP_SIDEBAR_RAIL : APP_SIDEBAR_WIDE);
+
+  /**
+   * Widths move only once the first state is drawn. A server render cannot
+   * know the window, so a tablet hydrates from the full column to the rail,
+   * and that is the first paint, not a travel. One frame is not enough: the
+   * first frame's callbacks run before it computes any style, so the change
+   * and the transition would land together and play. The server runs no
+   * effect, so it renders every width still.
+   */
+  let settled = $state(false);
+  $effect(() => {
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => (settled = true));
+    });
+    return () => cancelAnimationFrame(frame);
+  });
+  const still = $derived(settled ? '' : 'transition-none!');
 
   /** Every move starts the rest again, so only a pointer that stops opens the column. */
   function onRailPointerMove() {
-    if (railOpen) return;
+    if (!railMode || railOpen) return;
     clearTimeout(railRest);
     railRest = setTimeout(() => (railOpen = true), RAIL_REST_MS);
   }
@@ -416,36 +452,41 @@
       aria-label={drawerLabel}
       use:overlay
     >
-      {@render sidebar(false, false)}
+      {@render sidebar(false, false, '')}
     </div>
-  {:else if railMode}
+  {:else}
     <!--
-      The column keeps the rail's width whatever the aside inside it does. The
-      aside is taken out of the column's flow so that, opened, it lies over
-      the page at the dropdown layer instead of pushing it 168px sideways and
-      back on every pass of the pointer.
+      The column keeps the rail's width whatever the sidebar inside it does.
+      The layer is taken out of the column's flow so that, on the opened rail,
+      it lies over the page at the dropdown layer instead of pushing it 168px
+      sideways and back on every pass of the pointer. Put away, the column and
+      the layer travel to nothing and the sidebar is inert and hidden once the
+      travel ends, so focus never lands in it.
+
+      The width travels on the base rung, with the visibility that keeps the
+      sidebar drawn until it has traveled shut. The shadow of the opened rail
+      is an elevation change in place, so it moves on the fast rung.
     -->
     <div
-      data-testid="app-rail"
+      data-testid={railMode ? 'app-rail' : undefined}
+      data-print="hide"
       role="presentation"
-      class="relative hidden {APP_SIDEBAR_RAIL} shrink-0 md:block"
+      class="relative hidden shrink-0 md:block {columnWidth} transition-[width] duration-base ease-move {still}"
       onpointerenter={onRailPointerMove}
       onpointermove={onRailPointerMove}
       onpointerleave={onRailPointerLeave}
-      onfocusin={() => (railOpen = true)}
+      onfocusin={() => {
+        if (railMode) railOpen = true;
+      }}
       onfocusout={onRailFocusOut}
     >
       <div
-        class="absolute inset-y-0 start-0 z-dropdown flex transition-shadow {railOpen
-          ? 'shadow-popover'
-          : ''}"
+        class="absolute inset-y-0 start-0 flex overflow-hidden {layerWidth} transition-[width,visibility,box-shadow] [--tw-duration:var(--duration-base),var(--duration-base),var(--duration-fast)] ease-move {still} {railMode
+          ? 'z-dropdown'
+          : ''} {railOpen ? 'shadow-popover' : ''} {railHidden ? 'invisible' : ''}"
       >
-        {@render sidebar(isMobile, railIcons)}
+        {@render sidebar(isMobile || railHidden, railIcons, still)}
       </div>
-    </div>
-  {:else if !railHidden}
-    <div class="hidden md:flex">
-      {@render sidebar(isMobile, false)}
     </div>
   {/if}
 
@@ -616,7 +657,7 @@
   </div>
 {/snippet}
 
-{#snippet sidebar(hidden: boolean, rail: boolean)}
+{#snippet sidebar(hidden: boolean, rail: boolean, still: string)}
   <!-- The bands clip on the rail: a brand row that ignores the argument still
        holds its wordmark, and 56px of it is better than the wordmark running
        out over the page. -->
@@ -624,7 +665,9 @@
     aria-label={sidebarLabel}
     data-print="hide"
     data-testid="app-sidebar"
-    class="{APP_SIDEBAR} {APP_SIDEBAR_EDGE} {rail ? APP_SIDEBAR_RAIL : APP_SIDEBAR_WIDE} flex"
+    class="{APP_SIDEBAR} {APP_SIDEBAR_EDGE} {rail
+      ? APP_SIDEBAR_RAIL
+      : APP_SIDEBAR_WIDE} flex {still}"
     inert={hidden}
     aria-hidden={hidden ? 'true' : undefined}
   >

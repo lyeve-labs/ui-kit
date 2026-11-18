@@ -105,4 +105,42 @@ describe('Progress', () => {
     const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
     expect(bar.className).not.toContain('animate-pulse');
   });
+
+  describe('a wait nobody can measure', () => {
+    const parts = (props: Record<string, unknown>) => {
+      const { container } = render(Progress, { props: { indeterminate: true, ...props } });
+      const track = container.querySelector('[role="progressbar"]') as HTMLElement;
+      return { container, track, bar: track.firstElementChild as HTMLElement };
+    };
+
+    it('reports no value to assistive technology', () => {
+      const { track } = parts({ label: 'Loading the page' });
+      expect(track.hasAttribute('aria-valuenow')).toBe(false);
+      expect(track.getAttribute('aria-label')).toBe('Loading the page');
+    });
+
+    it('sweeps a segment that rests centered on the track, where no value draws', () => {
+      // Under reduced motion the loop plays once in 1ms and stops, and the bar
+      // falls back to this resting style. A segment in the middle cannot be
+      // read as a value, which always fills from the start.
+      const { bar } = parts({});
+      expect(bar.className).toContain('animate-progress-sweep');
+      expect(bar.className).toContain('w-2/5');
+      expect(bar.className).toContain('mx-auto');
+      expect(bar.style.width).toBe('');
+      expect(bar.className).not.toContain('animate-pulse');
+    });
+
+    it('shows no percentage, even when asked to', () => {
+      const { container } = parts({ showValue: true, label: 'Loading' });
+      expect(container.textContent).not.toContain('%');
+    });
+
+    it('goes back to the value once one is known', () => {
+      const { container } = render(Progress, { props: { value: 30 } });
+      const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
+      expect(bar.className).not.toContain('animate-progress-sweep');
+      expect(bar.style.width).toBe('30%');
+    });
+  });
 });
