@@ -335,9 +335,12 @@ leaves through the same presets the kit's overlays use:
 {/each}
 ```
 
-`dialog`, `scrim`, `drawer`, `popover` and `toast` read the tokens at run
-time, so retuning a token retunes them, and every one of them plays nothing
-for a reader who has asked for reduced motion. The `|global` modifier is what
+`dialog`, `scrim`, `drawer`, `popover`, `toast` and `fade` read the tokens at
+run time, so retuning a token retunes them, and every one of them plays nothing
+for a reader who has asked for reduced motion. `fade` moves opacity alone, for
+an item that appears or leaves in place, such as a list row beside
+`animate:motion.reorder`: the row fades out where it stood while the rows
+below close the gap. The `|global` modifier is what
 lets the exit play when a parent block removes the surface, so keep it. Do not
 write `duration-150`, `ease-out` or `transition-all` beside a kit class: they
 are a fifth speed and a fourth curve, and the kit's own test suite refuses

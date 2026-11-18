@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `motion.fade`, a preset for an item that appears or leaves in place. It moves opacity alone, on the base rung in and the fast rung out, and reads the tokens as the other presets do. Beside `animate:motion.reorder` a removed row fades out where it stood while the rows below close the gap.
+
 ### Changed
 
 - The glyph and the text of a `FormMessage` sit in one inner element, which fills the region's row and aligns them to its top with `items-start`. A class passed to `FormMessage` that arranges its children now arranges that one element, so `items-center` no longer centers the glyph against the text and a `gap-*` no longer spaces them. Write such a class with the `*:` variant, such as `*:items-center`, so it reaches the inner element.
@@ -18,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The suggestion bar of `FormAssist` arrives and leaves on the toast preset, as `Alert` does: it rises and fades in on the base rung and leaves one rung faster. It appeared and vanished in one frame, after Accept all or Reject all too.
 - The outcome a `FormMessage` reports arrives and leaves on the toast preset, as an `Alert` beside it does. It filled its live region in one frame, and vanished in one frame when the page removed it. The live region is still the element the page mounts, and only the message inside it moves, so a screen reader still hears the region change.
 - The check mark of a `Checkbox`, its mixed bar and the dot of a `Radio` grow and fade in on the fast rung as the box fills, and shrink and fade out as it clears. Each mounted in one frame inside a box whose color eased over. Every mark now stays in its box, hidden while it does not apply, so a box that turns from mixed to checked crosses one mark over to the other in place. A box at rest draws as before, and a screen reader still hears only the input's state. A test that looks for the mark's `svg` or `path` in a `Checkbox`, or for the dot in a `Radio`, now finds it whether or not the box is checked, so read the input's `checked` property, or the `opacity-100` the mark carries while it applies, instead.
+- A row removed from a `SortableList` fades out where it stood while the rows below close the gap, and a row added fades in where it lands, on `motion.fade`. A removed row vanished in one frame and a new one appeared in one frame. A row moved within the list still slides on `motion.reorder`.
 
 ## [0.62.0] - 2026-11-16
 
