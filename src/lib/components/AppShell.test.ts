@@ -3,6 +3,7 @@ import { createRawSnippet } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppShell, { RAIL_REST_MS } from './AppShell.svelte';
 import * as motion from '../motion.js';
+import { tellingBand, tellingNav } from '../../../tests/fixtures/telling.svelte.js';
 
 const RAIL_TOGGLE = /^(Expand|Collapse) navigation$/;
 
@@ -170,7 +171,9 @@ describe('AppShell', () => {
       props: { ...base, collapsible: true },
     });
     await fireEvent.click(getByLabelText('Collapse navigation'));
-    expect(container.querySelector('aside')).toBeNull();
+    const put = container.querySelector('aside') as HTMLElement;
+    expect(put.inert).toBe(true);
+    expect(put.getAttribute('aria-hidden')).toBe('true');
     expect(getByLabelText('Expand navigation').getAttribute('aria-expanded')).toBe('false');
   });
 
@@ -179,7 +182,7 @@ describe('AppShell', () => {
       props: { ...base, collapsible: true, collapsed: true, headerHidden: true },
     });
     expect(container.querySelector('header')).toBeNull();
-    expect(container.querySelector('aside')).toBeNull();
+    expect((container.querySelector('aside') as HTMLElement).inert).toBe(true);
     expect(container.querySelector('main')).toBeTruthy();
   });
 
@@ -251,16 +254,6 @@ function width(kind: 'phone' | 'tablet' | 'desktop') {
     dispatchEvent: () => false,
   })) as unknown as typeof window.matchMedia;
 }
-
-/**
- * A nav that reports what the shell told it, the way a SidebarNav reads
- * `collapsed`. A raw snippet renders once, so it reports the first answer.
- * The aside's own width class is read for what the shell says afterwards,
- * and both come from the same derived value.
- */
-const tellingNav = createRawSnippet<[{ rail: boolean }]>((state) => ({
-  render: () => `<nav data-testid="nav" data-rail="${state().rail}"><a href="/a">A</a></nav>`,
-}));
 
 const railBase = { ...base, nav: tellingNav };
 const aside = (root: ParentNode) =>
@@ -388,18 +381,15 @@ describe('AppShell between md: and lg:', () => {
     const { container } = render(AppShell, {
       props: { ...railBase, collapsible: true, collapsed: true },
     });
-    expect(container.querySelector('aside')).toBeNull();
+    expect(aside(container).inert).toBe(true);
+    expect(aside(container).getAttribute('aria-hidden')).toBe('true');
     expect(railBox(container)).toBeNull();
   });
 
   it('tells the brand row and the footer band as well, and clips them on the rail', () => {
-    const telling = (name: string) =>
-      createRawSnippet<[{ rail: boolean }]>((state) => ({
-        render: () => `<span data-testid="${name}">${state().rail ? 'mark' : 'wordmark'}</span>`,
-      }));
     width('tablet');
     const { getByTestId } = render(AppShell, {
-      props: { ...railBase, brand: telling('brand'), sidebarFooter: telling('foot') },
+      props: { ...railBase, brand: tellingBand('brand'), sidebarFooter: tellingBand('foot') },
     });
     expect(getByTestId('brand').textContent).toBe('mark');
     expect(getByTestId('foot').textContent).toBe('mark');
@@ -465,5 +455,96 @@ describe('the phone drawer slides from its own edge', () => {
     await fireEvent.click(getByLabelText('Open navigation'));
     expect(vi.mocked(motion.drawer)).toHaveBeenCalled();
     expect(vi.mocked(motion.drawer).mock.calls.at(-1)?.[1]).toEqual({ side });
+  });
+});
+
+/*
+ * One sidebar that travels. The column, the rail and the shut sidebar were
+ * separate branches, so collapsing removed the sidebar and every change of
+ * state drew the new width in one frame. Now one element stays mounted and
+ * its width moves. jsdom runs no transition, so these hold the structure and
+ * the classes, and the browser test holds the motion.
+ */
+describe('AppShell sidebar across the column, the rail and the shut state', () => {
+  const layer = (root: ParentNode) => aside(root).parentElement as HTMLElement;
+  const column = (root: ParentNode) => layer(root).parentElement as HTMLElement;
+  const words = (el: HTMLElement) => el.className.split(/\s+/);
+  const twoFrames = () =>
+    new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done())));
+
+  it('keeps the one sidebar mounted while it is put away, out of reach', async () => {
+    width('desktop');
+    const { container, getByLabelText } = render(AppShell, {
+      props: { ...railBase, collapsible: true },
+    });
+    const before = aside(container);
+    await fireEvent.click(getByLabelText('Collapse navigation'));
+    expect(aside(container)).toBe(before);
+    expect(before.inert).toBe(true);
+    expect(before.getAttribute('aria-hidden')).toBe('true');
+    expect(words(column(container))).toContain('w-0');
+    // The content keeps its width and is clipped as the column narrows,
+    // rather than reflowing into what is left.
+    expect(words(before)).toContain('w-sidebar');
+    expect(words(layer(container))).toContain('overflow-hidden');
+    expect(words(layer(container))).toContain('invisible');
+
+    await fireEvent.click(getByLabelText('Expand navigation'));
+    expect(aside(container)).toBe(before);
+    expect(before.inert).toBe(false);
+    expect(before.getAttribute('aria-hidden')).toBe(null);
+    expect(words(column(container))).toContain('w-sidebar');
+    expect(words(layer(container))).not.toContain('invisible');
+  });
+
+  it('keeps the same sidebar when a page asks for the rail and lets it go', async () => {
+    width('desktop');
+    const { container, rerender } = render(AppShell, { props: railBase });
+    const before = aside(container);
+    expect(railBox(container)).toBeNull();
+
+    await rerender({ ...railBase, rail: true });
+    expect(aside(container)).toBe(before);
+    expect(railBox(container)).toBe(column(container));
+    expect(words(column(container))).toContain('w-nav-rail');
+    expect(words(before)).toContain('w-nav-rail');
+
+    await rerender({ ...railBase, rail: false });
+    expect(aside(container)).toBe(before);
+    expect(railBox(container)).toBeNull();
+    expect(words(column(container))).toContain('w-sidebar');
+  });
+
+  it('moves every width on the base rung and the move curve', async () => {
+    width('desktop');
+    const { container } = render(AppShell, { props: { ...railBase, collapsible: true } });
+    await twoFrames();
+    for (const el of [column(container), layer(container), aside(container)]) {
+      const classes = words(el);
+      expect(classes.some((c) => c.startsWith('transition-['))).toBe(true);
+      expect(classes).toContain('ease-move');
+      expect(classes).not.toContain('transition-none!');
+    }
+    expect(words(column(container))).toContain('duration-base');
+    expect(words(aside(container))).toContain('duration-base');
+    // The layer also moves the opened rail's shadow, which takes the fast rung.
+    expect(words(layer(container))).toContain(
+      '[--tw-duration:var(--duration-base),var(--duration-base),var(--duration-fast)]',
+    );
+  });
+
+  it('draws the first state it is given with nothing moving', () => {
+    // A server render cannot know the window, so a tablet hydrates from the
+    // full column to the rail. That change is the first paint, not a travel.
+    width('tablet');
+    const { container } = render(AppShell, { props: { ...railBase, collapsible: true } });
+    for (const el of [column(container), layer(container), aside(container)])
+      expect(words(el)).toContain('transition-none!');
+  });
+
+  it('keeps the shut column off paper as well as the sidebar', async () => {
+    width('desktop');
+    const { container } = render(AppShell, { props: railBase });
+    expect(column(container).getAttribute('data-print')).toBe('hide');
   });
 });
