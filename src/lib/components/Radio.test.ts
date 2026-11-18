@@ -96,6 +96,25 @@ describe('Radio', () => {
     expect((ring.firstElementChild as HTMLElement).className).toContain('bg-brand');
   });
 
+  it('keeps its dot mounted and fades and grows it on selection', async () => {
+    // A dot that mounted in one frame popped into a ring whose color eased
+    // over. It stays in the ring and moves opacity and scale on the fast rung.
+    const { container, rerender } = render(Radio, {
+      props: { value: 'a', group: 'b', label: 'x' },
+    });
+    const ring = container.querySelector('input + span') as HTMLElement;
+    const dot = ring.firstElementChild as HTMLElement;
+    expect(dot).toBeTruthy();
+    expect(dot.classList).toContain('transition-[opacity,transform]');
+    expect(dot.className).not.toMatch(/duration-|ease-/);
+    expect(dot.classList).toContain('opacity-0');
+    expect(dot.classList).toContain('transform-[scale(0.5)]');
+    await rerender({ group: 'a' });
+    expect(ring.firstElementChild).toBe(dot);
+    expect(dot.classList).toContain('opacity-100');
+    expect(dot.classList).toContain('transform-none');
+  });
+
   it.each(['sm', 'md', 'lg'] as ChoiceSize[])('draws its icon at CHOICE_ICON_PX for %s', (size) => {
     const { container } = render(Radio, {
       props: { value: 'a', label: 'Billing', icon: Settings, size },

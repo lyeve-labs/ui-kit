@@ -43,7 +43,7 @@ describe('Checkbox, hydrating over a box the visitor already ticked', () => {
 
     expect(input.checked).toBe(true);
     expect(bound).toBe(true);
-    expect(document.querySelector('input + span svg')).not.toBeNull();
+    expect(document.querySelector('input + span path.opacity-100')).not.toBeNull();
   });
 
   it('leaves an untouched box unticked', () => {
@@ -57,7 +57,8 @@ describe('Checkbox, hydrating over a box the visitor already ticked', () => {
 
     const input = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
     expect(input.checked).toBe(false);
-    expect(document.querySelector('input + span svg')).toBeNull();
+    // The marks stay in the box, hidden, so nothing shown means unticked.
+    expect(document.querySelector('input + span path.opacity-100')).toBeNull();
     expect(onchange).not.toHaveBeenCalled();
   });
 });
