@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A dialog pushed back by a newer one shrinks and drops back on the base rung, 200ms on `--ease-move`. It moved on the slow rung, as long as the entrance of the dialog arriving in front of it, though it is a movement in place.
 - A collapsible `SplitPane` folds to its strip and opens again on its width, 200ms on `--ease-move`, as the side panel of `AppShell` does. It changed width in one frame. A step of the edge from the keyboard moves the same way. A drag on the edge still follows the pointer with no transition, and an overlay pane still slides and fades only under its breakpoint.
+- The suggestion bar of `FormAssist` arrives and leaves on the toast preset, as `Alert` does: it rises and fades in on the base rung and leaves one rung faster. It appeared and vanished in one frame, after Accept all or Reject all too.
 
 ## [0.62.0] - 2026-11-16
 

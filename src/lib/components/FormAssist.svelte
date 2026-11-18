@@ -11,6 +11,7 @@
   import { tick, type Snippet } from 'svelte';
   import { Sparkles } from '@lucide/svelte';
   import Button from './Button.svelte';
+  import * as motion from '../motion.js';
   import {
     heldSentence,
     provideAssistForm,
@@ -76,6 +77,7 @@
   {#if count > 0}
     <div
       bind:this={bar}
+      transition:motion.toast|global
       tabindex="-1"
       class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-violet/45 bg-violet/8 py-2 ps-3 pe-2 text-sm text-fg outline-none focus-visible:ring-2 focus-visible:ring-focus"
     >
