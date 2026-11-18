@@ -56,7 +56,9 @@
 
   const t = $derived(statusTone(tone));
 
+  const region = $props.id();
   const notice = createNotice({
+    region,
     tone: () => t,
     dismissible: () => dismissible,
     autoDismiss: () => autoDismiss,
@@ -73,6 +75,7 @@
     <div class="min-h-0">
       <div
         transition:motion.toast|global
+        data-fill={region}
         role={notice.live ? 'alert' : undefined}
         aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
         aria-atomic={notice.outcome ? 'true' : undefined}

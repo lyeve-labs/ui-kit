@@ -83,6 +83,28 @@ describe('PluginCart', () => {
     expect(onchange).toHaveBeenCalledWith(['plugin-graphql']);
   });
 
+  it('keeps the check mark of a card mounted and fades and grows it', async () => {
+    // A mark that mounted in one frame popped into a box whose color eased
+    // over. It stays in the box and moves opacity and scale on the fast rung.
+    // The box is hidden: the checkbox is what a screen reader hears.
+    const { getByRole } = render(PluginCart, { props: { plugins: PLUGINS } });
+    const input = getByRole('checkbox', { name: /GraphQL/ }) as HTMLInputElement;
+    const card = input.closest('label') as HTMLElement;
+    const mark = card.querySelector('path') as SVGPathElement;
+    expect(mark).toBeTruthy();
+    expect(mark.closest('[aria-hidden="true"]')).toBeTruthy();
+    expect(mark.classList).toContain('transition-[opacity,transform]');
+    expect(mark.classList).toContain('origin-center');
+    expect(mark.className.baseVal).not.toMatch(/duration-|ease-/);
+    expect(mark.classList).toContain('opacity-0');
+    expect(mark.classList).toContain('transform-[scale(0.5)]');
+
+    await fireEvent.click(input);
+    expect(card.querySelector('path')).toBe(mark);
+    expect(mark.classList).toContain('opacity-100');
+    expect(mark.classList).toContain('transform-none');
+  });
+
   it('seeds itself from a selection made on another surface', () => {
     const { getByRole } = render(PluginCart, {
       props: { plugins: PLUGINS, initial: ['plugin-audit'] },
@@ -195,6 +217,15 @@ describe('PluginCart', () => {
     await fireEvent.click(getByRole('button', { name: 'Clear filters' }));
     expect(queryByText(NO_MATCH)).toBeNull();
     expect(getByLabelText(/GraphQL/)).toBeTruthy();
+  });
+
+  it('leaves the search box without an instruction in it', () => {
+    // A placeholder is at most an example of the format. The search box has
+    // its label, and a sentence telling the reader what to type vanishes the
+    // moment they start.
+    const { getByRole } = render(PluginCart, { props: { plugins: PLUGINS } });
+    const search = getByRole('searchbox', { name: 'Search capabilities' });
+    expect(search.getAttribute('placeholder') ?? '').toBe('');
   });
 
   it('shows the price apart from the description, and a beta plugin as a badge', () => {

@@ -7,6 +7,7 @@
 import { test, expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
 import { fileURLToPath } from 'node:url';
 import SplitPaneFoldStory from './SplitPaneFoldStory.svelte';
+import SplitPaneFoldLateStory from './SplitPaneFoldLateStory.svelte';
 import SplitPaneStory from './SplitPaneStory.svelte';
 import { tabTo } from './keys.js';
 import { styleWithKit } from './kit-css.js';
@@ -210,6 +211,24 @@ test.describe('SplitPane folding', () => {
     expect(await widthOf(aside)).toBe(32);
 
     await pane.getByRole('button', { name: 'Expand Layers' }).click();
+    expect(await travels(aside)).toEqual(BASE_MOVE);
+    await settle(aside);
+    expect(await widthOf(aside)).toBe(260);
+  });
+
+  test('draws a fold set as it first draws with nothing moving, then travels', async ({
+    mount,
+    page,
+  }) => {
+    const story = await mount(SplitPaneFoldLateStory);
+    await styleWithKit(page, 'dark', [SOURCE]);
+    await story.getByRole('button', { name: 'Show' }).click();
+    const aside = story.locator('aside');
+    expect(await travels(aside)).toEqual([]);
+    expect(await widthOf(aside)).toBe(32);
+
+    // Once the first state is drawn, a fold the reader asks for travels.
+    await story.getByRole('button', { name: 'Expand Layers' }).click();
     expect(await travels(aside)).toEqual(BASE_MOVE);
     await settle(aside);
     expect(await widthOf(aside)).toBe(260);
