@@ -181,9 +181,44 @@ describe('AppShell', () => {
     const { container } = render(AppShell, {
       props: { ...base, collapsible: true, collapsed: true, headerHidden: true },
     });
-    expect(container.querySelector('header')).toBeNull();
+    // The bar stays mounted in a row closed to nothing, out of the tab order
+    // and out of what a screen reader reads.
+    const row = container.querySelector('header')!.parentElement!.parentElement!;
+    expect(row.inert).toBe(true);
+    expect(row.getAttribute('aria-hidden')).toBe('true');
+    expect(row.classList).toContain('grid-rows-[0fr]');
     expect((container.querySelector('aside') as HTMLElement).inert).toBe(true);
     expect(container.querySelector('main')).toBeTruthy();
+  });
+
+  it('closes the header row on its height and keeps the one bar mounted', async () => {
+    // Removing the bar moved the page up by its height in one frame, and back
+    // again when the page let it return.
+    const { container, rerender } = render(AppShell, { props: base });
+    const header = container.querySelector('header')!;
+    const row = header.parentElement!.parentElement!;
+    const clip = header.parentElement!;
+    expect(row.classList).toContain('grid');
+    expect(row.classList).toContain('transition-[grid-template-rows]');
+    expect(row.classList).toContain('duration-base');
+    expect(row.classList).toContain('ease-move');
+    expect(row.classList).toContain('grid-rows-[1fr]');
+    expect(row.inert).toBe(false);
+    expect(row.hasAttribute('aria-hidden')).toBe(false);
+    expect(clip.classList).toContain('min-h-0');
+    // A menu that opens from the bar at rest hangs below it, so nothing clips it.
+    expect(clip.classList).not.toContain('overflow-hidden');
+
+    await rerender({ headerHidden: true });
+    expect(container.querySelector('header')).toBe(header);
+    expect(row.classList).toContain('grid-rows-[0fr]');
+    expect(clip.classList).toContain('overflow-hidden');
+    expect(row.inert).toBe(true);
+
+    await rerender({ headerHidden: false });
+    expect(container.querySelector('header')).toBe(header);
+    expect(row.classList).toContain('grid-rows-[1fr]');
+    expect(row.inert).toBe(false);
   });
 
   it('keeps the header below md: whatever headerHidden says, since it carries the hamburger', () => {

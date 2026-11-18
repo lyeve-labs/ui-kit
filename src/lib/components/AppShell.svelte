@@ -348,6 +348,24 @@
   });
   const still = $derived(settled ? '' : 'transition-none!');
 
+  /**
+   * The header bar's row clips the bar while it is shut and while it travels
+   * open, so the bar never draws over the page in a row still too short for
+   * it. At rest it clips nothing, because a menu opened from the bar hangs
+   * below it. The row knows it has opened only when its own travel ends.
+   * Before the first state is drawn nothing travels, so nothing waits.
+   */
+  let barRested = $state(true);
+  $effect(() => {
+    if (barHidden) barRested = false;
+    else if (!settled) barRested = true;
+  });
+  const barClipped = $derived(barHidden || !barRested);
+  function onBarTransitionEnd(event: TransitionEvent) {
+    if (event.target !== event.currentTarget) return;
+    if (event.propertyName === 'grid-template-rows' && !barHidden) barRested = true;
+  }
+
   /** Every move starts the rest again, so only a pointer that stops opens the column. */
   function onRailPointerMove() {
     if (!railMode || railOpen) return;
@@ -494,47 +512,61 @@
        translucent header and the page under it share one canvas. The main
        region paints nothing of its own for that reason. -->
   <div class="flex min-w-0 flex-1 flex-col bg-ink bg-canvas">
-    {#if !barHidden}
-      <header data-print="hide" class={APP_HEADER}>
-        <div class="flex min-w-0 flex-1 items-center gap-2">
-          {#if isMobile}
-            <!-- 44px square, the smallest tap target SC 2.5.5 accepts. The -ms-2
-               pulls it back to the header's own gutter so the row it starts
-               still lines up with the page content below. -->
-            <button
-              type="button"
-              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
-              aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
-              aria-expanded={navOpen}
-              onclick={() => (navOpen = !navOpen)}
-            >
-              <Menu size={20} />
-            </button>
-          {:else if collapsible}
-            <!-- Same square and the same gutter as the hamburger it replaces, so
-               the header's first control sits in one place at every width. -->
-            <button
-              type="button"
-              class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
-              aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
-              aria-expanded={!collapsed}
-              onclick={() => (collapsed = !collapsed)}
-            >
-              {#if collapsed}<PanelLeft size={20} />{:else}<PanelLeftClose size={20} />{/if}
-            </button>
-          {/if}
-          {#if section}
-            <span class="truncate text-sm font-semibold text-fg">
-              {section}
-            </span>
-          {/if}
-        </div>
+    <!-- The bar stays mounted and its row closes on its height, so the page
+         moves up with it rather than jumping by the bar's height in one
+         frame. Put away, the row is inert and hidden, so focus never lands
+         in the bar. The first paint draws the state it is given, as the
+         sidebar's does. -->
+    <div
+      class="grid shrink-0 transition-[grid-template-rows] duration-base ease-move {still} {barHidden
+        ? 'grid-rows-[0fr]'
+        : 'grid-rows-[1fr]'}"
+      inert={barHidden}
+      aria-hidden={barHidden ? 'true' : undefined}
+      ontransitionend={onBarTransitionEnd}
+    >
+      <div class="min-h-0 {barClipped ? 'overflow-hidden' : ''}">
+        <header data-print="hide" class={APP_HEADER}>
+          <div class="flex min-w-0 flex-1 items-center gap-2">
+            {#if isMobile}
+              <!-- 44px square, the smallest tap target SC 2.5.5 accepts. The -ms-2
+                   pulls it back to the header's own gutter so the row it starts
+                   still lines up with the page content below. -->
+              <button
+                type="button"
+                class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+                aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
+                aria-expanded={navOpen}
+                onclick={() => (navOpen = !navOpen)}
+              >
+                <Menu size={20} />
+              </button>
+            {:else if collapsible}
+              <!-- Same square and the same gutter as the hamburger it replaces, so
+                   the header's first control sits in one place at every width. -->
+              <button
+                type="button"
+                class="-ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-surface-2 hover:text-fg active:bg-line active:text-fg focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+                aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+                aria-expanded={!collapsed}
+                onclick={() => (collapsed = !collapsed)}
+              >
+                {#if collapsed}<PanelLeft size={20} />{:else}<PanelLeftClose size={20} />{/if}
+              </button>
+            {/if}
+            {#if section}
+              <span class="truncate text-sm font-semibold text-fg">
+                {section}
+              </span>
+            {/if}
+          </div>
 
-        {#if headerActions}
-          <div class="flex shrink-0 items-center gap-1">{@render headerActions()}</div>
-        {/if}
-      </header>
-    {/if}
+          {#if headerActions}
+            <div class="flex shrink-0 items-center gap-1">{@render headerActions()}</div>
+          {/if}
+        </header>
+      </div>
+    </div>
 
     <!-- tabindex -1 is what makes the skip link work. A fragment link scrolls
          to its target and moves focus to it only if the target can hold focus,
