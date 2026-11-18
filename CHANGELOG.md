@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A dialog pushed back by a newer one shrinks and drops back on the base rung, 200ms on `--ease-move`. It moved on the slow rung, as long as the entrance of the dialog arriving in front of it, though it is a movement in place.
+
 ## [0.62.0] - 2026-11-16
 
 ### Added
