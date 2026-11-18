@@ -75,17 +75,25 @@
 <div bind:this={root} class={klass}>
   <div class="sr-only" aria-live="polite">{form.announcement}</div>
   {#if count > 0}
-    <div
-      bind:this={bar}
-      transition:motion.toast|global
-      tabindex="-1"
-      class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-violet/45 bg-violet/8 py-2 ps-3 pe-2 text-sm text-fg outline-none focus-visible:ring-2 focus-visible:ring-focus"
-    >
-      <Sparkles size={16} class="shrink-0 text-violet" aria-hidden="true" />
-      <p class="min-w-0 flex-1">{form.held ? heldSentence(count) : suggestsSentence(count)}</p>
-      <div class="flex gap-2">
-        <Button variant="ghost" size="sm" onclick={() => form.rejectAll()}>Reject all</Button>
-        <Button variant="secondary" size="sm" onclick={() => form.acceptAll()}>Accept all</Button>
+    <!-- The row opens and closes around the bar, as an Alert's does, so the
+         form below moves with it rather than jumping once the bar has gone. -->
+    <div class="grid" transition:motion.collapse|global>
+      <div class="min-h-0">
+        <div
+          bind:this={bar}
+          transition:motion.toast|global
+          tabindex="-1"
+          class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-violet/45 bg-violet/8 py-2 ps-3 pe-2 text-sm text-fg outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >
+          <Sparkles size={16} class="shrink-0 text-violet" aria-hidden="true" />
+          <p class="min-w-0 flex-1">{form.held ? heldSentence(count) : suggestsSentence(count)}</p>
+          <div class="flex gap-2">
+            <Button variant="ghost" size="sm" onclick={() => form.rejectAll()}>Reject all</Button>
+            <Button variant="secondary" size="sm" onclick={() => form.acceptAll()}
+              >Accept all</Button
+            >
+          </div>
+        </div>
       </div>
     </div>
   {/if}

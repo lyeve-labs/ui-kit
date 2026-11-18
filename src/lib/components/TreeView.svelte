@@ -316,17 +316,26 @@
           -->
           <span data-tree-check class="{TOUCH_GROW} flex shrink-0 items-center justify-center">
             <span class={choiceBox('checkbox', 'sm', state === 'all', state === 'some')}>
-              {#if state !== 'none'}
-                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+              <!-- Both marks stay mounted and move opacity and scale on the
+                   fast rung, the box's own clock, as a Checkbox's do. A mark
+                   that mounted in one frame popped into a box whose color was
+                   still easing over. The scale is a transform, because
+                   Tailwind's scale-* sets the separate scale property, which
+                   a transition on transform never moves. -->
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                {#each [{ d: CHOICE_MARK.check, on: state === 'all' }, { d: CHOICE_MARK.mixed, on: state === 'some' }] as mark (mark.d)}
                   <path
-                    d={state === 'all' ? CHOICE_MARK.check : CHOICE_MARK.mixed}
+                    d={mark.d}
+                    class="origin-center transition-[opacity,transform] {mark.on
+                      ? 'opacity-100 transform-none'
+                      : 'opacity-0 transform-[scale(0.5)]'}"
                     stroke="currentColor"
                     stroke-width="1.5"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
-                </svg>
-              {/if}
+                {/each}
+              </svg>
             </span>
           </span>
         {/if}

@@ -244,11 +244,9 @@
 
 <div class={cn('grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]', klass)}>
   <div class="min-w-0 space-y-4">
-    <SearchInput
-      label="Search capabilities"
-      placeholder="Search by name or what it does"
-      bind:value={query}
-    />
+    <!-- No placeholder: the label names the box, and a search has no format
+         to show by example. -->
+    <SearchInput label="Search capabilities" placeholder="" bind:value={query} />
 
     {#if quickPicks.length > 0}
       <div class="flex flex-wrap items-center gap-2">
@@ -332,17 +330,26 @@
                     )}
                     aria-hidden="true"
                   >
-                    {#if on}
-                      <svg
-                        viewBox="0 0 10 8"
-                        class="size-2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"><path d={CHOICE_MARK.check} /></svg
-                      >
-                    {/if}
+                    <!-- The mark stays mounted and moves opacity and scale on
+                         the fast rung with the box's color, as a Checkbox's
+                         does. The scale is a transform: Tailwind's scale-*
+                         sets the separate scale property, which a transition
+                         on transform never moves. -->
+                    <svg
+                      viewBox="0 0 10 8"
+                      class="size-2.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><path
+                        d={CHOICE_MARK.check}
+                        class="origin-center transition-[opacity,transform] {on
+                          ? 'opacity-100 transform-none'
+                          : 'opacity-0 transform-[scale(0.5)]'}"
+                      /></svg
+                    >
                   </span>
                   <!-- A one-word name longer than the space beside the price breaks
                        with a hyphen rather than running under it. -->

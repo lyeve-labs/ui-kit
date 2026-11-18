@@ -247,8 +247,70 @@ export const fade = surface('base', (t) => `opacity: ${t}`);
  * takes `min-h-0`, so a row at `0fr` holds no height. The node clips only in
  * these frames, and Svelte restores its overflow when the entrance ends, so a
  * focus ring or a shadow at rest is never cut.
+ *
+ * The space the node holds beside its neighbors moves with the row. Its own
+ * block margins, such as a page's `mb-4` or a `space-y-*` parent's, grow from
+ * zero. A parent column with a row gap leaves one gap for the node, which the
+ * rows cannot close, so a negative margin on the side that has a neighbor
+ * cancels it at the first frame and travels to zero. Without either, the space
+ * arrived the moment the node mounted and went the moment it unmounted. A grid
+ * parent keeps its gap, because a track never shrinks below zero, so no margin
+ * on the node can close it. A `space-y-*` parent puts its space on every child
+ * but the last, so a node mounted last gives its previous sibling a margin
+ * that is not the node's to move, and nothing here can tell that margin from
+ * one the sibling holds of its own.
  */
-export const collapse = surface('base', (t) => `grid-template-rows: ${t}fr; overflow: hidden`);
+export function collapse(node: Element): Motion {
+  let space: Spacing | undefined;
+  return surface('base', (t, u) => {
+    // Read once, at rest: before the entrance draws its first frame, or before
+    // an exit from rest. An exit that reverses an entrance reuses this call.
+    space ??= spacing(node);
+    const frame = [`grid-template-rows: ${t}fr`, 'overflow: hidden'];
+    for (const side of ['top', 'bottom'] as const) {
+      const { margin, gap } = space[side];
+      if (margin !== 0 || gap !== 0) frame.push(`margin-${side}: ${margin * t - gap * u}px`);
+    }
+    return frame.join('; ');
+  })(node);
+}
+
+type Spacing = Record<'top' | 'bottom', { margin: number; gap: number }>;
+
+function px(value: string): number {
+  const n = parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** A sibling the parent lays out, which a gap stands beside. */
+function inFlow(el: Element | null): boolean {
+  if (!el) return false;
+  const style = getComputedStyle(el);
+  return style.display !== 'none' && style.position !== 'absolute' && style.position !== 'fixed';
+}
+
+function neighbor(node: Element, step: 'nextElementSibling' | 'previousElementSibling'): boolean {
+  for (let el = node[step]; el; el = el[step]) if (inFlow(el)) return true;
+  return false;
+}
+
+/** The node's own block margins, and the one row gap its parent column leaves for it. */
+function spacing(node: Element): Spacing {
+  const own = getComputedStyle(node);
+  const space: Spacing = {
+    top: { margin: px(own.marginTop), gap: 0 },
+    bottom: { margin: px(own.marginBottom), gap: 0 },
+  };
+  const parent = node.parentElement;
+  if (!parent) return space;
+  const flow = getComputedStyle(parent);
+  const column = /flex/.test(flow.display) && flow.flexDirection.startsWith('column');
+  const gap = column ? px(flow.rowGap) : 0;
+  if (gap <= 0) return space;
+  if (neighbor(node, 'nextElementSibling')) space.bottom.gap = gap;
+  else if (neighbor(node, 'previousElementSibling')) space.top.gap = gap;
+  return space;
+}
 
 /**
  * Siblings closing the gap a removed item leaves, for `animate:`. Svelte's

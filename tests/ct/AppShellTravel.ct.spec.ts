@@ -15,6 +15,11 @@ import { styleWithKit } from './kit-css.js';
 const SOURCES = ['AppShell', 'SidebarNav'].map((name) =>
   fileURLToPath(new URL(`../../src/lib/components/${name}.svelte`, import.meta.url)),
 );
+// The header's classes are written in the shared layout module, which a page
+// styled before the mount has to read for them.
+const BEFORE_MOUNT = ['./AppShellTravelStory.svelte', '../../src/lib/internal/layout.ts'].map(
+  (path) => fileURLToPath(new URL(path, import.meta.url)),
+);
 const MOVE = 'cubic-bezier(0.65, 0, 0.35, 1)';
 
 type Seen = {
@@ -70,13 +75,18 @@ const holdAt = (page: Page, share: number) =>
     }
   }, share);
 
+/**
+ * Plays every transition to its end. The header button's hover colors are
+ * among them, and the travel can move the button from under the pointer,
+ * which cancels them. A canceled color is no travel, so it is not waited on.
+ */
 const finish = (page: Page) =>
   page.evaluate(() =>
     Promise.all(
       document
         .getAnimations()
         .filter((a) => a instanceof CSSTransition)
-        .map((a) => (a.play(), a.finished)),
+        .map((a) => (a.play(), a.finished.catch(() => undefined))),
     ),
   );
 
@@ -226,5 +236,143 @@ test.describe('the first paint at 900px', () => {
           .filter((a) => a instanceof CSSTransition && a.transitionProperty === 'width').length,
     );
     expect(moving).toBe(0);
+  });
+});
+
+/**
+ * Collects every move of the header bar's row from here on, paused the moment
+ * each starts, so a loaded run cannot let one end before the case reads it.
+ */
+function watchBar(page: Page) {
+  return page.evaluate(() => {
+    const rows: { duration: number; easing: string }[] = [];
+    (window as unknown as { rows: typeof rows }).rows = rows;
+    const row = document.querySelector('header')!.parentElement!.parentElement!;
+    row.addEventListener('transitionrun', (e) => {
+      if (e.target !== row || e.propertyName !== 'grid-template-rows') return;
+      for (const a of row.getAnimations()) {
+        if (!(a instanceof CSSTransition) || a.transitionProperty !== 'grid-template-rows')
+          continue;
+        a.pause();
+        const timing = a.effect!.getTiming();
+        rows.push({ duration: Number(timing.duration), easing: String(timing.easing) });
+      }
+    });
+  });
+}
+
+const barMoves = (page: Page) =>
+  page.evaluate(() => (window as unknown as { rows: unknown[] }).rows);
+
+/** Where the page starts below the bar, how much of the bar shows, and what its row clips. */
+const bar = (page: Page) =>
+  page.evaluate(() => {
+    const header = document.querySelector('header')!;
+    return {
+      main: document.querySelector('main')!.getBoundingClientRect().top,
+      shown: header.parentElement!.getBoundingClientRect().height,
+      overflow: getComputedStyle(header.parentElement!).overflow,
+      inert: (header.parentElement!.parentElement as HTMLElement).inert,
+    };
+  });
+
+test.describe('the header bar at 1280px', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('closes its row on the height and opens it again, with the page moving along', async ({
+    mount: m,
+    page,
+  }) => {
+    await mount(page, m);
+    const header = page.locator('header');
+    const handle = await header.elementHandle();
+    expect(await bar(page)).toEqual({ main: 56, shown: 56, overflow: 'visible', inert: false });
+    await watchBar(page);
+
+    await page.getByTestId('ask-header').click();
+    await expect.poll(() => barMoves(page)).toEqual([{ duration: 200, easing: MOVE }]);
+    // Halfway, the page has moved up part of the way, under a bar cut off at
+    // the row's edge.
+    await holdAt(page, 0.5);
+    const half = await bar(page);
+    expect(half.main).toBeGreaterThan(4);
+    expect(half.main).toBeLessThan(52);
+    expect(half.overflow).toBe('hidden');
+    await finish(page);
+    expect(await bar(page)).toEqual({ main: 0, shown: 0, overflow: 'hidden', inert: true });
+    await expect(page.getByRole('button', { name: 'Collapse navigation' })).toBeHidden();
+    expect(await handle!.evaluate((el) => el.isConnected)).toBe(true);
+
+    await page.evaluate(() => ((window as unknown as { rows: unknown[] }).rows.length = 0));
+    await page.getByTestId('ask-header').click();
+    await expect.poll(() => barMoves(page)).toEqual([{ duration: 200, easing: MOVE }]);
+    await holdAt(page, 0.5);
+    // Opening, the bar is still cut off at the row's edge, never drawn over the page.
+    expect((await bar(page)).overflow).toBe('hidden');
+    await finish(page);
+    // At rest the row clips nothing, so a menu opened from the bar hangs below it.
+    await expect
+      .poll(() => bar(page))
+      .toEqual({ main: 56, shown: 56, overflow: 'visible', inert: false });
+    await expect(page.getByRole('button', { name: 'Collapse navigation' })).toBeVisible();
+    expect(await handle!.evaluate((el) => el.isConnected)).toBe(true);
+  });
+});
+
+/**
+ * Mounts with the kit's styles already on the page, as a server-rendered page
+ * has them, and counts every travel of the header bar's row from before the
+ * mount on. Styled after the mount, the first state would be drawn before any
+ * transition class had a rule, and nothing could travel with or without the
+ * guard.
+ */
+async function mountStyled(
+  page: Page,
+  mountStory: (c: typeof AppShellTravelStory, o: object) => Promise<unknown>,
+  props = {},
+) {
+  await page.evaluate(() => {
+    (window as unknown as { barRuns: number }).barRuns = 0;
+    document.addEventListener('transitionrun', (e) => {
+      const target = e.target as HTMLElement;
+      if (e.propertyName === 'grid-template-rows' && target.querySelector(':scope > div > header'))
+        (window as unknown as { barRuns: number }).barRuns += 1;
+    });
+  });
+  await styleWithKit(page, 'dark', [...SOURCES, ...BEFORE_MOUNT]);
+  await mountStory(AppShellTravelStory, { props: { ...props, paintFirst: true } });
+  await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
+  );
+}
+
+const barRuns = (page: Page) =>
+  page.evaluate(() => (window as unknown as { barRuns: number }).barRuns);
+
+test.describe('the first paint of a header put away', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('draws the bar put away with nothing moving, and out of the tab order', async ({
+    mount: m,
+    page,
+  }) => {
+    await mountStyled(page, m, { headerHidden: true });
+    expect(await bar(page)).toEqual({ main: 0, shown: 0, overflow: 'hidden', inert: true });
+    expect(await barRuns(page)).toBe(0);
+    await expect(page.getByRole('button', { name: 'Collapse navigation' })).toBeHidden();
+  });
+
+  test.describe('below md', () => {
+    test.use({ viewport: { width: 600, height: 800 } });
+
+    // The shell assumes a desktop until the browser says otherwise, so a
+    // phone first draws the bar put away and then shows it. That is the first
+    // state, not a travel.
+    test('keeps the bar and its menu button, with nothing moving', async ({ mount: m, page }) => {
+      await mountStyled(page, m, { headerHidden: true });
+      expect(await bar(page)).toEqual({ main: 56, shown: 56, overflow: 'visible', inert: false });
+      expect(await barRuns(page)).toBe(0);
+      await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible();
+    });
   });
 });

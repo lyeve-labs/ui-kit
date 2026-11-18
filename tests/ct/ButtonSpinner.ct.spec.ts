@@ -9,7 +9,7 @@ import { test, expect, type Locator } from '@playwright/experimental-ct-svelte';
 import ButtonSpinnerStory from './ButtonSpinnerStory.svelte';
 import ButtonSpreadStory from './ButtonSpreadStory.svelte';
 import { styleWithKit } from './kit-css.js';
-import { pauseWhen, playing, resume, settled } from './motion.js';
+import { pauseOnStart, pauseWhen, playing, resume, settled } from './motion.js';
 
 const sources = ['Button', 'Spinner'].map((name) =>
   fileURLToPath(new URL(`../../src/lib/components/${name}.svelte`, import.meta.url)),
@@ -45,6 +45,7 @@ for (const [role, name] of [
     });
     expect(fades).toEqual(['opacity', '0.12s']);
 
+    await pauseOnStart(page);
     await page.getByRole('button', { name: 'Toggle' }).click();
     const cell = spin.locator('..');
     await expect(spin).toHaveCount(1);

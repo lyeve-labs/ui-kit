@@ -28,10 +28,17 @@ export const DISMISS_AFTER = 5000;
  *
  * The server runs no effect and has no frames, so it renders the text
  * straight away: a page delivered without its client bundle still carries the
- * outcome of the submit, which matters more than announcing it.
+ * outcome of the submit, which matters more than announcing it. A region the
+ * server drew keeps that text as the page hydrates. It is already on screen,
+ * and emptying it would make it vanish and come back two frames later.
+ *
+ * `region` is the component's `$props.id()`, which the region carries as
+ * `data-fill`. Hydration reuses the server's id, and a component the browser
+ * mounts takes an id the server never issues, so finding the attribute in the
+ * document before the component has drawn anything means the server drew it.
  */
-export function deferFill(active: () => boolean): { readonly filled: boolean } {
-  let filled = $state(typeof window === 'undefined');
+export function deferFill(active: () => boolean, region: string): { readonly filled: boolean } {
+  let filled = $state(typeof window === 'undefined' || drawnByServer(region));
 
   $effect(() => {
     if (!active()) return;
@@ -48,7 +55,15 @@ export function deferFill(active: () => boolean): { readonly filled: boolean } {
   };
 }
 
+function drawnByServer(region: string): boolean {
+  return [...document.querySelectorAll('[data-fill]')].some(
+    (el) => el.getAttribute('data-fill') === region,
+  );
+}
+
 export interface NoticeOptions {
+  /** The component's `$props.id()`, drawn on the region as `data-fill`. */
+  region: string;
   tone: () => StatusTone;
   dismissible: () => boolean;
   autoDismiss: () => number | boolean;
@@ -102,7 +117,7 @@ export function createNotice(options: NoticeOptions): Notice {
   const live = $derived((options.tone() === 'danger' || options.tone() === 'warn') && delay <= 0);
   const outcome = $derived(!live && (delay > 0 || options.announce()));
   const closable = $derived(options.dismissible() || delay > 0);
-  const fill = deferFill(() => outcome);
+  const fill = deferFill(() => outcome, options.region);
 
   let closed = $state(false);
   let held = $state(false);
