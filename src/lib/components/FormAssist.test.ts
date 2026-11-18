@@ -8,7 +8,7 @@ import * as motion from '../motion.js';
 
 vi.mock('../motion.js', async (original) => {
   const real = await original<typeof import('../motion.js')>();
-  return { ...real, toast: vi.fn(real.toast) };
+  return { ...real, toast: vi.fn(real.toast), collapse: vi.fn(real.collapse) };
 });
 
 function controller(): FormAssistController {
@@ -242,6 +242,20 @@ describe('FormAssist', () => {
     await settle();
     const bar = screen.getByRole('button', { name: 'Reject all' }).closest('[tabindex="-1"]');
     expect(vi.mocked(motion.toast).mock.calls.map(([node]) => node)).toEqual([bar]);
+  });
+
+  it('holds the bar in a row that opens and closes with it, as an Alert', async () => {
+    // Without the row, the form below jumped up by the bar's height and the
+    // column's gap once the bar had faded out.
+    render(AssistForm);
+    vi.mocked(motion.collapse).mockClear();
+    controller().suggest({ name: 'a' });
+    await settle();
+    const bar = screen.getByRole('button', { name: 'Reject all' }).closest('[tabindex="-1"]')!;
+    const row = bar.parentElement!.parentElement!;
+    expect(vi.mocked(motion.collapse).mock.calls.map(([node]) => node)).toEqual([row]);
+    expect(row.classList.contains('grid')).toBe(true);
+    expect(bar.parentElement!.classList.contains('min-h-0')).toBe(true);
   });
 
   it('updates the bar and lifts the hold as each field is decided on its own', async () => {
