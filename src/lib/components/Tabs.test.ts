@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render } from '@testing-library/svelte';
-import { describe, expect, it, vi } from 'vitest';
+import { tick } from 'svelte';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Tabs from './Tabs.svelte';
 
 const items = [
@@ -301,5 +302,178 @@ describe('Tabs from the keyboard', () => {
     expect(onchange).not.toHaveBeenCalled();
     await fireEvent.click(document.activeElement as HTMLElement);
     expect(onchange).toHaveBeenCalledExactlyOnceWith('prices');
+  });
+});
+
+/*
+ * One underline for the strip. It was an underline drawn under each tab, so
+ * a change of tab took the line from one tab and put it under the next in one
+ * frame. jsdom lays nothing out, so each case gives the strip and its tabs
+ * boxes: the strip is 400px wide and each tab 100px, side by side.
+ */
+describe('Tabs underline', () => {
+  const UNDERLINE = 'after:bg-accent';
+  let observers: (() => void)[] = [];
+
+  class FakeResizeObserver {
+    constructor(private readonly cb: () => void) {
+      observers.push(() => this.cb());
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+
+  beforeEach(() => {
+    observers = [];
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  const indicator = (root: ParentNode) =>
+    strip(root).querySelector<HTMLElement>(':scope > [aria-hidden="true"] > span');
+
+  /** Gives the strip's anchor and every tab a box, tab i at i * width. */
+  function lay(root: ParentNode, width = () => 100) {
+    const anchor = strip(root).querySelector<HTMLElement>(':scope > [aria-hidden="true"]')!;
+    anchor.getBoundingClientRect = () => new DOMRect(0, 38, 400, 2);
+    root.querySelectorAll<HTMLElement>('[role="tab"]').forEach((tab, i) => {
+      tab.getBoundingClientRect = () => new DOMRect(i * width(), 0, width(), 40);
+    });
+  }
+
+  const resize = async () => {
+    for (const fire of observers) fire();
+    await tick();
+  };
+
+  /**
+   * A right-to-left page. A browser gives an element under dir="rtl" the
+   * computed direction rtl, and jsdom neither applies that rule nor inherits
+   * the property, so the page states it for every element in it.
+   */
+  function rtlPage() {
+    const page = document.createElement('div');
+    page.setAttribute('dir', 'rtl');
+    const rule = document.createElement('style');
+    rule.textContent = '[dir="rtl"], [dir="rtl"] * { direction: rtl }';
+    page.append(rule);
+    document.body.append(page);
+    return page;
+  }
+
+  it('draws the underline under the chosen tab until the strip is measured', () => {
+    // A server render and a page whose scripts never run measure nothing, and
+    // the chosen tab still shows its line there.
+    const { getAllByRole, container } = render(Tabs, {
+      props: { items: five, active: 'prices', onchange: vi.fn() },
+    });
+    const tabs = getAllByRole('tab');
+    expect(tabs[1].className).toContain(UNDERLINE);
+    expect(tabs[0].className).not.toContain(UNDERLINE);
+    expect(indicator(container)).toBeNull();
+  });
+
+  it('hands the line to one indicator under the chosen tab once measured', async () => {
+    const { getAllByRole, container } = render(Tabs, {
+      props: { items: five, active: 'prices', onchange: vi.fn() },
+    });
+    lay(container);
+    await resize();
+    const bar = indicator(container)!;
+    expect(bar).not.toBeNull();
+    expect(bar.style.transform).toBe('translateX(100px) scaleX(0.25)');
+    for (const tab of getAllByRole('tab')) expect(tab.className).not.toContain(UNDERLINE);
+    // Placed where it starts, never traveling in from the start of the strip.
+    expect(bar.className).not.toContain('transition-transform');
+  });
+
+  it('travels to the next tab on transform and the base rung', async () => {
+    const { container, rerender } = render(Tabs, {
+      props: { items: five, active: 'prices', onchange: vi.fn() },
+    });
+    lay(container);
+    await resize();
+    await rerender({ items: five, active: 'providers', onchange: vi.fn() });
+    const bar = indicator(container)!;
+    expect(bar.style.transform).toBe('translateX(300px) scaleX(0.25)');
+    expect(bar.className).toContain('transition-transform');
+    expect(bar.className).toContain('duration-base');
+    expect(bar.style.left).toBe('');
+    expect(bar.style.width).toBe('');
+  });
+
+  it('follows a change of size at once rather than traveling', async () => {
+    // A font arriving or a label changing moves the tab under the line, and
+    // the line has to be there in the same frame.
+    let w = 100;
+    const { container, rerender } = render(Tabs, {
+      props: { items: five, active: 'prices', onchange: vi.fn() },
+    });
+    lay(container, () => w);
+    await resize();
+    await rerender({ items: five, active: 'providers', onchange: vi.fn() });
+    w = 80;
+    await resize();
+    const bar = indicator(container)!;
+    expect(bar.style.transform).toBe('translateX(240px) scaleX(0.2)');
+    expect(bar.className).not.toContain('transition-transform');
+  });
+
+  it('runs from the start edge of the tab in a right-to-left strip', async () => {
+    // The accent runs from the reading start, so the line is mirrored by the
+    // same rtl: scale as a tab's own line. The scale applies after the
+    // transform, so the box is placed at the mirror of the tab.
+    const page = rtlPage();
+    try {
+      const { container } = render(Tabs, {
+        target: page,
+        props: { items: five, active: 'prices', onchange: vi.fn() },
+      });
+      lay(container);
+      await resize();
+      const bar = indicator(container)!;
+      expect(bar.style.transform).toBe('translateX(-200px) scaleX(0.25)');
+      expect(bar.className).toContain('rtl:-scale-x-100');
+    } finally {
+      page.remove();
+    }
+  });
+
+  it('places the line on an engine that has no :dir() selector', async () => {
+    // An engine without :dir() throws on the selector, and the line is placed
+    // from an effect and a resize callback, so one throw left the strip bare.
+    const matches = Element.prototype.matches;
+    const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
+      this: Element,
+      selector: string,
+    ) {
+      if (selector.includes(':dir('))
+        throw new SyntaxError(`'${selector}' is not a valid selector`);
+      return matches.call(this, selector);
+    });
+    const page = rtlPage();
+    try {
+      const { container } = render(Tabs, {
+        target: page,
+        props: { items: five, active: 'prices', onchange: vi.fn() },
+      });
+      lay(container);
+      await resize();
+      expect(indicator(container)!.style.transform).toBe('translateX(-200px) scaleX(0.25)');
+    } finally {
+      page.remove();
+      spy.mockRestore();
+    }
+  });
+
+  it('draws no line when no tab is chosen', async () => {
+    const { getAllByRole, container } = render(Tabs, {
+      props: { items: five, active: 'missing', onchange: vi.fn() },
+    });
+    lay(container);
+    await resize();
+    expect(indicator(container)).toBeNull();
+    for (const tab of getAllByRole('tab')) expect(tab.className).not.toContain(UNDERLINE);
   });
 });
