@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { test, expect, type Locator } from '@playwright/experimental-ct-svelte';
 import NoticeCollapseStory from './NoticeCollapseStory.svelte';
 import { styleWithKit } from './kit-css.js';
-import { playing, settled } from './motion.js';
+import { holdAt, pauseWhen, playing, resume, settled } from './motion.js';
 
 const sources = ['Alert', 'Banner', 'RefusalNotice', 'Button'].map((name) =>
   fileURLToPath(new URL(`../../src/lib/components/${name}.svelte`, import.meta.url)),
@@ -20,39 +20,6 @@ async function top(target: Locator): Promise<number> {
   const box = await target.boundingBox();
   if (!box) throw new Error('the target has no box');
   return box.y;
-}
-
-/**
- * Pauses every preset playing inside the element once `count` have started,
- * so a loaded run cannot let one end before the case has read it.
- */
-async function pauseWhen(target: Locator, count: number): Promise<void> {
-  await expect
-    .poll(() =>
-      target.evaluate((el, want) => {
-        const presets = el
-          .getAnimations({ subtree: true })
-          .filter((a) => !(a instanceof CSSTransition) && !(a instanceof CSSAnimation))
-          .filter((a) => (a.effect as KeyframeEffect).getKeyframes().length > 0);
-        if (presets.length < want) return presets.length;
-        presets.forEach((a) => a.pause());
-        return presets.length;
-      }, count),
-    )
-    .toBe(count);
-}
-
-/** Moves every paused animation inside the element to a share of its length. */
-function holdAt(target: Locator, share: number): Promise<void> {
-  return target.evaluate((el, at) => {
-    for (const a of el.getAnimations({ subtree: true })) {
-      a.currentTime = Number(a.effect!.getTiming().duration) * at;
-    }
-  }, share);
-}
-
-function resume(target: Locator): Promise<void> {
-  return target.evaluate((el) => el.getAnimations({ subtree: true }).forEach((a) => a.play()));
 }
 
 for (const kind of ['alert', 'banner', 'refusal'] as const) {

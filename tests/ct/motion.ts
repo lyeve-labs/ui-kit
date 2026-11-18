@@ -7,7 +7,7 @@
  * starts. jsdom has no `Element.animate` and plays every preset in no time.
  */
 
-import type { Locator } from '@playwright/experimental-ct-svelte';
+import { expect, type Locator } from '@playwright/experimental-ct-svelte';
 
 export type Played = {
   duration: number;
@@ -46,4 +46,37 @@ export function playing(target: Locator): Promise<Played[]> {
  */
 export async function settled(target: Locator): Promise<void> {
   await target.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+}
+
+/**
+ * Pauses every preset playing inside the element once `count` have started,
+ * so a loaded run cannot let one end before the case has read it.
+ */
+export async function pauseWhen(target: Locator, count: number): Promise<void> {
+  await expect
+    .poll(() =>
+      target.evaluate((el, want) => {
+        const presets = el
+          .getAnimations({ subtree: true })
+          .filter((a) => !(a instanceof CSSTransition) && !(a instanceof CSSAnimation))
+          .filter((a) => (a.effect as KeyframeEffect).getKeyframes().length > 0);
+        if (presets.length < want) return presets.length;
+        presets.forEach((a) => a.pause());
+        return presets.length;
+      }, count),
+    )
+    .toBe(count);
+}
+
+/** Moves every paused animation inside the element to a share of its length. */
+export function holdAt(target: Locator, share: number): Promise<void> {
+  return target.evaluate((el, at) => {
+    for (const a of el.getAnimations({ subtree: true })) {
+      a.currentTime = Number(a.effect!.getTiming().duration) * at;
+    }
+  }, share);
+}
+
+export function resume(target: Locator): Promise<void> {
+  return target.evaluate((el) => el.getAnimations({ subtree: true }).forEach((a) => a.play()));
 }
