@@ -1,5 +1,7 @@
 <script lang="ts">
   // A notice a page shows in its flow, above content that has to move for it.
+  // It takes no margin here. NoticeSpacingStory places a notice by a margin, a
+  // gap and space-y, and checks that the space moves with the row.
   import Alert from '../../src/lib/components/Alert.svelte';
   import Banner from '../../src/lib/components/Banner.svelte';
   import RefusalNotice from '../../src/lib/components/RefusalNotice.svelte';
@@ -13,15 +15,14 @@
 <div data-testid="flow">
   {#if shown}
     {#if kind === 'alert'}
-      <Alert tone="success" dismissible class="mb-3">Settings saved.</Alert>
+      <Alert tone="success" dismissible>Settings saved.</Alert>
     {:else if kind === 'banner'}
-      <Banner tone="success" dismissible class="mb-3">Settings saved.</Banner>
+      <Banner tone="success" dismissible>Settings saved.</Banner>
     {:else}
       <RefusalNotice
         title="Reports are at their limit"
         body="12 of 12 are in use."
         link={{ href: '/settings', label: 'Open settings' }}
-        class="mb-3"
       />
     {/if}
   {/if}

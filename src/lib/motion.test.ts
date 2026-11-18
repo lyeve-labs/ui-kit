@@ -258,6 +258,25 @@ describe('the presets', () => {
     expect(collapse(document.createElement('div'))).toEqual({ duration: 0 });
   });
 
+  it('closes the block margins of a row with the row', () => {
+    // A notice a page spaces with mb-4 would otherwise take its margin the
+    // moment it mounts and give it back the moment it unmounts.
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const node = animatable() as HTMLElement;
+    node.style.marginTop = '8px';
+    node.style.marginBottom = '16px';
+    document.body.append(node);
+    const enter = resolve(collapse(node), 'in');
+    vi.unstubAllGlobals();
+    node.remove();
+    expect(enter.css!(0, 1)).toBe(
+      'grid-template-rows: 0fr; overflow: hidden; margin-top: 0px; margin-bottom: 0px',
+    );
+    expect(enter.css!(1, 0)).toBe(
+      'grid-template-rows: 1fr; overflow: hidden; margin-top: 8px; margin-bottom: 16px',
+    );
+  });
+
   it('leaves a frame with no transform as it is', () => {
     vi.stubGlobal('matchMedia', () => ({ matches: false }));
     const node = animatable() as HTMLElement;

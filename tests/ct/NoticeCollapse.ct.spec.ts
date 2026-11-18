@@ -9,12 +9,14 @@
 import { fileURLToPath } from 'node:url';
 import { test, expect, type Locator } from '@playwright/experimental-ct-svelte';
 import NoticeCollapseStory from './NoticeCollapseStory.svelte';
+import NoticeSpacingStory from './NoticeSpacingStory.svelte';
 import { styleWithKit } from './kit-css.js';
-import { holdAt, pauseWhen, playing, resume, settled } from './motion.js';
+import { holdAt, pauseOnStart, pauseWhen, playing, resume, settled } from './motion.js';
 
 const sources = ['Alert', 'Banner', 'RefusalNotice', 'Button'].map((name) =>
   fileURLToPath(new URL(`../../src/lib/components/${name}.svelte`, import.meta.url)),
 );
+const spacingStory = fileURLToPath(new URL('./NoticeSpacingStory.svelte', import.meta.url));
 
 async function top(target: Locator): Promise<number> {
   const box = await target.boundingBox();
@@ -76,6 +78,58 @@ for (const kind of ['alert', 'banner', 'refusal'] as const) {
     const halfway = await top(below);
     expect(halfway).toBeLessThan(opened);
     expect(halfway).toBeGreaterThan(atRest);
+    await resume(flow);
+    await expect(row).toHaveCount(0);
+    expect(await top(below)).toBe(atRest);
+  });
+}
+
+/**
+ * The space a notice holds beside its neighbors moves with its row. A margin
+ * of its own, the one gap a column leaves for it, and the space a space-y
+ * column gives it would otherwise arrive the moment the notice mounts and go
+ * the moment it unmounts, a jump of 16px at each end of the travel.
+ */
+for (const layout of ['margin', 'gap', 'space'] as const) {
+  test(`the space a notice holds by ${layout} opens and closes with its row`, async ({
+    mount,
+    page,
+  }) => {
+    await mount(NoticeSpacingStory, { props: { layout } });
+    await styleWithKit(page, 'dark', [...sources, spacingStory]);
+    const below = page.getByText('Below the notice');
+    const flow = page.getByTestId('flow');
+    const atRest = await top(below);
+    const toggle = page.getByRole('button', { name: 'Toggle' });
+
+    await pauseOnStart(page);
+    await toggle.click();
+    await pauseWhen(flow, 2);
+    // At the first frame the content below has not moved at all.
+    await holdAt(flow, 0);
+    expect(await top(below)).toBe(atRest);
+    await holdAt(flow, 0.5);
+    const halfway = await top(below);
+    await resume(flow);
+    const row = flow.locator('> .grid');
+    await settled(row);
+    const opened = await top(below);
+    // The space travels with the row, so halfway in the content is part of
+    // the way down, never short of the space.
+    expect(halfway).toBeGreaterThan(atRest);
+    expect(halfway).toBeLessThan(opened);
+
+    // At rest the notice is spaced exactly as the page asked.
+    const notice = await row.boundingBox();
+    expect(opened - (notice!.y + notice!.height)).toBeCloseTo(16, 0);
+    expect(await row.evaluate((el) => (el as HTMLElement).style.cssText)).toBe('');
+
+    await toggle.click();
+    await pauseWhen(flow, 2);
+    // In the last frame of the exit the content below is already home, so the
+    // notice's removal moves nothing.
+    await holdAt(flow, 0.999);
+    expect(Math.abs((await top(below)) - atRest)).toBeLessThan(1);
     await resume(flow);
     await expect(row).toHaveCount(0);
     expect(await top(below)).toBe(atRest);
