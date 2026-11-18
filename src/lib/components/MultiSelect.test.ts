@@ -4,7 +4,13 @@ import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import type { FilterFn } from '../internal/filter.js';
 import type { ListOption } from '../internal/listbox.svelte.js';
+import * as motion from '../motion.js';
 import MultiSelect from './MultiSelect.svelte';
+
+vi.mock('../motion.js', async (original) => {
+  const real = await original<typeof import('../motion.js')>();
+  return { ...real, fade: vi.fn(real.fade) };
+});
 
 const options = [
   { value: 'a', label: 'Alpha' },
@@ -70,6 +76,28 @@ describe('MultiSelect', () => {
     });
     await fireEvent.click(getByLabelText('Remove Alpha'));
     expect(onchange).toHaveBeenCalledWith(['b']);
+  });
+
+  it('fades a chip in as its value is chosen and out as it is removed', async () => {
+    // A chip appeared and left in one frame, and the chips after it jumped
+    // into its place. They close the gap on motion.reorder, as a SortableList
+    // row's siblings do.
+    const fade = vi.mocked(motion.fade);
+    const { getByLabelText, rerender } = render(MultiSelect, {
+      props: { options, value: ['a', 'b'] },
+    });
+    const faded = () => fade.mock.calls.map(([node]) => node.textContent?.trim());
+    fade.mockClear();
+    await rerender({ value: ['a', 'b', 'c'] });
+    expect(faded()).toEqual(['Gamma']);
+
+    fade.mockClear();
+    await fireEvent.click(getByLabelText('Remove Alpha'));
+    await rerender({ value: ['b', 'c'] });
+    expect(faded()).toEqual(['Alpha']);
+    // jsdom lays nothing out, so no chip ever moves here. The browser spec
+    // watches the chips after a removed one travel.
+    expect(source).toMatch(/transition:motion\.fade\|global\s+animate:motion\.reorder/);
   });
 });
 

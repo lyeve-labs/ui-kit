@@ -283,7 +283,11 @@
         </span>
       </div>
       {#each selected as option (option.value)}
+        <!-- A chip fades in and out where it stands, and the chips after it
+             close the gap it leaves, as the rows of a SortableList do. -->
         <span
+          transition:motion.fade|global
+          animate:motion.reorder
           class="inline-flex items-center gap-1 rounded-md bg-brand/10 px-2 py-0.5 text-xs text-brand"
         >
           <!-- The combobox reads the chosen labels, so the chip's copy is
