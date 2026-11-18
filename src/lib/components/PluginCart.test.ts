@@ -219,6 +219,15 @@ describe('PluginCart', () => {
     expect(getByLabelText(/GraphQL/)).toBeTruthy();
   });
 
+  it('leaves the search box without an instruction in it', () => {
+    // A placeholder is at most an example of the format. The search box has
+    // its label, and a sentence telling the reader what to type vanishes the
+    // moment they start.
+    const { getByRole } = render(PluginCart, { props: { plugins: PLUGINS } });
+    const search = getByRole('searchbox', { name: 'Search capabilities' });
+    expect(search.getAttribute('placeholder') ?? '').toBe('');
+  });
+
   it('shows the price apart from the description, and a beta plugin as a badge', () => {
     const plugins = [{ ...PLUGINS[0], blurb: 'A typed API. Beta.' }];
     const { getByRole, getByText } = render(PluginCart, { props: { plugins } });

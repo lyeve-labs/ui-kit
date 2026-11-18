@@ -244,11 +244,9 @@
 
 <div class={cn('grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]', klass)}>
   <div class="min-w-0 space-y-4">
-    <SearchInput
-      label="Search capabilities"
-      placeholder="Search by name or what it does"
-      bind:value={query}
-    />
+    <!-- No placeholder: the label names the box, and a search has no format
+         to show by example. -->
+    <SearchInput label="Search capabilities" placeholder="" bind:value={query} />
 
     {#if quickPicks.length > 0}
       <div class="flex flex-wrap items-center gap-2">
