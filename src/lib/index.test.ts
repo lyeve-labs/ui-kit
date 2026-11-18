@@ -170,7 +170,7 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     }
   });
 
-  it.each(['dialog', 'scrim', 'drawer', 'popover', 'toast', 'fade', 'reorder', 'swapPage'])(
+  it.each(['dialog', 'scrim', 'drawer', 'popover', 'toast', 'fade', 'collapse', 'reorder', 'swapPage'])(
     'exports motion.%s from the package entry',
     (name) => {
       expect(typeof (kit.motion as Record<string, unknown>)[name]).toBe('function');

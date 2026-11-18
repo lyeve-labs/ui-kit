@@ -5,10 +5,29 @@ import Alert from './Alert.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
+/** The row the alert holds in the page, which opens and closes around it. */
+const row = (container: HTMLElement) => container.firstElementChild as HTMLElement | null;
+
 /** The alert's own box, a live region or not. */
-const root = (container: HTMLElement) => container.firstElementChild as HTMLElement | null;
+const root = (container: HTMLElement) =>
+  (row(container)?.firstElementChild?.firstElementChild as HTMLElement | undefined) ?? null;
 
 describe('Alert', () => {
+  it('holds its place in a row that closes as it leaves, and takes the class there', () => {
+    // The content below closes the gap as the alert leaves, rather than jumping
+    // up once its exit has played. A class places the alert in the page, with
+    // a margin, a grid area or a width, so it sits on the row.
+    const { container } = render(Alert, {
+      props: { children: text('x'), class: 'mb-3 [grid-area:1/1]' },
+    });
+    const r = row(container)!;
+    expect([...r.classList]).toEqual(['grid', 'mb-3', '[grid-area:1/1]']);
+    expect(r.children).toHaveLength(1);
+    expect(r.firstElementChild!.className).toBe('min-h-0');
+    expect(root(container)!.className).toContain('rounded-lg');
+    expect(root(container)!.classList.contains('mb-3')).toBe(false);
+  });
+
   it('renders children', () => {
     const { container, getByText } = render(Alert, { props: { children: text('Heads up') } });
     expect(getByText('Heads up')).toBeTruthy();

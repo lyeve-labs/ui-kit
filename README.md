@@ -333,14 +333,23 @@ leaves through the same presets the kit's overlays use:
 {#each items as item (item.id)}
   <li transition:motion.toast|global animate:motion.reorder>...</li>
 {/each}
+
+{#if saved}
+  <div class="grid" transition:motion.collapse|global>
+    <div class="min-h-0">...</div>
+  </div>
+{/if}
 ```
 
-`dialog`, `scrim`, `drawer`, `popover`, `toast` and `fade` read the tokens at
-run time, so retuning a token retunes them, and every one of them plays nothing
-for a reader who has asked for reduced motion. `fade` moves opacity alone, for
-an item that appears or leaves in place, such as a list row beside
-`animate:motion.reorder`: the row fades out where it stood while the rows
-below close the gap. The `|global` modifier is what
+`dialog`, `scrim`, `drawer`, `popover`, `toast`, `fade` and `collapse` read
+the tokens at run time, so retuning a token retunes them, and every one of them
+plays nothing for a reader who has asked for reduced motion. `fade` moves
+opacity alone, for an item that appears or leaves in place, such as a list row
+beside `animate:motion.reorder`: the row fades out where it stood while the
+rows below close the gap. `collapse` opens and closes the row a section holds
+in the flow of a page, so the content below moves with it. Its node is a
+`grid` whose one child takes `min-h-0`, and it clips only while it moves.
+`Alert` and `Banner` sit in one. The `|global` modifier is what
 lets the exit play when a parent block removes the surface, so keep it. Do not
 write `duration-150`, `ease-out` or `transition-all` beside a kit class: they
 are a fifth speed and a fourth curve, and the kit's own test suite refuses

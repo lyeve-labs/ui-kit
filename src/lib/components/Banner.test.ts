@@ -5,10 +5,29 @@ import Banner from './Banner.svelte';
 
 const text = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
+/** The row the banner holds in the page, which opens and closes around it. */
+const row = (container: HTMLElement) => container.firstElementChild as HTMLElement | null;
+
 /** The banner's own box, a live region or not. */
-const root = (container: HTMLElement) => container.firstElementChild as HTMLElement | null;
+const root = (container: HTMLElement) =>
+  (row(container)?.firstElementChild?.firstElementChild as HTMLElement | undefined) ?? null;
 
 describe('Banner', () => {
+  it('holds its place in a row that closes as it leaves, and takes the class there', () => {
+    // The content below closes the gap as the banner leaves, rather than jumping
+    // up once its exit has played. A class places the banner in the page, with
+    // a margin, a grid area or a width, so it sits on the row.
+    const { container } = render(Banner, {
+      props: { children: text('x'), class: 'mb-3 [grid-area:1/1]' },
+    });
+    const r = row(container)!;
+    expect([...r.classList]).toEqual(['grid', 'mb-3', '[grid-area:1/1]']);
+    expect(r.children).toHaveLength(1);
+    expect(r.firstElementChild!.className).toBe('min-h-0');
+    expect(root(container)!.className).toContain('border-b');
+    expect(root(container)!.classList.contains('mb-3')).toBe(false);
+  });
+
   it('renders children', () => {
     const { container, getByText } = render(Banner, {
       props: { children: text('Maintenance tonight') },
@@ -52,8 +71,8 @@ describe('the live region follows the tone', () => {
   // region, so a page that shows it reads nothing out.
   const live = (props: Record<string, unknown>) => {
     const { container } = render(Banner, { props: { children: text('x'), ...props } });
-    const root = container.firstElementChild;
-    return `${root?.getAttribute('role') ?? 'no role'} ${root?.getAttribute('aria-live') ?? 'not live'}`;
+    const box = root(container);
+    return `${box?.getAttribute('role') ?? 'no role'} ${box?.getAttribute('aria-live') ?? 'not live'}`;
   };
 
   it.each([

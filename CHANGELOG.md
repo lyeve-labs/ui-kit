@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `motion.fade`, a preset for an item that appears or leaves in place. It moves opacity alone, on the base rung in and the fast rung out, and reads the tokens as the other presets do. Beside `animate:motion.reorder` a removed row fades out where it stood while the rows below close the gap.
+- `motion.collapse`, a preset for the row a surface holds in the flow of a page. It moves `grid-template-rows` from `0fr` to `1fr`, on the base rung in and the fast rung out, on a `grid` node whose one child takes `min-h-0`. The node hides its overflow only while the row moves, so a focus ring or a shadow at rest is never cut.
 
 ### Changed
 
 - The glyph and the text of a `FormMessage` sit in one inner element, which fills the region's row and aligns them to its top with `items-start`. A class passed to `FormMessage` that arranges its children now arranges that one element, so `items-center` no longer centers the glyph against the text and a `gap-*` no longer spaces them. Write such a class with the `*:` variant, such as `*:items-center`, so it reaches the inner element.
+- A class passed to `Alert` or `Banner` sits on the row that holds the notice, no longer on the notice's own box. A class that places the notice in the page, such as a margin, a width, a grid area or a text alignment, works as before. A class meant for the box itself, such as a background, a border or a padding, no longer reaches it, so pick the box's color with `tone` and set a padding or a color on the content you pass in instead.
 
 ### Fixed
 
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The outcome a `FormMessage` reports arrives and leaves on the toast preset, as an `Alert` beside it does. It filled its live region in one frame, and vanished in one frame when the page removed it. The live region is still the element the page mounts, and only the message inside it moves, so a screen reader still hears the region change.
 - The check mark of a `Checkbox`, its mixed bar and the dot of a `Radio` grow and fade in on the fast rung as the box fills, and shrink and fade out as it clears. Each mounted in one frame inside a box whose color eased over. Every mark now stays in its box, hidden while it does not apply, so a box that turns from mixed to checked crosses one mark over to the other in place. A box at rest draws as before, and a screen reader still hears only the input's state. A test that looks for the mark's `svg` or `path` in a `Checkbox`, or for the dot in a `Radio`, now finds it whether or not the box is checked, so read the input's `checked` property, or the `opacity-100` the mark carries while it applies, instead.
 - A row removed from a `SortableList` fades out where it stood while the rows below close the gap, and a row added fades in where it lands, on `motion.fade`. A removed row vanished in one frame and a new one appeared in one frame. A row moved within the list still slides on `motion.reorder`.
+- An `Alert` or a `Banner` in the flow of a page opens the space it takes as it arrives and closes it as it leaves, on `motion.collapse`, so the content below moves with it. The notice faded out on the toast preset and then the content below jumped up in one frame, after every confirmation that clears itself too. The notice still rises and fades on the toast preset inside its row, and a `RefusalNotice` closes the same way.
 
 ## [0.62.0] - 2026-11-16
 

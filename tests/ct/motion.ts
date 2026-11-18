@@ -21,6 +21,9 @@ export function playing(target: Locator): Promise<Played[]> {
     el
       .getAnimations()
       .filter((a) => !(a instanceof CSSTransition) && !(a instanceof CSSAnimation))
+      // Svelte holds an exit for a moment on an animation with no frames
+      // before the preset starts, and that placeholder moves nothing.
+      .filter((a) => (a.effect as KeyframeEffect).getKeyframes().length > 0)
       .map((a) => {
         const effect = a.effect as KeyframeEffect;
         const [first] = effect.getKeyframes();

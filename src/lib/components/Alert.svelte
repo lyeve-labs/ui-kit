@@ -68,35 +68,41 @@
 </script>
 
 {#if !notice.closed}
-  <div
-    transition:motion.toast|global
-    class="flex items-start gap-3 rounded-lg border px-4 py-3 {tones[t].wrap} {klass}"
-    role={notice.live ? 'alert' : undefined}
-    aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
-    aria-atomic={notice.outcome ? 'true' : undefined}
-    onmouseenter={notice.closable ? () => notice.hold(true) : undefined}
-    onmouseleave={notice.closable ? () => notice.hold(false) : undefined}
-    onfocusin={notice.closable ? () => notice.hold(true) : undefined}
-    onfocusout={notice.closable ? () => notice.hold(false) : undefined}
-  >
-    <ToneGlyph tone={t} class={tones[t].icon} />
-    {#if notice.filled}
-      <div class="flex-1 min-w-0">
-        {#if title}<p class="text-sm font-semibold text-fg">{title}</p>{/if}
-        {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">
-            {@render children()}
-          </div>{/if}
-      </div>
-    {/if}
-    {#if notice.closable}
-      <button
-        type="button"
-        onclick={notice.close}
-        class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
-        aria-label="Close"
+  <!-- The row opens and closes around the alert, so the content below moves
+       with it. A class places the alert in the page, so it sits on the row. -->
+  <div class="grid {klass}" transition:motion.collapse|global>
+    <div class="min-h-0">
+      <div
+        transition:motion.toast|global
+        class="flex items-start gap-3 rounded-lg border px-4 py-3 {tones[t].wrap}"
+        role={notice.live ? 'alert' : undefined}
+        aria-live={notice.live ? 'assertive' : notice.outcome ? 'polite' : undefined}
+        aria-atomic={notice.outcome ? 'true' : undefined}
+        onmouseenter={notice.closable ? () => notice.hold(true) : undefined}
+        onmouseleave={notice.closable ? () => notice.hold(false) : undefined}
+        onfocusin={notice.closable ? () => notice.hold(true) : undefined}
+        onfocusout={notice.closable ? () => notice.hold(false) : undefined}
       >
-        <X size={16} aria-hidden="true" />
-      </button>
-    {/if}
+        <ToneGlyph tone={t} class={tones[t].icon} />
+        {#if notice.filled}
+          <div class="flex-1 min-w-0">
+            {#if title}<p class="text-sm font-semibold text-fg">{title}</p>{/if}
+            {#if children}<div class="text-sm text-muted {title ? 'mt-0.5' : ''}">
+                {@render children()}
+              </div>{/if}
+          </div>
+        {/if}
+        {#if notice.closable}
+          <button
+            type="button"
+            onclick={notice.close}
+            class="{HIT_AREA} shrink-0 rounded text-faint transition-colors hover:text-fg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+            aria-label="Close"
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        {/if}
+      </div>
+    </div>
   </div>
 {/if}
