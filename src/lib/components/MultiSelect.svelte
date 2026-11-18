@@ -382,17 +382,23 @@
                   ? 'border-brand bg-brand text-ink'
                   : 'border-line-strong/60 bg-surface-2'}"
               >
-                {#if isSelected}
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-                    <path
-                      d={CHOICE_MARK.check}
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                {/if}
+                <!-- The mark stays mounted and moves opacity and scale on the
+                     fast rung with the box's color, as a Checkbox's does. The
+                     scale is a transform: Tailwind's scale-* sets the separate
+                     scale property, which a transition on transform never
+                     moves. -->
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+                  <path
+                    d={CHOICE_MARK.check}
+                    class="origin-center transition-[opacity,transform] {isSelected
+                      ? 'opacity-100 transform-none'
+                      : 'opacity-0 transform-[scale(0.5)]'}"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </span>
               <span class="min-w-0 truncate text-start">{option.label}</span>
             </button>

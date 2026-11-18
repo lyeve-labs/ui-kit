@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The check that a `CopyButton` or a `CopyField` shows after a copy grows and fades in on the base rung while the copy icon shrinks and fades out on the fast rung, and the two cross back the same way. Only the fade played, because the icons were sized by the separate `scale` property, which their transition never moved. An icon at rest draws as before.
+- The check mark and the mixed bar of a checkable `TreeView` row, the check mark of a `MultiSelect` option and the check mark of a `PluginCart` card grow and fade in on the fast rung as the box fills, and shrink and fade out as it clears, as a `Checkbox` does. Each mounted in one frame inside a box whose color eased over. Every mark now stays in its box, hidden while it does not apply, so a tree row that turns from mixed to checked crosses one mark over to the other in place. A box at rest draws as before, and a screen reader still hears only the row's, the option's or the input's state. A test that looks for the mark's `path` now finds it whether or not the box is checked, so read the state, or the `opacity-100` the mark carries while it applies, instead.
 
 ## [0.63.0] - 2026-11-18
 

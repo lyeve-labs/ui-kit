@@ -7,12 +7,17 @@
 import { test, expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
 import { fileURLToPath } from 'node:url';
 import ChoiceMarkStory from './ChoiceMarkStory.svelte';
+import ChoiceMarkListsStory from './ChoiceMarkListsStory.svelte';
 import { styleWithKit } from './kit-css.js';
 import { settled } from './motion.js';
 
-const SOURCES = ['Checkbox.svelte', 'Radio.svelte'].map((file) =>
-  fileURLToPath(new URL(`../../src/lib/components/${file}`, import.meta.url)),
-);
+const SOURCES = [
+  'Checkbox.svelte',
+  'Radio.svelte',
+  'TreeView.svelte',
+  'MultiSelect.svelte',
+  'PluginCart.svelte',
+].map((file) => fileURLToPath(new URL(`../../src/lib/components/${file}`, import.meta.url)));
 
 /**
  * Clicks the input and reads the transitions each mark then starts, in one
@@ -22,7 +27,7 @@ const SOURCES = ['Checkbox.svelte', 'Radio.svelte'].map((file) =>
 async function press(page: Page, input: Locator, marks: Locator[]) {
   const handles = await Promise.all([input, ...marks].map((l) => l.elementHandle()));
   return page.evaluate(async ([el, ...read]) => {
-    (el as HTMLInputElement).click();
+    (el as HTMLElement).click();
     await new Promise<void>((done) => queueMicrotask(done));
     return read.map((mark) =>
       mark!
@@ -76,4 +81,38 @@ test('the radio dot moves to the chosen option on the fast rung', async ({ mount
   await settled(dot('Team'));
   expect(await opacity(dot('Solo'))).toBe('1');
   expect(await opacity(dot('Team'))).toBe('0');
+});
+
+test('the marks of a tree, a multiple select and a plugin cart grow in on the fast rung', async ({
+  mount,
+  page,
+}) => {
+  await mount(ChoiceMarkListsStory);
+  await page.getByRole('combobox', { name: 'Tags' }).click();
+  await styled(page);
+
+  const tree = page.getByRole('treeitem', { name: 'Docs' });
+  const [check, mixed] = [0, 1].map((i) => tree.locator('[data-tree-check] path').nth(i));
+  expect(await opacity(check)).toBe('0');
+  expect(await opacity(mixed)).toBe('0');
+  expect(await press(page, tree.locator('[data-tree-check]').first(), [check, mixed])).toEqual([
+    FAST,
+    [],
+  ]);
+  await settled(check);
+  expect(await opacity(check)).toBe('1');
+
+  const option = page.getByRole('option', { name: 'Alpha' });
+  const tick = option.locator('path');
+  expect(await opacity(tick)).toBe('0');
+  expect(await press(page, option, [tick])).toEqual([FAST]);
+  await settled(tick);
+  expect(await opacity(tick)).toBe('1');
+
+  const box = page.getByRole('checkbox', { name: 'Audit' });
+  const card = box.locator('xpath=following-sibling::span[1]').locator('path');
+  expect(await opacity(card)).toBe('0');
+  expect(await press(page, box, [card])).toEqual([FAST]);
+  await settled(card);
+  expect(await opacity(card)).toBe('1');
 });

@@ -332,17 +332,26 @@
                     )}
                     aria-hidden="true"
                   >
-                    {#if on}
-                      <svg
-                        viewBox="0 0 10 8"
-                        class="size-2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"><path d={CHOICE_MARK.check} /></svg
-                      >
-                    {/if}
+                    <!-- The mark stays mounted and moves opacity and scale on
+                         the fast rung with the box's color, as a Checkbox's
+                         does. The scale is a transform: Tailwind's scale-*
+                         sets the separate scale property, which a transition
+                         on transform never moves. -->
+                    <svg
+                      viewBox="0 0 10 8"
+                      class="size-2.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><path
+                        d={CHOICE_MARK.check}
+                        class="origin-center transition-[opacity,transform] {on
+                          ? 'opacity-100 transform-none'
+                          : 'opacity-0 transform-[scale(0.5)]'}"
+                      /></svg
+                    >
                   </span>
                   <!-- A one-word name longer than the space beside the price breaks
                        with a hyphen rather than running under it. -->

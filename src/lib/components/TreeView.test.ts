@@ -425,7 +425,8 @@ describe('TreeView checking', () => {
     const { container } = render(TreeView, {
       props: { nodes, label: 'Files', checkable: true, checked: ['api'] },
     });
-    const mark = row(container, 'docs').querySelector('[data-tree-check] path');
+    // Both marks stay in the box, and the one that applies is the one shown.
+    const mark = row(container, 'docs').querySelector('[data-tree-check] path.opacity-100');
     expect(mark?.getAttribute('d')).toBe(CHOICE_MARK.mixed);
     // A font glyph standing in for the bar lands at whatever weight the
     // reader's font gives it, visibly apart from every other icon in the kit.
@@ -436,8 +437,45 @@ describe('TreeView checking', () => {
     const { container } = render(TreeView, {
       props: { nodes, label: 'Files', checkable: true, checked: ['install', 'usage', 'api'] },
     });
-    const mark = row(container, 'docs').querySelector('[data-tree-check] path');
+    const mark = row(container, 'docs').querySelector('[data-tree-check] path.opacity-100');
     expect(mark?.getAttribute('d')).toBe(CHOICE_MARK.check);
+  });
+
+  it('keeps both marks mounted and fades and grows the one that applies', async () => {
+    // A mark that mounted in one frame popped into a box whose color eased
+    // over. Both marks stay in the box, and each moves opacity and scale on
+    // the fast rung. The drawing is hidden: the row's aria-checked is what a
+    // screen reader hears.
+    const { container, rerender } = render(TreeView, {
+      props: { nodes, label: 'Files', checkable: true, checked: [] as string[] },
+    });
+    const box = row(container, 'docs').querySelector('[data-tree-check] > span') as HTMLElement;
+    const marks = () => [...box.querySelectorAll('path')];
+    const [check, mixed] = marks();
+    const shown = (el: Element) => el.classList.contains('opacity-100');
+    expect(box.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(check.getAttribute('d')).toBe(CHOICE_MARK.check);
+    expect(mixed.getAttribute('d')).toBe(CHOICE_MARK.mixed);
+    for (const mark of [check, mixed]) {
+      expect(mark.classList).toContain('transition-[opacity,transform]');
+      expect(mark.classList).toContain('opacity-0');
+      expect(mark.classList).toContain('transform-[scale(0.5)]');
+      expect(mark.classList).toContain('origin-center');
+      expect(mark.className.baseVal).not.toMatch(/duration-|ease-/);
+    }
+
+    await rerender({ checked: ['api'] });
+    expect(marks()).toEqual([check, mixed]);
+    expect([shown(check), shown(mixed)]).toEqual([false, true]);
+    expect(mixed.classList).toContain('transform-none');
+
+    await rerender({ checked: ['install', 'usage', 'api'] });
+    expect(marks()).toEqual([check, mixed]);
+    expect([shown(check), shown(mixed)]).toEqual([true, false]);
+
+    await rerender({ checked: [] });
+    expect(marks()).toEqual([check, mixed]);
+    expect([shown(check), shown(mixed)]).toEqual([false, false]);
   });
 
   it('reports none for the empty branch case and writes nothing on the next click', async () => {
@@ -450,7 +488,8 @@ describe('TreeView checking', () => {
     });
     const lockedRow = row(container, 'locked');
     expect(lockedRow.getAttribute('aria-checked')).toBe('false');
-    expect(lockedRow.querySelector('[data-tree-check] path')).toBeNull();
+    expect(lockedRow.querySelector('[data-tree-check] path.opacity-100')).toBeNull();
+    expect(lockedRow.querySelectorAll('[data-tree-check] path.opacity-0')).toHaveLength(2);
 
     await fireEvent.click(lockedRow.querySelector('[data-tree-check]') as HTMLElement);
     expect(oncheck).not.toHaveBeenCalled();

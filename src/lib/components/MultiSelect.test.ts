@@ -74,6 +74,31 @@ describe('MultiSelect', () => {
 });
 
 describe('the trigger and the panel', () => {
+  it('keeps the check mark of an option mounted and fades and grows it', async () => {
+    // A mark that mounted in one frame popped into a box whose color eased
+    // over. It stays in the box and moves opacity and scale on the fast rung.
+    // The drawing is hidden: the option's aria-selected is what a screen
+    // reader hears.
+    const { container, getAllByRole, rerender } = render(MultiSelect, {
+      props: { options, value: [] as string[] },
+    });
+    await fireEvent.click(trigger(container));
+    const option = getAllByRole('option')[0];
+    const mark = option.querySelector('path') as SVGPathElement;
+    expect(mark).toBeTruthy();
+    expect(mark.closest('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(mark.classList).toContain('transition-[opacity,transform]');
+    expect(mark.classList).toContain('origin-center');
+    expect(mark.className.baseVal).not.toMatch(/duration-|ease-/);
+    expect(mark.classList).toContain('opacity-0');
+    expect(mark.classList).toContain('transform-[scale(0.5)]');
+
+    await rerender({ value: ['a'] });
+    expect(getAllByRole('option')[0].querySelector('path')).toBe(mark);
+    expect(mark.classList).toContain('opacity-100');
+    expect(mark.classList).toContain('transform-none');
+  });
+
   it('are linked by aria-controls and the panel id', async () => {
     // The trigger claimed aria-haspopup and aria-expanded while the panel had
     // no id at all, so the two stood unconnected in the accessibility tree.
