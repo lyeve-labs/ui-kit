@@ -6,6 +6,7 @@
 
 import { test, expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
 import { fileURLToPath } from 'node:url';
+import SplitPaneFoldStory from './SplitPaneFoldStory.svelte';
 import SplitPaneStory from './SplitPaneStory.svelte';
 import { tabTo } from './keys.js';
 import { styleWithKit } from './kit-css.js';
@@ -170,6 +171,58 @@ test.describe('SplitPane with the kit styles', () => {
     await holdsFocus(expand);
     await expand.click();
     await holdsFocus(collapse);
+  });
+});
+
+// The fold is a sideways disclosure: the pane travels to its strip and back
+// on the base rung and the move curve, and a drag moves the edge with the
+// pointer and nothing trailing it.
+test.describe('SplitPane folding', () => {
+  /** The width transitions running on the pane, as the browser plays them. */
+  const travels = (aside: Locator) =>
+    aside.evaluate((el) =>
+      el
+        .getAnimations()
+        .filter((a): a is CSSTransition => a instanceof CSSTransition)
+        .map((a) => ({
+          property: a.transitionProperty,
+          duration: a.effect?.getTiming().duration,
+          easing: a.effect?.getTiming().easing,
+        })),
+    );
+  const settle = (aside: Locator) =>
+    aside.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+  const widthOf = (aside: Locator) =>
+    aside.evaluate((el) => Math.round(el.getBoundingClientRect().width));
+  const BASE_MOVE = [
+    { property: 'width', duration: 200, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' },
+  ];
+
+  test('folds to its strip and opens again on the base rung', async ({ mount, page }) => {
+    const pane = await mount(SplitPaneFoldStory);
+    await styleWithKit(page, 'dark', [SOURCE]);
+    const aside = pane.locator('aside');
+    expect(await widthOf(aside)).toBe(260);
+
+    await pane.getByRole('button', { name: 'Collapse Layers' }).click();
+    expect(await travels(aside)).toEqual(BASE_MOVE);
+    await settle(aside);
+    expect(await widthOf(aside)).toBe(32);
+
+    await pane.getByRole('button', { name: 'Expand Layers' }).click();
+    expect(await travels(aside)).toEqual(BASE_MOVE);
+    await settle(aside);
+    expect(await widthOf(aside)).toBe(260);
+  });
+
+  test('follows a drag with no transition behind the pointer', async ({ mount, page }) => {
+    const pane = await mount(SplitPaneFoldStory);
+    await styleWithKit(page, 'dark', [SOURCE]);
+    const aside = pane.locator('aside');
+    const drag = await dragBy(page, pane.getByRole('separator', { name: 'Resize Layers' }), 60);
+    expect(await travels(aside)).toEqual([]);
+    expect(await widthOf(aside)).toBe(320);
+    await drag.release();
   });
 });
 

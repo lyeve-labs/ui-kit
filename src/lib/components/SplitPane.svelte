@@ -102,8 +102,8 @@
 
   // Tailwind reads class names from source, so each breakpoint spells its
   // variants out rather than building them from the prop. The dock entry hands
-  // an overlay back to the page at the breakpoint, and nothing moves or
-  // transitions there. It resets the offset with translate-none rather than a
+  // an overlay back to the page at the breakpoint, and nothing slides or
+  // fades there. It resets the offset with translate-none rather than a
   // zero offset, because any translate makes the aside the containing block
   // for a fixed popover inside it. The overlay's layer applies only under the
   // breakpoint: a docked pane is a flex item, and a stacking layer on it would
@@ -112,6 +112,8 @@
   // width stored on a wider screen never pushes it off this one.
   type Variant =
     | 'dock'
+    | 'travel'
+    | 'still'
     | 'w8'
     | 'flex'
     | 'block'
@@ -125,7 +127,9 @@
     | 'maxHNone';
   const AT: Record<Breakpoint, Record<Variant, string>> = {
     md: {
-      dock: 'max-md:z-dropdown md:static md:visible md:translate-none md:opacity-100 md:transition-none',
+      dock: 'max-md:z-dropdown md:static md:visible md:translate-none md:opacity-100',
+      travel: 'md:transition-[width] md:duration-base md:ease-move',
+      still: 'md:transition-none',
       w8: 'md:w-8',
       flex: 'md:flex',
       block: 'md:block',
@@ -139,7 +143,9 @@
       maxHNone: 'md:max-h-none',
     },
     lg: {
-      dock: 'max-lg:z-dropdown lg:static lg:visible lg:translate-none lg:opacity-100 lg:transition-none',
+      dock: 'max-lg:z-dropdown lg:static lg:visible lg:translate-none lg:opacity-100',
+      travel: 'lg:transition-[width] lg:duration-base lg:ease-move',
+      still: 'lg:transition-none',
       w8: 'lg:w-8',
       flex: 'lg:flex',
       block: 'lg:block',
@@ -153,7 +159,9 @@
       maxHNone: 'lg:max-h-none',
     },
     xl: {
-      dock: 'max-xl:z-dropdown xl:static xl:visible xl:translate-none xl:opacity-100 xl:transition-none',
+      dock: 'max-xl:z-dropdown xl:static xl:visible xl:translate-none xl:opacity-100',
+      travel: 'xl:transition-[width] xl:duration-base xl:ease-move',
+      still: 'xl:transition-none',
       w8: 'xl:w-8',
       flex: 'xl:flex',
       block: 'xl:block',
@@ -327,17 +335,24 @@
       : `invisible opacity-0 ${side === 'start' ? '-translate-x-full rtl:translate-x-full' : 'translate-x-full rtl:-translate-x-full'} transition-[translate,opacity,visibility] duration-base ease-exit`,
   );
 
+  /**
+   * The docked frame's width travels, so a fold to the strip and back is one
+   * move rather than one frame, as the shell's side panel does. A drag turns
+   * it off, or the edge would trail the pointer.
+   */
+  const travel = $derived(drag ? at.still : at.travel);
+
   const frame = $derived.by(() => {
     if (below === 'overlay') {
       // Floating under the breakpoint at the panel's own width. Only the
       // docked variant folds to the strip.
-      return `absolute inset-y-0 w-(--panel-w) max-w-full shrink-0 border-line bg-surface ${slide} ${at.dock} ${folded ? at.w8 : at.room} ${side === 'start' ? 'start-0 border-e' : 'end-0 border-s'}`;
+      return `absolute inset-y-0 w-(--panel-w) max-w-full shrink-0 border-line bg-surface ${slide} ${at.dock} ${travel} ${folded ? at.w8 : at.room} ${side === 'start' ? 'start-0 border-e' : 'end-0 border-s'}`;
     }
     const shownBelow =
       below === 'hidden'
         ? `hidden ${at.flex}`
         : `flex border-b ${at.noBorderB} ${at.flexNone} ${at.maxHNone}`;
-    return `${shownBelow} min-h-0 flex-col border-line bg-surface ${folded ? at.w8 : `${at.width} ${at.room}`} ${edge} ${klass}`;
+    return `${shownBelow} min-h-0 flex-col border-line bg-surface ${travel} ${folded ? at.w8 : `${at.width} ${at.room}`} ${edge} ${klass}`;
   });
 </script>
 
