@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The underline of `Tabs` travels from one tab to the next on the base rung and the move curve, moving transform alone. It was drawn under each tab, so it left one tab and appeared under the next in one frame. One line now serves the strip, and it follows its tab at once when a font loads, a label or a count changes or the window resizes, in either direction. A server render and a page without scripts still draw the line under the chosen tab, and the moving line takes over in the same place once the strip is measured.
 - The sidebar of `AppShell` travels between the full column, the icon rail and put away on its width, on the base rung and the move curve. The three were separate elements, so collapsing removed the sidebar, and a page asking for the rail or a window crossing the breakpoint drew the new width in one frame. One sidebar now stays mounted through all three, and the page beside it takes the width back as it moves. Content that does not fit while the width moves is clipped at the moving edge rather than reflowed. A sidebar put away stays in the page, inert, hidden from assistive technology and invisible once it has closed, so focus never lands in it, and its snippets are told `rail` as they would be once it opens. The first paint draws the state it is given with nothing moving, a tablet hydrating to the rail included. The phone drawer is unchanged. The opened rail's shadow still moves on the fast rung while the width travels on the base rung.
 
+### Security
+
+- The repository's dependency audit skips GHSA-fc5q-39xc-vjpf, a ReDoS in picomatch through 4.0.7 that has no fixed release. picomatch reaches only the build and test tooling, and the package declares no runtime dependency, so nothing it ships carries it. A test ends the exception once a fixed picomatch installs.
+
 ## [0.62.0] - 2026-11-16
 
 ### Added
