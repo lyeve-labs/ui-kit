@@ -337,7 +337,9 @@
    * and that is the first paint, not a travel. One frame is not enough: the
    * first frame's callbacks run before it computes any style, so the change
    * and the transition would land together and play. The server runs no
-   * effect, so it renders every width still.
+   * effect, so it renders every width still. The docked side panel takes the
+   * same guard: the room the window leaves, a stored width or an open state the
+   * page reads back after mount is its first state too.
    */
   let settled = $state(false);
   $effect(() => {
@@ -647,7 +649,7 @@
       inert={!panelOpen}
       style="--panel-w:{panelShown}px"
       class="relative flex shrink-0 flex-col overflow-hidden bg-surface {isWide
-        ? `${panelOpen ? 'w-(--panel-w) border-s border-line' : 'w-0'} ${panelDrag ? '' : 'transition-[width] duration-base ease-move'}`
+        ? `${panelOpen ? 'w-(--panel-w) border-s border-line' : 'w-0'} ${panelDrag ? '' : `transition-[width] duration-base ease-move ${still}`}`
         : 'w-full border-s border-line sm:w-(--panel-w)'}"
     >
       {#if panelModal}
