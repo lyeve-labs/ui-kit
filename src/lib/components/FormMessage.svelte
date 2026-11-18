@@ -43,20 +43,28 @@
   asked of anyone. It takes no role: browsers expose role="status" as a status
   bar, and Orca speaks nothing inserted into one.
 -->
+<!--
+  The region is the row the page lays out, so it opens and closes on its
+  height, its margins and the gap of the column around it, and the content
+  below moves with it. The region stays the element the page mounts, and only
+  its text waits the two frames, so the text arriving is what a screen reader
+  hears. The message arrives and leaves as an Alert does. Color alone would be
+  the only thing telling a failure from a confirmation, so the glyph says it in
+  a shape too.
+-->
 <div
-  class="flex items-start gap-2 text-sm {tones[tone]} {klass}"
+  class="grid text-sm {tones[tone]} {klass}"
   role={tone === 'danger' ? 'alert' : undefined}
   aria-live={tone === 'danger' ? 'assertive' : 'polite'}
   aria-atomic={tone === 'danger' ? undefined : 'true'}
+  transition:motion.collapse|global
 >
-  {#if fill.filled}
-    <!-- The message arrives and leaves as an Alert does. The preset sits on
-         the message, because the region has to be in the document before its
-         text is. Color alone would be the only thing telling a failure from a
-         confirmation, so the glyph says it in a shape too. -->
-    <div transition:motion.toast|global class="flex min-w-0 flex-1 items-start gap-2">
+  <div class="min-h-0">
+    <div transition:motion.toast|global class="flex items-start gap-2">
       <ToneGlyph {tone} framed={false} />
-      <p class="min-w-0 flex-1">{@render children()}</p>
+      <p class="min-w-0 flex-1">
+        {#if fill.filled}{@render children()}{/if}
+      </p>
     </div>
-  {/if}
+  </div>
 </div>

@@ -8,7 +8,7 @@ import FormMessage from './FormMessage.svelte';
 
 vi.mock('../motion.js', async (original) => {
   const real = await original<typeof import('../motion.js')>();
-  return { ...real, toast: vi.fn(real.toast) };
+  return { ...real, toast: vi.fn(real.toast), collapse: vi.fn(real.collapse) };
 });
 
 const source = readFileSync(join(__dirname, 'FormMessage.svelte'), 'utf8');
@@ -98,22 +98,40 @@ describe('FormMessage', () => {
     expect(await findByText('Saved')).toBeTruthy();
   });
 
-  it('brings the message in on the toast preset, inside the region that stays', async () => {
+  it('brings the message in on the toast preset inside the region, and holds back only its text', async () => {
     // As an Alert beside it arrives. The preset sits on the message and never
-    // on the region, which has to be in the document before its text is.
+    // on the region, which has to be in the document before its text is. The
+    // message's frame arrives with the region, so the region's row has a
+    // height to open on, and only the text waits for the announcement.
     vi.mocked(motion.toast).mockClear();
     const { container, findByText } = render(FormMessage, {
       props: { tone: 'success', children: text('Saved') },
     });
     const live = region(container);
-    expect(vi.mocked(motion.toast)).not.toHaveBeenCalled();
-    const message = await findByText('Saved');
     const calls = vi.mocked(motion.toast).mock.calls.map(([node]) => node);
     expect(calls).toHaveLength(1);
     expect(calls[0]).not.toBe(live);
     expect(live.contains(calls[0])).toBe(true);
-    expect(calls[0].contains(message)).toBe(true);
     expect(calls[0].querySelector('svg')).toBeTruthy();
+    expect(live.textContent?.trim()).toBe('');
+    const message = await findByText('Saved');
+    expect(calls[0].contains(message)).toBe(true);
+  });
+
+  it('opens and closes the region itself as a row, so its gap and margins move with it', async () => {
+    // A row inside the region closed on the message's height, but the region
+    // is what a form's column spaces, and its gap arrived and left in one
+    // frame. The region stays the element the page mounts.
+    vi.mocked(motion.collapse).mockClear();
+    const { container, findByText } = render(FormMessage, {
+      props: { tone: 'success', children: text('Saved') },
+    });
+    const live = region(container);
+    expect(vi.mocked(motion.collapse).mock.calls.map(([node]) => node)).toEqual([live]);
+    expect(live.classList.contains('grid')).toBe(true);
+    expect(live.firstElementChild!.classList.contains('min-h-0')).toBe(true);
+    await findByText('Saved');
+    expect(region(container)).toBe(live);
   });
 
   it('marks the region and never the message', async () => {
