@@ -358,3 +358,82 @@ test.describe('SortableList when the caller changes the rows mid-drag', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('SortableList when a row comes or goes', () => {
+  // The rows fade in as the story mounts.
+  const settled = (page: Page) =>
+    page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+
+  /**
+   * Clicks a button in the story and reads, in the same call, the animations
+   * each named row then plays and how far the row has moved. Svelte starts a
+   * preset a frame after the change, so the read waits for that frame, and an
+   * exit on the fast rung cannot end before it.
+   */
+  function clickAndRead(page: Page, button: string, rows: string[]) {
+    return page.evaluate(
+      async ([button, rows]) => {
+        const li = (label: string) =>
+          [...document.querySelectorAll('li')].find((el) => el.textContent?.includes(label));
+        const before = Object.fromEntries(
+          rows.map((r) => [r, li(r)?.getBoundingClientRect().top ?? 0]),
+        );
+        [...document.querySelectorAll('button')].find((b) => b.textContent === button)!.click();
+        const started = () =>
+          rows.every((r) => {
+            const el = li(r);
+            return (
+              !el || el.getAnimations().some((a) => Number(a.effect?.getTiming().duration) > 0)
+            );
+          });
+        for (let i = 0; i < 10; i++) {
+          await new Promise((done) => requestAnimationFrame(done));
+          if (started()) break;
+        }
+        return rows.map((label) => {
+          const el = li(label);
+          if (!el) return { label, gone: true };
+          return {
+            label,
+            moved: Math.round(el.getBoundingClientRect().top - before[label]),
+            animations: el.getAnimations().map((a) => {
+              const effect = a.effect as KeyframeEffect;
+              const [first] = effect.getKeyframes();
+              return {
+                duration: Math.round(Number(effect.getTiming().duration)),
+                properties: Object.keys(first)
+                  .filter((k) => !['offset', 'computedOffset', 'easing', 'composite'].includes(k))
+                  .sort(),
+              };
+            }),
+          };
+        });
+      },
+      [button, rows] as const,
+    );
+  }
+
+  test('fades a removed row out where it stood while the rows below close the gap', async ({
+    mount,
+    page,
+  }) => {
+    const story = await mount(SortableListStory, { props: {} });
+    await settled(page);
+    const [pricing, quotes] = await clickAndRead(page, 'Delete Pricing', ['Pricing', 'Quotes']);
+    expect(pricing).toEqual({
+      label: 'Pricing',
+      moved: 0,
+      animations: [{ duration: 120, properties: ['opacity'] }],
+    });
+    expect(quotes.animations).toEqual([{ duration: 200, properties: ['transform'] }]);
+    await expect(story.locator('li')).toHaveCount(4);
+    await expect(story.getByTestId('order')).toHaveText('Hero, Features, Quotes, Footer');
+  });
+
+  test('fades a new row in where it lands', async ({ mount, page }) => {
+    await mount(SortableListStory, { props: {} });
+    await settled(page);
+    const [added] = await clickAndRead(page, 'Add a row at the top', ['New']);
+    expect(added.animations).toEqual([{ duration: 200, properties: ['opacity'] }]);
+  });
+});

@@ -475,6 +475,7 @@
            up, after a control in the row has had its chance to take them. -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <li
+        transition:motion.fade|global
         animate:motion.reorder
         class={rowClass(index, item.id)}
         style:translate={drag?.id === item.id ? `0 ${drag.dy}px` : undefined}

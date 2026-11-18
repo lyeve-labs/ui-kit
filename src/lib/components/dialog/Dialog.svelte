@@ -88,7 +88,7 @@
     transition:motion.dialog|global
     class="relative w-full {OVERLAY_WIDTH[entry.options.size ?? 'md']} mx-4
 			bg-surface bg-card border border-line rounded-card shadow-overlay inset-shadow-highlight
-			transition-transform duration-slow
+			transition-transform duration-base
 			focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
     style="transform: scale({1 - offset * 0.03}) translateY({offset * 16}px);
 			transform-origin: center;"

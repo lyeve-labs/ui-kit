@@ -9,6 +9,7 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
 import Dialog from '../../src/lib/components/dialog/Dialog.svelte';
 import type { DialogEntry } from '../../src/lib/components/dialog/types';
+import { styleWithKit } from './kit-css.js';
 
 function makeEntry(overrides: Partial<DialogEntry> = {}): DialogEntry {
   return {
@@ -50,4 +51,22 @@ test.describe('Dialog', () => {
     // may attempt to dismiss the entry. The key assertion is no crash.
     await expect(page.locator('[role="dialog"]')).toBeAttached();
   });
+});
+
+test('a dialog pushed back by a newer one moves on the base rung and the move curve', async ({
+  mount,
+  page,
+}) => {
+  await mount(Dialog, { props: { entry: makeEntry({ depth: 1 }) } });
+  await styleWithKit(page, 'dark');
+  const motion = await page.locator('[role="dialog"]').evaluate((el) => {
+    const s = getComputedStyle(el);
+    return [s.transitionProperty, s.transitionDuration, s.transitionTimingFunction];
+  });
+  // Tailwind's transition-transform lists translate, scale and rotate after it.
+  expect(motion).toEqual([
+    'transform, translate, scale, rotate',
+    '0.2s',
+    'cubic-bezier(0.65, 0, 0.35, 1)',
+  ]);
 });

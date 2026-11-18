@@ -119,6 +119,19 @@
   // A part-checked box is on, not a third color, so it paints the filled box
   // and tints the card exactly as a checked one does.
   const on = $derived(checked || indeterminate);
+  /**
+   * Both marks stay mounted and move opacity and scale on the fast rung, the
+   * box's own clock, so choosing reads as the box filling in. A mark that
+   * mounted in one frame popped into a box whose color was still easing over.
+   * The scale is a transform, because Tailwind's `scale-*` sets the separate
+   * `scale` property, which a transition on transform never moves. A path
+   * scales from its view box's corner unless its origin is the center.
+   */
+  const MARK = 'origin-center transition-[opacity,transform]';
+  const marks = $derived([
+    { d: CHOICE_MARK.check, shown: on && !indeterminate },
+    { d: CHOICE_MARK.mixed, shown: indeterminate },
+  ]);
 
   // A card fills its column. An inline option must not: stretched to the full
   // width of the field wrapper, the label swallows the empty space beside it
@@ -171,21 +184,26 @@
 
 {#snippet mark()}
   <span class="{choiceBox('checkbox', size, checked, indeterminate, assist.suggested)} mt-0.5">
-    {#if on}
-      <!-- Both marks are stroked paths on one 10 by 8 grid. A Unicode check
-           lands at whatever weight the reader's font gives it, visibly lighter
-           than every other icon in the kit, and the mixed bar has no glyph that
-           is not a minus sign standing in for one. -->
-      <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+    <!-- Both marks are stroked paths on one 10 by 8 grid. A Unicode check
+         lands at whatever weight the reader's font gives it, visibly lighter
+         than every other icon in the kit, and the mixed bar has no glyph that
+         is not a minus sign standing in for one. Both stay mounted, so a box
+         that turns from mixed to checked crosses one mark over to the other
+         in place. -->
+    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+      {#each marks as mark (mark.d)}
         <path
-          d={indeterminate ? CHOICE_MARK.mixed : CHOICE_MARK.check}
+          d={mark.d}
+          class="{MARK} {mark.shown
+            ? 'opacity-100 transform-none'
+            : 'opacity-0 transform-[scale(0.5)]'}"
           stroke="currentColor"
           stroke-width="1.5"
           stroke-linecap="round"
           stroke-linejoin="round"
         />
-      </svg>
-    {/if}
+      {/each}
+    </svg>
   </span>
 {/snippet}
 

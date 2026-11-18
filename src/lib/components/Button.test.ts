@@ -100,6 +100,38 @@ describe('Button', () => {
     expect(container.querySelector('svg.animate-spin')).toBeTruthy();
   });
 
+  it('draws the spinner over a label that keeps its box while loading', () => {
+    // The spinner mounted beside the label and pushed it sideways by its own
+    // width. The label now stays where it is, transparent, and the spinner
+    // shares its cell, so the button keeps its width and height.
+    const { container } = render(Button, {
+      props: { children: text('Save'), loading: true },
+    });
+    const button = container.querySelector('button')!;
+    expect(button.children).toHaveLength(1);
+    const [label, spinner] = [...button.firstElementChild!.children] as HTMLElement[];
+    expect(label.textContent).toBe('Save');
+    expect(label.classList.contains('opacity-0')).toBe(true);
+    expect(label.classList.contains('transition-opacity')).toBe(true);
+    expect(label.querySelector('svg')).toBeNull();
+    expect(spinner.querySelector('svg.animate-spin')).toBeTruthy();
+    for (const part of [label, spinner])
+      expect(part.classList.contains('[grid-area:1/1]')).toBe(true);
+  });
+
+  it('mounts no spinner and shows its label while not loading', () => {
+    const { container, getByRole } = render(Button, { props: { children: text('Save') } });
+    const button = getByRole('button', { name: 'Save' });
+    expect(container.querySelector('svg.animate-spin')).toBeNull();
+    expect(button.firstElementChild!.children).toHaveLength(1);
+    expect(button.querySelector('.opacity-0')).toBeNull();
+  });
+
+  it('keeps its accessible name while loading', () => {
+    const { getByRole } = render(Button, { props: { children: text('Save'), loading: true } });
+    expect(getByRole('button', { name: 'Save' }).getAttribute('aria-busy')).toBe('true');
+  });
+
   it('fires onclick when clicked', async () => {
     const onclick = vi.fn();
     const { container } = render(Button, { props: { children: text('x'), onclick } });

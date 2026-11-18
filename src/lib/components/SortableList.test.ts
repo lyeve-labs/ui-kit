@@ -2,7 +2,13 @@ import { cleanup, fireEvent, render } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet, tick } from 'svelte';
 import type { MoveCheck } from '../internal/reorder.js';
+import * as motion from '../motion.js';
 import SortableList from './SortableList.svelte';
+
+vi.mock('../motion.js', async (original) => {
+  const real = await original<typeof import('../motion.js')>();
+  return { ...real, fade: vi.fn(real.fade) };
+});
 
 afterEach(cleanup);
 
@@ -61,6 +67,27 @@ function pointer(type: string): MouseEvent {
 }
 
 describe('SortableList', () => {
+  it('fades a row in where it lands and out where it stood', async () => {
+    // The siblings close the gap on motion.reorder. A row that vanished in
+    // one frame left them moving into a hole, so the row fades in place.
+    const { container, rerender } = setup();
+    const fade = vi.mocked(motion.fade);
+    fade.mockClear();
+    const row = (label: string) =>
+      [...container.querySelectorAll('li')].find((li) => li.textContent?.includes(label));
+
+    const faded = () => fade.mock.calls.map(([node]) => node.textContent?.trim());
+
+    const grown = [...ROWS, { id: 'quotes', label: 'Quotes' }];
+    await rerender({ items: grown });
+    expect(faded()).toEqual(['Quotes']);
+
+    fade.mockClear();
+    await rerender({ items: grown.filter((r) => r.label !== 'Pricing') });
+    expect(faded()).toEqual(['Pricing']);
+    expect(row('Pricing')).toBeUndefined();
+  });
+
   it('listens to the window for the end of a gesture only while one is held', async () => {
     const add = vi.spyOn(window, 'addEventListener');
     const remove = vi.spyOn(window, 'removeEventListener');

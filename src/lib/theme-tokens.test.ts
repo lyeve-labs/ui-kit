@@ -374,6 +374,22 @@ describe('the one entrance that is a CSS animation', () => {
   });
 });
 
+describe('the indeterminate progress loop', () => {
+  it('declares progress-sweep in the stylesheet every consumer imports', () => {
+    // A loop keeps its own period, and it moves on the move curve.
+    expect(themeBlock(css)).toMatch(
+      /--animate-progress-sweep:\s*progress-sweep \d+(?:\.\d+)?m?s var\(--ease-move\) infinite;/,
+    );
+  });
+
+  it('travels on transform alone, so nothing is laid out on any frame', () => {
+    const frames = /@keyframes\s+progress-sweep\s*\{([\s\S]*?)\n\}/.exec(css);
+    expect(frames, 'no progress-sweep keyframe').not.toBeNull();
+    const props = [...frames![1].matchAll(/([a-z-]+)\s*:/g)].map((m) => m[1]);
+    expect(new Set(props)).toEqual(new Set(['transform']));
+  });
+});
+
 /**
  * The console renders none of the brand ramp below its H3. Its body copy is
  * 14px and its labels are 12px, and the ramp holds neither: it steps 16 to 22

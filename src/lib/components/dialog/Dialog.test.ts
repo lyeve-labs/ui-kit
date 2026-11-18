@@ -179,6 +179,16 @@ describe('Dialog', () => {
     expect(outerDiv.style.zIndex).not.toMatch(/\b50\b/);
   });
 
+  it('moves a dialog pushed back by a newer one on the base rung', () => {
+    // Shrinking and dropping back is movement in place, like a knob. On the
+    // slow rung it ran as long as the newer dialog's entrance in front of it.
+    const { container } = render(Dialog, { props: { entry: makeEntry({ depth: 1 }) } });
+    const panel = container.querySelector('[role="dialog"]') as HTMLElement;
+    expect(panel.classList).toContain('transition-transform');
+    expect(panel.classList).toContain('duration-base');
+    expect(panel.classList).not.toContain('duration-slow');
+  });
+
   // Title Snippet
 
   it('renders a title snippet when provided', () => {

@@ -4,6 +4,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import AssistForm from '../../../tests/fixtures/AssistForm.svelte';
 import { activeAssistForm, assistForms } from '../internal/assist.svelte.js';
 import type { FormAssistController } from '../internal/assist.svelte.js';
+import * as motion from '../motion.js';
+
+vi.mock('../motion.js', async (original) => {
+  const real = await original<typeof import('../motion.js')>();
+  return { ...real, toast: vi.fn(real.toast) };
+});
 
 function controller(): FormAssistController {
   const form = assistForms().find((f) => f.label === 'New key');
@@ -227,6 +233,15 @@ describe('FormAssist', () => {
     expect(input('name').value).toBe('b');
     expect(input('limit').value).toBe('40');
     expect(screen.queryByText(/suggested values?\./)).toBeNull();
+  });
+
+  it('brings the bar in and out on the toast preset, as an Alert', async () => {
+    render(AssistForm);
+    vi.mocked(motion.toast).mockClear();
+    controller().suggest({ name: 'a' });
+    await settle();
+    const bar = screen.getByRole('button', { name: 'Reject all' }).closest('[tabindex="-1"]');
+    expect(vi.mocked(motion.toast).mock.calls.map(([node]) => node)).toEqual([bar]);
   });
 
   it('updates the bar and lifts the hold as each field is decided on its own', async () => {

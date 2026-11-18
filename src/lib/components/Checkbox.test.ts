@@ -143,7 +143,8 @@ describe('Checkbox', () => {
 
   it('draws the mixed mark and the check as different SVG paths, never as a glyph', () => {
     const mixed = render(Checkbox, { props: { indeterminate: true, label: 'x' } });
-    const mixedPath = mixed.container.querySelector('svg path') as SVGPathElement;
+    // Both marks stay in the box, and the one that applies is the one shown.
+    const mixedPath = mixed.container.querySelector('svg path.opacity-100') as SVGPathElement;
     const mixedBox = mixed.container.querySelector('input + span') as HTMLElement;
     expect(mixedPath.getAttribute('d')).toBe(CHOICE_MARK.mixed);
     // A Unicode minus or check picks up whatever weight the reader's font gives
@@ -153,18 +154,55 @@ describe('Checkbox', () => {
     mixed.unmount();
 
     const on = render(Checkbox, { props: { checked: true, label: 'x' } });
-    const checkPath = on.container.querySelector('svg path') as SVGPathElement;
+    const checkPath = on.container.querySelector('svg path.opacity-100') as SVGPathElement;
     expect(checkPath.getAttribute('d')).toBe(CHOICE_MARK.check);
     expect(checkPath.getAttribute('d')).not.toBe(mixedPath.getAttribute('d'));
     expect(/[×−✓ℹ]/.test(on.container.innerHTML)).toBe(false);
+  });
+
+  it('keeps both marks mounted and fades and grows the one that applies', async () => {
+    // A mark that mounted in one frame popped into a box whose color eased
+    // over. Both marks stay in the box, and each moves opacity and scale on
+    // the fast rung. The drawing is hidden from a screen reader, which hears
+    // only the input's state.
+    const { container, rerender } = render(Checkbox, { props: { label: 'x' } });
+    const box = container.querySelector('input + span') as HTMLElement;
+    const svg = box.querySelector('svg') as SVGSVGElement;
+    const marks = () => [...box.querySelectorAll('path')];
+    const [check, mixed] = marks();
+    const shown = (el: Element) => el.classList.contains('opacity-100');
+    expect(svg.getAttribute('aria-hidden')).toBe('true');
+    expect(check.getAttribute('d')).toBe(CHOICE_MARK.check);
+    expect(mixed.getAttribute('d')).toBe(CHOICE_MARK.mixed);
+    for (const mark of [check, mixed]) {
+      expect(mark.classList).toContain('transition-[opacity,transform]');
+      expect(mark.classList).toContain('opacity-0');
+      expect(mark.classList).toContain('transform-[scale(0.5)]');
+      expect(mark.classList).toContain('origin-center');
+      expect(mark.className.baseVal).not.toMatch(/duration-|ease-/);
+    }
+    expect(box.textContent?.trim()).toBe('');
+
+    await rerender({ checked: true });
+    expect(marks()).toEqual([check, mixed]);
+    expect([shown(check), shown(mixed)]).toEqual([true, false]);
+    expect(check.classList).toContain('transform-none');
+
+    await rerender({ checked: false, indeterminate: true });
+    expect(marks()).toEqual([check, mixed]);
+    expect([shown(check), shown(mixed)]).toEqual([false, true]);
+
+    await rerender({ indeterminate: false });
+    expect(marks()).toEqual([check, mixed]);
+    expect([shown(check), shown(mixed)]).toEqual([false, false]);
   });
 
   it.each(['sm', 'md', 'lg'] as ChoiceSize[])('draws its icon at CHOICE_ICON_PX for %s', (size) => {
     const { container } = render(Checkbox, {
       props: { label: 'Billing', icon: Settings, size },
     });
-    // Unchecked, so the only svg on screen is the icon.
-    const svg = container.querySelector('svg') as SVGElement;
+    // The box holds its two marks, hidden, so the icon is the svg outside it.
+    const svg = [...container.querySelectorAll('svg')].find((el) => !el.closest('input + span'))!;
     expect(svg.getAttribute('width')).toBe(String(CHOICE_ICON_PX[size]));
     expect(svg.getAttribute('height')).toBe(String(CHOICE_ICON_PX[size]));
   });
