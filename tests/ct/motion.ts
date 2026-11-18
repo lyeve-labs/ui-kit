@@ -7,7 +7,7 @@
  * starts. jsdom has no `Element.animate` and plays every preset in no time.
  */
 
-import { expect, type Locator } from '@playwright/experimental-ct-svelte';
+import { expect, type Locator, type Page } from '@playwright/experimental-ct-svelte';
 
 export type Played = {
   duration: number;
@@ -49,8 +49,34 @@ export async function settled(target: Locator): Promise<void> {
 }
 
 /**
+ * Pauses every preset the moment it starts, from here on. Call it before the
+ * change that starts the presets, and then `pauseWhen` only counts them.
+ *
+ * A poll after the change reads the page some time later, and under load a
+ * 120ms or 200ms preset can end before the first read. Svelte starts a preset
+ * with `Element.animate`, which fires no event a listener could catch, so the
+ * method itself is wrapped. Svelte first plays a placeholder for the length of
+ * the delay, which is no time here, and starts the preset when it ends, so
+ * only an animation that lasts is paused.
+ */
+export function pauseOnStart(page: Page): Promise<void> {
+  return page.evaluate(() => {
+    const animate = Element.prototype.animate;
+    Element.prototype.animate = function (
+      this: Element,
+      ...args: Parameters<Element['animate']>
+    ): Animation {
+      const animation = animate.apply(this, args);
+      if (Number(animation.effect?.getTiming().duration) > 0) animation.pause();
+      return animation;
+    };
+  });
+}
+
+/**
  * Pauses every preset playing inside the element once `count` have started,
- * so a loaded run cannot let one end before the case has read it.
+ * so a loaded run cannot let one end before the case has read it. Without
+ * `pauseOnStart` installed first, a short preset can end before the poll.
  */
 export async function pauseWhen(target: Locator, count: number): Promise<void> {
   await expect
