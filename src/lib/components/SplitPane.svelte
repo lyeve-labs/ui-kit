@@ -339,8 +339,23 @@
    * The docked frame's width travels, so a fold to the strip and back is one
    * move rather than one frame, as the shell's side panel does. A drag turns
    * it off, or the edge would trail the pointer.
+   *
+   * Widths move only once the first state is drawn, behind the same guard as
+   * the shell's side panel. The server renders the default width and fold,
+   * so a stored width or fold that differs lands at hydration, and that is
+   * the first paint, not a travel. One frame is not enough: the first frame's
+   * callbacks run before it computes any style, so the change and the
+   * transition would land together and play. The server runs no effect, so
+   * it renders the frame still.
    */
-  const travel = $derived(drag ? at.still : at.travel);
+  let settled = $state(false);
+  $effect(() => {
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => (settled = true));
+    });
+    return () => cancelAnimationFrame(frame);
+  });
+  const travel = $derived(drag || !settled ? at.still : at.travel);
 
   const frame = $derived.by(() => {
     if (below === 'overlay') {

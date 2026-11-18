@@ -25,6 +25,10 @@ type Props = Partial<{
   id: string;
 }>;
 
+/** The pane lets its width travel once two frames have drawn its first state. */
+const twoFrames = () =>
+  new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done())));
+
 function setup(props: Props = {}) {
   const result = render(SplitPane, {
     props: {
@@ -194,6 +198,21 @@ describe('SplitPane', () => {
     expect(getByText('body')).toBeTruthy();
   });
 
+  it('draws its first state still and travels only once it is drawn', async () => {
+    // The server renders the default width and fold, so a stored one that
+    // differs lands at hydration. That is the first paint, not a travel.
+    const travel = ['xl:transition-[width]', 'xl:duration-base', 'xl:ease-move'];
+    for (const below of ['stack', 'overlay'] as const) {
+      const { aside } = setup({ collapsible: true, open: false, below });
+      expect(classesOf(aside)).toContain('xl:transition-none');
+      for (const c of travel) expect(classesOf(aside)).not.toContain(c);
+      await twoFrames();
+      expect(classesOf(aside)).toEqual(expect.arrayContaining(travel));
+      expect(classesOf(aside)).not.toContain('xl:transition-none');
+      cleanup();
+    }
+  });
+
   it('folds and opens on the width, and holds still under a drag', async () => {
     // The fold is a sideways disclosure, so it travels on the base rung as
     // the shell's side panel does. A drag follows the pointer with nothing
@@ -201,6 +220,7 @@ describe('SplitPane', () => {
     const travel = ['xl:transition-[width]', 'xl:duration-base', 'xl:ease-move'];
     for (const below of ['stack', 'overlay'] as const) {
       const { aside, getByRole, handle } = setup({ collapsible: true, below });
+      await twoFrames();
       expect(classesOf(aside)).toEqual(expect.arrayContaining(travel));
       const h = handle() as HTMLElement;
       await pointer(h, 'pointerdown', { button: 0, clientX: 260 });
@@ -371,10 +391,12 @@ describe('SplitPane as an overlay', () => {
     expect(classesOf(aside)).not.toContain('ease-exit');
   });
 
-  it('docks at the breakpoint with nothing sliding or fading, open or closed', () => {
+  it('docks at the breakpoint with nothing sliding or fading, open or closed', async () => {
     // Only the width transitions there, for the fold to the strip.
     for (const overlay of [false, true]) {
-      expect(classesOf(setup({ below: 'overlay', overlay }).aside)).toEqual(
+      const { aside } = setup({ below: 'overlay', overlay });
+      await twoFrames();
+      expect(classesOf(aside)).toEqual(
         expect.arrayContaining([
           'max-xl:z-dropdown',
           'xl:static',
