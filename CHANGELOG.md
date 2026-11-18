@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `motion.fade`, a preset for an item that appears or leaves in place. It moves opacity alone, on the base rung in and the fast rung out, and reads the tokens as the other presets do. Beside `animate:motion.reorder` a removed row fades out where it stood while the rows below close the gap.
 - `motion.collapse`, a preset for the row a surface holds in the flow of a page. It moves `grid-template-rows` from `0fr` to `1fr`, on the base rung in and the fast rung out, on a `grid` node whose one child takes `min-h-0`. The node hides its overflow only while the row moves, so a focus ring or a shadow at rest is never cut.
+- `Progress` takes `indeterminate`, for a wait whose length nobody knows, such as a page load. A segment two fifths of the track wide sweeps across it on a loop of its own period, moving transform alone, and the bar reports no `aria-valuenow` and shows no percentage. Under reduced motion the segment rests still in the middle of the track, which no value draws, so the bar still reads as busy. `value` stays required on a bar that is not indeterminate. The loop is `animate-progress-sweep` in the theme.
 
 ### Changed
 
