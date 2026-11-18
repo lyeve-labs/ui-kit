@@ -9,3 +9,13 @@ overrides:
   'nanoid@<3.3.18': ^3.3.18
   'postcss@<8.5.23': ^8.5.23
   'source-map-js@<1.2.2': ^1.2.2
+# GHSA-fc5q-39xc-vjpf: a ReDoS in picomatch through 4.0.7 when an attacker
+# writes the glob pattern, with no fixed release yet. picomatch runs only in
+# the build and test tooling (vite, vitest, svelte-package, the component
+# tests), whose patterns come from this repository's configuration. The
+# package declares no runtime dependency, so nothing it ships brings picomatch
+# to a consumer. src/lib/audit-exceptions.test.ts fails once shipped source
+# imports a glob matcher and once a picomatch above 4.0.7 is installed.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf
