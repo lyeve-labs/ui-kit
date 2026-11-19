@@ -170,12 +170,20 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     }
   });
 
-  it.each(['dialog', 'scrim', 'drawer', 'popover', 'toast', 'fade', 'collapse', 'reorder', 'swapPage'])(
-    'exports motion.%s from the package entry',
-    (name) => {
-      expect(typeof (kit.motion as Record<string, unknown>)[name]).toBe('function');
-    },
-  );
+  it.each([
+    'dialog',
+    'scrim',
+    'drawer',
+    'popover',
+    'toast',
+    'fade',
+    'collapse',
+    'reorder',
+    'swapPage',
+    'glide',
+  ])('exports motion.%s from the package entry', (name) => {
+    expect(typeof (kit.motion as Record<string, unknown>)[name]).toBe('function');
+  });
 
   it('exports the VERSION that package.json declares', () => {
     // Resolved from the runner's cwd, the package root, because the jsdom

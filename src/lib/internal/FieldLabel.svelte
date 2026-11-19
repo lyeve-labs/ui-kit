@@ -61,10 +61,11 @@
 
 <!-- The tag is hidden from assistive technology so it never joins the name a
      voice-control user speaks. The buttons beside it say what is suggested. -->
-{#snippet content()}{text}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">*</span
-    >{/if}{@render children?.()}{#if pending}<span class={ASSIST_TAG} aria-hidden="true"
-      >Suggested</span
-    >{/if}{/snippet}
+{#snippet content()}{text}{#if required}<span class="ms-0.5 text-danger" aria-hidden="true">
+      *
+    </span>{/if}{@render children?.()}{#if pending}<span class={ASSIST_TAG} aria-hidden="true">
+      Suggested
+    </span>{/if}{/snippet}
 
 {#if tag === 'label'}
   <label {id} for={htmlFor} class={cls}>{@render content()}</label>

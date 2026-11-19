@@ -32,8 +32,7 @@ export type MoveCheck = true | string;
 
 /** What one attempt at a move comes to, with the sentence to announce. */
 export type MoveResult<T> =
-  | { moved: true; items: T[]; to: number; text: string }
-  | { moved: false; text: string };
+  { moved: true; items: T[]; to: number; text: string } | { moved: false; text: string };
 
 /**
  * Where a row taken from `from` lands when it is dropped in `gap`, the space

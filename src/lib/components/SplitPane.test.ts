@@ -299,23 +299,14 @@ describe('SplitPane in a right-to-left page', () => {
 
   it('moves the edge the way the arrow points, which narrows a start pane on ArrowRight', async () => {
     document.documentElement.setAttribute('dir', 'rtl');
-    const getComputed = window.getComputedStyle;
-    const spy = vi
-      .spyOn(window, 'getComputedStyle')
-      .mockImplementation((el, pseudo) =>
-        Object.assign(getComputed(el, pseudo), { direction: 'rtl' }),
-      );
-    try {
-      const { handle, widthOf } = setup({ side: 'start' });
-      const h = handle() as HTMLElement;
-      await fireEvent.keyDown(h, { key: 'ArrowRight' });
-      expect(widthOf()).toBe('236px');
-      await pointer(h, 'pointerdown', { button: 0, clientX: 500 });
-      await pointer(h, 'pointermove', { clientX: 440 });
-      expect(widthOf()).toBe('296px');
-    } finally {
-      spy.mockRestore();
-    }
+    const { handle, widthOf } = setup({ side: 'start' });
+    const h = handle() as HTMLElement;
+    expect(getComputedStyle(h).direction).toBe('rtl');
+    await fireEvent.keyDown(h, { key: 'ArrowRight' });
+    expect(widthOf()).toBe('236px');
+    await pointer(h, 'pointerdown', { button: 0, clientX: 500 });
+    await pointer(h, 'pointermove', { clientX: 440 });
+    expect(widthOf()).toBe('296px');
   });
 
   it('sits a closed start overlay off the start edge, which is the right one', () => {

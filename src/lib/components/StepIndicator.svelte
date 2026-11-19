@@ -44,8 +44,10 @@
         stroke="currentColor"
         stroke-width="2.5"
         stroke-linecap="round"
-        aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg
+        aria-hidden="true"
       >
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
     {:else}{idx}{/if}
   </div>
 {/snippet}

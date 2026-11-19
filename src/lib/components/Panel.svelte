@@ -100,9 +100,9 @@
   {#snippet headingText()}
     {#if icon}
       {@const Icon = icon}
-      <span class="shrink-0 {tone === 'danger' ? 'text-danger' : 'text-muted'}" aria-hidden="true"
-        ><Icon size={16} /></span
-      >
+      <span class="shrink-0 {tone === 'danger' ? 'text-danger' : 'text-muted'}" aria-hidden="true">
+        <Icon size={16} />
+      </span>
     {/if}
     {heading}
   {/snippet}

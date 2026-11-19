@@ -27,7 +27,7 @@
   {#snippet panel()}
     <p>Ask about this page.</p>
   {/snippet}
-  <button type="button" data-testid="toggle-panel" onclick={() => (panelOpen = !panelOpen)}
-    >Panel</button
-  >
+  <button type="button" data-testid="toggle-panel" onclick={() => (panelOpen = !panelOpen)}>
+    Panel
+  </button>
 </AppShell>

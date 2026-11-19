@@ -40,7 +40,7 @@
     />
   {/snippet}
   <button type="button" data-testid="ask-rail" onclick={() => (rail = !rail)}>Rail</button>
-  <button type="button" data-testid="ask-header" onclick={() => (headerHidden = !headerHidden)}
-    >Header</button
-  >
+  <button type="button" data-testid="ask-header" onclick={() => (headerHidden = !headerHidden)}>
+    Header
+  </button>
 </AppShell>

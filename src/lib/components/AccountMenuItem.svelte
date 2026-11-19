@@ -97,6 +97,8 @@
     aria-disabled={loading || undefined}
     aria-busy={loading || undefined}
     {@attach refuseWhileLoading}
-    class="{ROW} {BUSY} {klass}">{@render body()}</button
+    class="{ROW} {BUSY} {klass}"
   >
+    {@render body()}
+  </button>
 {/if}

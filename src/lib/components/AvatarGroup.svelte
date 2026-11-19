@@ -34,7 +34,9 @@
     <span
       class="-ms-1.5 inline-flex shrink-0 items-center justify-center rounded-full
         bg-surface-2 font-semibold text-faint ring-2 ring-ink
-        {AVATAR_SIZE[size].wrap} {AVATAR_SIZE[size].text}">+{overflow}</span
+        {AVATAR_SIZE[size].wrap} {AVATAR_SIZE[size].text}"
     >
+      +{overflow}
+    </span>
   {/if}
 </div>

@@ -69,8 +69,9 @@
               href={link.href}
               aria-current={link.current ? 'page' : undefined}
               class="text-fg no-underline underline-offset-4 transition-colors hover:text-brand hover:underline aria-[current=page]:text-brand aria-[current=page]:underline"
-              >{link.label}</a
             >
+              {link.label}
+            </a>
           {:else}
             <span class="text-fg">{link.label}</span>
           {/if}

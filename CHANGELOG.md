@@ -5,6 +5,18 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `motion.glide`, for a value a stylesheet cannot reach, such as the transform of a view or the place of a node an SVG edge is drawn from. It calls a step once a frame with the share of the move done, on the `base` or `slow` rung and the move curve read from the tokens when it starts, then calls `done`. Under reduced motion, or in a document that plays no animations, it gives the last step and `done` at once. The stop it returns leaves the value where the last frame put it and never calls `done`.
+- `--color-selection-dark` (`#0b1422`) and `--color-selection-light` (`#ffffff`), a pair of colors that stays the same in every theme and scheme, for an outline an app draws over content it does not own, such as a hover or selection ring over a customer's page. Every other color follows the theme, so the brand ring measured 1.77:1 on a white page and 2.40:1 on a near-black one. Drawn as a 1px line of each beside a brand ring, one of the two reads at 4.29:1 or more on any background. Each is a Tailwind color (`ring-selection-dark`, `outline-selection-light`), and both variables are emitted even when no class names them.
+- `Skeleton` takes a `label`, the words for what the wait is for, such as "Loading webhooks". With it, the block holds the words in a visually hidden element, so a screen reader reads them where the skeleton stands, and the skeleton stays one element in a `space-y-*` or `divide-y` stack. The words sit in a plain element and not in a `role="status"` region, which Orca reads nothing from. Give it to one skeleton of a group. Without a label the block renders as before, hidden from assistive technology.
+
+### Changed
+
+- The package is developed, tested and built with the newest Vite, vitest, jsdom, Svelte tooling and Lucide 1. TypeScript stays on 6, the newest line `svelte-check` and `svelte-package` accept. The peer ranges, the components' JavaScript and the type declarations are unchanged. `site.css` is compiled with Tailwind 4.3.5, which writes a few peer selectors and empty fallbacks another way with the same effect.
+
 ## [0.63.1] - 2026-11-18
 
 ### Fixed
