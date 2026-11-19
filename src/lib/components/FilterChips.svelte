@@ -219,8 +219,8 @@
   {/if}
   {chip.label}
   {#if chip.count !== undefined}
-    <span class="font-mono text-[10px] text-faint"
-      >{chip.count}{#if countLabel}<span class="sr-only"> {countLabel}</span>{/if}</span
-    >
+    <span class="font-mono text-[10px] text-faint">
+      {chip.count}{#if countLabel}<span class="sr-only"> {countLabel}</span>{/if}
+    </span>
   {/if}
 {/snippet}

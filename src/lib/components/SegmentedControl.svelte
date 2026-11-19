@@ -327,10 +327,9 @@
          by the caption it is handed, and a label has nothing to point at
          here: role="radiogroup" is not a form control that `for` can name. -->
     <AssistRow field={assist}>
-      <span class={FIELD_LABEL}
-        >{label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">Suggested</span
-          >{/if}</span
-      >
+      <span class={FIELD_LABEL}>
+        {label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">Suggested</span>{/if}
+      </span>
     </AssistRow>
   {:else if assist.pending}
     <AssistActions field={assist} />
@@ -386,12 +385,12 @@
                segment. Weight alone would resize the segment the selection
                lands on, and the whole row would shuffle under the pointer as
                the user moved along it. -->
-          <span class="invisible col-start-1 row-start-1 font-semibold" aria-hidden="true"
-            >{option.label}</span
-          >
-          <span class="col-start-1 row-start-1 {selected ? 'font-semibold' : 'font-normal'}"
-            >{option.label}</span
-          >
+          <span class="invisible col-start-1 row-start-1 font-semibold" aria-hidden="true">
+            {option.label}
+          </span>
+          <span class="col-start-1 row-start-1 {selected ? 'font-semibold' : 'font-normal'}">
+            {option.label}
+          </span>
         </span>
       {/snippet}
       {#if linked}

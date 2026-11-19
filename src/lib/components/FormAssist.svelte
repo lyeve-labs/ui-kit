@@ -89,9 +89,9 @@
           <p class="min-w-0 flex-1">{form.held ? heldSentence(count) : suggestsSentence(count)}</p>
           <div class="flex gap-2">
             <Button variant="ghost" size="sm" onclick={() => form.rejectAll()}>Reject all</Button>
-            <Button variant="secondary" size="sm" onclick={() => form.acceptAll()}
-              >Accept all</Button
-            >
+            <Button variant="secondary" size="sm" onclick={() => form.acceptAll()}>
+              Accept all
+            </Button>
           </div>
         </div>
       </div>

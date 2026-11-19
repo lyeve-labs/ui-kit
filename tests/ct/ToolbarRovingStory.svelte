@@ -22,26 +22,32 @@
         size="icon"
         aria-label="Bold"
         aria-pressed={bold ? 'true' : 'false'}
-        onclick={() => (bold = !bold)}><Bold size={16} /></Button
+        onclick={() => (bold = !bold)}
       >
+        <Bold size={16} />
+      </Button>
       <Button
         variant="ghost"
         size="icon"
         aria-label="Italic"
         aria-pressed={italic ? 'true' : 'false'}
-        onclick={() => (italic = !italic)}><Italic size={16} /></Button
+        onclick={() => (italic = !italic)}
       >
-      <Button variant="ghost" size="icon" aria-label="Underline" disabled
-        ><Underline size={16} /></Button
-      >
+        <Italic size={16} />
+      </Button>
+      <Button variant="ghost" size="icon" aria-label="Underline" disabled>
+        <Underline size={16} />
+      </Button>
       <Button variant="ghost" size="icon" aria-label="Add link"><Link size={16} /></Button>
       <Button
         variant="ghost"
         size="icon"
         aria-label="Redo"
         disabled={redos === 0}
-        onclick={() => (redos -= 1)}><Redo size={16} /></Button
+        onclick={() => (redos -= 1)}
       >
+        <Redo size={16} />
+      </Button>
       <Dropdown
         items={[
           { label: 'Wrap lines', checked: wrap, onclick: () => (wrap = !wrap) },

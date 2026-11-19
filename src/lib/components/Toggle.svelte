@@ -141,10 +141,11 @@
   {#if label || hint}
     <span class="flex flex-col gap-0.5">
       {#if label}
-        <span class="text-sm text-fg"
-          >{label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">Suggested</span
-            >{/if}</span
-        >
+        <span class="text-sm text-fg">
+          {label}{#if assist.pending}<span class={ASSIST_TAG} aria-hidden="true">
+              Suggested
+            </span>{/if}
+        </span>
       {/if}
       {#if hint}
         <span class={FIELD_HINT}>{hint}</span>

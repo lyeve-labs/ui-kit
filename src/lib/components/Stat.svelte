@@ -102,10 +102,10 @@
   <div class="mt-1 flex items-center gap-2">
     {#if trend && change}
       {@const Icon = trendIcon[trend]}
-      <span class="inline-flex items-center gap-0.5 text-xs font-medium {trendColor[trend]}"
-        ><Icon size={12} aria-hidden="true" /><span class="sr-only">{trendWord[trend]}</span>
-        {change}</span
-      >
+      <span class="inline-flex items-center gap-0.5 text-xs font-medium {trendColor[trend]}">
+        <Icon size={12} aria-hidden="true" /><span class="sr-only">{trendWord[trend]}</span>
+        {change}
+      </span>
     {/if}
     {#if sub}<span class="text-xs text-muted">{sub}</span>{/if}
   </div>

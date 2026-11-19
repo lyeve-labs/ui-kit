@@ -401,8 +401,9 @@
       </Button>
       <span
         class="text-xs font-medium tracking-wide text-faint uppercase [writing-mode:vertical-rl]"
-        >{label}</span
       >
+        {label}
+      </span>
     </div>
   {/if}
 
