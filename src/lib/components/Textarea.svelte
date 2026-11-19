@@ -121,8 +121,7 @@
       : 'resize-none'} {mono ? 'font-mono' : ''}"
     bind:value
     {oninput}
-    {onblur}
-  ></textarea>
+    {onblur}></textarea>
 
   <FieldMessage base={fieldId} {error} {hint} />
 </div>

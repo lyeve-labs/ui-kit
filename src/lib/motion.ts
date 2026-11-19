@@ -181,6 +181,49 @@ export function swapPage(): void {
 }
 
 /**
+ * Moves a value a stylesheet cannot reach, such as a view transform or the
+ * place a node holds that an SVG edge is drawn from. A CSS transition on the
+ * node alone would leave every edge at the end of the move while the node was
+ * still on its way, so the value moves in script, on the kit's clock.
+ *
+ * Calls `step` once a frame with the share of the move done, from 0 to 1, on
+ * the rung and the move curve read when it starts, then `done`. A reader who
+ * asked for reduced motion, and a document that plays no animations, get the
+ * last step and `done` at once. The stop it returns leaves the value where the
+ * last frame put it and never calls `done`.
+ */
+export function glide(
+  node: Element | undefined,
+  rung: 'base' | 'slow',
+  step: (p: number) => void,
+  done?: () => void,
+): () => void {
+  if (!node || still(node) || typeof requestAnimationFrame !== 'function') {
+    step(1);
+    done?.();
+    return () => {};
+  }
+  const ms = duration(rung);
+  const ease = easing('move');
+  let start: number | undefined;
+  // A step may call the stop itself. Canceling alone would miss the frame
+  // asked for after that step returns, so the loop reads this flag instead.
+  let stopped = false;
+  let frame = requestAnimationFrame(function next(now) {
+    start ??= now;
+    const t = ms > 0 ? Math.min(1, (now - start) / ms) : 1;
+    step(ease(t));
+    if (stopped) return;
+    if (t < 1) frame = requestAnimationFrame(next);
+    else done?.();
+  });
+  return () => {
+    stopped = true;
+    cancelAnimationFrame(frame);
+  };
+}
+
+/**
  * One transition from the rung its entrance runs at and the frame it draws.
  * The exit is derived, never chosen: one rung faster, on the exit curve.
  * The element's inline transform is read when the transition starts, after

@@ -343,26 +343,30 @@
                       stroke-width="1.5"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      ><path
+                    >
+                      <path
                         d={CHOICE_MARK.check}
                         class="origin-center transition-[opacity,transform] {on
                           ? 'opacity-100 transform-none'
                           : 'opacity-0 transform-[scale(0.5)]'}"
-                      /></svg
-                    >
+                      />
+                    </svg>
                   </span>
                   <!-- A one-word name longer than the space beside the price breaks
                        with a hyphen rather than running under it. -->
                   <span
                     id="{id}-name"
                     class="min-w-0 text-sm font-semibold leading-snug text-fg hyphens-auto [overflow-wrap:anywhere]"
-                    >{plugin.name}</span
                   >
+                    {plugin.name}
+                  </span>
                 </span>
                 <span id="{id}-price" class="shrink-0 tabular-nums text-sm font-semibold text-fg">
                   {formatCents(plugin.price_cents, currency)}<span
-                    class="text-xs font-normal text-muted">{cardPerLabel}</span
+                    class="text-xs font-normal text-muted"
                   >
+                    {cardPerLabel}
+                  </span>
                 </span>
               </span>
               <span id="{id}-blurb" class="text-xs leading-relaxed text-muted">
@@ -370,8 +374,9 @@
               </span>
               {#if tagged}
                 <span id="{id}-tags" class="mt-auto flex flex-wrap gap-1.5 pt-1">
-                  {#if plugin.category}<Badge tone="neutral" size="sm">{plugin.category}</Badge
-                    >{/if}
+                  {#if plugin.category}<Badge tone="neutral" size="sm">
+                      {plugin.category}
+                    </Badge>{/if}
                   {#if blurb.beta}<Badge tone="violet" size="sm">Beta</Badge>{/if}
                   {#if owned}<Badge tone="success" size="sm">Owned</Badge>{/if}
                 </span>
@@ -392,8 +397,10 @@
         >
           <span class="text-fg">
             <span class="font-semibold">{count}</span> picked{#if total !== null}{' '}<span
-                class="text-muted">·</span
+                class="text-muted"
               >
+                ·
+              </span>
               <span class="tabular-nums">{formatCents(total, currency)}</span>{/if}
           </span>
           <span class="font-semibold text-brand">Review order</span>
@@ -444,9 +451,9 @@
             <li class="flex items-center justify-between gap-2 text-xs">
               <span class="truncate text-fg">{p?.name ?? sku}</span>
               <span class="flex items-center gap-1">
-                <span class="tabular-nums text-muted"
-                  >{formatCents(p?.price_cents ?? 0, currency)}</span
-                >
+                <span class="tabular-nums text-muted">
+                  {formatCents(p?.price_cents ?? 0, currency)}
+                </span>
                 <Button
                   type="button"
                   variant="ghost"
@@ -520,9 +527,9 @@
             <p class="flex items-baseline justify-between gap-2">
               <span class="text-sm text-muted">Total</span>
               <span class="tabular-nums text-xl font-semibold text-fg">
-                {formatCents(total, currency)}<span class="text-sm font-normal text-muted"
-                  >{perLabel}</span
-                >
+                {formatCents(total, currency)}<span class="text-sm font-normal text-muted">
+                  {perLabel}
+                </span>
               </span>
             </p>
             {#if quoted && quoted.volume_discount_cents > 0}

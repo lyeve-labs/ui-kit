@@ -801,6 +801,32 @@ html[data-theme='light'] {
 }
 
 /*
+ * The selection pair: two colors that stay the same in every theme, for an
+ * outline an app draws over content it does not own, such as a hover or a
+ * selection ring over a customer's page. The page's colors are not the
+ * app's, so no palette token can promise a ring that reads on them: the brand
+ * ring measured 1.77:1 on a white page in the dark theme and 2.40:1 on a
+ * near-black page in the light theme. Draw the ring in the brand, with a 1px
+ * line of each of these side by side inside it.
+ *
+ * The two read 18.46:1 against each other. On a background as dark as the
+ * dark one or darker, the light one reads 18.46:1 or more. On any lighter
+ * background the two ratios multiply to exactly 18.46, so the larger is at
+ * least its square root, 4.297:1, written 4.29:1 so it is never overstated.
+ * On any background one line clears 3:1. The worst case is a mid tone whose
+ * luminance sits where the two ratios meet, such as #0a8791, which reads
+ * 4.297:1 against both lines.
+ *
+ * Declared once, here and in no theme or scheme block, so a theme change
+ * cannot reach them. Static, so the variables are emitted even when no class
+ * names them, for an SVG stroke or a canvas that reads one by name.
+ */
+@theme static {
+  --color-selection-dark: #0b1422;
+  --color-selection-light: #ffffff;
+}
+
+/*
  * This block comes after the scheme rules on purpose. It names [data-scheme]
  * at their specificity, so it wins inside a part only by coming later.
  *

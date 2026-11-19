@@ -128,8 +128,10 @@
           aria-hidden="true"
           class="invisible col-start-1 row-start-1 px-3 py-1 text-sm wrap-anywhere whitespace-pre-wrap {mono
             ? 'font-mono'
-            : ''}">{value}</span
+            : ''}"
         >
+          {value}
+        </span>
         <textarea
           id={fieldId}
           rows={1}
@@ -141,8 +143,7 @@
           aria-describedby={describedBy(fieldId, failed ? failedMessage : undefined, hint)}
           class="col-start-1 row-start-1 resize-none overflow-hidden bg-transparent px-3 py-1 text-sm wrap-anywhere whitespace-pre-wrap text-fg outline-none {mono
             ? 'font-mono'
-            : ''}"
-        ></textarea>
+            : ''}"></textarea>
       </div>
     {:else}
       <input

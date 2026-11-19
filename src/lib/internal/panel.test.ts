@@ -377,13 +377,13 @@ describe('placePanel', () => {
         action.destroy();
         return shift;
       };
-      expect(at(24, 320)).toBe('-24px 0');
+      expect(at(24, 320)).toBe('-24px');
       expect(at(24, 272)).toBe('');
       // Wider than the screen, it keeps its start edge on the screen.
-      expect(at(24, 400)).toBe('-24px 0');
+      expect(at(24, 400)).toBe('-24px');
       // A start edge off the left, as an end-anchored panel in a right-to-left
       // page, comes back inside and keeps the gap from the edge.
-      expect(at(-16, 300)).toBe('24px 0');
+      expect(at(-16, 300)).toBe('24px');
     } finally {
       if (width) Object.defineProperty(window, 'innerWidth', width);
     }
@@ -410,16 +410,16 @@ describe('placePanel', () => {
       };
       let cap = '';
       // 33 + 320 = 353, 10px past the clip.
-      expect(at(33, 320)).toBe('-10px 0');
+      expect(at(33, 320)).toBe('-10px');
       expect(cap, 'a panel that fits keeps its width').toBe('');
       expect(at(33, 300)).toBe('');
       // Wider than the 326px of room, it shrinks to the room, so a Modal body
       // on a narrow phone does not scroll sideways, and keeps its start edge
       // at the clip's.
-      expect(at(33, 340)).toBe('-16px 0');
+      expect(at(33, 340)).toBe('-16px');
       expect(cap).toBe('326px');
       // In a right-to-left page the start edge is the right one.
-      expect(at(33, 340, true)).toBe('-30px 0');
+      expect(at(33, 340, true)).toBe('-30px');
       expect(cap).toBe('326px');
     } finally {
       if (width) Object.defineProperty(window, 'innerWidth', width);
@@ -441,7 +441,7 @@ describe('placePanel', () => {
       Object.defineProperty(f.surface, 'offsetWidth', { value: 300 });
       const action = placePanel(f.surface);
       // 33 + 300 = 333, 5px past 328. Its field's end is too far left to align with.
-      expect(f.surface.style.translate).toBe('-5px 0');
+      expect(f.surface.style.translate).toBe('-5px');
       action.destroy();
     } finally {
       if (width) Object.defineProperty(window, 'innerWidth', width);
@@ -476,18 +476,18 @@ describe('placePanel', () => {
     it('aligns with the end of its anchor before it slides', () => {
       // A 144px date field ending at 1248 and its 272px calendar. Slid by its
       // overflow it started 96px left of the field and ended 32px past it.
-      expect(at([1104, 1248], 272)).toBe('-128px 0');
+      expect(at([1104, 1248], 272)).toBe('-128px');
     });
 
     it('aligns with the start of its anchor in a right-to-left page', () => {
-      expect(at([40, 184], 272, { rtl: true })).toBe('128px 0');
+      expect(at([40, 184], 272, { rtl: true })).toBe('128px');
     });
 
     it('keeps a gap from the edge when neither edge of its anchor fits', () => {
       // 1100px from 200 runs to 1300. Aligned with its anchor's end at 250 it
       // would start off the screen, so it slides, and stops 8px short of the
       // edge rather than on it.
-      expect(at([200, 250], 1100)).toBe('-28px 0');
+      expect(at([200, 250], 1100)).toBe('-28px');
     });
 
     it('stays where it is when it fits', () => {

@@ -72,6 +72,9 @@ test('gives the close cross a 24px target and keeps the glyph in place', async (
 }) => {
   const drawer = await mount(Drawer, { props: { open: true, title: 'Target' } });
   await styleWithKit(page, 'dark');
+  // Each box is read at its own moment, so a panel still moving would put the
+  // glyph and the panel's edge in two different frames. Measure at rest.
+  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
   const cross = drawer.getByRole('dialog').getByRole('button', { name: 'Close' });
   const box = (await cross.boundingBox())!;
   const glyph = (await cross.locator('svg').boundingBox())!;

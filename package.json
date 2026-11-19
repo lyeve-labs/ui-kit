@@ -1,6 +1,6 @@
 {
   "name": "@lyeve-labs/ui-kit",
-  "version": "0.63.1",
+  "version": "0.64.0",
   "description": "A clean, accessible, palette-aware Svelte 5 component library. The design system behind LyEve.",
   "license": "MIT",
   "author": "LyEve Labs <hello@lyeve.com>",
@@ -71,23 +71,23 @@
     "access": "public"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.1",
-    "@lucide/svelte": "^0.511.0",
+    "@axe-core/playwright": "^4.14.0",
+    "@lucide/svelte": "^1.74.0",
     "@playwright/experimental-ct-svelte": "1.58.2",
-    "@sveltejs/package": "^2.5.7",
-    "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "@testing-library/svelte": "^5.3.1",
-    "@vitest/coverage-v8": "^4.1.12",
-    "jsdom": "^25.0.1",
-    "prettier": "^3.8.3",
-    "prettier-plugin-svelte": "^4.0.1",
-    "prettier-plugin-tailwindcss": "^0.8.0",
-    "publint": "^0.2.12",
-    "svelte": "^5.57.2",
-    "svelte-check": "^4.4.8",
-    "tailwindcss": "^4.3.3",
-    "typescript": "^5.9.3",
-    "vite": "^6.4.5",
-    "vitest": "^4.1.12"
+    "@sveltejs/package": "^3.0.3",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@testing-library/svelte": "^5.4.2",
+    "@vitest/coverage-v8": "^5.1.0",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^4.2.0",
+    "prettier-plugin-tailwindcss": "0.8.0",
+    "publint": "^0.3.25",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.8",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
   }
 }

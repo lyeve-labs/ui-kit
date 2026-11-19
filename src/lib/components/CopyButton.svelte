@@ -95,8 +95,10 @@
     role="generic"
     aria-live="polite"
     aria-atomic="true"
-    class="text-xs {copier.status === 'failed' ? 'text-danger' : 'text-success'}">{message}</span
+    class="text-xs {copier.status === 'failed' ? 'text-danger' : 'text-success'}"
   >
+    {message}
+  </span>
 </span>
 
 {#snippet button()}
