@@ -268,10 +268,12 @@ describe('the presets', () => {
     document.body.append(node);
     const enter = resolve(collapse(node), 'in');
     vi.unstubAllGlobals();
-    node.remove();
+    // The first frame reads the margins, and a detached node has no computed
+    // style, so the node stays in the page until that frame has run.
     expect(enter.css!(0, 1)).toBe(
       'grid-template-rows: 0fr; overflow: hidden; margin-top: 0px; margin-bottom: 0px',
     );
+    node.remove();
     expect(enter.css!(1, 0)).toBe(
       'grid-template-rows: 1fr; overflow: hidden; margin-top: 8px; margin-bottom: 16px',
     );

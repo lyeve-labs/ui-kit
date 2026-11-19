@@ -5,6 +5,12 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The package is developed, tested and built with the newest Vite, vitest, jsdom, Svelte tooling and Lucide 1. TypeScript stays on 6, the newest line `svelte-check` and `svelte-package` accept. The peer ranges, the components' JavaScript and the type declarations are unchanged. `site.css` is compiled with Tailwind 4.3.5, which writes a few peer selectors and empty fallbacks another way with the same effect.
+
 ## [0.63.1] - 2026-11-18
 
 ### Fixed

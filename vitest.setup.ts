@@ -102,3 +102,14 @@ if (isDom && typeof Element.prototype.getAnimations !== 'function') {
     value: () => [],
   });
 }
+
+// jsdom draws no stylesheet, so a visually hidden span stays inline there,
+// and an accessible name joins inline text without the space a browser keeps
+// around the absolutely positioned span. Tailwind's own rule makes the
+// computed style here what a browser computes.
+if (isDom) {
+  const srOnly = document.createElement('style');
+  srOnly.textContent =
+    '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border-width:0}';
+  document.head.append(srOnly);
+}
