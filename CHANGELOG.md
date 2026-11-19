@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `SegmentedControl` takes `iconOnly`, for a row in a toolbar with no room for words. A segment that carries an icon draws the icon alone in a square segment, and its label stays the segment's accessible name and shows as a hint on hover and on focus. The chosen icon draws its lines heavier, as a chosen label is set in bold, so the choice shows in more than color. A segment with no icon keeps its label.
+- A `SegmentedControl` option takes `marked`, which draws a dot in the segment's corner for a fact about that one option, such as a width at which a selected block has a style of its own. The dot is hidden from a screen reader, so pass the sentence that says what it means through `describedBy`. A mark no longer needs the option's icon, which an icon row draws as the option itself.
+
 ## [0.64.0] - 2026-11-19
 
 ### Added

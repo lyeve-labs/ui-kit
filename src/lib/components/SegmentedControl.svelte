@@ -17,6 +17,13 @@
      * choice in the URL and the control works before any script has loaded.
      */
     href?: string;
+    /**
+     * Draws a dot in the segment's corner, for a fact about this one option,
+     * such as a width at which a selected block has a style of its own. A dot
+     * names nothing, so pass the sentence that says what it means through
+     * `describedBy`.
+     */
+    marked?: boolean;
   }
 </script>
 
@@ -36,6 +43,7 @@
   import { assertLinked, safeHref } from '../internal/href.js';
   import type { IconPx } from '../internal/icon.js';
   import { HIT_AREA } from '../internal/touch.js';
+  import Tooltip from './Tooltip.svelte';
 
   type Size = 'sm' | 'md';
 
@@ -84,6 +92,13 @@
     size?: Size;
     disabled?: boolean;
     class?: string;
+    /**
+     * Draws a segment that carries an icon as the icon alone, for a row in a
+     * toolbar with no room for words. The label stays the segment's accessible
+     * name and shows as a hint on hover and focus. A segment with no icon
+     * keeps its label.
+     */
+    iconOnly?: boolean;
     /** Value mode only. A link segment reports nothing. The page it opens does. */
     onchange?: (value: T) => void;
     /**
@@ -107,6 +122,7 @@
     size = 'md',
     disabled = false,
     class: klass = '',
+    iconOnly = false,
     onchange = undefined,
     noAI = false,
   }: Props = $props();
@@ -150,17 +166,25 @@
    * A segment is never narrower than the control size under a finger, so a
    * short label such as "6h" takes a 44px target across as well, and the hit
    * boxes of two neighbors do not overlap.
+   *
+   * A segment drawn as its icon alone is square: its padding across is the
+   * room the row leaves above and below the icon.
    */
-  const SIZES: Record<Size, { row: string; segment: string; stack: string; icon: IconPx }> = {
+  const SIZES: Record<
+    Size,
+    { row: string; segment: string; bare: string; stack: string; icon: IconPx }
+  > = {
     sm: {
       row: 'h-8 coarse:min-h-control',
       segment: 'gap-1.5 px-2.5 text-xs',
+      bare: 'px-1.5 text-xs',
       stack: 'min-h-6.5 coarse:min-h-control',
       icon: 14,
     },
     md: {
       row: 'h-control',
       segment: 'gap-2 px-3 text-sm',
+      bare: 'px-2 text-sm',
       stack: 'min-h-8 coarse:min-h-control',
       icon: 16,
     },
@@ -186,9 +210,9 @@
    * stacked segment is as tall as a segment in the row.
    *
    * The width is read from the row while it lies flat, since a stack is as
-   * wide as its container and says nothing about the labels. New labels are
-   * read flat again. A container with no width yet, inside a closed panel,
-   * is read when it opens.
+   * wide as its container and says nothing about the labels. New labels, or a
+   * switch between words and icons, are read flat again. A container with no
+   * width yet, inside a closed panel, is read when it opens.
    *
    * The field may shrink below its row (min-w-0), and a stack keeps the row's
    * width as its own, capped by the field. A flex row or a grid column sizes
@@ -216,6 +240,7 @@
   $effect(() => {
     const wrap = rootEl?.parentElement;
     void labels;
+    void iconOnly;
     if (rootEl === undefined || !wrap || typeof ResizeObserver === 'undefined') return;
     stacked = false;
     rootEl.style.width = '';
@@ -369,49 +394,61 @@
     {#each options as option, i (option.value)}
       {@const selected = option.value === value}
       {@const Icon = option.icon}
+      {@const bare = iconOnly && Icon !== undefined}
       {@const segment =
         `${HIT_AREA} inline-flex coarse:min-w-control items-center justify-center whitespace-nowrap rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus disabled:cursor-not-allowed ` +
-        SIZES[size].segment +
+        (bare ? `${SIZES[size].bare} flex-1` : SIZES[size].segment) +
         (stacked ? ` ${SIZES[size].stack}` : '') +
         (selected
           ? ' bg-brand/12 text-brand'
           : ' text-muted not-disabled:not-aria-disabled:hover:text-fg not-disabled:not-aria-disabled:active:bg-surface not-disabled:not-aria-disabled:active:text-fg')}
       {#snippet content()}
         {#if Icon}
-          <Icon size={SIZES[size].icon} class="shrink-0" />
+          <!-- With no label to set in bold, the chosen icon draws its lines
+               heavier, so the choice still shows in more than color. -->
+          <Icon size={SIZES[size].icon} class="shrink-0{bare && selected ? ' stroke-[2.5]' : ''}" />
         {/if}
-        <span class="grid text-center">
-          <!-- The bold copy holds the width of the heaviest state in every
+        {#if bare}
+          <span class="sr-only">{option.label}</span>
+        {:else}
+          <span class="grid text-center">
+            <!-- The bold copy holds the width of the heaviest state in every
                segment. Weight alone would resize the segment the selection
                lands on, and the whole row would shuffle under the pointer as
                the user moved along it. -->
-          <span class="invisible col-start-1 row-start-1 font-semibold" aria-hidden="true">
-            {option.label}
+            <span class="invisible col-start-1 row-start-1 font-semibold" aria-hidden="true">
+              {option.label}
+            </span>
+            <span class="col-start-1 row-start-1 {selected ? 'font-semibold' : 'font-normal'}">
+              {option.label}
+            </span>
           </span>
-          <span class="col-start-1 row-start-1 {selected ? 'font-semibold' : 'font-normal'}">
-            {option.label}
-          </span>
-        </span>
+        {/if}{#if option.marked}<span
+            data-mark
+            class="absolute end-px top-px size-1.5 rounded-full bg-brand"
+            aria-hidden="true"
+          ></span>{/if}
       {/snippet}
-      {#if linked}
-        <!--
+      {#snippet control()}
+        {#if linked}
+          <!--
           A plain anchor with no click handler, so the choice is a navigation
           the browser performs on its own. A disabled row drops the hrefs: an
           anchor with no href is not a link, and aria-disabled says why.
         -->
-        <a
-          data-segment
-          href={disabled ? undefined : safeHref(option.href)}
-          aria-current={selected ? 'page' : undefined}
-          aria-disabled={disabled ? 'true' : undefined}
-          tabindex={disabled ? -1 : i === tabStop ? 0 : -1}
-          onkeydown={(e) => onSegmentKeydown(e, i)}
-          class="{segment} {disabled ? 'cursor-not-allowed' : ''}"
-        >
-          {@render content()}
-        </a>
-      {:else}
-        <!--
+          <a
+            data-segment
+            href={disabled ? undefined : safeHref(option.href)}
+            aria-current={selected ? 'page' : undefined}
+            aria-disabled={disabled ? 'true' : undefined}
+            tabindex={disabled ? -1 : i === tabStop ? 0 : -1}
+            onkeydown={(e) => onSegmentKeydown(e, i)}
+            class="{segment} {disabled ? 'cursor-not-allowed' : ''}"
+          >
+            {@render content()}
+          </a>
+        {:else}
+          <!--
           Each segment is a radio, and aria-checked is what a screen reader
           reads. The theme picker this replaces was a row of plain buttons whose
           choice was carried by a background color alone, so a screen reader
@@ -419,19 +456,29 @@
           selected segment also sits at a heavier weight, so the state survives
           a palette a reader cannot separate.
         -->
-        <button
-          data-segment
-          type="button"
-          role="radio"
-          aria-checked={selected}
-          tabindex={i === tabStop ? 0 : -1}
-          {disabled}
-          onclick={() => choose(i)}
-          onkeydown={(e) => onSegmentKeydown(e, i)}
-          class={segment}
-        >
-          {@render content()}
-        </button>
+          <button
+            data-segment
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            tabindex={i === tabStop ? 0 : -1}
+            {disabled}
+            onclick={() => choose(i)}
+            onkeydown={(e) => onSegmentKeydown(e, i)}
+            class={segment}
+          >
+            {@render content()}
+          </button>
+        {/if}
+      {/snippet}
+      <!-- The hint repeats the name the hidden label gives the segment, so it
+           does not describe the segment a second time. -->
+      {#if bare}
+        <Tooltip text={option.label} describe={false} class={stacked ? 'w-full' : ''}>
+          {@render control()}
+        </Tooltip>
+      {:else}
+        {@render control()}
       {/if}
     {/each}
   </div>
