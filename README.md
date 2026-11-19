@@ -277,12 +277,12 @@ root:
 | ---------- | --------- | ---------- | ----------------- |
 | `#ffffff`  | 18.46:1   | 1.00:1     | 18.46:1           |
 | `#00d4ff`  | 10.43:1   | 1.77:1     | 10.43:1           |
-| `#7a7a7a`  | 4.30:1    | 4.29:1     | 4.30:1            |
+| `#0a8791`  | 4.29:1    | 4.29:1     | 4.29:1            |
 | `#005a77`  | 2.40:1    | 7.70:1     | 7.70:1            |
 | `#0b1422`  | 1.00:1    | 18.46:1    | 18.46:1           |
 
-A mid tone such as `#7a7a7a` is the worst case, at 4.30:1, so on any background
-one line clears 3:1. Both variables are emitted whether or not a class names
+A mid tone such as `#0a8791` is the worst case: it reads 4.297:1 against both
+lines, so on any background one line reads 4.29:1 or more and clears 3:1. Both variables are emitted whether or not a class names
 them, so an SVG stroke or a canvas can read `var(--color-selection-dark)`
 directly.
 

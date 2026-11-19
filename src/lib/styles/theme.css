@@ -812,9 +812,10 @@ html[data-theme='light'] {
  * The two read 18.46:1 against each other. On a background as dark as the
  * dark one or darker, the light one reads 18.46:1 or more. On any lighter
  * background the two ratios multiply to exactly 18.46, so the larger is at
- * least its square root, 4.30:1. On any background one line clears 3:1. The
- * worst case is a mid tone whose luminance sits where the two ratios meet,
- * such as #0a8791 or #7a7a7a.
+ * least its square root, 4.297:1, written 4.29:1 so it is never overstated.
+ * On any background one line clears 3:1. The worst case is a mid tone whose
+ * luminance sits where the two ratios meet, such as #0a8791, which reads
+ * 4.297:1 against both lines.
  *
  * Declared once, here and in no theme or scheme block, so a theme change
  * cannot reach them. Static, so the variables are emitted even when no class
