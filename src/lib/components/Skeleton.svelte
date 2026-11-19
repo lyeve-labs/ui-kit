@@ -22,21 +22,24 @@
   }: Props = $props();
 </script>
 
-<!-- The block stays hidden, because a reader hears nothing from a shape. A
-     label is read from a plain element rather than role="status": Orca reads
-     nothing inside a status region. Each branch draws the block, so an
-     unlabeled skeleton renders the one element it always has. -->
-{#snippet block()}
+<!-- A label is read from a plain element rather than role="status": Orca reads
+     nothing inside a status region. The words sit inside the block, so a
+     labeled skeleton is still one element and takes the margin or border a
+     space-y or divide-y stack gives its children. A wrapper with
+     display: contents would be one node too, but a stack's margin and border
+     land on that wrapper, which draws no box. Without a label the block is
+     hidden, because a reader hears nothing from a shape. -->
+{#if label}
+  <div
+    class="animate-pulse bg-surface-2 {rounded} {klass}"
+    style="width: {width}; height: {height};"
+  >
+    <span class="sr-only">{label}</span>
+  </div>
+{:else}
   <div
     class="animate-pulse bg-surface-2 {rounded} {klass}"
     style="width: {width}; height: {height};"
     aria-hidden="true"
   ></div>
-{/snippet}
-
-{#if label}
-  {@render block()}
-  <span class="sr-only">{label}</span>
-{:else}
-  {@render block()}
 {/if}

@@ -29,13 +29,29 @@ describe('Skeleton', () => {
     expect(container.textContent).toBe('');
   });
 
-  it('names the wait to a screen reader with a label, and keeps the block hidden', () => {
-    const { container } = render(Skeleton, { props: { label: 'Loading webhooks' } });
+  it('names the wait to a screen reader with a label', () => {
+    render(Skeleton, { props: { label: 'Loading webhooks' } });
     const words = screen.getByText('Loading webhooks');
     expect(words.className).toBe('sr-only');
     expect(words.closest('[aria-hidden="true"]')).toBeNull();
     expect(words.closest('[role]')).toBeNull();
-    expect(container.firstElementChild!.getAttribute('aria-hidden')).toBe('true');
-    expect(container.firstElementChild!.textContent).toBe('');
+  });
+
+  it('stays one element with a label, so a stack spaces it as one child', () => {
+    const { container } = render(Skeleton, {
+      props: { label: 'Loading webhooks', width: '200px', rounded: 'rounded-full' },
+    });
+    expect(container.children).toHaveLength(1);
+    // Svelte's anchors are comments and empty text, which draw nothing. A
+    // space between two elements would.
+    const drawn = [...container.childNodes].filter(
+      (n) => n.nodeType === Node.ELEMENT_NODE || (n.nodeType === Node.TEXT_NODE && n.textContent),
+    );
+    expect(drawn).toHaveLength(1);
+    const block = container.firstElementChild as HTMLElement;
+    expect(block.className).toContain('animate-pulse');
+    expect(block.className).toContain('rounded-full');
+    expect(block.style.width).toBe('200px');
+    expect(block.textContent).toBe('Loading webhooks');
   });
 });
