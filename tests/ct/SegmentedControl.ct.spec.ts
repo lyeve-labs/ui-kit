@@ -9,6 +9,7 @@ import { test, expect, type Locator, type Page } from '@playwright/experimental-
 import { fileURLToPath } from 'node:url';
 import SegmentedControl from '../../src/lib/components/SegmentedControl.svelte';
 import SegmentedFitStory from './SegmentedFitStory.svelte';
+import SegmentedIconsStory from './SegmentedIconsStory.svelte';
 import { styleWithKit } from './kit-css.js';
 
 const SOURCE = fileURLToPath(
@@ -149,4 +150,52 @@ test.describe('SegmentedControl press', () => {
       });
     }
   }
+});
+
+test.describe('SegmentedControl drawn as icons', () => {
+  for (const size of ['sm', 'md'] as const) {
+    test(`draws ${size} segments square, one row as tall as the words would be`, async ({
+      mount,
+      page,
+    }) => {
+      await styled(await mount(SegmentedIconsStory, { props: { size } }), page);
+      const segs = await page
+        .locator('[data-segment]')
+        .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect));
+      expect(segs).toHaveLength(4);
+      expect(new Set(segs.map((s) => Math.round(s.top))).size).toBe(1);
+      for (const s of segs) expect(Math.abs(s.width - s.height)).toBeLessThanOrEqual(1);
+      const row = (await page.getByRole('radiogroup', { name: 'Width' }).boundingBox())!;
+      expect(row.height).toBe(size === 'sm' ? 32 : 38);
+    });
+  }
+
+  test('names a segment on hover and on keyboard focus', async ({ mount, page }) => {
+    await styled(await mount(SegmentedIconsStory), page);
+    const tablet = page.getByRole('radio', { name: 'Tablet' });
+    await tablet.hover();
+    await expect(page.getByText('Tablet', { exact: true }).last()).toBeVisible();
+    await page.mouse.move(0, 0);
+    await page.getByRole('radio', { name: 'Full width' }).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.getByTestId('value')).toHaveText('desktop');
+    await expect(page.getByText('Desktop', { exact: true }).last()).toBeVisible();
+  });
+
+  test('draws the chosen icon heavier and the mark inside its segment', async ({ mount, page }) => {
+    await styled(await mount(SegmentedIconsStory), page);
+    const stroke = (name: string) =>
+      page
+        .getByRole('radio', { name })
+        .locator('svg')
+        .evaluate((el) => getComputedStyle(el).strokeWidth);
+    expect(await stroke('Full width')).toBe('2.5px');
+    expect(await stroke('Desktop')).toBe('2px');
+    const tablet = (await page.getByRole('radio', { name: 'Tablet' }).boundingBox())!;
+    const dot = (await page.locator('[data-mark]').boundingBox())!;
+    expect(dot.width).toBe(6);
+    expect(dot.x).toBeGreaterThan(tablet.x);
+    expect(dot.x + dot.width).toBeLessThanOrEqual(tablet.x + tablet.width);
+    expect(dot.y).toBeGreaterThanOrEqual(tablet.y);
+  });
 });
