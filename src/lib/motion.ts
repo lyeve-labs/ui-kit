@@ -206,14 +206,21 @@ export function glide(
   const ms = duration(rung);
   const ease = easing('move');
   let start: number | undefined;
+  // A step may call the stop itself. Canceling alone would miss the frame
+  // asked for after that step returns, so the loop reads this flag instead.
+  let stopped = false;
   let frame = requestAnimationFrame(function next(now) {
     start ??= now;
     const t = ms > 0 ? Math.min(1, (now - start) / ms) : 1;
     step(ease(t));
+    if (stopped) return;
     if (t < 1) frame = requestAnimationFrame(next);
     else done?.();
   });
-  return () => cancelAnimationFrame(frame);
+  return () => {
+    stopped = true;
+    cancelAnimationFrame(frame);
+  };
 }
 
 /**

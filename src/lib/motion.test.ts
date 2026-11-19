@@ -381,6 +381,41 @@ describe('glide', () => {
     }
   });
 
+  it('ends when its own step stops it, and never calls done', () => {
+    clock();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const steps: number[] = [];
+    const done = vi.fn();
+    const stop: () => void = glide(
+      animatable(),
+      'base',
+      (p) => {
+        steps.push(p);
+        if (p > 0) stop();
+      },
+      done,
+    );
+    vi.advanceTimersByTime(FALLBACK.duration.base * 2);
+    expect(steps).toHaveLength(2);
+    expect(done).not.toHaveBeenCalled();
+  });
+
+  it('calls no done when the last step stops it', () => {
+    clock();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const done = vi.fn();
+    const stop: () => void = glide(
+      animatable(),
+      'base',
+      (p) => {
+        if (p === 1) stop();
+      },
+      done,
+    );
+    vi.advanceTimersByTime(FALLBACK.duration.base * 2);
+    expect(done).not.toHaveBeenCalled();
+  });
+
   it('stops where the last frame left it and never calls done', () => {
     clock();
     vi.stubGlobal('matchMedia', () => ({ matches: false }));
