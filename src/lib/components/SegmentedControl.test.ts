@@ -688,3 +688,103 @@ describe('SegmentedControl, field props', () => {
     expect(links[1].getAttribute('aria-current')).toBe('page');
   });
 });
+
+describe('SegmentedControl drawn as icons', () => {
+  const iconOptions = [
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+  ];
+
+  it('draws each icon without its label and keeps the label as the name', () => {
+    const { container, getByRole } = render(SegmentedControl, {
+      props: { label: 'Palette', options: iconOptions, value: 'light', iconOnly: true },
+    });
+    const dark = getByRole('radio', { name: 'Dark' });
+    expect(dark.querySelector('.lucide-moon')).toBeTruthy();
+    expect(dark.querySelector('span.sr-only')?.textContent).toBe('Dark');
+    expect(container.querySelector('span.grid')).toBeNull();
+  });
+
+  it('shows the label as a hint on hover and on focus, without describing the segment twice', async () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: { label: 'Palette', options: iconOptions, value: 'light', iconOnly: true },
+    });
+    const dark = getByRole('radio', { name: 'Dark' });
+    const hint = dark.nextElementSibling as HTMLElement;
+    expect(hint.textContent?.trim()).toBe('Dark');
+    expect(hint.getAttribute('aria-hidden')).toBe('true');
+    expect(dark.hasAttribute('aria-describedby')).toBe(false);
+    expect(hint.className).toContain('invisible');
+    await fireEvent.focusIn(dark);
+    expect(hint.className).not.toContain('invisible');
+    await fireEvent.focusOut(dark);
+    await fireEvent.mouseEnter(dark.parentElement as HTMLElement);
+    expect(hint.className).not.toContain('invisible');
+  });
+
+  it('draws the chosen icon heavier, so the choice shows in more than color', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: { label: 'Palette', options: iconOptions, value: 'dark', iconOnly: true },
+    });
+    const stroke = (name: string) =>
+      getByRole('radio', { name }).querySelector('svg')?.getAttribute('class') ?? '';
+    expect(stroke('Dark')).toContain('stroke-[2.5]');
+    expect(stroke('Light')).not.toContain('stroke-[2.5]');
+  });
+
+  it('draws a square segment, its padding across the room above and below the icon', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: { label: 'Palette', options: iconOptions, value: 'light', iconOnly: true, size: 'sm' },
+    });
+    const classes = getByRole('radio', { name: 'Light' }).className.split(/\s+/);
+    expect(classes).toContain('px-1.5');
+    expect(classes).not.toContain('px-2.5');
+    expect(getByRole('radio', { name: 'Light' }).querySelector('svg')?.getAttribute('width')).toBe(
+      '14',
+    );
+  });
+
+  it('keeps the label of a segment that carries no icon', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: {
+        label: 'Width',
+        options: [{ value: 'full', label: 'Full width' }, ...iconOptions],
+        value: 'full',
+        iconOnly: true,
+      },
+    });
+    const full = getByRole('radio', { name: 'Full width' });
+    expect(full.querySelector('span.grid')).toBeTruthy();
+    expect(full.parentElement?.getAttribute('role')).toBe('radiogroup');
+  });
+
+  it('draws the words as before when it is not asked for icons', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: { label: 'Palette', options: iconOptions, value: 'light' },
+    });
+    const light = getByRole('radio', { name: 'Light' });
+    expect(light.querySelector('span.grid')).toBeTruthy();
+    expect(light.querySelector('span.sr-only')).toBeNull();
+    expect(light.parentElement?.getAttribute('role')).toBe('radiogroup');
+  });
+});
+
+describe('SegmentedControl marks', () => {
+  it('draws a dot on a marked segment and on no other, hidden from a screen reader', () => {
+    const { getByRole } = render(SegmentedControl, {
+      props: {
+        label: 'Width',
+        value: 'desktop',
+        options: [
+          { value: 'desktop', label: 'Desktop' },
+          { value: 'tablet', label: 'Tablet', marked: true },
+        ],
+        describedBy: 'own',
+      },
+    });
+    const dot = getByRole('radio', { name: 'Tablet' }).querySelector('[data-mark]');
+    expect(dot?.getAttribute('aria-hidden')).toBe('true');
+    expect(getByRole('radio', { name: 'Desktop' }).querySelector('[data-mark]')).toBeNull();
+    expect(getByRole('radiogroup').getAttribute('aria-describedby')).toBe('own');
+  });
+});

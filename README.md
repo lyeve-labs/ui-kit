@@ -522,6 +522,31 @@ group keeps it for a screen reader. `FilterChips` draws no caption, and its
 />
 ```
 
+### A choice row in a toolbar
+
+`SegmentedControl` takes `iconOnly` where a row of words does not fit, such as
+an editor's top bar. Each segment that carries an icon draws the icon alone,
+and its label stays the segment's name for a screen reader and shows as a hint
+on hover and focus. An option's `marked` draws a dot in its corner. The dot
+names nothing, so pass the sentence that says what it means through
+`describedBy`.
+
+```svelte
+<SegmentedControl
+  label="Width"
+  labelHidden
+  size="sm"
+  iconOnly
+  bind:value={width}
+  options={[
+    { value: 'desktop', label: 'Desktop', icon: Monitor },
+    { value: 'tablet', label: 'Tablet', icon: Tablet, marked: own.includes('tablet') },
+    { value: 'mobile', label: 'Mobile', icon: Smartphone, marked: own.includes('mobile') },
+  ]}
+  describedBy={own.length > 0 ? 'width-note' : undefined}
+/>
+```
+
 ### Empty states
 
 `EmptyState` renders its title as an h3, for a list inside a section. On a
