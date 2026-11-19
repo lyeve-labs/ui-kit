@@ -1,4 +1,4 @@
-import { render } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Skeleton from './Skeleton.svelte';
 
@@ -20,5 +20,22 @@ describe('Skeleton', () => {
   it('honors a custom rounded class', () => {
     const { container } = render(Skeleton, { props: { rounded: 'rounded-full' } });
     expect((container.firstElementChild as HTMLElement).className).toContain('rounded-full');
+  });
+
+  it('says nothing and draws one hidden block without a label', () => {
+    const { container } = render(Skeleton, { props: {} });
+    expect(container.children).toHaveLength(1);
+    expect(container.firstElementChild!.getAttribute('aria-hidden')).toBe('true');
+    expect(container.textContent).toBe('');
+  });
+
+  it('names the wait to a screen reader with a label, and keeps the block hidden', () => {
+    const { container } = render(Skeleton, { props: { label: 'Loading webhooks' } });
+    const words = screen.getByText('Loading webhooks');
+    expect(words.className).toBe('sr-only');
+    expect(words.closest('[aria-hidden="true"]')).toBeNull();
+    expect(words.closest('[role]')).toBeNull();
+    expect(container.firstElementChild!.getAttribute('aria-hidden')).toBe('true');
+    expect(container.firstElementChild!.textContent).toBe('');
   });
 });
