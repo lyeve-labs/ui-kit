@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `motion.glide`, for a value a stylesheet cannot reach, such as the transform of a view or the place of a node an SVG edge is drawn from. It calls a step once a frame with the share of the move done, on the `base` or `slow` rung and the move curve read from the tokens when it starts, then calls `done`. Under reduced motion, or in a document that plays no animations, it gives the last step and `done` at once. The stop it returns leaves the value where the last frame put it and never calls `done`.
+- `--color-selection-dark` (`#0b1422`) and `--color-selection-light` (`#ffffff`), a pair of colors that stays the same in every theme and scheme, for an outline an app draws over content it does not own, such as a hover or selection ring over a customer's page. Every other color follows the theme, so the brand ring measured 1.77:1 on a white page and 2.40:1 on a near-black one. Drawn as a 1px line of each beside a brand ring, one of the two reads at 4.30:1 or more on any background. Each is a Tailwind color (`ring-selection-dark`, `outline-selection-light`), and both variables are emitted even when no class names them.
 
 ### Changed
 

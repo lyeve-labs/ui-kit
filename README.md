@@ -242,6 +242,50 @@ It reads `#rgb` and `#rrggbb`, and it throws on any other format, on a token
 it does not check and on a theme other than `dark` and `light`, so a typo
 cannot pass.
 
+Every color above follows the theme, which is right for anything the app
+paints itself. An outline the app draws over content it does not own, such as
+a hover or a selection ring over a customer's page, cannot know the colors
+under it, and no theme color reads on all of them: the brand ring measures
+1.77:1 on a white page in the dark theme and 2.40:1 on a near-black page in the
+light theme, where an outline needs 3:1. For that outline the kit declares a
+pair that stays the same in every theme and scheme:
+
+| Token                     | Value     |
+| ------------------------- | --------- |
+| `--color-selection-dark`  | `#0b1422` |
+| `--color-selection-light` | `#ffffff` |
+
+Each is a Tailwind color like the others, so `outline-selection-dark`,
+`ring-selection-light` and `stroke-selection-dark` work as `outline-brand`
+does. Draw the ring in the brand with a 1px line of each inside it, side by
+side, so one of the two always reads:
+
+```svelte
+<div
+  class="pointer-events-none absolute rounded-sm outline-2 outline-brand ring-1 ring-selection-light ring-inset"
+>
+  <div class="absolute inset-px rounded-sm ring-1 ring-selection-dark ring-inset"></div>
+</div>
+```
+
+The two read 18.46:1 against each other. On a background as dark as `#0b1422`
+or darker the light line reads 18.46:1 or more. On any lighter background the
+two ratios multiply to exactly 18.46, so the larger is at least its square
+root:
+
+| Background | Dark line | Light line | Better of the two |
+| ---------- | --------- | ---------- | ----------------- |
+| `#ffffff`  | 18.46:1   | 1.00:1     | 18.46:1           |
+| `#00d4ff`  | 10.43:1   | 1.77:1     | 10.43:1           |
+| `#7a7a7a`  | 4.30:1    | 4.29:1     | 4.30:1            |
+| `#005a77`  | 2.40:1    | 7.70:1     | 7.70:1            |
+| `#0b1422`  | 1.00:1    | 18.46:1    | 18.46:1           |
+
+A mid tone such as `#7a7a7a` is the worst case, at 4.30:1, so on any background
+one line clears 3:1. Both variables are emitted whether or not a class names
+them, so an SVG stroke or a canvas can read `var(--color-selection-dark)`
+directly.
+
 ## A page without a Tailwind build
 
 `styles.css` is Tailwind source, so a page with no Tailwind build of its own
