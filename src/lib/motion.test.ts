@@ -11,6 +11,7 @@ import {
   easing,
   fade,
   FALLBACK,
+  glide,
   popover,
   scrim,
   still,
@@ -315,5 +316,83 @@ describe('the presets', () => {
       const props = [...enter.css!(0.5, 0.5).matchAll(/([a-z-]+):/g)].map((m) => m[1]);
       expect(props.every((p) => p === 'opacity' || p === 'transform')).toBe(true);
     }
+  });
+});
+
+describe('glide', () => {
+  const clock = () =>
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it('moves on the rung and the move curve, and ends exactly where it was sent', () => {
+    clock();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const steps: number[] = [];
+    const done = vi.fn();
+    glide(animatable(), 'base', (p) => steps.push(p), done);
+    expect(steps).toEqual([]);
+    vi.advanceTimersByTime(100);
+    const halfway = steps.at(-1)!;
+    expect(halfway).toBeGreaterThan(0);
+    expect(halfway).toBeLessThan(1);
+    expect(done).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(FALLBACK.duration.base);
+    expect(steps.at(-1)).toBe(1);
+    expect(done).toHaveBeenCalledOnce();
+    // The fake clock draws a frame every 16ms, and each step is the move
+    // curve at the share of the base rung that frame has reached.
+    const move = easing('move');
+    expect(steps).toEqual(
+      steps.map((_, i) => move(Math.min(1, (i * 16) / FALLBACK.duration.base))),
+    );
+  });
+
+  it('takes longer on the slow rung', () => {
+    clock();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const done = vi.fn();
+    glide(animatable(), 'slow', () => {}, done);
+    vi.advanceTimersByTime(FALLBACK.duration.base + 32);
+    expect(done).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(FALLBACK.duration.slow);
+    expect(done).toHaveBeenCalledOnce();
+  });
+
+  it('lands at once for a reader who asked for reduced motion', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce') }));
+    const steps: number[] = [];
+    const done = vi.fn();
+    glide(animatable(), 'slow', (p) => steps.push(p), done);
+    expect(steps).toEqual([1]);
+    expect(done).toHaveBeenCalledOnce();
+  });
+
+  it('lands at once in a document that plays no animations, or with no node', () => {
+    for (const node of [document.createElement('div'), undefined]) {
+      const steps: number[] = [];
+      const done = vi.fn();
+      glide(node, 'base', (p) => steps.push(p), done);
+      expect(steps).toEqual([1]);
+      expect(done).toHaveBeenCalledOnce();
+    }
+  });
+
+  it('stops where the last frame left it and never calls done', () => {
+    clock();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    const steps: number[] = [];
+    const done = vi.fn();
+    const stop = glide(animatable(), 'slow', (p) => steps.push(p), done);
+    vi.advanceTimersByTime(100);
+    stop();
+    const last = steps.at(-1);
+    vi.advanceTimersByTime(FALLBACK.duration.slow * 2);
+    expect(steps.at(-1)).toBe(last);
+    expect(last).toBeLessThan(1);
+    expect(done).not.toHaveBeenCalled();
   });
 });

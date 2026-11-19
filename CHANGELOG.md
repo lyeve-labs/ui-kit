@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `motion.glide`, for a value a stylesheet cannot reach, such as the transform of a view or the place of a node an SVG edge is drawn from. It calls a step once a frame with the share of the move done, on the `base` or `slow` rung and the move curve read from the tokens when it starts, then calls `done`. Under reduced motion, or in a document that plays no animations, it gives the last step and `done` at once. The stop it returns leaves the value where the last frame put it and never calls `done`.
+
 ### Changed
 
 - The package is developed, tested and built with the newest Vite, vitest, jsdom, Svelte tooling and Lucide 1. TypeScript stays on 6, the newest line `svelte-check` and `svelte-package` accept. The peer ranges, the components' JavaScript and the type declarations are unchanged. `site.css` is compiled with Tailwind 4.3.5, which writes a few peer selectors and empty fallbacks another way with the same effect.

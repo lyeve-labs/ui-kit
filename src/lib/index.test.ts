@@ -180,6 +180,7 @@ describe('public API surface (@lyeve-labs/ui-kit)', () => {
     'collapse',
     'reorder',
     'swapPage',
+    'glide',
   ])('exports motion.%s from the package entry', (name) => {
     expect(typeof (kit.motion as Record<string, unknown>)[name]).toBe('function');
   });

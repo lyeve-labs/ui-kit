@@ -372,6 +372,39 @@ old one's place at once:
 </script>
 ```
 
+Some values move where no stylesheet reaches: the transform of a view that
+pans and zooms, or the place of a node that an SVG edge is drawn from. A CSS
+transition on the node alone would leave every edge at the end of the move
+while the node was still on its way. `motion.glide` moves such a value in
+script, on the `base` or `slow` rung and the move curve, read from the tokens
+when it starts. It calls `step` once a frame with the share of the move done,
+from 0 to 1, then calls `done`. A reader who asked for reduced motion, and a
+document that plays no animations, get the last step and `done` at once. It
+returns a stop, which leaves the value where the last frame put it and never
+calls `done`, so a second move can start from there:
+
+```svelte
+<script>
+  import { motion } from '@lyeve-labs/ui-kit';
+
+  let view = $state({ x: 0, y: 0 });
+  let canvas;
+  let stop = () => {};
+
+  function panTo(target) {
+    stop();
+    const from = { ...view };
+    stop = motion.glide(canvas, 'slow', (p) => {
+      view = { x: from.x + (target.x - from.x) * p, y: from.y + (target.y - from.y) * p };
+    });
+  }
+</script>
+
+<svg bind:this={canvas}>
+  <g transform="translate({view.x} {view.y})">...</g>
+</svg>
+```
+
 ## Sizing
 
 Two ladders, both declared as tokens and both read by name.
